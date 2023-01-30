@@ -1,10 +1,8 @@
-const plugin = require('tailwindcss/plugin')
+const plugin = require('tailwindcss/plugin');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     screens: {
       sm: '480px',
@@ -13,14 +11,14 @@ module.exports = {
       xl: '1440px',
     },
     colors: {
-      'blue': '#1fb6ff',
-      'purple': '#7e5bef',
-      'pink': '#ff49db',
-      'orange': '#ff7849',
-      'green': '#13ce66',
-      'yellow': '#ffc82c',
+      blue: '#1fb6ff',
+      purple: '#7e5bef',
+      pink: '#ff49db',
+      orange: '#ff7849',
+      green: '#13ce66',
+      yellow: '#ffc82c',
       'gray-dark': '#273444',
-      'gray': '#8492a6',
+      gray: '#8492a6',
       'gray-light': '#d3dce6',
     },
     fontFamily: {
@@ -29,18 +27,20 @@ module.exports = {
     },
     extend: {
       spacing: {
-        '13': '3.25rem',
-        '15': '3.75rem',
-        '128': '32rem',
-        '144': '36rem',
+        13: '3.25rem',
+        15: '3.75rem',
+        128: '32rem',
+        144: '36rem',
       },
       borderRadius: {
         '4xl': '2rem',
-      }
-    }
+      },
+    },
   },
-  plugins: [require('@tailwindcss/typography'),
+  plugins: [
+    require('@tailwindcss/typography'),
     require('@tailwindcss/forms'),
     require('@tailwindcss/line-clamp'),
-    require('@tailwindcss/aspect-ratio'),],
-}
+    require('@tailwindcss/aspect-ratio'),
+  ],
+};
