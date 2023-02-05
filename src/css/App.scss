@@ -21,6 +21,16 @@ code {
   flex-direction: column;
 }
 
+#title {
+  position: absolute;
+  z-index: 1;
+  font-family: 'Itim', cursive;
+  margin: $padding-xxs $padding-xs;
+  user-select: none;
+  color: $elegant-blue;
+  opacity: $opacity-default;
+}
+
 .react-flow__attribution {
   visibility: hidden;
 

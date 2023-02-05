@@ -34,38 +34,41 @@ const App = () => {
   }, []);
 
   return (
-    <EdgeContext.Provider
-      value={
-        {
-          nodes,
-          edges,
-          onConnect,
-          setNodes,
-          onNodesChange,
-        } as EdgeContextProps
-      }
-    >
-      <ReactFlow
-        // basic
-        nodes={nodes}
-        edges={edges}
-        // edgeTypes={edgeTypes}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        // flow view
-        style={reactFlowWrapperStyle}
-        fitView={true}
-        snapGrid={[15, 15]}
-        attributionPosition="top-right"
-        // edge specs
-        elevateEdgesOnSelect={true}
+    <>
+      <p id="title">Graphologue</p>
+      <EdgeContext.Provider
+        value={
+          {
+            nodes,
+            edges,
+            onConnect,
+            setNodes,
+            onNodesChange,
+          } as EdgeContextProps
+        }
       >
-        <MiniMap />
-        {/* <Controls /> */}
-        <Background />
-      </ReactFlow>
-    </EdgeContext.Provider>
+        <ReactFlow
+          // basic
+          nodes={nodes}
+          edges={edges}
+          // edgeTypes={edgeTypes}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          // flow view
+          style={reactFlowWrapperStyle}
+          fitView={true}
+          snapGrid={[15, 15]}
+          attributionPosition="top-right"
+          // edge specs
+          elevateEdgesOnSelect={true}
+        >
+          <MiniMap />
+          {/* <Controls /> */}
+          <Background />
+        </ReactFlow>
+      </EdgeContext.Provider>
+    </>
   );
 };
 
