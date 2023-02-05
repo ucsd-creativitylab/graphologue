@@ -1,0 +1,187 @@
+$black: #333;
+$dark-grey: #666;
+$dark-mid-grey: #777;
+$grey: #999;
+$light-grey: #cfcfcf;
+$light: #efefef;
+$white: #fff;
+
+$elegant-red: #e23e57;
+$elegant-yellow: #f0a33f;
+$elegant-green: #00b8a9;
+$elegant-blue: #008ddf;
+
+$pink: #ff06b7;
+$blue: #008be8;
+$red: #ff4d00;
+$cine: #00aeaa;
+$green: #13a600;
+$purple: #57068c;
+
+$error-red-x-light: #ffd8d8;
+$error-red-light: #ef7373;
+$error-red: #f70f0f;
+$error-red-dark: #9b0000;
+
+$warn-yellow-x-light: #ffe8bb;
+$warn-yellow-light: #eec77a;
+$warn-yellow: #ffaa00;
+$warn-yellow-dark: #c08000;
+
+/* -------------------------------------------------------------------------- */
+
+$opacity-default: 0.9;
+$opacity-mid: 0.75;
+$opacity-high: 0.5;
+$opacity-xh: 0.3;
+$opacity-xxh: 0.15;
+$opacity-xxx-h: 0.1;
+
+/* -------------------------------------------------------------------------- */
+
+$radius-xs: 0.15rem;
+$radius-small: 0.25rem;
+$radius-default: 0.375rem;
+$radius-large: 0.5rem;
+
+// PADDING
+$padding-xxs: 0.125rem;
+$padding-xs: 0.25rem;
+$padding-small: 0.5rem;
+$padding-mid: 0.9rem;
+$padding-large: 1rem;
+$padding-x-large: 1.5rem;
+$padding-xx-large: 2rem;
+$padding-xxx-large: 4rem;
+
+$scrollbar-width: $padding-xs;
+$scrollbar-width-large: $padding-small;
+
+// FONT
+$font-size-xs: 0.5rem;
+$font-size-small: 0.675rem;
+$font-size-default: 0.75rem;
+$font-size-large: 1rem;
+$font-size-x-large: 1.25rem;
+$font-size-xx-large: 1.5rem;
+
+$font-weight-thin: 400;
+$font-weight-default: 500;
+$font-weight-bold: 700;
+
+$transition-fast: 100ms;
+$transition-normal: 300ms;
+$transition-normal-slow: 500ms;
+$transition-slow: 700ms;
+$transition-highlight: 3000ms;
+
+$outline-light: 1px solid $light-grey;
+$outline-dark: 1px solid $black;
+
+$outline-highlight: 1px solid $elegant-red;
+
+$blur-small: 2px;
+$blur-default: 3px;
+$blur-high: 5px;
+$blur-xh: 7px;
+
+/* -------------------------------------------------------------------------- */
+
+$rem-to-px: 16;
+
+@function unit-rem-to-px($value) {
+  @return calc($value / $rem-to-px);
+}
+
+/* -------------------------------------------------------------------------- */
+
+@keyframes select-text {
+  to {
+    user-select: text;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+
+.disabled {
+  pointer-events: none !important;
+  opacity: $opacity-high !important;
+}
+
+.up-front {
+  z-index: 999999999 !important;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.cursor-crosshair {
+  cursor: crosshair !important;
+}
+
+.cursor-grab {
+  cursor: grab !important;
+}
+
+.cursor-grabbing {
+  cursor: grabbing !important;
+}
+
+.no-pointer-events {
+  pointer-events: none !important;
+
+  * {
+    pointer-events: none !important;
+  }
+}
+
+.trans-fast {
+  transition: all $transition-fast;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* -------------------------------------------------------------------------- */
+
+@mixin font-fixed {
+  font-family: 'Inconsolata', 'Courier New', Courier, monospace !important;
+}
+
+.font-fixed-width {
+  @include font-fixed;
+}
+
+.font-bold {
+  font-weight: $font-weight-bold !important;
+}
+
+.font-thin {
+  font-weight: $font-weight-thin !important;
+}
+
+/* -------------------------------------------------------------------------- */
+
+@mixin scrollbar($track-width, $track-color, $thumb-color, $thumb-color-hover) {
+  /* width */
+  &::-webkit-scrollbar {
+    width: $track-width;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: $track-color;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: $thumb-color;
+  }
+
+  /* Handle on hover */
+  &::-webkit-scrollbar-thumb:hover {
+    background: $thumb-color-hover;
+  }
+}

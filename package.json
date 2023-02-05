@@ -5,21 +5,17 @@
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
-    "@headlessui/react": "^1.7.8",
-    "@heroicons/react": "^2.0.14",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.6",
-    "@mui/styled-engine-sc": "^5.11.0",
     "@react-buddy/ide-toolbox": "^2.3.1",
     "@react-buddy/palette-mui": "^5.0.1",
     "axios": "^1.2.6",
-    "cors": "^2.8.5",
     "openai": "^3.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-draggable": "^4.4.5",
     "react-flow-renderer": "^10.3.17",
     "reactflow": "^11.5.1",
+    "sass": "^1.58.0",
     "styled-components": "^5.3.6"
   },
   "scripts": {
@@ -48,10 +44,6 @@
     ]
   },
   "devDependencies": {
-    "@tailwindcss/aspect-ratio": "^0.4.2",
-    "@tailwindcss/forms": "^0.5.3",
-    "@tailwindcss/line-clamp": "^0.4.2",
-    "@tailwindcss/typography": "^0.5.9",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
@@ -63,7 +55,6 @@
     "lint-staged": "^13.1.0",
     "prettier": "^2.8.3",
     "react-scripts": "^5.0.1",
-    "tailwindcss": "^3.2.4",
     "typescript": "^4.9.4"
   },
   "lint-staged": {

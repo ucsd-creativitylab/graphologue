@@ -7,14 +7,15 @@ import ReactFlow, {
   Controls,
   Background,
 } from 'reactflow';
-import Grid from '@mui/material/Grid';
-// import Paper from '@mui/material/Paper';
 
 import { EdgeData } from './components/Edge';
 import { NodeData } from './components/Node';
 import { EdgeContext, EdgeContextProps } from './components/EdgeContext';
 
-import 'reactflow/dist/style.css';
+const reactFlowWrapperStyle = {
+  width: '100%',
+  height: '100%',
+} as React.CSSProperties;
 
 const defaultNodes: NodeData[] = [];
 const defaultEdges: EdgeData[] = [];
@@ -33,41 +34,38 @@ const App = () => {
   }, []);
 
   return (
-    <Grid container>
-      <Grid item xs={12}>
-        <div style={{ width: '1500px', height: '700px' }}>
-          <EdgeContext.Provider
-            value={
-              {
-                nodes,
-                edges,
-                onConnect,
-                setNodes,
-                onNodesChange,
-              } as EdgeContextProps
-            }
-          >
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              snapToGrid={true}
-              // edgeTypes={edgeTypes}
-              fitView
-              attributionPosition="top-right"
-              // data
-              // setNodes={setNodes}
-            >
-              <MiniMap />
-              <Controls />
-              <Background />
-            </ReactFlow>
-          </EdgeContext.Provider>
-        </div>
-      </Grid>
-    </Grid>
+    <EdgeContext.Provider
+      value={
+        {
+          nodes,
+          edges,
+          onConnect,
+          setNodes,
+          onNodesChange,
+        } as EdgeContextProps
+      }
+    >
+      <ReactFlow
+        // basic
+        nodes={nodes}
+        edges={edges}
+        // edgeTypes={edgeTypes}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        // flow view
+        style={reactFlowWrapperStyle}
+        fitView={true}
+        snapGrid={[15, 15]}
+        attributionPosition="top-right"
+        // edge specs
+        elevateEdgesOnSelect={true}
+      >
+        <MiniMap />
+        {/* <Controls /> */}
+        <Background />
+      </ReactFlow>
+    </EdgeContext.Provider>
   );
 };
 

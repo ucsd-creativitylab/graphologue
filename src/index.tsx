@@ -4,7 +4,9 @@ import { DevSupport } from '@react-buddy/ide-toolbox';
 
 import App from './App';
 
-import './css/index.css';
+// ! the only css imports in ts/x files
+import './css/index.scss';
+import 'reactflow/dist/style.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 
