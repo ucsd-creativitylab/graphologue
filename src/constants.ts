@@ -1,1 +1,1 @@
-export const debug = true;
+export const transitionDuration = 500

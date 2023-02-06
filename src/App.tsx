@@ -1,42 +1,101 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, BaseSyntheticEvent } from 'react'
 import ReactFlow, {
+  useReactFlow,
   useNodesState,
   useEdgesState,
   addEdge,
   MiniMap,
-  Controls,
   Background,
-} from 'reactflow';
+  SelectionMode,
+  EdgeTypes,
+  ReactFlowInstance,
+  ReactFlowProvider,
+} from 'reactflow'
 
-import { EdgeData } from './components/Edge';
-import { NodeData } from './components/Node';
-import { EdgeContext, EdgeContextProps } from './components/EdgeContext';
+import { CustomEdge, EdgeData } from './components/Edge'
+import { NodeData } from './components/Node'
+import { CustomControls } from './components/CustomControl'
 
 const reactFlowWrapperStyle = {
   width: '100%',
   height: '100%',
-} as React.CSSProperties;
+} as React.CSSProperties
 
-const defaultNodes: NodeData[] = [];
-const defaultEdges: EdgeData[] = [];
+const defaultNodes: NodeData[] = []
+const defaultEdges: EdgeData[] = []
 
-// const edgeTypes = {
-//   custom: CustomEdge,
-// };
+const edgeTypes = {
+  custom: CustomEdge,
+} as EdgeTypes
 
-const App = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(defaultNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(defaultEdges);
+const Flow = () => {
+  const {
+    fitView,
+    fitBounds,
+    addNodes,
+    getNodes,
+    setViewport,
+    getViewport,
+  }: ReactFlowInstance = useReactFlow()
 
-  const onConnect = useCallback((params: any) => {
-    console.log(params);
-    setEdges((e) /* edges */ => addEdge(params, e));
-  }, []);
+  const [nodes, setNodes, onNodesChange] = useNodesState(defaultNodes)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(defaultEdges)
+
+  const onConnect = useCallback(
+    (params: any) => {
+      console.log(params)
+      setEdges(eds => addEdge(params, eds))
+    },
+    [setEdges]
+  )
+
+  const onPaneContextMenu = useCallback((e: BaseSyntheticEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('onPaneContextMenu')
+  }, [])
 
   return (
-    <>
-      <p id="title">Graphologue</p>
-      <EdgeContext.Provider
+    <ReactFlow
+      // basic
+      nodes={nodes}
+      edges={edges}
+      edgeTypes={edgeTypes}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      // flow view
+      style={reactFlowWrapperStyle}
+      fitView={true}
+      attributionPosition="top-right"
+      // edge specs
+      elevateEdgesOnSelect={true}
+      // viewport control
+      panOnScroll={true}
+      selectionOnDrag={true}
+      panOnDrag={[1, 2]}
+      selectionMode={SelectionMode.Partial}
+      //
+      onPaneContextMenu={onPaneContextMenu}
+    >
+      <MiniMap pannable={true} />
+      <CustomControls
+        fitView={fitView}
+        fitBounds={fitBounds}
+        addNodes={addNodes}
+        getNodes={getNodes}
+        setViewport={setViewport}
+        getViewport={getViewport}
+      />
+      <Background color="#777" />
+    </ReactFlow>
+  )
+}
+
+const App = () => {
+  return (
+    <ReactFlowProvider>
+      {/* <EdgeContext.Provider
         value={
           {
             nodes,
@@ -46,30 +105,10 @@ const App = () => {
             onNodesChange,
           } as EdgeContextProps
         }
-      >
-        <ReactFlow
-          // basic
-          nodes={nodes}
-          edges={edges}
-          // edgeTypes={edgeTypes}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          // flow view
-          style={reactFlowWrapperStyle}
-          fitView={true}
-          snapGrid={[15, 15]}
-          attributionPosition="top-right"
-          // edge specs
-          elevateEdgesOnSelect={true}
-        >
-          <MiniMap />
-          {/* <Controls /> */}
-          <Background />
-        </ReactFlow>
-      </EdgeContext.Provider>
-    </>
-  );
-};
+      ></EdgeContext.Provider> */}
+      <Flow />
+    </ReactFlowProvider>
+  )
+}
 
-export default App;
+export default App

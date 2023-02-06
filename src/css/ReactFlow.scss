@@ -1,0 +1,37 @@
+.react-flow {
+  .react-flow__handle {
+  }
+
+  .react-flow__controls {
+    display: flex;
+    flex-direction: row;
+    white-space: nowrap;
+    align-items: center;
+    overflow: hidden;
+
+    border-radius: $radius-default;
+    background: $white;
+  }
+
+  .react-flow__controls-button {
+    justify-content: center;
+    gap: $padding-xs;
+    height: fit-content;
+    width: fit-content;
+    padding: $padding-small $padding-mid;
+    border-bottom: none;
+
+    * {
+      font-size: $font-size-default;
+    }
+
+    #title {
+      z-index: 1;
+      // font-family: 'Quicksand', sans-serif;
+      font-weight: 600;
+      user-select: none;
+      font-size: $font-size-default;
+      color: $elegant-blue;
+    }
+  }
+}
