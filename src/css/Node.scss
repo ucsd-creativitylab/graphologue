@@ -1,0 +1,70 @@
+$shadow-node-selected: $shadow-heavy;
+
+.react-flow__node {
+  user-select: none;
+  border: none;
+  // z-index: -1 !important; // edges on top of the nodes
+
+  .customNodeBody {
+    display: flex !important;
+    align-items: center;
+    justify-content: start;
+    padding: 0;
+    background: $white;
+    border: none;
+    border-radius: $radius-default;
+    overflow: hidden;
+
+    box-shadow: $shadow-default; // !
+    outline: unit-rem-to-px(2rem) solid transparent;
+    outline-offset: unit-rem-to-px(0);
+    transition: box-shadow $transition-fast, outline $transition-fast,
+      outline-offset $transition-fast;
+
+    &.customNodeMetaPressed {
+      box-shadow: $light-grey 0 0 unit-rem-to-px(0) unit-rem-to-px(2rem) !important;
+    }
+  }
+
+  .customNodeContent {
+    width: 100%;
+    height: 100%;
+    padding: $padding-mid $padding-xx-large;
+    background: $white;
+
+    color: $black;
+    font-size: $font-size-default;
+    font-weight: $font-weight-thin;
+    font-style: italic;
+
+    &.customNodeContentTarget {
+      pointer-events: none;
+    }
+  }
+
+  .customHandle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transform: none;
+    border: none;
+    border-radius: 0 !important;
+    background: $light-grey;
+    opacity: 0;
+    // z-index: 2;
+  }
+
+  &.selected {
+    .customNodeBody {
+      box-shadow: $shadow-node-selected;
+      outline: unit-rem-to-px(2rem) solid rgba($red, $opacity-mid);
+      outline-offset: unit-rem-to-px(2rem);
+    }
+
+    // .customNodeContent {
+    //   font-weight: $font-weight-default;
+    // }
+  }
+}

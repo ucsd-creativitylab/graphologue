@@ -2,6 +2,7 @@ import { Node, Position } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
 export const getNodeId = () => `node-${uuidv4()}`
+export const getHandleId = () => `handle-${uuidv4()}`
 export const getEdgeId = () => `edge-${uuidv4()}`
 
 /* -------------------------------------------------------------------------- */

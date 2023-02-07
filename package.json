@@ -19,8 +19,8 @@
     "uuid": "^9.0.0"
   },
   "scripts": {
-    "start": "REACT_APP_DEV_IDE=jet react-scripts start",
-    "start:code": "REACT_APP_DEV_IDE=code react-scripts start",
+    "start": "REACT_APP_DEV_IDE=code react-scripts start",
+    "start:jet": "REACT_APP_DEV_IDE=jet react-scripts start",
     "build": "react-scripts build",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,html,scss}\"",
     "prepare": "husky install"

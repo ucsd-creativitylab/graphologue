@@ -1,0 +1,22 @@
+$edge-color-stroke: #aaa;
+$edge-stroke-width: 2px;
+
+.react-flow__edge {
+  .react-flow__edge-path {
+    stroke: $edge-color-stroke;
+    stroke-width: $edge-stroke-width;
+    // stroke-linecap: round;
+
+    transition: stroke $transition-fast, stroke-width $transition-fast;
+  }
+
+  // ! selected
+  &.selected,
+  &:focus,
+  &:focus-visible {
+    .react-flow__edge-path {
+      stroke: rgba($red, $opacity-mid) !important;
+      // stroke-width: 2;
+    }
+  }
+}

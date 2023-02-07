@@ -1,16 +1,17 @@
 .react-flow {
-  .react-flow__handle {
-  }
+  user-select: none;
 
   .react-flow__controls {
     display: flex;
     flex-direction: row;
     white-space: nowrap;
     align-items: center;
-    overflow: hidden;
+    // overflow: hidden;
 
     border-radius: $radius-default;
     background: $white;
+
+    box-shadow: $shadow-default;
   }
 
   .react-flow__controls-button {
@@ -19,10 +20,28 @@
     height: fit-content;
     width: fit-content;
     padding: $padding-small $padding-mid;
-    border-bottom: none;
+    border: none !important;
+    border-radius: $radius-default;
 
     * {
       font-size: $font-size-default;
+    }
+
+    &.tips-button {
+      cursor: help;
+    }
+
+    .control-button-tips-icon {
+      width: $font-size-default;
+      height: $font-size-default;
+      transform: scale(1.1);
+      fill: $light-grey;
+      transition: fill $transition-normal;
+    }
+
+    .control-button-tips {
+      color: $grey;
+      font-weight: $font-weight-bold;
     }
 
     #title {
@@ -33,5 +52,54 @@
       font-size: $font-size-default;
       color: $elegant-blue;
     }
+
+    .control-button-tooltip {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      gap: $padding-small;
+
+      position: absolute;
+      top: 120%;
+      padding: $padding-small !important;
+      border-radius: $radius-small;
+      width: max-content;
+
+      background: rgba($dark-grey, $opacity-high);
+      backdrop-filter: blur($blur-high);
+      color: $white;
+
+      transition: opacity $transition-normal;
+      opacity: 0;
+      visibility: none;
+      z-index: -1;
+
+      .tooltip-line {
+        display: flex;
+        flex-direction: row;
+        gap: $padding-xs;
+        align-items: center;
+      }
+    }
+
+    &:hover {
+      .control-button-tooltip {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .control-button-tips-icon {
+        fill: $elegant-yellow;
+      }
+
+      .control-button-tips {
+        color: $grey;
+      }
+    }
+  }
+
+  .react-flow__nodesselection-rect {
+    box-sizing: border-box;
   }
 }

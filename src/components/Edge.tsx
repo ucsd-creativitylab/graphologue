@@ -1,52 +1,110 @@
-import { useCallback } from 'react'
-import { getBezierPath, MarkerType, useStore } from 'reactflow'
+import { memo, useCallback } from 'react'
+import {
+  ConnectionLineComponent,
+  ConnectionLineComponentProps,
+  DefaultEdgeOptions,
+  EdgeProps,
+  getStraightPath,
+  MarkerType,
+  useStore,
+} from 'reactflow'
+import { styles } from '../constants'
+import { getMarkerId } from './CustomDefs'
 import { getEdgeParams } from './utils'
 
 /* -------------------------------------------------------------------------- */
 
-export interface EdgeData {
-  id: string
-  source: string
-  target: string
-  animated: boolean
-  data: { label: string }
-  markerEnd: MarkerType.ArrowClosed | MarkerType.Arrow
+export type CustomEdgeData = {
+  label: string
+  className?: string
 }
 
-export const CustomEdge = ({
-  id,
-  source,
-  target,
-  animated,
-  data,
-  markerEnd,
-}: EdgeData) => {
-  const sourceNode = useStore(
-    useCallback(store => store.nodeInternals.get(source), [source])
-  )
-  const targetNode = useStore(
-    useCallback(store => store.nodeInternals.get(target), [target])
-  )
+export const CustomEdge = memo(
+  ({ id, source, target, animated, data, markerEnd, selected }: EdgeProps) => {
+    const sourceNode = useStore(
+      useCallback(store => store.nodeInternals.get(source), [source])
+    )
+    const targetNode = useStore(
+      useCallback(store => store.nodeInternals.get(target), [target])
+    )
 
-  if (!sourceNode || !targetNode) {
-    return null
+    if (!sourceNode || !targetNode) return null
+
+    const { sx, sy, tx, ty } = getEdgeParams(sourceNode, targetNode)
+    const [edgePath] = getStraightPath({
+      sourceX: sx,
+      sourceY: sy,
+      targetX: tx,
+      targetY: ty,
+    })
+
+    return (
+      <path
+        id={id}
+        className={`react-flow__edge-path${selected ? ' path-selected' : ''}${
+          data.className ? ` ${data.className}` : ''
+        }`}
+        d={edgePath}
+        markerEnd={
+          selected
+            ? `url(#${getMarkerId(styles.edgeColorStrokeSelected)})`
+            : (markerEnd as string)
+        }
+      />
+    )
   }
+)
 
-  const { sx, sy, tx, ty } = getEdgeParams(sourceNode, targetNode)
-
-  const [edgePath] = getBezierPath({
-    sourceX: sx,
-    sourceY: sy,
-    targetX: tx,
-    targetY: ty,
+export const CustomConnectionLine = ({
+  fromX,
+  fromY,
+  toX,
+  toY,
+  connectionLineStyle,
+}: ConnectionLineComponentProps): any => {
+  const [edgePath] = getStraightPath({
+    sourceX: fromX,
+    sourceY: fromY,
+    targetX: toX,
+    targetY: toY,
   })
 
   return (
-    <path
-      id={id}
-      className="react-flow__edge-path"
-      d={edgePath}
-      markerEnd={markerEnd}
-    />
-  )
+    <g>
+      <path
+        style={{
+          ...connectionLineStyle,
+          stroke: `${styles.edgeColorStrokeDefault}99`,
+        }}
+        fill="none"
+        strokeLinecap="round"
+        d={edgePath}
+      />
+      {/* <circle
+        cx={toX}
+        cy={toY}
+        fill={styles.edgeColorStrokeDefault}
+        r={1}
+        stroke={styles.edgeColorStrokeDefault}
+        strokeWidth={styles.edgeWidth}
+      /> */}
+    </g>
+  ) as unknown as ConnectionLineComponent
 }
+
+export const customConnectionLineStyle = {
+  strokeWidth: styles.edgeWidth,
+  stroke: styles.edgeColorStrokeDefault,
+}
+
+export const customEdgeOptions = {
+  type: 'custom',
+  animated: false,
+  markerEnd: {
+    type: MarkerType.ArrowClosed,
+    width: styles.edgeMarkerSize,
+    height: styles.edgeMarkerSize,
+    color: styles.edgeColorStrokeDefault,
+  },
+  labelStyle: { fill: styles.edgeColorLabelDefault },
+} as DefaultEdgeOptions

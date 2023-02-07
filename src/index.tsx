@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { DevSupport } from '@react-buddy/ide-toolbox'
 
-import App from './App'
+import ReactFlowComponent from './ReactFlowComponent'
 
 // ! the only css imports in ts/x files
 import './css/index.scss'
@@ -13,7 +13,7 @@ const root = ReactDOM.createRoot(document.getElementById('root')!)
 if (process.env.REACT_APP_DEV_IDE === 'code')
   root.render(
     <React.StrictMode>
-      <App />
+      <ReactFlowComponent />
     </React.StrictMode>
   )
 else if (process.env.REACT_APP_DEV_IDE === 'jet') {
@@ -28,7 +28,7 @@ else if (process.env.REACT_APP_DEV_IDE === 'jet') {
           ComponentPreviews={ComponentPreviews}
           useInitialHook={useInitialHook}
         >
-          <App />
+          <ReactFlowComponent />
         </DevSupport>
       </React.StrictMode>
     )

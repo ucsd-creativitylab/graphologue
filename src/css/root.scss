@@ -6,6 +6,8 @@ $light-grey: #cfcfcf;
 $light: #efefef;
 $white: #fff;
 
+$cold-grey: #88a5bf;
+
 $elegant-red: #e23e57;
 $elegant-yellow: #f0a33f;
 $elegant-green: #00b8a9;
@@ -93,6 +95,13 @@ $rem-to-px: 16;
   @return calc($value / $rem-to-px);
 }
 
+$shadow-default: rgba($cold-grey, 0.36) 0 unit-rem-to-px(2rem)
+    unit-rem-to-px(8rem) unit-rem-to-px(1rem),
+  rgba($white, 0.5) 0 0 unit-rem-to-px(8rem) unit-rem-to-px(4rem);
+$shadow-heavy: rgba($cold-grey, 0.6) 0 unit-rem-to-px(2rem)
+    unit-rem-to-px(10rem) unit-rem-to-px(1rem),
+  rgba($white, 0.5) 0 0 unit-rem-to-px(12rem) unit-rem-to-px(4rem);
+
 /* -------------------------------------------------------------------------- */
 
 @keyframes select-text {
@@ -128,7 +137,7 @@ $rem-to-px: 16;
   cursor: grabbing !important;
 }
 
-.no-pointer-events {
+.pointer-events-no {
   pointer-events: none !important;
 
   * {
