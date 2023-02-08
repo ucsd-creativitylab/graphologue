@@ -15,7 +15,7 @@ import {
   deepCopyStoredData,
   deepCopyStoredDataList,
 } from './storage'
-import { transitionDuration } from '../constants'
+import { timeMachineMaxSize, transitionDuration } from '../constants'
 
 // a fully copilot generated function
 export const useTimeMachine = (
@@ -96,6 +96,9 @@ export const useTimeMachine = (
         ...past.current,
         timeMachinePresent.current,
       ])
+      // if past is too long, remove the oldest
+      if (past.current.length > timeMachineMaxSize) past.current.shift()
+
       timeMachinePresent.current = deepCopyStoredData(newPresent)
       future.current = []
     }

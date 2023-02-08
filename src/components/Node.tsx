@@ -103,6 +103,7 @@ export const customAddNodes = (
       editing: true,
     } as CustomNodeData,
     position: { x, y },
+    selected: true,
     width: 160, // ! are you sure?
     height: 43, // ! are you sure?
   } as Node

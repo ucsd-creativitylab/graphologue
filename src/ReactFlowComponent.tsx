@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  BaseSyntheticEvent,
-  useEffect,
-  useRef,
-} from 'react'
+import React, { useCallback, BaseSyntheticEvent, useEffect } from 'react'
 import ReactFlow, {
   useReactFlow,
   useNodesState,
@@ -20,6 +15,7 @@ import ReactFlow, {
   Edge,
   Connection,
   EdgeMarker,
+  Viewport,
 } from 'reactflow'
 
 import {
@@ -32,7 +28,7 @@ import {
 import { CustomNode, CustomNodeData } from './components/Node'
 import { CustomControls } from './components/CustomControl'
 import { CustomMarkerDefs } from './components/CustomDefs'
-import { styles } from './constants'
+import { styles, transitionDuration, viewFittingPadding } from './constants'
 import { FlowContext } from './components/Contexts'
 import { getItem, storeItem } from './components/storage'
 import { useTimeMachine } from './components/timeMachine'
@@ -62,15 +58,24 @@ const Flow = () => {
     setViewport,
     addEdges,
     toObject,
+    fitView,
   }: ReactFlowInstance = thisReactFlowInstance
 
   // use default nodes and edges
   const [nodes, , onNodesChange] = useNodesState(defaultNodes)
   const [edges, , onEdgesChange] = useEdgesState(defaultEdges)
 
+  // fit to view on page load
+  useEffect(() => {
+    fitView({
+      duration: transitionDuration,
+      padding: viewFittingPadding,
+    })
+  }, [fitView])
+
   /* -------------------------------------------------------------------------- */
   // ! internal states
-  const anyNodeDragging = useRef(false)
+  // const anyNodeDragging = useRef(false)
   const { setTime, undoTime, redoTime, canUndo, canRedo } = useTimeMachine(
     toObject(),
     setNodes,
@@ -81,7 +86,8 @@ const Flow = () => {
 
   // ! store to session storage and push to time machine
   useEffect(() => {
-    if (anyNodeDragging.current) return
+    const dragging = nodes.find((nd: Node) => nd.dragging)
+    if (dragging) return
 
     // if text editing then don't store
     const editing = nodes.find((nd: Node) => nd.data.editing)
@@ -168,11 +174,11 @@ const Flow = () => {
   )
 
   const handleNodeDragStart = useCallback(() => {
-    anyNodeDragging.current = true
+    // anyNodeDragging.current = true
   }, [])
 
   const handleNodeDragStop = useCallback(() => {
-    anyNodeDragging.current = false
+    // anyNodeDragging.current = false
   }, [])
 
   /* -------------------------------------------------------------------------- */
