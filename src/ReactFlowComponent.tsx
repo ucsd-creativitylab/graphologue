@@ -15,7 +15,6 @@ import ReactFlow, {
   Edge,
   Connection,
   EdgeMarker,
-  Viewport,
 } from 'reactflow'
 
 import {
