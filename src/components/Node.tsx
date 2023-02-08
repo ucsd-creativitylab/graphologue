@@ -86,7 +86,6 @@ export const CustomNode = memo(
 
 export const customAddNodes = (
   addNodes: Instance.AddNodes<Node>,
-  getNodes: Instance.GetNodes<undefined>,
   x: number,
   y: number,
   label = randomPhrases(),
@@ -97,25 +96,24 @@ export const customAddNodes = (
     id: getNodeId(),
     type: 'custom', // ! use custom node
     data: {
-      label: label,
+      label: '',
       sourceHandleId: getHandleId(),
       targetHandleId: getHandleId(),
       metaPressed: false,
       editing: true,
     } as CustomNodeData,
     position: { x, y },
+    width: 160, // ! are you sure?
+    height: 43, // ! are you sure?
   } as Node
 
   addNodes(newNode)
 
-  if (toFitView && fitView)
-    setTimeout(() => {
+  setTimeout(() => {
+    if (toFitView && fitView)
       fitView({
         padding: viewFittingPadding,
         duration: transitionDuration,
       })
-
-      // ! store in session storage
-      // storeItem('node', JSON.stringify(getNodes()))
-    }, 0)
+  }, 0)
 }

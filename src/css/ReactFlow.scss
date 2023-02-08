@@ -28,6 +28,18 @@
       font-size: $font-size-default;
     }
 
+    &.disabled-control-button {
+      pointer-events: none;
+
+      path {
+        opacity: $opacity-high;
+      }
+
+      span {
+        opacity: $opacity-xh;
+      }
+    }
+
     &.tips-button {
       cursor: help;
     }

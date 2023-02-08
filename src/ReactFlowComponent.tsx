@@ -35,14 +35,16 @@ import { CustomMarkerDefs } from './components/CustomDefs'
 import { styles } from './constants'
 import { FlowContext } from './components/Contexts'
 import { getItem, storeItem } from './components/storage'
+import { useTimeMachine } from './components/timeMachine'
 
 const reactFlowWrapperStyle = {
   width: '100%',
   height: '100%',
 } as React.CSSProperties
 
-const defaultNodes = getItem('node') as Node[]
-const defaultEdges = getItem('edge') as Edge[]
+const storedData = getItem()
+const defaultNodes = storedData.nodes as Node[]
+const defaultEdges = storedData.edges as Edge[]
 
 const nodeTypes = {
   custom: CustomNode,
@@ -55,38 +57,39 @@ const edgeTypes = {
 const Flow = () => {
   const thisReactFlowInstance = useReactFlow()
   const {
-    fitView,
-    fitBounds,
-    addNodes,
     setNodes,
-    getNodes,
-    addEdges,
+    setEdges,
     setViewport,
-    getViewport,
-    deleteElements,
+    addEdges,
+    toObject,
   }: ReactFlowInstance = thisReactFlowInstance
 
+  // use default nodes and edges
   const [nodes, , onNodesChange] = useNodesState(defaultNodes)
   const [edges, , onEdgesChange] = useEdgesState(defaultEdges)
 
   /* -------------------------------------------------------------------------- */
   // ! internal states
   const anyNodeDragging = useRef(false)
+  const { setTime, undoTime, redoTime, canUndo, canRedo } = useTimeMachine(
+    toObject(),
+    setNodes,
+    setEdges,
+    setViewport
+  )
   /* -------------------------------------------------------------------------- */
 
-  // store to session storage
+  // store to session storage and push to time machine
   useEffect(() => {
     if (anyNodeDragging.current) return
-    storeItem('node', JSON.stringify(nodes))
-  }, [nodes])
-
-  useEffect(() => {
-    if (anyNodeDragging.current) return
-    storeItem('edge', JSON.stringify(edges))
-  }, [edges])
+    storeItem(toObject(), setTime)
+  }, [nodes, edges, toObject, setTime])
 
   // keys
-  const metaPressed = useKeyPress('Meta')
+  const metaPressed = useKeyPress(['Meta', 'Alt'])
+  // const undoPressed = useKeyPress('Meta+z')
+  // const redoPressed = useKeyPress('Meta+x')
+
   useEffect(() => {
     setNodes((nds: Node[]) => {
       return nds.map(nd => {
@@ -100,6 +103,14 @@ const Flow = () => {
       })
     })
   }, [metaPressed, setNodes])
+
+  // useEffect(() => {
+  //   if (undoPressed && canUndo) undoTime()
+  // }, [undoPressed, canUndo, undoTime])
+
+  // useEffect(() => {
+  //   if (redoPressed && canRedo) redoTime()
+  // }, [redoPressed, canRedo, redoTime])
 
   // ! on connect
   const onConnect = useCallback(
@@ -236,13 +247,13 @@ const Flow = () => {
           }}
         />
         <CustomControls
-          fitView={fitView}
-          fitBounds={fitBounds}
-          addNodes={addNodes}
-          getNodes={getNodes}
-          setViewport={setViewport}
-          getViewport={getViewport}
-          deleteElements={deleteElements}
+          nodes={nodes}
+          edges={edges}
+          undoTime={undoTime}
+          redoTime={redoTime}
+          setTime={setTime}
+          canUndo={canUndo}
+          canRedo={canRedo}
         />
         <Background color="#008ddf" />
       </ReactFlow>

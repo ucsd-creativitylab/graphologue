@@ -15,6 +15,7 @@ if (process.env.REACT_APP_DEV_IDE === 'code')
       <ReactFlowComponent />
     </React.StrictMode>
   )
+// root.render(<ReactFlowComponent />)
 else if (process.env.REACT_APP_DEV_IDE === 'jet') {
   // ! only try to load react-buddy related components whn the dev ide is IntelliJ
   // import('./dev').then(m => {
