@@ -251,7 +251,6 @@ const Flow = () => {
           edges={edges}
           undoTime={undoTime}
           redoTime={redoTime}
-          setTime={setTime}
           canUndo={canUndo}
           canRedo={canRedo}
         />

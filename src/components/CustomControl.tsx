@@ -1,11 +1,5 @@
 import React, { memo, useCallback, useContext } from 'react'
-import {
-  ControlButton,
-  Controls,
-  Edge,
-  Node,
-  ReactFlowJsonObject,
-} from 'reactflow'
+import { ControlButton, Controls, Edge, Node } from 'reactflow'
 
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import GridOnRoundedIcon from '@mui/icons-material/GridOnRounded'
@@ -31,7 +25,6 @@ type CustomControlsProps = {
   edges: Edge[]
   undoTime: () => void
   redoTime: () => void
-  setTime: (data: ReactFlowJsonObject) => void
   canRedo: boolean
   canUndo: boolean
 }
@@ -41,13 +34,10 @@ export const CustomControls = memo(
     edges,
     undoTime,
     redoTime,
-    setTime,
     canUndo,
     canRedo,
   }: CustomControlsProps) => {
     const {
-      setNodes,
-      setEdges,
       setViewport,
       fitView,
       fitBounds,
