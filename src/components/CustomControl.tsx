@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import React, { useCallback } from 'react'
 import {
   ControlButton,
   Controls,
@@ -87,7 +87,7 @@ export const CustomControls = (props: CustomControlsProps) => {
       showZoom={false}
       showInteractive={false}
       showFitView={false}
-      position="top-center"
+      position="top-left"
     >
       <ControlButton className="title-button" onClick={handleSetViewport}>
         <span id="title">Graphologue</span>

@@ -1,6 +1,5 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { DevSupport } from '@react-buddy/ide-toolbox'
 
 import ReactFlowComponent from './ReactFlowComponent'
 
@@ -18,21 +17,20 @@ if (process.env.REACT_APP_DEV_IDE === 'code')
   )
 else if (process.env.REACT_APP_DEV_IDE === 'jet') {
   // ! only try to load react-buddy related components whn the dev ide is IntelliJ
-  import('./dev').then(m => {
-    const ComponentPreviews = m.ComponentPreviews
-    const useInitialHook = m.useInitial
-
-    root.render(
-      <React.StrictMode>
-        <DevSupport
-          ComponentPreviews={ComponentPreviews}
-          useInitialHook={useInitialHook}
-        >
-          <ReactFlowComponent />
-        </DevSupport>
-      </React.StrictMode>
-    )
-  })
+  // import('./dev').then(m => {
+  //   const ComponentPreviews = m.ComponentPreviews
+  //   const useInitialHook = m.useInitial
+  //   root.render(
+  //     <React.StrictMode>
+  //       <DevSupport
+  //         ComponentPreviews={ComponentPreviews}
+  //         useInitialHook={useInitialHook}
+  //       >
+  //         <ReactFlowComponent />
+  //       </DevSupport>
+  //     </React.StrictMode>
+  //   )
+  // })
 }
 
 // If you want to start measuring performance in your app, pass a function

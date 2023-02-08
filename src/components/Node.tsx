@@ -9,12 +9,9 @@ import {
   ReactFlowState,
   NodeProps,
 } from 'reactflow'
-import {
-  transitionDuration,
-  useSessionStorage,
-  useSessionStorageNodesHandle,
-} from '../constants'
+import { transitionDuration } from '../constants'
 import randomPhrases from './randomPhrases'
+import { SuperTextEditor } from './SuperTextEditor'
 import { getHandleId, getNodeId } from './utils'
 
 export type CustomNodeData = {
@@ -22,6 +19,8 @@ export type CustomNodeData = {
   sourceHandleId: string
   targetHandleId: string
   metaPressed: boolean
+  // states
+  editing: boolean
 }
 
 /* -------------------------------------------------------------------------- */
@@ -30,7 +29,7 @@ const connectionNodeIdSelector = (state: ReactFlowState) =>
   state.connectionNodeId
 
 export const CustomNode = memo(({ id, data, xPos, yPos }: NodeProps) => {
-  const { label, sourceHandleId, targetHandleId, metaPressed } =
+  const { label, sourceHandleId, targetHandleId, metaPressed, editing } =
     data as CustomNodeData
   const connectionNodeId = useStore(connectionNodeIdSelector)
 
@@ -67,13 +66,19 @@ export const CustomNode = memo(({ id, data, xPos, yPos }: NodeProps) => {
           zIndex: metaPressed ? 0 : 4,
         }}
       >
-        <span>{label}</span>
+        <SuperTextEditor
+          target="node"
+          targetId={id}
+          content={label}
+          editable={editing}
+        />
       </div>
     </div>
   )
 })
 
 /* -------------------------------------------------------------------------- */
+// ! add node
 
 export const customAddNodes = (
   addNodes: Instance.AddNodes<Node>,
@@ -92,6 +97,7 @@ export const customAddNodes = (
       sourceHandleId: getHandleId(),
       targetHandleId: getHandleId(),
       metaPressed: false,
+      editing: true,
     } as CustomNodeData,
     position: { x, y },
   } as Node
@@ -105,10 +111,6 @@ export const customAddNodes = (
       })
 
       // ! store in session storage
-      if (useSessionStorage)
-        sessionStorage.setItem(
-          useSessionStorageNodesHandle,
-          JSON.stringify(getNodes())
-        )
+      // storeItem('node', JSON.stringify(getNodes()))
     }, 0)
 }
