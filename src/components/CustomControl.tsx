@@ -10,6 +10,8 @@ import {
   SetViewport,
 } from 'reactflow'
 
+import AddBoxRoundedIcon from '@mui/icons-material/AddBoxRounded'
+import CleaningServicesRoundedIcon from '@mui/icons-material/CleaningServicesRounded'
 import LightbulbRoundedIcon from '@mui/icons-material/LightbulbRounded'
 import LaptopChromebookRoundedIcon from '@mui/icons-material/LaptopChromebookRounded'
 import FitScreenRoundedIcon from '@mui/icons-material/FitScreenRounded'
@@ -17,6 +19,10 @@ import SwipeRoundedIcon from '@mui/icons-material/SwipeRounded'
 import KeyboardCommandKeyRoundedIcon from '@mui/icons-material/KeyboardCommandKeyRounded'
 // import MouseRoundedIcon from '@mui/icons-material/MouseRounded'
 import EditRoundedIcon from '@mui/icons-material/EditRounded'
+import UndoRoundedIcon from '@mui/icons-material/UndoRounded'
+import RedoRoundedIcon from '@mui/icons-material/RedoRounded'
+import TheatersRoundedIcon from '@mui/icons-material/TheatersRounded'
+import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded'
 
 import { customAddNodes } from './Node'
 import { getGraphBounds } from './utils'
@@ -24,6 +30,7 @@ import {
   transitionDuration,
   useSessionStorageEdgesHandle,
   useSessionStorageNodesHandle,
+  viewFittingPadding,
 } from '../constants'
 
 type CustomControlsProps = {
@@ -49,7 +56,7 @@ export const CustomControls = (props: CustomControlsProps) => {
 
     const graphBonds = getGraphBounds(nodes)
     props.fitBounds(graphBonds, {
-      padding: 0.1,
+      padding: viewFittingPadding,
       duration: transitionDuration,
     })
   }, [props, _returnToOrigin])
@@ -100,11 +107,49 @@ export const CustomControls = (props: CustomControlsProps) => {
       </ControlButton>
 
       <ControlButton onClick={handleAddNode}>
+        <AddBoxRoundedIcon />
         <span>add node</span>
       </ControlButton>
 
       <ControlButton onClick={handleClearCanvas}>
+        <CleaningServicesRoundedIcon />
         <span>clear canvas</span>
+      </ControlButton>
+
+      <ControlButton onClick={handleClearCanvas}>
+        <UndoRoundedIcon />
+        <span>undo</span>
+        <ControlButtonTooltip>
+          <TooltipLine>
+            <KeyboardCommandKeyRoundedIcon /> + z
+          </TooltipLine>
+        </ControlButtonTooltip>
+      </ControlButton>
+
+      <ControlButton onClick={handleClearCanvas}>
+        <RedoRoundedIcon />
+        <span>redo</span>
+        <ControlButtonTooltip>
+          <TooltipLine>
+            <KeyboardCommandKeyRoundedIcon /> + shift + z
+          </TooltipLine>
+        </ControlButtonTooltip>
+      </ControlButton>
+
+      <ControlButton onClick={() => {}}>
+        <TheatersRoundedIcon />
+        <span>examples</span>
+        <ControlButtonTooltip>
+          <TooltipLine>coming soon</TooltipLine>
+        </ControlButtonTooltip>
+      </ControlButton>
+
+      <ControlButton onClick={() => {}}>
+        <FileDownloadRoundedIcon />
+        <span>save</span>
+        <ControlButtonTooltip>
+          <TooltipLine>coming soon</TooltipLine>
+        </ControlButtonTooltip>
       </ControlButton>
 
       <ControlButton className="tips-button">

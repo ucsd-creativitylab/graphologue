@@ -8,6 +8,7 @@
     align-items: center;
     // overflow: hidden;
 
+    padding: $padding-xs;
     border-radius: $radius-default;
     background: $white;
 
@@ -31,10 +32,19 @@
       cursor: help;
     }
 
+    &:not(.tips-button) {
+      :not(.control-button-tooltip) {
+        path {
+          color: $dark-grey;
+        }
+      }
+    }
+
     .control-button-tips-icon {
       width: $font-size-default;
       height: $font-size-default;
       transform: scale(1.1);
+      transform-origin: center;
       fill: $light-grey;
       transition: fill $transition-normal;
     }
@@ -80,6 +90,10 @@
         flex-direction: row;
         gap: $padding-xs;
         align-items: center;
+
+        path {
+          fill: $white;
+        }
       }
     }
 

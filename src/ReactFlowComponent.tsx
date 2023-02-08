@@ -130,6 +130,9 @@ const Flow = () => {
 
   const handleNodeDoubleClick = useCallback(
     (e: BaseSyntheticEvent, node: Node) => {
+      e.preventDefault()
+      e.stopPropagation()
+
       setNodes((nds: Node[]) => {
         return nds.map((nd: Node) => {
           if (node.id !== nd.id) return nd
@@ -222,12 +225,13 @@ const Flow = () => {
         />
         <MiniMap
           pannable={true}
-          nodeStrokeColor={n => {
-            if (n.selected) return styles.edgeColorStrokeSelected
-            else return 'none'
-          }}
+          // nodeStrokeColor={n => {
+          //   if (n.selected) return styles.edgeColorStrokeSelected
+          //   else return 'none'
+          // }}
           nodeColor={n => {
-            if (n.data.editing) return `#ff06b766`
+            if (n.data.editing) return `#ff06b7aa`
+            else if (n.selected) return `${styles.edgeColorStrokeSelected}aa`
             else return '#cfcfcf'
           }}
         />

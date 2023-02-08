@@ -9,7 +9,7 @@ import {
   ReactFlowState,
   NodeProps,
 } from 'reactflow'
-import { transitionDuration } from '../constants'
+import { transitionDuration, viewFittingPadding } from '../constants'
 import randomPhrases from './randomPhrases'
 import { SuperTextEditor } from './SuperTextEditor'
 import { getHandleId, getNodeId } from './utils'
@@ -28,54 +28,58 @@ export type CustomNodeData = {
 const connectionNodeIdSelector = (state: ReactFlowState) =>
   state.connectionNodeId
 
-export const CustomNode = memo(({ id, data, xPos, yPos }: NodeProps) => {
-  const { label, sourceHandleId, targetHandleId, metaPressed, editing } =
-    data as CustomNodeData
-  const connectionNodeId = useStore(connectionNodeIdSelector)
+export const CustomNode = memo(
+  ({ id, data, xPos, yPos, selected }: NodeProps) => {
+    const { label, sourceHandleId, targetHandleId, metaPressed, editing } =
+      data as CustomNodeData
+    const connectionNodeId = useStore(connectionNodeIdSelector)
 
-  // is the node being source of an ongoing new connection?
-  const isTarget = connectionNodeId && connectionNodeId !== id
+    // is the node being source of an ongoing new connection?
+    const isTarget = connectionNodeId && connectionNodeId !== id
 
-  return (
-    <div
-      className={`customNodeBody${metaPressed ? ' customNodeMetaPressed' : ''}`}
-    >
-      <Handle
-        id={targetHandleId}
-        className="customHandle targetHandle"
-        position={Position.Right}
-        type="target"
-        style={{
-          zIndex: isTarget ? 3 : 1,
-        }}
-      />
-      <Handle
-        id={sourceHandleId}
-        className="customHandle sourceHandle"
-        position={Position.Left}
-        type="source"
-        style={{
-          zIndex: 2,
-        }}
-      />
+    return (
       <div
-        className={`customNodeContent${
-          isTarget ? ' customNodeContentTarget' : ''
+        className={`customNodeBody${
+          metaPressed ? ' customNodeMetaPressed' : ''
         }`}
-        style={{
-          zIndex: metaPressed ? 0 : 4,
-        }}
       >
-        <SuperTextEditor
-          target="node"
-          targetId={id}
-          content={label}
-          editable={editing}
+        <Handle
+          id={targetHandleId}
+          className="customHandle targetHandle"
+          position={Position.Right}
+          type="target"
+          style={{
+            zIndex: isTarget ? 3 : 1,
+          }}
         />
+        <Handle
+          id={sourceHandleId}
+          className="customHandle sourceHandle"
+          position={Position.Left}
+          type="source"
+          style={{
+            zIndex: 2,
+          }}
+        />
+        <div
+          className={`customNodeContent${
+            isTarget ? ' customNodeContentTarget' : ''
+          }`}
+          style={{
+            zIndex: metaPressed ? 0 : 4,
+          }}
+        >
+          <SuperTextEditor
+            target="node"
+            targetId={id}
+            content={label}
+            editable={editing}
+          />
+        </div>
       </div>
-    </div>
-  )
-})
+    )
+  }
+)
 
 /* -------------------------------------------------------------------------- */
 // ! add node
@@ -107,6 +111,7 @@ export const customAddNodes = (
   if (toFitView && fitView)
     setTimeout(() => {
       fitView({
+        padding: viewFittingPadding,
         duration: transitionDuration,
       })
 

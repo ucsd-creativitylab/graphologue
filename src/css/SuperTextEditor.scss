@@ -1,4 +1,5 @@
 .super-wrapper {
+  // https://css-tricks.com/auto-growing-inputs-textareas/
   display: inline-grid;
   vertical-align: middle; // top?
   align-items: stretch;
@@ -12,7 +13,7 @@
   &::after,
   .super-text-editor {
     width: auto;
-    // height: auto;
+    height: auto;
     min-width: 1rem; // ?
     // max-width: 12rem;
     grid-area: 1 / 1 / 1 / 1;
