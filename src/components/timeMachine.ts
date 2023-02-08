@@ -54,8 +54,6 @@ export const useTimeMachine = (
         past.current.slice(0, past.current.length - 1)
       )
 
-      console.log(deepCopyNodes(newPresent.nodes))
-
       setNodes(deepCopyNodes(newPresent.nodes))
       setEdges(deepCopyEdges(newPresent.edges))
       setViewport(
@@ -79,8 +77,6 @@ export const useTimeMachine = (
       timeMachinePresent.current = newPresent
       future.current = deepCopyStoredDataList(future.current.slice(1))
 
-      console.log(deepCopyNodes(newPresent.nodes))
-
       setNodes(deepCopyNodes(newPresent.nodes))
       setEdges(deepCopyEdges(newPresent.edges))
       setViewport(
@@ -96,8 +92,6 @@ export const useTimeMachine = (
     if (timeTraveling.current) return (timeTraveling.current = false)
 
     if (!equalDataAcrossTime(newPresent, timeMachinePresent.current)) {
-      console.log('KKK')
-
       past.current = deepCopyStoredDataList([
         ...past.current,
         timeMachinePresent.current,
