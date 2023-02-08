@@ -22,7 +22,7 @@ export const SuperTextEditor = ({
   editable,
 }: SuperTextEditorProps) => {
   const flow = useContext(FlowContext) as ReactFlowInstance
-  const { setNodes, getNodes } = flow
+  const { setNodes } = flow
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   useEffect(() => {

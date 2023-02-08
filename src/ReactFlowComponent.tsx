@@ -61,15 +61,13 @@ const Flow = () => {
     setNodes,
     getNodes,
     addEdges,
-    setEdges,
-    getEdges,
     setViewport,
     getViewport,
     deleteElements,
   }: ReactFlowInstance = thisReactFlowInstance
 
-  const [nodes, setNodesState, onNodesChange] = useNodesState(defaultNodes)
-  const [edges, setEdgesState, onEdgesChange] = useEdgesState(defaultEdges)
+  const [nodes, , onNodesChange] = useNodesState(defaultNodes)
+  const [edges, , onEdgesChange] = useEdgesState(defaultEdges)
 
   /* -------------------------------------------------------------------------- */
   // ! internal states
@@ -150,40 +148,31 @@ const Flow = () => {
     [setNodes]
   )
 
-  const handleNodeDragStart = useCallback(
-    (e: BaseSyntheticEvent, node: Node) => {
-      anyNodeDragging.current = true
-    },
-    []
-  )
+  const handleNodeDragStart = useCallback(() => {
+    anyNodeDragging.current = true
+  }, [])
 
-  const handleNodeDragStop = useCallback(
-    (e: BaseSyntheticEvent, node: Node) => {
-      anyNodeDragging.current = false
-    },
-    []
-  )
+  const handleNodeDragStop = useCallback(() => {
+    anyNodeDragging.current = false
+  }, [])
 
   /* -------------------------------------------------------------------------- */
   // ! pane
 
-  const handlePaneClick = useCallback(
-    (e: BaseSyntheticEvent) => {
-      setNodes((nds: Node[]) => {
-        return nds.map((nd: Node) => {
-          if (!nd.data.editing) return nd
-          return {
-            ...nd,
-            data: {
-              ...nd.data,
-              editing: false,
-            } as CustomNodeData,
-          } as Node
-        })
+  const handlePaneClick = useCallback(() => {
+    setNodes((nds: Node[]) => {
+      return nds.map((nd: Node) => {
+        if (!nd.data.editing) return nd
+        return {
+          ...nd,
+          data: {
+            ...nd.data,
+            editing: false,
+          } as CustomNodeData,
+        } as Node
       })
-    },
-    [setNodes]
-  )
+    })
+  }, [setNodes])
 
   // const handlePaneContextMenu = useCallback((e: BaseSyntheticEvent) => {
   //   e.preventDefault()
