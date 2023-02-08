@@ -79,9 +79,14 @@ const Flow = () => {
   )
   /* -------------------------------------------------------------------------- */
 
-  // store to session storage and push to time machine
+  // ! store to session storage and push to time machine
   useEffect(() => {
     if (anyNodeDragging.current) return
+
+    // if text editing then don't store
+    const editing = nodes.find((nd: Node) => nd.data.editing)
+    if (editing) return
+
     storeItem(toObject(), setTime)
   }, [nodes, edges, toObject, setTime])
 
