@@ -1,3 +1,5 @@
+$node-selection-border-width: unit-rem-to-px(2rem);
+
 .react-flow {
   user-select: none;
 
@@ -13,120 +15,137 @@
     background: $white;
 
     box-shadow: $shadow-default;
-  }
 
-  .react-flow__controls-button {
-    justify-content: center;
-    gap: $padding-xs;
-    height: fit-content;
-    width: fit-content;
-    padding: $padding-small $padding-mid;
-    border: none !important;
-    border-radius: $radius-small;
-
-    * {
-      font-size: $font-size-default;
-    }
-
-    &.disabled-control-button {
-      pointer-events: none;
-
-      path {
-        opacity: $opacity-high;
-      }
-
-      span {
-        opacity: $opacity-xh;
-      }
-    }
-
-    &.tips-button {
-      cursor: help;
-    }
-
-    &:not(.tips-button) {
-      :not(.control-button-tooltip) {
-        path {
-          color: $dark-grey;
-        }
-      }
-    }
-
-    .control-button-tips-icon {
-      width: $font-size-default;
-      height: $font-size-default;
-      transform: scale(1.1);
-      transform-origin: center;
-      fill: $light-grey;
-      transition: fill $transition-normal;
-    }
-
-    .control-button-tips {
-      color: $grey;
-      font-weight: $font-weight-bold;
-    }
-
-    #title {
-      z-index: 1;
-      // font-family: 'Quicksand', sans-serif;
-      font-weight: 600;
-      user-select: none;
-      font-size: $font-size-default;
-      color: $elegant-blue;
-    }
-
-    .control-button-tooltip {
-      display: flex;
-      flex-direction: column;
+    .react-flow__controls-button {
       justify-content: center;
-      align-items: flex-start;
-      gap: $padding-small;
-
-      position: absolute;
-      top: 120%;
-      padding: $padding-small !important;
+      gap: $padding-xs;
+      height: fit-content;
+      width: fit-content;
+      padding: $padding-small $padding-mid;
+      border: none !important;
       border-radius: $radius-small;
-      width: max-content;
 
-      background: rgba($dark-grey, $opacity-high);
-      backdrop-filter: blur($blur-high);
-      color: $white;
+      * {
+        font-size: $font-size-default;
+      }
 
-      transition: opacity $transition-normal;
-      opacity: 0;
-      visibility: none;
-      z-index: -1;
-
-      .tooltip-line {
-        display: flex;
-        flex-direction: row;
-        gap: $padding-xs;
-        align-items: center;
+      &.disabled-control-button {
+        pointer-events: none;
 
         path {
-          fill: $white;
+          opacity: $opacity-high;
+        }
+
+        span {
+          opacity: $opacity-xh;
         }
       }
-    }
 
-    &:hover {
-      .control-button-tooltip {
-        opacity: 1;
-        visibility: visible;
+      &.tips-button {
+        cursor: help;
+      }
+
+      &:not(.tips-button) {
+        :not(.control-button-tooltip) {
+          path {
+            color: $dark-grey;
+          }
+        }
       }
 
       .control-button-tips-icon {
-        fill: $elegant-yellow;
+        width: $font-size-default;
+        height: $font-size-default;
+        transform: scale(1.1);
+        transform-origin: center;
+        fill: $light-grey;
+        transition: fill $transition-normal;
       }
 
       .control-button-tips {
         color: $grey;
+        font-weight: $font-weight-bold;
+      }
+
+      #title {
+        z-index: 1;
+        // font-family: 'Quicksand', sans-serif;
+        font-weight: 600;
+        user-select: none;
+        font-size: $font-size-default;
+        color: $elegant-blue;
+      }
+
+      .control-button-tooltip {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        gap: $padding-small;
+
+        position: absolute;
+        top: 120%;
+        padding: $padding-small !important;
+        border-radius: $radius-small;
+        width: max-content;
+
+        background: rgba($dark-grey, $opacity-high);
+        backdrop-filter: blur($blur-high);
+        color: $white;
+
+        transition: opacity $transition-normal;
+        opacity: 0;
+        visibility: none;
+        z-index: -1;
+
+        .tooltip-line {
+          display: flex;
+          flex-direction: row;
+          gap: $padding-xs;
+          align-items: center;
+
+          path {
+            fill: $white;
+          }
+        }
+      }
+
+      &:hover {
+        .control-button-tooltip {
+          opacity: 1;
+          visibility: visible;
+        }
+
+        .control-button-tips-icon {
+          fill: $elegant-yellow;
+        }
+
+        .control-button-tips {
+          color: $grey;
+        }
       }
     }
   }
 
   .react-flow__nodesselection-rect {
-    box-sizing: border-box;
+    // box-sizing: border-box;
+    // border-radius: calc(
+    //   $radius-default + unit-rem-to-px(4rem) + $node-selection-border-width
+    // );
+
+    padding: unit-rem-to-px(4rem);
+    transform: translate(
+      unit-rem-to-px(-4rem) - $node-selection-border-width,
+      unit-rem-to-px(-4rem) - $node-selection-border-width
+    );
+  }
+
+  .react-flow__nodesselection-rect,
+  .react-flow__selection {
+    border-width: $node-selection-border-width;
+    border-style: solid;
+    border-color: rgba($blue, $opacity-xh);
+    background: rgba($blue, $opacity-xxx-h);
   }
 }
 

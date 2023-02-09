@@ -3,7 +3,7 @@ export const useSessionStorage = true
 
 export const useSessionStorageHandle = '__reactFlowGraphologue__'
 
-export const viewFittingPadding = 0.2
+export const viewFittingPadding = 0.3
 export const transitionDuration = 500
 
 export const timeMachineMaxSize = 50

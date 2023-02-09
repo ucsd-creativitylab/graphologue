@@ -41,18 +41,27 @@ export const CustomEdge = memo(
     })
 
     return (
-      <path
-        id={id}
-        className={`react-flow__edge-path${selected ? ' path-selected' : ''}${
-          data.className ? ` ${data.className}` : ''
-        }`}
-        d={edgePath}
-        markerEnd={
-          selected
-            ? `url(#${getMarkerId(styles.edgeColorStrokeSelected)})`
-            : (markerEnd as string)
-        }
-      />
+      <>
+        <path
+          id={`${id}-background`}
+          className={`react-flow__edge-path-background${
+            selected ? ' path-background-selected' : ''
+          }${data.className ? ` ${data.className}` : ''}`}
+          d={edgePath}
+        />
+        <path
+          id={id}
+          className={`react-flow__edge-path${selected ? ' path-selected' : ''}${
+            data.className ? ` ${data.className}` : ''
+          }`}
+          d={edgePath}
+          markerEnd={
+            selected
+              ? `url(#${getMarkerId(styles.edgeColorStrokeSelected)})`
+              : (markerEnd as string)
+          }
+        />
+      </>
     )
   }
 )

@@ -6,8 +6,17 @@ $edge-stroke-width: 2px;
     stroke: $edge-color-stroke;
     stroke-width: $edge-stroke-width;
     // stroke-linecap: round;
+    z-index: 1;
 
     transition: stroke $transition-fast, stroke-width $transition-fast;
+  }
+
+  .react-flow__edge-path-background {
+    stroke: $white;
+    opacity: $opacity-default;
+    stroke-width: 3 * $edge-stroke-width;
+    stroke-linecap: round;
+    z-index: -1;
   }
 
   // ! selected
