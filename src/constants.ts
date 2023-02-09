@@ -8,6 +8,11 @@ export const transitionDuration = 500
 
 export const timeMachineMaxSize = 50
 
+export const hardcodedNodeSize = {
+  width: 160,
+  height: 43,
+}
+
 export const styles = {
   edgeColorStrokeDefault: '#aaaaaa',
   edgeColorStrokeSelected: '#ff4d00',

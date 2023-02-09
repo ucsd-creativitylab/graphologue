@@ -118,15 +118,14 @@ export const equalDataAcrossTime = (
   present: ReactFlowJsonObject
 ) => {
   // use isEqual from react-fast-compare to compare the data
-  // but exclude the data.editing, data.metaPressed, and selected properties for nodes
+  // but exclude the data.editing, and selected properties for nodes
   // and exclude the selected property for edges
   return isEqual(
     {
       nodes:
         past.nodes?.map(node => {
           const { selected, width, height, ...rest } = node
-          const { editing, metaPressed, ...restData } =
-            node.data as CustomNodeData
+          const { editing, ...restData } = node.data as CustomNodeData
           return {
             ...rest,
             data: restData,
@@ -144,8 +143,7 @@ export const equalDataAcrossTime = (
       nodes:
         present.nodes?.map(node => {
           const { selected, width, height, ...rest } = node
-          const { editing, metaPressed, ...restData } =
-            node.data as CustomNodeData
+          const { editing, ...restData } = node.data as CustomNodeData
           return {
             ...rest,
             data: restData,

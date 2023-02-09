@@ -1,6 +1,7 @@
 import { createContext } from 'react'
 import { ReactFlowInstance } from 'reactflow'
 
-export const FlowContext = createContext<ReactFlowInstance>(
-  {} as ReactFlowInstance
-)
+type FlowContextType = ReactFlowInstance & {
+  metaPressed: boolean
+}
+export const FlowContext = createContext<FlowContextType>({} as FlowContextType)

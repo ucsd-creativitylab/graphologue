@@ -17,7 +17,11 @@ import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded'
 
 import { customAddNodes } from './Node'
 import { getGraphBounds } from './utils'
-import { transitionDuration, viewFittingPadding } from '../constants'
+import {
+  hardcodedNodeSize,
+  transitionDuration,
+  viewFittingPadding,
+} from '../constants'
 import { FlowContext } from './Contexts'
 
 type CustomControlsProps = {
@@ -68,16 +72,20 @@ export const CustomControls = memo(
     // !
     const handleAddNode = useCallback(() => {
       const { x, y, zoom } = getViewport()
+      const { width, height } = hardcodedNodeSize
 
       // add nodes at the center of the viewport
       // TODO adjust the location of the new node by its size, so that it appears at the center of the viewport
       customAddNodes(
         addNodes,
-        window.innerWidth / zoom / 2 - x / zoom,
-        window.innerHeight / zoom / 2 - y / zoom,
-        undefined,
-        fitView,
-        true
+        window.innerWidth / zoom / 2 - x / zoom - width / zoom / 2,
+        window.innerHeight / zoom / 2 - y / zoom - height / zoom / 2,
+        {
+          label: '',
+          editing: true,
+          fitView,
+          toFitView: true,
+        }
       )
     }, [addNodes, fitView, getViewport])
 

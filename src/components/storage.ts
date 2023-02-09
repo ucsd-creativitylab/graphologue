@@ -50,8 +50,8 @@ export const cleanStoredData = (
       // node.height = undefined
       node.selected = false
 
+      // data
       node.data.editing = false
-      node.data.metaPressed = false
 
       return node
     }) || []

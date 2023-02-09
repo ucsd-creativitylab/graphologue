@@ -1,8 +1,10 @@
 import { memo, useCallback } from 'react'
 import {
+  Connection,
   ConnectionLineComponent,
   ConnectionLineComponentProps,
   DefaultEdgeOptions,
+  Edge,
   EdgeProps,
   getStraightPath,
   MarkerType,
@@ -54,6 +56,18 @@ export const CustomEdge = memo(
     )
   }
 )
+
+export const getNewEdge = (params: Connection) => {
+  return {
+    ...params,
+    id: `${params.source}---${params.target}`,
+    data: {
+      label: '',
+    } as CustomEdgeData,
+  } as Edge
+}
+
+/* -------------------------------------------------------------------------- */
 
 export const CustomConnectionLine = ({
   fromX,

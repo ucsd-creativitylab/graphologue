@@ -88,7 +88,7 @@ export const SuperTextEditor = memo(
         switch (e.key) {
           case 'Meta':
             e.preventDefault()
-            e.stopPropagation()
+            // e.stopPropagation()
             break
 
           case 'Enter':

@@ -1,4 +1,10 @@
-import React, { useCallback, BaseSyntheticEvent, useEffect } from 'react'
+import React, {
+  useCallback,
+  BaseSyntheticEvent,
+  useEffect,
+  MouseEvent,
+  useRef,
+} from 'react'
 import ReactFlow, {
   useReactFlow,
   useNodesState,
@@ -15,19 +21,27 @@ import ReactFlow, {
   Edge,
   Connection,
   EdgeMarker,
+  OnConnectStartParams,
+  OnConnectStart,
+  OnConnectEnd,
 } from 'reactflow'
 
 import {
   CustomConnectionLine,
   CustomEdge,
-  CustomEdgeData,
   customConnectionLineStyle,
   customEdgeOptions,
+  getNewEdge,
 } from './components/Edge'
-import { CustomNode, CustomNodeData } from './components/Node'
+import { customAddNodes, CustomNode, CustomNodeData } from './components/Node'
 import { CustomControls } from './components/CustomControl'
 import { CustomMarkerDefs } from './components/CustomDefs'
-import { styles, transitionDuration, viewFittingPadding } from './constants'
+import {
+  hardcodedNodeSize,
+  styles,
+  transitionDuration,
+  viewFittingPadding,
+} from './constants'
 import { FlowContext } from './components/Contexts'
 import { getItem, storeItem } from './components/storage'
 import { useTimeMachine } from './components/timeMachine'
@@ -55,9 +69,11 @@ const Flow = () => {
     setNodes,
     setEdges,
     setViewport,
+    addNodes,
     addEdges,
     toObject,
     fitView,
+    getViewport,
   }: ReactFlowInstance = thisReactFlowInstance
 
   // use default nodes and edges
@@ -74,6 +90,11 @@ const Flow = () => {
 
   /* -------------------------------------------------------------------------- */
   // ! internal states
+  const reactFlowWrapper = useRef(null)
+  const currentConnectingNode = useRef({
+    id: '',
+    sourceHandleId: '',
+  })
   // const anyNodeDragging = useRef(false)
   const { setTime, undoTime, redoTime, canUndo, canRedo } = useTimeMachine(
     toObject(),
@@ -95,24 +116,10 @@ const Flow = () => {
     storeItem(toObject(), setTime)
   }, [nodes, edges, toObject, setTime])
 
-  // keys
+  // ! keys
   const metaPressed = useKeyPress(['Meta', 'Alt'])
   // const undoPressed = useKeyPress('Meta+z')
   // const redoPressed = useKeyPress('Meta+x')
-
-  useEffect(() => {
-    setNodes((nds: Node[]) => {
-      return nds.map(nd => {
-        return {
-          ...nd,
-          data: {
-            ...nd.data,
-            metaPressed,
-          } as CustomNodeData,
-        } as Node
-      })
-    })
-  }, [metaPressed, setNodes])
 
   // useEffect(() => {
   //   if (undoPressed && canUndo) undoTime()
@@ -127,13 +134,7 @@ const Flow = () => {
     (params: Connection) => {
       addEdges(
         // overwrite default edge configs here
-        {
-          ...params,
-          id: `${params.source}---${params.target}`,
-          data: {
-            label: '',
-          } as CustomEdgeData,
-        } as Edge
+        getNewEdge(params)
       )
     },
     [addEdges]
@@ -180,6 +181,84 @@ const Flow = () => {
     // anyNodeDragging.current = false
   }, [])
 
+  // node - set editing status
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const doSetNodeEditing = useCallback(
+    (nodeIds: string[], editing: boolean) => {
+      setNodes((nds: Node[]) => {
+        return nds.map((nd: Node) => {
+          if (!nodeIds.includes(nd.id)) return nd
+          else {
+            return {
+              ...nd,
+              data: {
+                ...nd.data,
+                editing,
+              },
+            }
+          }
+        })
+      })
+    },
+    [setNodes]
+  )
+
+  /* -------------------------------------------------------------------------- */
+  // ! edge
+
+  // build new nodes on drag out
+  const onConnectStart = useCallback(
+    (_: MouseEvent, { nodeId, handleId }: OnConnectStartParams) => {
+      currentConnectingNode.current.id = nodeId || ''
+      currentConnectingNode.current.sourceHandleId = handleId || ''
+    },
+    []
+  )
+
+  const onConnectEnd = useCallback(
+    (event: any) => {
+      const targetIsPane = (event.target as HTMLElement).classList.contains(
+        'react-flow__pane'
+      )
+
+      if (targetIsPane && reactFlowWrapper.current) {
+        // we need to remove the wrapper bounds, in order to get the correct position
+        const { top, left } = (
+          reactFlowWrapper.current as HTMLElement
+        ).getBoundingClientRect()
+        const { x, y, zoom } = getViewport()
+        const { width: nodeWidth, height: nodeHeight } = hardcodedNodeSize
+
+        const { nodeId, targetHandleId } = customAddNodes(
+          addNodes,
+          event.clientX / zoom - left - x / zoom - nodeWidth / 2,
+          event.clientY / zoom - top - y / zoom - nodeHeight / 2,
+          {
+            label: '',
+            editing: false,
+            toFitView: false,
+            fitView: fitView,
+          }
+        )
+        setEdges(eds =>
+          eds.concat(
+            getNewEdge({
+              source: currentConnectingNode.current.id,
+              sourceHandle: currentConnectingNode.current.sourceHandleId,
+              target: nodeId,
+              targetHandle: targetHandleId,
+            })
+          )
+        )
+
+        // setTimeout(() => {
+        //   doSetNodeEditing([nodeId], true)
+        // }, 50)
+      }
+    },
+    [addNodes, setEdges, getViewport, fitView]
+  )
+
   /* -------------------------------------------------------------------------- */
   // ! pane
 
@@ -204,68 +283,72 @@ const Flow = () => {
   // }, [])
 
   return (
-    <FlowContext.Provider value={thisReactFlowInstance}>
-      <ReactFlow
-        className={metaPressed ? 'flow-meta-pressed' : ''}
-        // basic
-        nodes={nodes}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        // flow view
-        style={reactFlowWrapperStyle}
-        fitView={false}
-        attributionPosition="top-right"
-        // edge specs
-        elevateEdgesOnSelect={true}
-        defaultEdgeOptions={customEdgeOptions} // adding a new edge with this configs without notice
-        connectionLineComponent={CustomConnectionLine}
-        connectionLineStyle={customConnectionLineStyle}
-        // viewport control
-        panOnScroll={true}
-        selectionOnDrag={true}
-        panOnDrag={[1, 2]}
-        selectionMode={SelectionMode.Partial}
-        // ! actions
-        onNodeDoubleClick={handleNodeDoubleClick}
-        onNodeContextMenu={handleNodeContextMenu}
-        onNodeDragStart={handleNodeDragStart}
-        onNodeDragStop={handleNodeDragStop}
-        onPaneClick={handlePaneClick}
-        // onPaneContextMenu={handlePaneContextMenu}
-      >
-        <CustomMarkerDefs
-          markerOptions={
-            {
-              color: styles.edgeColorStrokeSelected,
-            } as EdgeMarker
-          }
-        />
-        <MiniMap
-          pannable={true}
-          // nodeStrokeColor={n => {
-          //   if (n.selected) return styles.edgeColorStrokeSelected
-          //   else return 'none'
-          // }}
-          nodeColor={n => {
-            if (n.data.editing) return `#ff06b7aa`
-            else if (n.selected) return `${styles.edgeColorStrokeSelected}aa`
-            else return '#cfcfcf'
-          }}
-        />
-        <CustomControls
+    <FlowContext.Provider value={{ ...thisReactFlowInstance, metaPressed }}>
+      <div id="react-flow-wrapper" ref={reactFlowWrapper}>
+        <ReactFlow
+          className={metaPressed ? 'flow-meta-pressed' : ''}
+          // basic
           nodes={nodes}
           edges={edges}
-          undoTime={undoTime}
-          redoTime={redoTime}
-          canUndo={canUndo}
-          canRedo={canRedo}
-        />
-        <Background color="#008ddf" />
-      </ReactFlow>
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onConnectStart={onConnectStart as OnConnectStart}
+          onConnectEnd={onConnectEnd as OnConnectEnd}
+          // flow view
+          style={reactFlowWrapperStyle}
+          fitView={false}
+          attributionPosition="top-right"
+          // edge specs
+          elevateEdgesOnSelect={true}
+          defaultEdgeOptions={customEdgeOptions} // adding a new edge with this configs without notice
+          connectionLineComponent={CustomConnectionLine}
+          connectionLineStyle={customConnectionLineStyle}
+          // viewport control
+          panOnScroll={true}
+          selectionOnDrag={true}
+          panOnDrag={[1, 2]}
+          selectionMode={SelectionMode.Partial}
+          // ! actions
+          onNodeDoubleClick={handleNodeDoubleClick}
+          onNodeContextMenu={handleNodeContextMenu}
+          onNodeDragStart={handleNodeDragStart}
+          onNodeDragStop={handleNodeDragStop}
+          onPaneClick={handlePaneClick}
+          // onPaneContextMenu={handlePaneContextMenu}
+        >
+          <CustomMarkerDefs
+            markerOptions={
+              {
+                color: styles.edgeColorStrokeSelected,
+              } as EdgeMarker
+            }
+          />
+          <MiniMap
+            pannable={true}
+            // nodeStrokeColor={n => {
+            //   if (n.selected) return styles.edgeColorStrokeSelected
+            //   else return 'none'
+            // }}
+            nodeColor={n => {
+              if (n.data.editing) return `#ff06b7aa`
+              else if (n.selected) return `${styles.edgeColorStrokeSelected}aa`
+              else return '#cfcfcf'
+            }}
+          />
+          <CustomControls
+            nodes={nodes}
+            edges={edges}
+            undoTime={undoTime}
+            redoTime={redoTime}
+            canUndo={canUndo}
+            canRedo={canRedo}
+          />
+          <Background color="#008ddf" />
+        </ReactFlow>
+      </div>
     </FlowContext.Provider>
   )
 }

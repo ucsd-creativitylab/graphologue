@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useContext } from 'react'
 import {
   Handle,
   Position,
@@ -9,7 +9,12 @@ import {
   ReactFlowState,
   NodeProps,
 } from 'reactflow'
-import { transitionDuration, viewFittingPadding } from '../constants'
+import {
+  hardcodedNodeSize,
+  transitionDuration,
+  viewFittingPadding,
+} from '../constants'
+import { FlowContext } from './Contexts'
 import randomPhrases from './randomPhrases'
 import { SuperTextEditor } from './SuperTextEditor'
 import { getHandleId, getNodeId } from './utils'
@@ -18,7 +23,6 @@ export type CustomNodeData = {
   label: string
   sourceHandleId: string
   targetHandleId: string
-  metaPressed: boolean
   // states
   editing: boolean
 }
@@ -30,8 +34,10 @@ const connectionNodeIdSelector = (state: ReactFlowState) =>
 
 export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: NodeProps) => {
-    const { label, sourceHandleId, targetHandleId, metaPressed, editing } =
+    const { metaPressed } = useContext(FlowContext)
+    const { label, sourceHandleId, targetHandleId, editing } =
       data as CustomNodeData
+
     const connectionNodeId = useStore(connectionNodeIdSelector)
 
     // is the node being source of an ongoing new connection?
@@ -84,28 +90,42 @@ export const CustomNode = memo(
 /* -------------------------------------------------------------------------- */
 // ! add node
 
+type CustomAddNodesOptions = {
+  label?: string
+  editing: boolean
+  fitView: FitView
+  toFitView: boolean
+}
 export const customAddNodes = (
   addNodes: Instance.AddNodes<Node>,
   x: number,
   y: number,
-  label = randomPhrases(),
-  fitView?: FitView,
-  toFitView?: boolean
-) => {
+  { label, editing, fitView, toFitView }: CustomAddNodesOptions
+): {
+  nodeId: string
+  sourceHandleId: string
+  targetHandleId: string
+} => {
+  const nodeId = getNodeId()
+  const sourceHandleId = getHandleId()
+  const targetHandleId = getHandleId()
+
+  label = label ?? randomPhrases()
+  const { width: nodeWidth, height: nodeHeight } = hardcodedNodeSize
+
   const newNode = {
-    id: getNodeId(),
+    id: nodeId,
     type: 'custom', // ! use custom node
     data: {
       label: '',
-      sourceHandleId: getHandleId(),
-      targetHandleId: getHandleId(),
-      metaPressed: false,
-      editing: true,
+      sourceHandleId: sourceHandleId,
+      targetHandleId: targetHandleId,
+      editing: editing,
     } as CustomNodeData,
     position: { x, y },
     selected: true,
-    width: 160, // ! are you sure?
-    height: 43, // ! are you sure?
+    width: nodeWidth, // ! are you sure?
+    height: nodeHeight, // ! are you sure?
   } as Node
 
   addNodes(newNode)
@@ -117,4 +137,12 @@ export const customAddNodes = (
         duration: transitionDuration,
       })
   }, 0)
+
+  setTimeout(() => {}, 50)
+
+  return {
+    nodeId,
+    sourceHandleId,
+    targetHandleId,
+  }
 }
