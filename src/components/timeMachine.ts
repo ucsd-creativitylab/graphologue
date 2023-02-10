@@ -105,10 +105,14 @@ export const useTimeMachine = (
     }
   }
 
+  const getPast = () =>
+    deepCopyStoredData(past.current[past.current.length - 1])
+
   return {
     setTime,
     undoTime,
     redoTime,
+    getPast,
     canUndo,
     canRedo,
   }

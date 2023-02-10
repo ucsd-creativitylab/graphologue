@@ -108,7 +108,7 @@ const Flow = () => {
     setViewport
   )
 
-  // zoom
+  // viewport
   const [roughZoomLevel, setRoughZoomLevel] = useState(
     roundTo(getViewport().zoom, 1)
   )

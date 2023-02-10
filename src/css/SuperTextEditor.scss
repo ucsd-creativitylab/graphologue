@@ -61,11 +61,8 @@
     color: $dark-grey;
 
     background: rgba($white, 0);
-    outline: 1px solid transparent;
+    outline: unit-rem-to-px(1rem) solid transparent;
     outline-offset: 0;
-
-    word-wrap: break-word;
-    word-break: break-all;
 
     transition: outline $transition-fast, background-color $transition-fast;
 
@@ -78,14 +75,14 @@
     // when selected
     &.selected-text-editor {
       background: $white;
-      outline: 1px solid rgba($red, $opacity-mid);
+      outline: unit-rem-to-px(1rem) solid rgba($red, $opacity-mid);
     }
 
     // when hovered
 
     // when editing
     &:not(.disabled-text-editor) {
-      outline: 1px solid rgba($pink, $opacity-mid);
+      outline: unit-rem-to-px(1rem) solid rgba($pink, $opacity-mid);
     }
   }
 }

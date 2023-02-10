@@ -37,7 +37,7 @@ export const SuperTextEditor = memo(
       }
     }, [editing, isNode])
 
-    // set size for input element
+    // dynamic size setting
     const getEdgeInputSize = useCallback(
       (content: string) => Math.min(Math.max(content.length + 1, 1), 30),
       []
@@ -52,62 +52,75 @@ export const SuperTextEditor = memo(
     }, [isEdge, content, getEdgeInputSize])
 
     // ! on finish editing
-    const onFinishEditing = useCallback(() => {
-      // blur everything
-      // ;(document.activeElement as HTMLElement).blur()
+    const onFinishEditing = useCallback(
+      (continueEditing: boolean) => {
+        // blur everything
+        // ;(document.activeElement as HTMLElement).blur()
 
-      // update label data
-      if (isEdge) {
-        // an input element
-        setEdges((eds: Edge[]) => {
-          return eds.map((ed: Edge) => {
-            if (targetId !== ed.id) return ed
-            else {
-              return {
-                ...ed,
-                data: {
-                  ...ed.data,
-                  editing: false,
-                  label: inputRef.current?.value,
-                },
+        // update label data
+        if (isEdge) {
+          // an input element
+          setEdges((eds: Edge[]) => {
+            return eds.map((ed: Edge) => {
+              if (targetId !== ed.id) return ed
+              else {
+                return {
+                  ...ed,
+                  data: {
+                    ...ed.data,
+                    editing: continueEditing,
+                    label: inputRef.current?.value,
+                  },
+                }
               }
-            }
+            })
           })
-        })
-      } else if (isNode) {
-        // a textarea element
-        setNodes((nds: Node[]) => {
-          return nds.map((nd: Node) => {
-            if (targetId !== nd.id) return nd
-            else {
-              return {
-                ...nd,
-                data: {
-                  ...nd.data,
-                  editing: false,
-                  label: textareaRef.current?.value,
-                },
+        } else if (isNode) {
+          // a textarea element
+          setNodes((nds: Node[]) => {
+            return nds.map((nd: Node) => {
+              if (targetId !== nd.id) return nd
+              else {
+                return {
+                  ...nd,
+                  data: {
+                    ...nd.data,
+                    editing: continueEditing,
+                    label: textareaRef.current?.value,
+                  },
+                }
               }
-            }
+            })
           })
-        })
-      }
-    }, [isEdge, targetId, isNode, setEdges, setNodes])
+        }
+      },
+      [isEdge, isNode, setEdges, targetId, setNodes]
+    )
+
+    // cursor control
+    const cursorPosition = useRef(content.length)
 
     const handleTextEditorChange = useCallback(
       (e: BaseSyntheticEvent) => {
-        // e.target.size = Math.min(Math.max(e.target.value.length + 1, 1), 10) // for <input />
-        // e.target.style.height = 'fit-content'
-        // e.target.style.height = `calc(${e.target.scrollHeight}px - 1.8rem)` // scrollHeight is the height of the content + padding ($padding-mid * 2 here)
         const newContent = e.target.value
+        onFinishEditing(true)
 
-        if (isEdge) {
-          inputRef.current!.size = getEdgeInputSize(newContent)
-        } else if (isNode) {
+        // update cursor position
+        cursorPosition.current = e.target.selectionStart
+
+        if (isNode) {
           e.target.parentNode.dataset.value = newContent
         }
+
+        // avoid cursor jumping
+        setTimeout(() => {
+          e.target.setSelectionRange(
+            cursorPosition.current,
+            cursorPosition.current
+          )
+        }, 0)
       },
-      [getEdgeInputSize, isEdge, isNode]
+      [isNode, onFinishEditing]
     )
 
     const handleKeyDown = useCallback(
@@ -124,14 +137,14 @@ export const SuperTextEditor = memo(
               // save
               e.preventDefault()
               e.stopPropagation()
-              onFinishEditing()
+              onFinishEditing(false)
             }
             break
 
           case 'Escape':
             e.preventDefault()
             e.stopPropagation()
-            onFinishEditing()
+            onFinishEditing(false)
             break
 
           default:
@@ -143,19 +156,21 @@ export const SuperTextEditor = memo(
 
     const handleBlur = useCallback(
       (e: BaseSyntheticEvent) => {
-        onFinishEditing()
+        onFinishEditing(false)
       },
       [onFinishEditing]
     )
 
     return (
       <div
+        key={`${target}-${targetId}-super-wrapper`}
         className={`super-wrapper super-wrapper-${target}`}
         data-value={content}
       >
         {isNode ? (
           /* -------------------------------- for node -------------------------------- */
           <textarea
+            key={`${target}-${targetId}-textarea`}
             ref={textareaRef}
             className={`super-text-editor${
               editing ? '' : ' disabled-text-editor'
@@ -163,7 +178,7 @@ export const SuperTextEditor = memo(
               content.length === 0 ? ' empty-text-editor' : ''
             }`}
             rows={1}
-            defaultValue={content}
+            value={content}
             placeholder={'node'}
             onChange={handleTextEditorChange}
             onKeyDown={handleKeyDown}
@@ -176,13 +191,14 @@ export const SuperTextEditor = memo(
         ) : (
           /* -------------------------------- for edge -------------------------------- */
           <input
+            key={`${target}-${targetId}-input`}
             ref={inputRef}
             className={`super-text-editor${
               editing ? '' : ' disabled-text-editor'
             }${selected ? ' selected-text-editor' : ''}${
               content.length === 0 ? ' empty-text-editor' : ''
             }`}
-            defaultValue={content}
+            value={content}
             placeholder={''}
             onChange={handleTextEditorChange}
             onKeyDown={handleKeyDown}

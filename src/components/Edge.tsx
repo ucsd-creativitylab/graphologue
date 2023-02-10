@@ -18,7 +18,7 @@ import { getEdgeParams } from './utils'
 
 /* -------------------------------------------------------------------------- */
 
-export type CustomEdgeData = {
+export interface CustomEdgeData {
   label: string
   customType: 'dosh' | 'plain' | 'arrow'
   editing: boolean

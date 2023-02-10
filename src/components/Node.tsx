@@ -19,7 +19,7 @@ import randomPhrases from './randomPhrases'
 import { SuperTextEditor } from './SuperTextEditor'
 import { getHandleId, getNodeId } from './utils'
 
-export type CustomNodeData = {
+export interface CustomNodeData {
   label: string
   sourceHandleId: string
   targetHandleId: string
@@ -142,8 +142,6 @@ export const customAddNodes = (
         duration: transitionDuration,
       })
   }, 0)
-
-  setTimeout(() => {}, 50)
 
   return {
     nodeId,

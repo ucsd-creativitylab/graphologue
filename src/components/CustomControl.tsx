@@ -82,7 +82,7 @@ export const CustomControls = memo(
         window.innerHeight / zoom / 2 - y / zoom - height / zoom / 2,
         {
           label: '',
-          editing: true,
+          editing: false,
           fitView,
           toFitView: true,
         }
