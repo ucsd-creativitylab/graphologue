@@ -13,6 +13,10 @@ import {
 
 import AddBoxRoundedIcon from '@mui/icons-material/AddBoxRounded'
 
+import { ReactComponent as DashLine } from '../media/dashLine.svg'
+import { ReactComponent as PlainLine } from '../media/plainLine.svg'
+import { ReactComponent as ArrowLine } from '../media/arrowLine.svg'
+
 import { hardcodedNodeSize, hideEdgeTextZoomLevel, styles } from '../constants'
 import { EdgeContext, FlowContext } from './Contexts'
 import { getMarkerId } from './CustomDefs'
@@ -29,7 +33,7 @@ import { customAddNodes } from './Node'
 
 export interface CustomEdgeData {
   label: string
-  customType: 'dosh' | 'plain' | 'arrow'
+  customType: 'dash' | 'plain' | 'arrow'
   editing: boolean
 }
 
@@ -59,7 +63,7 @@ export const CustomEdge = memo(
 
     if (!sourceNode || !targetNode) return null
 
-    const { label, customType, editing } = data as CustomEdgeData
+    const { customType } = data as CustomEdgeData
 
     const { sx, sy, tx, ty } = getEdgeParams(sourceNode, targetNode)
     const [edgePath, labelX, labelY] = getStraightPath({
@@ -89,6 +93,9 @@ export const CustomEdge = memo(
           }`}
           d={edgePath}
           strokeLinecap={customType === 'arrow' ? 'butt' : 'round'}
+          strokeDasharray={
+            customType === 'dash' ? styles.edgeDashLineArray : undefined
+          }
           markerEnd={
             customType === 'arrow'
               ? selected
@@ -99,16 +106,15 @@ export const CustomEdge = memo(
         />
         <EdgeCustomLabel
           edgeId={id}
+          edgeData={data as CustomEdgeData}
           labelX={labelX}
           labelY={labelY}
-          label={label}
           connection={{
             source,
             target,
             sourceHandle: sourceHandleId || null,
             targetHandle: targetHandleId || null,
           }}
-          editing={editing}
           selected={selected || false}
           roughZoomLevel={roughZoomLevel}
         />
@@ -127,15 +133,18 @@ export const CustomEdge = memo(
   }
 )
 
-export const getNewEdge = (params: Connection) => {
+export const getNewEdge = (
+  params: Connection,
+  dataOptions?: CustomEdgeData
+) => {
+  const data = {
+    ...{ label: '', customType: 'plain', editing: false },
+    ...(dataOptions || {}),
+  }
   return {
     ...params,
     id: `${params.source}---${params.target}`,
-    data: {
-      label: '',
-      customType: 'plain',
-      editing: false,
-    } as CustomEdgeData,
+    data: data,
     selected: false,
   } as Edge
 }
@@ -144,22 +153,20 @@ export const getNewEdge = (params: Connection) => {
 
 type EdgeCustomLabelProps = {
   edgeId: string
+  edgeData: CustomEdgeData
   labelX: number
   labelY: number
-  label: string
   connection: Connection
-  editing: boolean
   selected: boolean
   roughZoomLevel: number
 }
 export const EdgeCustomLabel = memo(
   ({
     edgeId,
+    edgeData,
     labelX,
     labelY,
-    label,
     connection,
-    editing,
     selected,
     roughZoomLevel,
   }: EdgeCustomLabelProps) => {
@@ -171,6 +178,7 @@ export const EdgeCustomLabel = memo(
         selectedComponents.selectedEdges.length >
       1
 
+    // ! add node from edge
     const handleAddNodeFromEdge = useCallback(() => {
       const { width: nodeWidth, height: nodeHeight } = hardcodedNodeSize
       const {
@@ -185,7 +193,7 @@ export const EdgeCustomLabel = memo(
         labelX - nodeWidth / 2,
         labelY - nodeHeight / 2,
         {
-          label: label,
+          label: edgeData.label,
           editing: false,
           toFitView: false,
           fitView: fitView,
@@ -198,21 +206,66 @@ export const EdgeCustomLabel = memo(
         return eds
           .filter(ed => ed.id !== edgeId) // remove the original edge
           .concat([
-            getNewEdge({
-              source: originalSource,
-              sourceHandle: originalSourceHandle,
-              target: nodeId,
-              targetHandle: targetHandleId,
-            }),
-            getNewEdge({
-              source: nodeId,
-              sourceHandle: sourceHandleId,
-              target: originalTarget,
-              targetHandle: originalTargetHandle,
-            }),
+            getNewEdge(
+              {
+                source: originalSource,
+                sourceHandle: originalSourceHandle,
+                target: nodeId,
+                targetHandle: targetHandleId,
+              },
+              {
+                label: '',
+                customType: edgeData.customType,
+                editing: false,
+              }
+            ),
+            getNewEdge(
+              {
+                source: nodeId,
+                sourceHandle: sourceHandleId,
+                target: originalTarget,
+                targetHandle: originalTargetHandle,
+              },
+              {
+                label: '',
+                customType: edgeData.customType,
+                editing: false,
+              }
+            ),
           ])
       })
-    }, [addNodes, connection, edgeId, fitView, label, labelX, labelY, setEdges])
+    }, [
+      addNodes,
+      connection,
+      edgeData.customType,
+      edgeData.label,
+      edgeId,
+      fitView,
+      labelX,
+      labelY,
+      setEdges,
+    ])
+
+    // ! switch custom edge type
+    const handleSwitchCustomEdgeType = useCallback(
+      (newType: string) => {
+        setEdges((eds: Edge[]) => {
+          return eds.map(ed => {
+            if (ed.id === edgeId) {
+              return {
+                ...ed,
+                data: {
+                  ...ed.data,
+                  customType: newType,
+                },
+              }
+            }
+            return ed
+          })
+        })
+      },
+      [edgeId, setEdges]
+    )
 
     return (
       <foreignObject
@@ -228,8 +281,8 @@ export const EdgeCustomLabel = memo(
         <SuperTextEditor
           target="edge"
           targetId={edgeId}
-          content={label}
-          editing={editing}
+          content={edgeData.label}
+          editing={edgeData.editing}
           selected={selected}
         >
           <MagicToolbox
@@ -245,10 +298,19 @@ export const EdgeCustomLabel = memo(
                 content={
                   <>
                     <AddBoxRoundedIcon />
-                    <span>{label.length ? 'convert to node' : 'add node'}</span>
+                    <span>
+                      {edgeData.label.length ? 'convert to node' : 'add node'}
+                    </span>
                   </>
                 }
                 onClick={handleAddNodeFromEdge}
+              />
+            </MagicToolboxItem>
+
+            <MagicToolboxItem title="switch type">
+              <EdgeCustomTypeSwitch
+                currentType={edgeData.customType}
+                handleChange={handleSwitchCustomEdgeType}
               />
             </MagicToolboxItem>
           </MagicToolbox>
@@ -312,3 +374,45 @@ export const customEdgeOptions = {
     color: styles.edgeColorStrokeDefault,
   },
 } as DefaultEdgeOptions
+
+/* -------------------------------------------------------------------------- */
+
+interface EdgeCustomTypeSwitchProps {
+  currentType: string
+  handleChange: (newType: string) => void
+}
+export const EdgeCustomTypeSwitch = ({
+  currentType,
+  handleChange,
+}: EdgeCustomTypeSwitchProps) => {
+  const getClassName = (typeSelected: boolean) =>
+    `type-switch-button magic-toolbox-button${typeSelected ? ' selected' : ''}`
+  return (
+    <div className="edge-custom-type-switch">
+      <button
+        className={getClassName(currentType === 'dash')}
+        onClick={() => {
+          handleChange('dash')
+        }}
+      >
+        <DashLine />
+      </button>
+      <button
+        className={getClassName(currentType === 'plain')}
+        onClick={() => {
+          handleChange('plain')
+        }}
+      >
+        <PlainLine />
+      </button>
+      <button
+        className={getClassName(currentType === 'arrow')}
+        onClick={() => {
+          handleChange('arrow')
+        }}
+      >
+        <ArrowLine />
+      </button>
+    </div>
+  )
+}

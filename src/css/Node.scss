@@ -15,13 +15,13 @@ $shadow-node-selected: $shadow-heavy;
     overflow: hidden;
 
     box-shadow: $shadow-default; // !
-    outline: unit-rem-to-px(2rem) solid transparent;
-    outline-offset: unit-rem-to-px(0);
+    outline: rem-to-px(2rem) solid transparent;
+    outline-offset: rem-to-px(0);
     transition: box-shadow $transition-fast, outline $transition-fast,
       outline-offset $transition-fast;
 
     &.customNodeMetaPressed {
-      box-shadow: $light-grey 0 0 unit-rem-to-px(0) unit-rem-to-px(2rem) !important;
+      box-shadow: $light-grey 0 0 rem-to-px(0) rem-to-px(2rem) !important;
     }
   }
 
@@ -66,8 +66,8 @@ $shadow-node-selected: $shadow-heavy;
   &.selected {
     .customNodeBody {
       box-shadow: $shadow-node-selected;
-      outline: unit-rem-to-px(2rem) solid rgba($red, $opacity-mid);
-      outline-offset: unit-rem-to-px(2rem);
+      outline: rem-to-px(2rem) solid rgba($red, $opacity-mid);
+      outline-offset: rem-to-px(2rem);
     }
 
     // .customNodeContent {

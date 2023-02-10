@@ -7,6 +7,7 @@
   border: none;
 
   overflow: visible;
+  z-index: 1;
 
   .super-text-editor {
     width: auto;
@@ -82,7 +83,7 @@
     color: $grey;
 
     background: rgba($white, 0);
-    outline: unit-rem-to-px(1rem) solid transparent;
+    outline: rem-to-px(1rem) solid transparent;
     outline-offset: 0;
 
     transition: outline $transition-fast, background-color $transition-fast;
@@ -101,7 +102,7 @@
     // when hovered
     &:hover {
       background: $white;
-      outline: unit-rem-to-px(1rem) solid $light-grey;
+      outline: rem-to-px(1rem) solid $light-grey;
 
       & + .content-tooltip {
         opacity: 1;
@@ -113,13 +114,13 @@
     &:active,
     &.selected-text-editor {
       background: $white;
-      outline: unit-rem-to-px(1rem) solid rgba($red, $opacity-mid);
+      outline: rem-to-px(1rem) solid rgba($red, $opacity-mid);
     }
 
     // when editing
     &:not(.disabled-text-editor) {
       color: $red;
-      // outline: unit-rem-to-px(1rem) solid rgba($pink, $opacity-mid);
+      // outline: rem-to-px(1rem) solid rgba($pink, $opacity-mid);
     }
   }
 

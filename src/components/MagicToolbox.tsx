@@ -2,7 +2,7 @@ import { BaseSyntheticEvent, ReactElement, useCallback } from 'react'
 
 interface MagicToolboxProps {
   className?: string
-  children: ReactElement
+  children: ReactElement[]
   zoom: number
 }
 export const MagicToolbox = ({

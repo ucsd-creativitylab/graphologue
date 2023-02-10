@@ -20,4 +20,5 @@ export const styles = {
   edgeColorLabelDefault: '#666666',
   edgeWidth: 2,
   edgeMarkerSize: 12,
+  edgeDashLineArray: '5, 7',
 }

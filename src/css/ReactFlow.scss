@@ -1,4 +1,4 @@
-$node-selection-border-width: unit-rem-to-px(2rem);
+$node-selection-border-width: rem-to-px(2rem);
 
 .react-flow {
   user-select: none;
@@ -130,13 +130,13 @@ $node-selection-border-width: unit-rem-to-px(2rem);
   .react-flow__nodesselection-rect {
     // box-sizing: border-box;
     // border-radius: calc(
-    //   $radius-default + unit-rem-to-px(4rem) + $node-selection-border-width
+    //   $radius-default + rem-to-px(4rem) + $node-selection-border-width
     // );
 
-    padding: unit-rem-to-px(4rem);
+    padding: rem-to-px(4rem);
     transform: translate(
-      unit-rem-to-px(-4rem) - $node-selection-border-width,
-      unit-rem-to-px(-4rem) - $node-selection-border-width
+      rem-to-px(-4rem) - $node-selection-border-width,
+      rem-to-px(-4rem) - $node-selection-border-width
     );
   }
 

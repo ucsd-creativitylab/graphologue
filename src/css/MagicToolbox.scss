@@ -22,6 +22,7 @@
   visibility: hidden;
   pointer-events: none;
 
+  z-index: 9;
   transition: transform $transition-fast, opacity $transition-fast;
 
   * {
@@ -38,7 +39,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-items: flex-start;
+    justify-content: flex-start;
     gap: $padding-xs;
 
     .magic-toolbox-item-title {
@@ -52,7 +53,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-items: center;
+    justify-content: center;
     gap: $padding-xs;
 
     font-size: $font-size-default;
@@ -61,7 +62,7 @@
     padding: $padding-small $padding-mid;
 
     border: none;
-    outline: 1px solid $light;
+    outline: rem-to-px(1rem) solid $light;
     user-select: none;
     border-radius: $radius-small;
     cursor: pointer;

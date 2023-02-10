@@ -44,5 +44,23 @@ $edge-stroke-width: 2px;
     &.hidden-edge-label-wrapper {
       opacity: 0;
     }
+
+    .edge-custom-type-switch {
+      display: flex;
+      flex-direction: row;
+      gap: $padding-xs;
+
+      width: 100%;
+      pointer-events: all;
+
+      .type-switch-button {
+        flex-grow: 1;
+        padding: $padding-small !important;
+
+        &.selected {
+          outline: rem-to-px(1rem) solid $elegant-blue !important;
+        }
+      }
+    }
   }
 }
