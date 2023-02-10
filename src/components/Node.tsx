@@ -27,13 +27,17 @@ export type CustomNodeData = {
   editing: boolean
 }
 
+interface CustomNodeProps extends NodeProps {
+  data: CustomNodeData
+}
+
 /* -------------------------------------------------------------------------- */
 
 const connectionNodeIdSelector = (state: ReactFlowState) =>
   state.connectionNodeId
 
 export const CustomNode = memo(
-  ({ id, data, xPos, yPos, selected }: NodeProps) => {
+  ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
     const { metaPressed } = useContext(FlowContext)
     const { label, sourceHandleId, targetHandleId, editing } =
       data as CustomNodeData
@@ -79,7 +83,8 @@ export const CustomNode = memo(
             target="node"
             targetId={id}
             content={label}
-            editable={editing}
+            editing={editing}
+            selected={selected}
           />
         </div>
       </div>

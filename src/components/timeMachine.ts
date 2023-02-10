@@ -9,6 +9,7 @@ import {
 import isEqual from 'react-fast-compare'
 
 import { CustomNodeData } from './Node'
+import { CustomEdgeData } from './Edge'
 import {
   deepCopyEdges,
   deepCopyNodes,
@@ -134,8 +135,10 @@ export const equalDataAcrossTime = (
       edges:
         past.edges?.map(edge => {
           const { selected, ...rest } = edge
+          const { editing, ...restData } = edge.data as CustomEdgeData
           return {
             ...rest,
+            data: restData,
           }
         }) || [],
     },
@@ -152,8 +155,10 @@ export const equalDataAcrossTime = (
       edges:
         present.edges?.map(edge => {
           const { selected, ...rest } = edge
+          const { editing, ...restData } = edge.data as CustomEdgeData
           return {
             ...rest,
+            data: restData,
           }
         }) || [],
     }

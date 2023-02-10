@@ -4,6 +4,7 @@ import React, {
   useEffect,
   MouseEvent,
   useRef,
+  useState,
 } from 'react'
 import ReactFlow, {
   useReactFlow,
@@ -24,6 +25,8 @@ import ReactFlow, {
   OnConnectStartParams,
   OnConnectStart,
   OnConnectEnd,
+  useOnViewportChange,
+  Viewport,
 } from 'reactflow'
 
 import {
@@ -42,9 +45,10 @@ import {
   transitionDuration,
   viewFittingPadding,
 } from './constants'
-import { FlowContext } from './components/Contexts'
+import { EdgeContext, FlowContext } from './components/Contexts'
 import { getItem, storeItem } from './components/storage'
 import { useTimeMachine } from './components/timeMachine'
+import { roundTo } from './components/utils'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -95,6 +99,7 @@ const Flow = () => {
     id: '',
     sourceHandleId: '',
   })
+
   // const anyNodeDragging = useRef(false)
   const { setTime, undoTime, redoTime, canUndo, canRedo } = useTimeMachine(
     toObject(),
@@ -102,6 +107,18 @@ const Flow = () => {
     setEdges,
     setViewport
   )
+
+  // zoom
+  const [roughZoomLevel, setRoughZoomLevel] = useState(
+    roundTo(getViewport().zoom, 1)
+  )
+  useOnViewportChange({
+    onChange: (v: Viewport) => {
+      if (roughZoomLevel !== roundTo(getViewport().zoom, 1))
+        setRoughZoomLevel(roundTo(getViewport().zoom, 1))
+    },
+  })
+
   /* -------------------------------------------------------------------------- */
 
   // ! store to session storage and push to time machine
@@ -110,7 +127,9 @@ const Flow = () => {
     if (dragging) return
 
     // if text editing then don't store
-    const editing = nodes.find((nd: Node) => nd.data.editing)
+    const editing =
+      nodes.find((nd: Node) => nd.data.editing) ||
+      edges.find((ed: Edge) => ed.data.editing)
     if (editing) return
 
     storeItem(toObject(), setTime)
@@ -143,47 +162,8 @@ const Flow = () => {
   /* -------------------------------------------------------------------------- */
   // ! node
 
-  // ! node right click
-  const handleNodeContextMenu = useCallback((e: BaseSyntheticEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    console.log(e)
-  }, [])
-
-  const handleNodeDoubleClick = useCallback(
-    (e: BaseSyntheticEvent, node: Node) => {
-      e.preventDefault()
-      e.stopPropagation()
-
-      setNodes((nds: Node[]) => {
-        return nds.map((nd: Node) => {
-          if (node.id !== nd.id) return nd
-          else {
-            return {
-              ...nd,
-              data: {
-                ...nd.data,
-                editing: true,
-              },
-            }
-          }
-        })
-      })
-    },
-    [setNodes]
-  )
-
-  const handleNodeDragStart = useCallback(() => {
-    // anyNodeDragging.current = true
-  }, [])
-
-  const handleNodeDragStop = useCallback(() => {
-    // anyNodeDragging.current = false
-  }, [])
-
   // node - set editing status
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const doSetNodeEditing = useCallback(
+  const doSetNodesEditing = useCallback(
     (nodeIds: string[], editing: boolean) => {
       setNodes((nds: Node[]) => {
         return nds.map((nd: Node) => {
@@ -202,6 +182,31 @@ const Flow = () => {
     },
     [setNodes]
   )
+
+  // ! node right click
+  const handleNodeContextMenu = useCallback((e: BaseSyntheticEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log(e)
+  }, [])
+
+  const handleNodeDoubleClick = useCallback(
+    (e: BaseSyntheticEvent, node: Node) => {
+      e.preventDefault()
+      e.stopPropagation()
+
+      doSetNodesEditing([node.id], true)
+    },
+    [doSetNodesEditing]
+  )
+
+  const handleNodeDragStart = useCallback(() => {
+    // anyNodeDragging.current = true
+  }, [])
+
+  const handleNodeDragStop = useCallback(() => {
+    // anyNodeDragging.current = false
+  }, [])
 
   /* -------------------------------------------------------------------------- */
   // ! edge
@@ -259,6 +264,49 @@ const Flow = () => {
     [addNodes, setEdges, getViewport, fitView]
   )
 
+  const doSetEdgesEditing = useCallback(
+    (edgeIds: string[], editing: boolean) => {
+      setEdges((eds: Edge[]) => {
+        return eds.map((ed: Edge) => {
+          if (!edgeIds.includes(ed.id)) return ed
+          else {
+            return {
+              ...ed,
+              data: {
+                ...ed.data,
+                editing,
+              },
+            }
+          }
+        })
+      })
+    },
+    [setEdges]
+  )
+
+  const handleEdgeDoubleClick = useCallback(
+    (e: BaseSyntheticEvent, edge: Edge) => {
+      e.preventDefault()
+      e.stopPropagation()
+
+      setEdges((nds: Edge[]) => {
+        return nds.map((nd: Edge) => {
+          if (edge.id !== nd.id) return nd
+          else {
+            return {
+              ...nd,
+              data: {
+                ...nd.data,
+                editing: true,
+              },
+            }
+          }
+        })
+      })
+    },
+    [setEdges]
+  )
+
   /* -------------------------------------------------------------------------- */
   // ! pane
 
@@ -282,73 +330,92 @@ const Flow = () => {
   //   e.stopPropagation()
   // }, [])
 
+  /* -------------------------------------------------------------------------- */
+  // ! other rendering related
+  // none
+
   return (
-    <FlowContext.Provider value={{ ...thisReactFlowInstance, metaPressed }}>
-      <div id="react-flow-wrapper" ref={reactFlowWrapper}>
-        <ReactFlow
-          className={metaPressed ? 'flow-meta-pressed' : ''}
-          // basic
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onConnectStart={onConnectStart as OnConnectStart}
-          onConnectEnd={onConnectEnd as OnConnectEnd}
-          // flow view
-          style={reactFlowWrapperStyle}
-          fitView={false}
-          attributionPosition="top-right"
-          // edge specs
-          elevateEdgesOnSelect={true}
-          defaultEdgeOptions={customEdgeOptions} // adding a new edge with this configs without notice
-          connectionLineComponent={CustomConnectionLine}
-          connectionLineStyle={customConnectionLineStyle}
-          // viewport control
-          panOnScroll={true}
-          selectionOnDrag={true}
-          panOnDrag={[1, 2]}
-          selectionMode={SelectionMode.Partial}
-          // ! actions
-          onNodeDoubleClick={handleNodeDoubleClick}
-          onNodeContextMenu={handleNodeContextMenu}
-          onNodeDragStart={handleNodeDragStart}
-          onNodeDragStop={handleNodeDragStop}
-          onPaneClick={handlePaneClick}
-          // onPaneContextMenu={handlePaneContextMenu}
-        >
-          <CustomMarkerDefs
-            markerOptions={
-              {
-                color: styles.edgeColorStrokeSelected,
-              } as EdgeMarker
-            }
-          />
-          <MiniMap
-            pannable={true}
-            // nodeStrokeColor={n => {
-            //   if (n.selected) return styles.edgeColorStrokeSelected
-            //   else return 'none'
-            // }}
-            nodeColor={n => {
-              if (n.data.editing) return `#ff06b7aa`
-              else if (n.selected) return `${styles.edgeColorStrokeSelected}aa`
-              else return '#cfcfcf'
-            }}
-          />
-          <CustomControls
+    <FlowContext.Provider
+      value={{
+        ...thisReactFlowInstance,
+        metaPressed,
+        doSetNodesEditing,
+        doSetEdgesEditing,
+      }}
+    >
+      <EdgeContext.Provider
+        value={{
+          roughZoomLevel,
+        }}
+      >
+        <div id="react-flow-wrapper" ref={reactFlowWrapper}>
+          <ReactFlow
+            className={metaPressed ? 'flow-meta-pressed' : ''}
+            // basic
             nodes={nodes}
             edges={edges}
-            undoTime={undoTime}
-            redoTime={redoTime}
-            canUndo={canUndo}
-            canRedo={canRedo}
-          />
-          <Background color="#008ddf" />
-        </ReactFlow>
-      </div>
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onConnectStart={onConnectStart as OnConnectStart}
+            onConnectEnd={onConnectEnd as OnConnectEnd}
+            // flow view
+            style={reactFlowWrapperStyle}
+            fitView={false}
+            attributionPosition="top-right"
+            // edge specs
+            elevateEdgesOnSelect={true}
+            defaultEdgeOptions={customEdgeOptions} // adding a new edge with this configs without notice
+            connectionLineComponent={CustomConnectionLine}
+            connectionLineStyle={customConnectionLineStyle}
+            // viewport control
+            panOnScroll={true}
+            selectionOnDrag={true}
+            panOnDrag={[1, 2]}
+            selectionMode={SelectionMode.Partial}
+            // ! actions
+            onNodeDoubleClick={handleNodeDoubleClick}
+            onNodeContextMenu={handleNodeContextMenu}
+            onNodeDragStart={handleNodeDragStart}
+            onNodeDragStop={handleNodeDragStop}
+            onEdgeDoubleClick={handleEdgeDoubleClick}
+            onPaneClick={handlePaneClick}
+            // onPaneContextMenu={handlePaneContextMenu}
+          >
+            <CustomMarkerDefs
+              markerOptions={
+                {
+                  color: styles.edgeColorStrokeSelected,
+                } as EdgeMarker
+              }
+            />
+            <MiniMap
+              pannable={true}
+              // nodeStrokeColor={n => {
+              //   if (n.selected) return styles.edgeColorStrokeSelected
+              //   else return 'none'
+              // }}
+              nodeColor={n => {
+                if (n.data.editing) return `#ff06b7aa`
+                else if (n.selected)
+                  return `${styles.edgeColorStrokeSelected}aa`
+                else return '#cfcfcf'
+              }}
+            />
+            <CustomControls
+              nodes={nodes}
+              edges={edges}
+              undoTime={undoTime}
+              redoTime={redoTime}
+              canUndo={canUndo}
+              canRedo={canRedo}
+            />
+            <Background color="#008ddf" />
+          </ReactFlow>
+        </div>
+      </EdgeContext.Provider>
     </FlowContext.Provider>
   )
 }

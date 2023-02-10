@@ -28,4 +28,21 @@ $edge-stroke-width: 2px;
       // stroke-width: 2;
     }
   }
+
+  // the foreignObject wrapper
+  .edge-label-wrapper {
+    width: min-content;
+    height: min-content;
+    padding: 0;
+    margin: 0;
+
+    overflow: visible;
+
+    opacity: 1;
+    transition: opacity $transition-normal;
+
+    &.hidden-edge-label-wrapper {
+      opacity: 0;
+    }
+  }
 }

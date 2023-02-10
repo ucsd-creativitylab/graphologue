@@ -59,6 +59,10 @@ export const cleanStoredData = (
   const edges =
     data.edges?.map(edge => {
       edge.selected = false
+
+      // data
+      edge.data.editing = false
+
       return edge
     }) || []
 

@@ -7,35 +7,75 @@ import {
   useEffect,
   useRef,
 } from 'react'
-import { Node, ReactFlowInstance } from 'reactflow'
-import { FlowContext } from './Contexts'
+import { Edge, Node } from 'reactflow'
+import { FlowContext, FlowContextType } from './Contexts'
 
 type SuperTextEditorProps = {
   target: 'node' | 'edge'
   targetId: string
   content: string
-  editable: boolean
+  editing: boolean
+  selected: boolean
 }
 export const SuperTextEditor = memo(
-  ({ target, targetId, content, editable }: SuperTextEditorProps) => {
-    const flow = useContext(FlowContext) as ReactFlowInstance
-    const { setNodes } = flow
+  ({ target, targetId, content, editing, selected }: SuperTextEditorProps) => {
+    const flow = useContext(FlowContext) as FlowContextType
+    const { setNodes, setEdges } = flow
+
+    const isNode = target === 'node'
+    const isEdge = target === 'edge'
 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const inputRef = useRef<HTMLInputElement>(null)
     useEffect(() => {
-      if (editable) {
-        const ele = textareaRef.current
+      if (editing) {
+        const ele = isNode ? textareaRef?.current : inputRef?.current
         if (ele) {
           ele.focus()
           ele.setSelectionRange(ele.value.length, ele.value.length)
         }
       }
-    }, [editable])
+    }, [editing, isNode])
 
-    const _finishEditing = useCallback(() => {
-      // TODO
-      if (target === 'edge') return
-      else if (target === 'node') {
+    // set size for input element
+    const getEdgeInputSize = useCallback(
+      (content: string) => Math.min(Math.max(content.length + 1, 1), 30),
+      []
+    )
+    useEffect(() => {
+      if (isEdge) {
+        const ele = inputRef.current
+        if (ele) {
+          ele.size = getEdgeInputSize(content)
+        }
+      }
+    }, [isEdge, content, getEdgeInputSize])
+
+    // ! on finish editing
+    const onFinishEditing = useCallback(() => {
+      // blur everything
+      // ;(document.activeElement as HTMLElement).blur()
+
+      // update label data
+      if (isEdge) {
+        // an input element
+        setEdges((eds: Edge[]) => {
+          return eds.map((ed: Edge) => {
+            if (targetId !== ed.id) return ed
+            else {
+              return {
+                ...ed,
+                data: {
+                  ...ed.data,
+                  editing: false,
+                  label: inputRef.current?.value,
+                },
+              }
+            }
+          })
+        })
+      } else if (isNode) {
+        // a textarea element
         setNodes((nds: Node[]) => {
           return nds.map((nd: Node) => {
             if (targetId !== nd.id) return nd
@@ -45,13 +85,14 @@ export const SuperTextEditor = memo(
                 data: {
                   ...nd.data,
                   editing: false,
+                  label: textareaRef.current?.value,
                 },
               }
             }
           })
         })
       }
-    }, [setNodes, target, targetId])
+    }, [isEdge, targetId, isNode, setEdges, setNodes])
 
     const handleTextEditorChange = useCallback(
       (e: BaseSyntheticEvent) => {
@@ -59,28 +100,14 @@ export const SuperTextEditor = memo(
         // e.target.style.height = 'fit-content'
         // e.target.style.height = `calc(${e.target.scrollHeight}px - 1.8rem)` // scrollHeight is the height of the content + padding ($padding-mid * 2 here)
         const newContent = e.target.value
-        e.target.parentNode.dataset.value = newContent
 
-        // TODO
-        if (target === 'edge') return
-        else if (target === 'node') {
-          setNodes((nds: Node[]) => {
-            return nds.map((nd: Node) => {
-              if (targetId !== nd.id) return nd
-              else {
-                return {
-                  ...nd,
-                  data: {
-                    ...nd.data,
-                    label: newContent,
-                  },
-                }
-              }
-            })
-          })
+        if (isEdge) {
+          inputRef.current!.size = getEdgeInputSize(newContent)
+        } else if (isNode) {
+          e.target.parentNode.dataset.value = newContent
         }
       },
-      [setNodes, target, targetId]
+      [getEdgeInputSize, isEdge, isNode]
     )
 
     const handleKeyDown = useCallback(
@@ -88,7 +115,7 @@ export const SuperTextEditor = memo(
         switch (e.key) {
           case 'Meta':
             e.preventDefault()
-            // e.stopPropagation()
+            e.stopPropagation()
             break
 
           case 'Enter':
@@ -97,42 +124,72 @@ export const SuperTextEditor = memo(
               // save
               e.preventDefault()
               e.stopPropagation()
-              _finishEditing()
+              onFinishEditing()
             }
+            break
+
+          case 'Escape':
+            e.preventDefault()
+            e.stopPropagation()
+            onFinishEditing()
             break
 
           default:
             break
         }
       },
-      [_finishEditing]
+      [onFinishEditing]
     )
 
     const handleBlur = useCallback(
       (e: BaseSyntheticEvent) => {
-        _finishEditing()
+        onFinishEditing()
       },
-      [_finishEditing]
+      [onFinishEditing]
     )
 
     return (
-      <div className="super-wrapper" data-value={content}>
-        <textarea
-          ref={textareaRef}
-          className={`super-text-editor ${target}-text-editor${
-            editable ? '' : ' disabled-text-editor'
-          }`}
-          rows={1}
-          value={content}
-          placeholder={target}
-          onChange={handleTextEditorChange}
-          onKeyDown={handleKeyDown}
-          onBlur={handleBlur}
-          disabled={!editable}
-          style={{
-            width: content.length <= 10 ? '6rem' : 'auto',
-          }}
-        ></textarea>
+      <div
+        className={`super-wrapper super-wrapper-${target}`}
+        data-value={content}
+      >
+        {isNode ? (
+          /* -------------------------------- for node -------------------------------- */
+          <textarea
+            ref={textareaRef}
+            className={`super-text-editor${
+              editing ? '' : ' disabled-text-editor'
+            }${selected ? ' selected-text-editor' : ''}${
+              content.length === 0 ? ' empty-text-editor' : ''
+            }`}
+            rows={1}
+            defaultValue={content}
+            placeholder={'node'}
+            onChange={handleTextEditorChange}
+            onKeyDown={handleKeyDown}
+            onBlur={handleBlur}
+            disabled={!editing}
+            style={{
+              width: content.length <= 10 ? '6rem' : 'auto',
+            }}
+          ></textarea>
+        ) : (
+          /* -------------------------------- for edge -------------------------------- */
+          <input
+            ref={inputRef}
+            className={`super-text-editor${
+              editing ? '' : ' disabled-text-editor'
+            }${selected ? ' selected-text-editor' : ''}${
+              content.length === 0 ? ' empty-text-editor' : ''
+            }`}
+            defaultValue={content}
+            placeholder={''}
+            onChange={handleTextEditorChange}
+            onKeyDown={handleKeyDown}
+            onBlur={handleBlur}
+            disabled={!editing}
+          ></input>
+        )}
       </div>
     )
   }
