@@ -11,7 +11,7 @@ import {
   useStore,
 } from 'reactflow'
 
-import AddBoxRoundedIcon from '@mui/icons-material/AddBoxRounded'
+import LinearScaleRoundedIcon from '@mui/icons-material/LinearScaleRounded'
 
 import { ReactComponent as DashLine } from '../media/dashLine.svg'
 import { ReactComponent as PlainLine } from '../media/plainLine.svg'
@@ -297,7 +297,7 @@ export const EdgeCustomLabel = memo(
               <MagicToolboxButton
                 content={
                   <>
-                    <AddBoxRoundedIcon />
+                    <LinearScaleRoundedIcon />
                     <span>
                       {edgeData.label.length ? 'convert to node' : 'add node'}
                     </span>
