@@ -1,0 +1,78 @@
+.magic-toolbox {
+  display: flex;
+  flex-direction: column;
+  gap: $padding-small;
+
+  position: absolute;
+  top: 0;
+  left: calc(100% + $padding-small);
+
+  padding: $padding-small;
+  border: none;
+
+  border-radius: $radius-default !important;
+  box-shadow: $shadow-grey-default;
+  background: $white;
+
+  transform-origin: top left;
+
+  // it is the responsibility of the parent to set
+  // the correct display strategy
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition: transform $transition-fast, opacity $transition-fast;
+
+  * {
+    color: $dark-grey;
+  }
+
+  &.magic-toolbox-show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: inherit;
+  }
+
+  .magic-toolbox-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-items: flex-start;
+    gap: $padding-xs;
+
+    .magic-toolbox-item-title {
+      font-size: $font-size-small;
+      font-weight: $font-weight-default;
+      color: $light-grey;
+    }
+  }
+
+  .magic-toolbox-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-items: center;
+    gap: $padding-xs;
+
+    font-size: $font-size-default;
+    white-space: nowrap;
+    background: $white;
+    padding: $padding-small $padding-mid;
+
+    border: none;
+    outline: 1px solid $light;
+    user-select: none;
+    border-radius: $radius-small;
+    cursor: pointer;
+
+    &:hover {
+      background: $light;
+    }
+
+    * {
+      font-size: $font-size-default;
+      pointer-events: none;
+    }
+  }
+}

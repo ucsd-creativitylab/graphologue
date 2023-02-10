@@ -60,6 +60,7 @@ $scrollbar-width: $padding-xs;
 $scrollbar-width-large: $padding-small;
 
 // FONT
+$font-size-xxs: 0.375rem;
 $font-size-xs: 0.5rem;
 $font-size-small: 0.675rem;
 $font-size-default: 0.75rem;
@@ -95,12 +96,23 @@ $rem-to-px: 16;
   @return calc($value / $rem-to-px);
 }
 
+$shadow-grey-default: rgba($grey, 0.3) 0 unit-rem-to-px(2rem)
+  unit-rem-to-px(12rem) unit-rem-to-px(0em);
 $shadow-default: rgba($cold-grey, 0.36) 0 unit-rem-to-px(2rem)
     unit-rem-to-px(8rem) unit-rem-to-px(1rem),
   rgba($white, 0.5) 0 0 unit-rem-to-px(8rem) unit-rem-to-px(4rem);
 $shadow-heavy: rgba($cold-grey, 0.6) 0 unit-rem-to-px(2rem)
     unit-rem-to-px(10rem) unit-rem-to-px(1rem),
   rgba($white, 0.5) 0 0 unit-rem-to-px(12rem) unit-rem-to-px(4rem);
+
+@mixin tooltip-styles() {
+  border-radius: $radius-small;
+  width: max-content;
+
+  color: $white;
+  background: rgba($dark-grey, $opacity-high);
+  backdrop-filter: blur($blur-high);
+}
 
 /* -------------------------------------------------------------------------- */
 

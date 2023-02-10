@@ -10,11 +10,20 @@ import {
   MarkerType,
   useStore,
 } from 'reactflow'
-import { hideEdgeTextZoomLevel, styles } from '../constants'
-import { EdgeContext } from './Contexts'
+
+import AddBoxRoundedIcon from '@mui/icons-material/AddBoxRounded'
+
+import { hardcodedNodeSize, hideEdgeTextZoomLevel, styles } from '../constants'
+import { EdgeContext, FlowContext } from './Contexts'
 import { getMarkerId } from './CustomDefs'
+import {
+  MagicToolbox,
+  MagicToolboxButton,
+  MagicToolboxItem,
+} from './MagicToolbox'
 import { SuperTextEditor } from './SuperTextEditor'
 import { getEdgeParams } from './utils'
+import { customAddNodes } from './Node'
 
 /* -------------------------------------------------------------------------- */
 
@@ -32,6 +41,8 @@ export const CustomEdge = memo(
     id,
     source,
     target,
+    sourceHandleId,
+    targetHandleId,
     animated,
     data,
     markerEnd,
@@ -86,24 +97,21 @@ export const CustomEdge = memo(
               : undefined
           }
         />
-        <foreignObject
-          className={`edge-label-wrapper${
-            roughZoomLevel < hideEdgeTextZoomLevel
-              ? ' hidden-edge-label-wrapper'
-              : ''
-          }`}
-          x={labelX}
-          y={labelY - 4} // ! why
-          requiredExtensions="http://www.w3.org/1999/xhtml"
-        >
-          <SuperTextEditor
-            target="edge"
-            targetId={id}
-            content={label}
-            editing={editing}
-            selected={selected || false}
-          />
-        </foreignObject>
+        <EdgeCustomLabel
+          edgeId={id}
+          labelX={labelX}
+          labelY={labelY}
+          label={label}
+          connection={{
+            source,
+            target,
+            sourceHandle: sourceHandleId || null,
+            targetHandle: targetHandleId || null,
+          }}
+          editing={editing}
+          selected={selected || false}
+          roughZoomLevel={roughZoomLevel}
+        />
         {/* <text>
           <textPath
             href={`#${id}`}
@@ -131,6 +139,124 @@ export const getNewEdge = (params: Connection) => {
     selected: false,
   } as Edge
 }
+
+/* -------------------------------------------------------------------------- */
+
+type EdgeCustomLabelProps = {
+  edgeId: string
+  labelX: number
+  labelY: number
+  label: string
+  connection: Connection
+  editing: boolean
+  selected: boolean
+  roughZoomLevel: number
+}
+export const EdgeCustomLabel = memo(
+  ({
+    edgeId,
+    labelX,
+    labelY,
+    label,
+    connection,
+    editing,
+    selected,
+    roughZoomLevel,
+  }: EdgeCustomLabelProps) => {
+    const { addNodes, setEdges, fitView } = useContext(FlowContext)
+    const { selectedComponents } = useContext(EdgeContext)
+
+    const moreThanOneComponentsSelected =
+      selectedComponents.selectedNodes.length +
+        selectedComponents.selectedEdges.length >
+      1
+
+    const handleAddNodeFromEdge = useCallback(() => {
+      const { width: nodeWidth, height: nodeHeight } = hardcodedNodeSize
+      const {
+        target: originalTarget,
+        source: originalSource,
+        targetHandle: originalTargetHandle,
+        sourceHandle: originalSourceHandle,
+      } = connection
+
+      const { nodeId, targetHandleId, sourceHandleId } = customAddNodes(
+        addNodes,
+        labelX - nodeWidth / 2,
+        labelY - nodeHeight / 2,
+        {
+          label: label,
+          editing: false,
+          toFitView: false,
+          fitView: fitView,
+        }
+      )
+
+      // originalSource -------------> originalTarget
+      // originalSource -> new node -> originalTarget
+      setEdges((eds: Edge[]) => {
+        return eds
+          .filter(ed => ed.id !== edgeId) // remove the original edge
+          .concat([
+            getNewEdge({
+              source: originalSource,
+              sourceHandle: originalSourceHandle,
+              target: nodeId,
+              targetHandle: targetHandleId,
+            }),
+            getNewEdge({
+              source: nodeId,
+              sourceHandle: sourceHandleId,
+              target: originalTarget,
+              targetHandle: originalTargetHandle,
+            }),
+          ])
+      })
+    }, [addNodes, connection, edgeId, fitView, label, labelX, labelY, setEdges])
+
+    return (
+      <foreignObject
+        className={`edge-label-wrapper${
+          roughZoomLevel < hideEdgeTextZoomLevel
+            ? ' hidden-edge-label-wrapper'
+            : ''
+        }`}
+        x={labelX}
+        y={labelY - 4} // ! why
+        requiredExtensions="http://www.w3.org/1999/xhtml"
+      >
+        <SuperTextEditor
+          target="edge"
+          targetId={edgeId}
+          content={label}
+          editing={editing}
+          selected={selected}
+        >
+          <MagicToolbox
+            className={`edge-label-toolbox${
+              selected && !moreThanOneComponentsSelected
+                ? ' magic-toolbox-show'
+                : ''
+            }`}
+            zoom={roughZoomLevel}
+          >
+            <MagicToolboxItem title="make node">
+              <MagicToolboxButton
+                content={
+                  <>
+                    <AddBoxRoundedIcon />
+                    <span>{label.length ? 'convert to node' : 'add node'}</span>
+                  </>
+                }
+                onClick={handleAddNodeFromEdge}
+              />
+            </MagicToolboxItem>
+          </MagicToolbox>
+        </SuperTextEditor>
+      </foreignObject>
+    )
+  }
+)
 
 /* -------------------------------------------------------------------------- */
 

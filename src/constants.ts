@@ -5,7 +5,7 @@ export const useSessionStorageHandle = '__reactFlowGraphologue__'
 
 export const viewFittingPadding = 0.3
 export const transitionDuration = 500
-export const hideEdgeTextZoomLevel = 0.8
+export const hideEdgeTextZoomLevel = 0.7
 
 export const timeMachineMaxSize = 50
 

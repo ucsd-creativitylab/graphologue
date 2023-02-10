@@ -70,6 +70,8 @@ const edgeTypes = {
 const Flow = () => {
   const thisReactFlowInstance = useReactFlow()
   const {
+    getNodes,
+    getEdges,
     setNodes,
     setEdges,
     setViewport,
@@ -226,6 +228,7 @@ const Flow = () => {
         'react-flow__pane'
       )
 
+      // ! drop to an empty space
       if (targetIsPane && reactFlowWrapper.current) {
         // we need to remove the wrapper bounds, in order to get the correct position
         const { top, left } = (
@@ -332,7 +335,15 @@ const Flow = () => {
 
   /* -------------------------------------------------------------------------- */
   // ! other rendering related
-  // none
+
+  const getSelectedComponents = useCallback((): {
+    selectedNodes: any[] // TODO type
+    selectedEdges: any[]
+  } => {
+    const selectedNodes = getNodes().filter((node: Node) => node.selected)
+    const selectedEdges = getEdges().filter((edge: Edge) => edge.selected)
+    return { selectedNodes, selectedEdges }
+  }, [getEdges, getNodes])
 
   return (
     <FlowContext.Provider
@@ -346,6 +357,7 @@ const Flow = () => {
       <EdgeContext.Provider
         value={{
           roughZoomLevel,
+          selectedComponents: getSelectedComponents(),
         }}
       >
         <div id="react-flow-wrapper" ref={reactFlowWrapper}>

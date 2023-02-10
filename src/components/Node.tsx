@@ -122,7 +122,7 @@ export const customAddNodes = (
     id: nodeId,
     type: 'custom', // ! use custom node
     data: {
-      label: '',
+      label: label,
       sourceHandleId: sourceHandleId,
       targetHandleId: targetHandleId,
       editing: editing,

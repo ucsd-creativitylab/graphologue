@@ -2,6 +2,7 @@ import {
   BaseSyntheticEvent,
   KeyboardEvent,
   memo,
+  ReactElement,
   useCallback,
   useContext,
   useEffect,
@@ -16,9 +17,17 @@ type SuperTextEditorProps = {
   content: string
   editing: boolean
   selected: boolean
+  children?: ReactElement
 }
 export const SuperTextEditor = memo(
-  ({ target, targetId, content, editing, selected }: SuperTextEditorProps) => {
+  ({
+    target,
+    targetId,
+    content,
+    editing,
+    selected,
+    children,
+  }: SuperTextEditorProps) => {
     const flow = useContext(FlowContext) as FlowContextType
     const { setNodes, setEdges } = flow
 
@@ -27,6 +36,8 @@ export const SuperTextEditor = memo(
 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
+
+    // ! on start editing
     useEffect(() => {
       if (editing) {
         const ele = isNode ? textareaRef?.current : inputRef?.current
@@ -37,9 +48,9 @@ export const SuperTextEditor = memo(
       }
     }, [editing, isNode])
 
-    // dynamic size setting
+    // dynamic size setting for edge input
     const getEdgeInputSize = useCallback(
-      (content: string) => Math.min(Math.max(content.length + 1, 1), 30),
+      (content: string) => Math.min(Math.max(content.length + 1, 1), 50),
       []
     )
     useEffect(() => {
@@ -164,7 +175,9 @@ export const SuperTextEditor = memo(
     return (
       <div
         key={`${target}-${targetId}-super-wrapper`}
-        className={`super-wrapper super-wrapper-${target}`}
+        className={`super-wrapper super-wrapper-${target}${
+          editing ? '' : ' disabled-wrapper'
+        }`}
         data-value={content}
       >
         {isNode ? (
@@ -206,6 +219,12 @@ export const SuperTextEditor = memo(
             disabled={!editing}
           ></input>
         )}
+
+        {isEdge && content.length > 0 && (
+          <div className="content-tooltip">{content}</div>
+        )}
+
+        {children}
       </div>
     )
   }

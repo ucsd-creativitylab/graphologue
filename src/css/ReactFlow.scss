@@ -25,6 +25,10 @@ $node-selection-border-width: unit-rem-to-px(2rem);
       border: none !important;
       border-radius: $radius-small;
 
+      &:hover {
+        background: $light;
+      }
+
       * {
         font-size: $font-size-default;
       }
@@ -86,12 +90,8 @@ $node-selection-border-width: unit-rem-to-px(2rem);
         position: absolute;
         top: 120%;
         padding: $padding-small !important;
-        border-radius: $radius-small;
-        width: max-content;
 
-        background: rgba($dark-grey, $opacity-high);
-        backdrop-filter: blur($blur-high);
-        color: $white;
+        @include tooltip-styles();
 
         transition: opacity $transition-normal;
         opacity: 0;

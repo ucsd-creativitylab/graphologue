@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import { ReactFlowInstance } from 'reactflow'
+import { Edge, ReactFlowInstance } from 'reactflow'
 
 export interface FlowContextType extends ReactFlowInstance {
   metaPressed: boolean
@@ -10,5 +10,9 @@ export const FlowContext = createContext<FlowContextType>({} as FlowContextType)
 
 export interface EdgeContextType {
   roughZoomLevel: number
+  selectedComponents: {
+    selectedNodes: Node[]
+    selectedEdges: Edge[]
+  }
 }
 export const EdgeContext = createContext<EdgeContextType>({} as EdgeContextType)

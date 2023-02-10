@@ -24,6 +24,26 @@
     text-align: center;
     resize: none;
   }
+
+  .content-tooltip {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + $padding-large);
+    transform: translateY(-50%);
+
+    @include tooltip-styles();
+    font-size: $font-size-xxs;
+    padding: $padding-xs;
+    max-width: 10rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition: opacity $transition-normal;
+  }
 }
 
 .super-wrapper-node {
@@ -55,10 +75,11 @@
   .super-text-editor {
     flex: 1;
     padding: $padding-xs $padding-xs;
-
     border-radius: $padding-x-large;
+
     font-size: $font-size-xs;
-    color: $dark-grey;
+    font-weight: $font-weight-default;
+    color: $grey;
 
     background: rgba($white, 0);
     outline: unit-rem-to-px(1rem) solid transparent;
@@ -66,23 +87,47 @@
 
     transition: outline $transition-fast, background-color $transition-fast;
 
+    &::selection {
+      background: $light;
+    }
+
     // when not empty
     &:not(.empty-text-editor) {
-      background: rgba($white, $opacity-mid);
-      backdrop-filter: blur($blur-small);
+      // background: rgba($white, $opacity-mid);
+      // backdrop-filter: blur($blur-small);
+      background: $white;
+    }
+
+    // when hovered
+    &:hover {
+      background: $white;
+      outline: unit-rem-to-px(1rem) solid $light-grey;
+
+      & + .content-tooltip {
+        opacity: 1;
+        visibility: visible;
+      }
     }
 
     // when selected
+    &:active,
     &.selected-text-editor {
       background: $white;
       outline: unit-rem-to-px(1rem) solid rgba($red, $opacity-mid);
     }
 
-    // when hovered
-
     // when editing
     &:not(.disabled-text-editor) {
-      outline: unit-rem-to-px(1rem) solid rgba($pink, $opacity-mid);
+      color: $red;
+      // outline: unit-rem-to-px(1rem) solid rgba($pink, $opacity-mid);
     }
   }
+
+  // &:hover,
+  // &:not(.disabled-wrapper) {
+  //   .content-tooltip {
+  //     opacity: 1;
+  //     visibility: visible;
+  //   }
+  // }
 }
