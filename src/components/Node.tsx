@@ -16,6 +16,7 @@ import {
   viewFittingPadding,
 } from '../constants'
 import { FlowContext } from './Contexts'
+import { MagicNodeData } from './MagicNode'
 import randomPhrases from './randomPhrases'
 import { SuperTextEditor } from './SuperTextEditor'
 import { getHandleId, getNodeId } from './utils'
@@ -39,8 +40,7 @@ const connectionNodeIdSelector = (state: ReactFlowState) =>
 
 export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
-    const { metaPressed } = useContext(FlowContext)
-    // const {  selectedComponents } = useContext(EdgeContext)
+    const { metaPressed, selectedComponents } = useContext(FlowContext)
 
     // const moreThanOneComponentsSelected =
     //   selectedComponents.selectedNodes.length +
@@ -55,15 +55,29 @@ export const CustomNode = memo(
     // is the node being source of an ongoing new connection?
     const isTarget = connectionNodeId && connectionNodeId !== id
 
+    // check if this node is explained by a magic node
+    const selectedMagicNodes = selectedComponents.nodes.filter(
+      (node: Node) => node.type === 'magic'
+    )
+    const isExplainedByMagicNode = selectedMagicNodes.some((node: Node) => {
+      const {
+        sourceComponents: { nodes },
+      } = node.data as MagicNodeData
+      for (const node of nodes) {
+        if (node.id === id) return true
+      }
+      return false
+    })
+
     return (
       <div
-        className={`customNodeBody${
-          metaPressed ? ' customNodeMetaPressed' : ''
-        }`}
+        className={`custom-node-body${
+          metaPressed ? ' custom-node-meta-pressed' : ''
+        }${isExplainedByMagicNode ? ' custom-node-explained' : ''}`}
       >
         <Handle
           id={targetHandleId}
-          className="customHandle targetHandle"
+          className="custom-handle target-handle"
           position={Position.Right}
           type="target"
           style={{
@@ -72,7 +86,7 @@ export const CustomNode = memo(
         />
         <Handle
           id={sourceHandleId}
-          className="customHandle sourceHandle"
+          className="custom-handle source-handle"
           position={Position.Left}
           type="source"
           style={{
@@ -80,8 +94,8 @@ export const CustomNode = memo(
           }}
         />
         <div
-          className={`customNodeContent${
-            isTarget ? ' customNodeContentTarget' : ''
+          className={`custom-node-content${
+            isTarget ? ' custom-node-content-target' : ''
           }`}
           style={{
             zIndex: metaPressed ? 0 : 4,

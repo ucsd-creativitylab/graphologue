@@ -22,17 +22,21 @@ $edge-stroke-width: 2px;
   }
 
   // ! selected
-  &.selected {
-    z-index: 999 !important;
-  }
-
   &.selected,
   &:focus,
   &:focus-visible {
+    z-index: 999 !important;
+
     .react-flow__edge-path {
       stroke: rgba($red, $opacity-mid) !important;
       // stroke-width: 2;
     }
+  }
+
+  // ! explained
+  .edge-explained {
+    stroke-dasharray: 0, 4;
+    stroke: rgba($purple, $opacity-mid) !important;
   }
 
   // the foreignObject wrapper

@@ -4,6 +4,7 @@ import {
   ConnectionLineComponent,
   ConnectionLineComponentProps,
   DefaultEdgeOptions,
+  Node,
   Edge,
   EdgeProps,
   getStraightPath,
@@ -28,6 +29,7 @@ import {
 import { SuperTextEditor } from './SuperTextEditor'
 import { getEdgeParams } from './utils'
 import { customAddNodes } from './Node'
+import { MagicNodeData } from './MagicNode'
 
 /* -------------------------------------------------------------------------- */
 
@@ -59,6 +61,7 @@ export const CustomEdge = memo(
       useCallback(store => store.nodeInternals.get(target), [target])
     )
 
+    const { selectedComponents } = useContext(FlowContext)
     const { roughZoomLevel } = useContext(EdgeContext) // useContext cannot be called conditionally
 
     if (!sourceNode || !targetNode) return null
@@ -71,6 +74,20 @@ export const CustomEdge = memo(
       sourceY: sy,
       targetX: tx,
       targetY: ty,
+    })
+
+    // check if this node is explained by a magic node
+    const selectedMagicNodes = selectedComponents.nodes.filter(
+      (node: Node) => node.type === 'magic'
+    )
+    const isExplainedByMagicNode = selectedMagicNodes.some((node: Node) => {
+      const {
+        sourceComponents: { edges },
+      } = node.data as MagicNodeData
+      for (const ed of edges) {
+        if (ed.id === id) return true
+      }
+      return false
     })
 
     return (
@@ -90,7 +107,7 @@ export const CustomEdge = memo(
           id={id}
           className={`react-flow__edge-path react-flow__edge-path-${customType}${
             selected ? ' path-selected' : ''
-          }`}
+          }${isExplainedByMagicNode ? ' edge-explained' : ''}`}
           d={edgePath}
           strokeLinecap={customType === 'arrow' ? 'butt' : 'round'}
           strokeDasharray={
@@ -170,8 +187,8 @@ export const EdgeCustomLabel = memo(
     selected,
     roughZoomLevel,
   }: EdgeCustomLabelProps) => {
-    const { addNodes, setEdges, fitView } = useContext(FlowContext)
-    const { selectedComponents } = useContext(EdgeContext)
+    const { addNodes, setEdges, fitView, selectedComponents } =
+      useContext(FlowContext)
 
     const moreThanOneComponentsSelected =
       selectedComponents.nodes.length + selectedComponents.edges.length > 1

@@ -12,7 +12,10 @@ export const timeMachineMaxSize = 50
 export const hardcodedNodeSize = {
   width: 160,
   height: 43,
+  magicWidth: 320,
+  magicHeight: 160,
 }
+export const nodeGap = 50 // ?
 
 export const styles = {
   edgeColorStrokeDefault: '#aaaaaa',

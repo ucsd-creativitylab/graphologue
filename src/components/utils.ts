@@ -1,9 +1,49 @@
-import { Node, Position } from 'reactflow'
+import { Edge, Node, Position } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
 export const getNodeId = () => `node-${uuidv4()}`
+export const getMagicNodeId = () => `magic-node-${uuidv4()}`
 export const getHandleId = () => `handle-${uuidv4()}`
 export const getEdgeId = () => `edge-${uuidv4()}`
+
+/* -------------------------------------------------------------------------- */
+
+export const getComponentsBounds = (
+  targetNodes: Node[],
+  targetEdges: Edge[],
+  nodes: Node[]
+) => {
+  const bounds = {
+    left: Infinity,
+    top: Infinity,
+    right: -Infinity,
+    bottom: -Infinity,
+  }
+
+  // recover edges to nodes
+  const nodesFromEdges = targetEdges.reduce((acc: any[], edge: Edge) => {
+    const sourceNode = nodes.find(n => n.id === edge.source)
+    const targetNode = nodes.find(n => n.id === edge.target)
+    return [...acc, sourceNode, targetNode]
+  }, [] as Node[])
+
+  targetNodes = [...targetNodes, ...nodesFromEdges]
+
+  targetNodes.forEach(node => {
+    const {
+      position: { x, y },
+      width,
+      height,
+    } = node
+
+    if (x! < bounds.left) bounds.left = x!
+    if (y! < bounds.top) bounds.top = y!
+    if (x! + width! > bounds.right) bounds.right = x! + width!
+    if (y! + height! > bounds.bottom) bounds.bottom = y! + height!
+  })
+
+  return bounds
+}
 
 /* -------------------------------------------------------------------------- */
 // ! generate edge params
@@ -116,4 +156,20 @@ export const getGraphBounds = (nodes: Node[]) => {
 export const roundTo = (num: number, precision: number) => {
   const factor = Math.pow(10, precision)
   return Math.round(num * factor) / factor
+}
+
+/* -------------------------------------------------------------------------- */
+
+export const downloadData = (data: any, filename: string) => {
+  // download json as a file
+  const json = JSON.stringify(data, null, 2)
+  const blob = new Blob([json], { type: 'application/json' })
+
+  const href = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = href
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }

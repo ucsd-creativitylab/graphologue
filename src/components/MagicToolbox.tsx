@@ -1,9 +1,16 @@
-import { BaseSyntheticEvent, ReactElement, useCallback } from 'react'
+import {
+  BaseSyntheticEvent,
+  memo,
+  ReactElement,
+  useCallback,
+  useContext,
+} from 'react'
 
 import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 
 import { terms } from '../constants'
-import { magicExplain, PromptType } from './magicExplain'
+import { magicExplain, PromptSourceComponentsType } from './magicExplain'
+import { FlowContext } from './Contexts'
 
 interface MagicToolboxProps {
   className?: string
@@ -51,35 +58,44 @@ interface MagicToolboxButtonProps {
   content: ReactElement | string
   onClick?: () => void
   preventDefault?: boolean
+  className?: string
 }
-export const MagicToolboxButton = ({
-  content,
-  onClick,
-  preventDefault = true,
-}: MagicToolboxButtonProps) => {
-  // handle click
-  const handleOnClick = useCallback(
-    (e: BaseSyntheticEvent) => {
-      if (preventDefault) {
-        e.preventDefault()
-        e.stopPropagation()
-      }
-      onClick && onClick()
-    },
-    [onClick, preventDefault]
-  )
+export const MagicToolboxButton = memo(
+  ({
+    content,
+    onClick,
+    preventDefault = true,
+    className = '',
+  }: MagicToolboxButtonProps) => {
+    // handle click
+    const handleOnClick = useCallback(
+      (e: BaseSyntheticEvent) => {
+        if (preventDefault) {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+        onClick && onClick()
+      },
+      [onClick, preventDefault]
+    )
 
-  return (
-    <button className="magic-toolbox-button" onClick={handleOnClick}>
-      {content}
-    </button>
-  )
-}
+    return (
+      <button
+        className={'magic-toolbox-button' + (className ? ` ${className}` : '')}
+        onClick={handleOnClick}
+      >
+        {content}
+      </button>
+    )
+  }
+)
 
 interface MagicAskItemProps {
-  prompt: PromptType
+  sourceComponents: PromptSourceComponentsType
 }
-export const MagicAskItem = ({ prompt }: MagicAskItemProps) => {
+export const MagicAskItem = ({ sourceComponents }: MagicAskItemProps) => {
+  const { getNodes, addNodes, fitView } = useContext(FlowContext)
+
   return (
     <MagicToolboxItem title={`ask ${terms.gpt}`}>
       <MagicToolboxButton
@@ -90,7 +106,7 @@ export const MagicAskItem = ({ prompt }: MagicAskItemProps) => {
           </>
         }
         onClick={() => {
-          magicExplain(prompt)
+          magicExplain(getNodes(), sourceComponents, addNodes, fitView)
         }}
       />
     </MagicToolboxItem>

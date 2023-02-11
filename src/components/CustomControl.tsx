@@ -13,11 +13,12 @@ import KeyboardOptionKeyRoundedIcon from '@mui/icons-material/KeyboardOptionKeyR
 import EditRoundedIcon from '@mui/icons-material/EditRounded'
 import UndoRoundedIcon from '@mui/icons-material/UndoRounded'
 import RedoRoundedIcon from '@mui/icons-material/RedoRounded'
+import FormatListBulletedRoundedIcon from '@mui/icons-material/FormatListBulletedRounded'
 import TheatersRoundedIcon from '@mui/icons-material/TheatersRounded'
 import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded'
 
 import { customAddNodes } from './Node'
-import { getGraphBounds } from './utils'
+import { downloadData, getGraphBounds } from './utils'
 import {
   hardcodedNodeSize,
   terms,
@@ -57,6 +58,7 @@ export const CustomControls = memo(
       getNodes,
       addNodes,
       deleteElements,
+      toObject,
     } = useContext(FlowContext)
 
     const _returnToOrigin = useCallback(() => {
@@ -110,14 +112,38 @@ export const CustomControls = memo(
     // ! explain
 
     const handleExplain = useCallback(() => {
-      magicExplain(selectedComponents)
-    }, [selectedComponents])
+      magicExplain(
+        nodes,
+        {
+          edges: selectedComponents.edges,
+          nodes: selectedComponents.nodes.filter(
+            // you cannot explain a magic node
+            (node: Node) => node.type !== 'magic'
+          ),
+        },
+        addNodes,
+        fitView
+      )
+    }, [addNodes, fitView, nodes, selectedComponents])
+
+    /* -------------------------------------------------------------------------- */
+
+    const handleSaveFile = useCallback(() => {
+      downloadData(
+        toObject(),
+        // 'graphologue.json' with current time
+        `graphologue-${new Date().toJSON().slice(0, 10)}.json`
+      )
+    }, [toObject])
 
     /* -------------------------------------------------------------------------- */
 
     const isEmptyCanvas = nodes.length === 0
-    const anyThingSelected =
-      selectedComponents.nodes.length > 0 || selectedComponents.edges.length > 0
+    // you cannot explain a magic node
+    const anyCustomNodesOrEdgesSelected =
+      selectedComponents.nodes.some(
+        node => node.type !== 'magic' && node.selected
+      ) || selectedComponents.edges.length > 0
 
     return (
       <Controls
@@ -152,7 +178,7 @@ export const CustomControls = memo(
         <ControlButton
           className={
             'explain-button' +
-            (!anyThingSelected ? ' disabled-control-button' : '')
+            (!anyCustomNodesOrEdgesSelected ? ' disabled-control-button' : '')
           }
           onClick={handleExplain}
         >
@@ -165,17 +191,25 @@ export const CustomControls = memo(
           </ControlButtonTooltip>
         </ControlButton>
 
+        <ControlButton onClick={() => {}}>
+          <FormatListBulletedRoundedIcon />
+          <span>notes</span>
+          <ControlButtonTooltip>
+            <TooltipLine>coming soon</TooltipLine>
+          </ControlButtonTooltip>
+        </ControlButton>
+
         <ControlButton
           className={canUndo ? '' : 'disabled-control-button'}
           onClick={undoTime}
         >
           <UndoRoundedIcon />
-          <span>undo</span>
-          {/* <ControlButtonTooltip>
+          <ControlButtonTooltip>
             <TooltipLine>
-              <KeyboardCommandKeyRoundedIcon /> + z
+              {/* <KeyboardCommandKeyRoundedIcon /> + z */}
+              undo
             </TooltipLine>
-          </ControlButtonTooltip> */}
+          </ControlButtonTooltip>
         </ControlButton>
 
         <ControlButton
@@ -183,25 +217,25 @@ export const CustomControls = memo(
           onClick={redoTime}
         >
           <RedoRoundedIcon />
-          <span>redo</span>
-          {/* <ControlButtonTooltip>
+          <ControlButtonTooltip>
             <TooltipLine>
-              <KeyboardCommandKeyRoundedIcon /> + x
+              {/* <KeyboardCommandKeyRoundedIcon /> + x */}
+              redo
             </TooltipLine>
+          </ControlButtonTooltip>
+        </ControlButton>
+
+        <ControlButton onClick={handleSaveFile}>
+          <FileDownloadRoundedIcon />
+          <span>save</span>
+          {/* <ControlButtonTooltip>
+            <TooltipLine>save as a file</TooltipLine>
           </ControlButtonTooltip> */}
         </ControlButton>
 
         <ControlButton onClick={() => {}}>
           <TheatersRoundedIcon />
           <span>examples</span>
-          <ControlButtonTooltip>
-            <TooltipLine>coming soon</TooltipLine>
-          </ControlButtonTooltip>
-        </ControlButton>
-
-        <ControlButton onClick={() => {}}>
-          <FileDownloadRoundedIcon />
-          <span>save</span>
           <ControlButtonTooltip>
             <TooltipLine>coming soon</TooltipLine>
           </ControlButtonTooltip>

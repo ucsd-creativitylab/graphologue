@@ -6,7 +6,7 @@ $shadow-node-selected: $shadow-heavy;
 
   // z-index: -1 !important;
 
-  .customNodeBody {
+  .custom-node-body {
     display: flex !important;
     align-items: center;
     justify-content: flex-start;
@@ -22,12 +22,17 @@ $shadow-node-selected: $shadow-heavy;
     transition: box-shadow $transition-fast, outline $transition-fast,
       outline-offset $transition-fast;
 
-    &.customNodeMetaPressed {
+    &.custom-node-meta-pressed {
       box-shadow: $light-grey 0 0 rem-to-px(0) rem-to-px(2rem) !important;
+    }
+
+    &.custom-node-explained {
+      outline: rem-to-px(2rem) dotted rgba($purple, $opacity-mid) !important;
+      outline-offset: rem-to-px(2rem);
     }
   }
 
-  .customNodeContent {
+  .custom-node-content {
     display: flex;
     width: 100%;
     height: 100%;
@@ -38,13 +43,13 @@ $shadow-node-selected: $shadow-heavy;
     border-radius: $radius-default;
     transition: transform $transition-fast;
 
-    &.customNodeContentTarget {
+    &.custom-node-content-target {
       pointer-events: none;
     }
   }
 
-  .customNodeContent,
-  .customNodeContent * {
+  .custom-node-content,
+  .custom-node-content * {
     font-family: inherit;
     color: $black;
     font-size: $font-size-default;
@@ -52,7 +57,7 @@ $shadow-node-selected: $shadow-heavy;
     // font-style: italic;
   }
 
-  .customHandle {
+  .custom-handle {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -67,13 +72,13 @@ $shadow-node-selected: $shadow-heavy;
   }
 
   &.selected {
-    .customNodeBody {
+    .custom-node-body {
       box-shadow: $shadow-node-selected;
       outline: rem-to-px(2rem) solid rgba($red, $opacity-mid);
       outline-offset: rem-to-px(2rem);
     }
 
-    // .customNodeContent {
+    // .custom-node-content {
     //   font-weight: $font-weight-default;
     // }
   }
@@ -84,8 +89,154 @@ $shadow-node-selected: $shadow-heavy;
     z-index: -1 !important; // edges on top of the nodes
   }
 
-  .customNodeContent {
+  .custom-node-content {
     transform: scale(0.98);
     transform-origin: center;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+// ! magic here
+
+.react-flow__node {
+  &.selected {
+    .magic-node-body {
+      outline: rem-to-px(2rem) solid rgba($purple, $opacity-high) !important;
+    }
+  }
+
+  .magic-node-body {
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: $padding-small;
+
+    width: 20rem;
+    // min-height: 10rem;
+    height: fit-content;
+    box-sizing: border-box;
+
+    padding: $padding-small;
+
+    .magic-node-bar {
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      gap: $padding-small;
+
+      border-bottom: rem-to-px(1rem) solid $light;
+      padding-bottom: $padding-small;
+      width: 100%;
+
+      .magic-node-bar-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        padding: $padding-small;
+        border: none;
+        outline: none;
+        border-radius: 50%;
+        user-select: none;
+
+        background: $white;
+        outline: rem-to-px(1rem) solid $light;
+
+        cursor: pointer;
+
+        * {
+          font-size: $font-size-default;
+        }
+
+        &:hover {
+          background: $light;
+        }
+      }
+    }
+
+    .magic-prompt {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: $padding-small;
+
+      width: 100%;
+
+      .magic-prompt-line {
+        display: flex;
+        flex-direction: row;
+        gap: $padding-small;
+      }
+
+      .magic-prompt-text {
+        padding: $padding-small;
+        width: 100%;
+
+        resize: none;
+        outline: none;
+        border: none;
+        border-radius: $radius-small;
+        box-sizing: border-box;
+
+        font-family: 'Roboto Slab', serif;
+        color: $black;
+
+        background: #fefefe;
+        box-shadow: rgb(204, 219, 232, 0.9) 0 rem-to-px(2rem) rem-to-px(7rem) 0
+            inset,
+          rgba(255, 255, 255, 0.7) 0 rem-to-px(-4rem) rem-to-px(6rem)
+            rem-to-px(2rem) inset;
+      }
+
+      .magic-button {
+        @include magic-button;
+      }
+    }
+
+    .waiting-for-model-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: $padding-small;
+
+      box-sizing: border-box;
+      padding: $padding-small 0 $padding-large 0;
+    }
+
+    .magic-node-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: $padding-small;
+
+      width: 100%;
+      height: fit-content;
+      box-sizing: border-box;
+
+      padding: $padding-small 0;
+      z-index: 1;
+
+      font-size: $font-size-default;
+      line-height: 150%;
+
+      pointer-events: all;
+
+      .magic-node-content-text {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        color: $dark-grey;
+
+        pointer-events: all;
+        user-select: text;
+        cursor: text;
+        z-index: 1;
+
+        &::selection {
+          background: $light;
+        }
+      }
+    }
   }
 }

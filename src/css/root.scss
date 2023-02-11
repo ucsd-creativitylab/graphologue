@@ -206,3 +206,33 @@ $shadow-heavy: rgba($cold-grey, 0.6) 0 rem-to-px(2rem) rem-to-px(10rem)
     background: $thumb-color-hover;
   }
 }
+
+/* -------------------------------------------------------------------------- */
+
+@mixin magic-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: $padding-xs;
+
+  font-size: $font-size-default !important;
+  white-space: nowrap;
+  background: $white;
+  padding: $padding-small $padding-mid;
+
+  border: none;
+  outline: rem-to-px(1rem) solid $light;
+  user-select: none;
+  border-radius: $radius-small;
+  cursor: pointer;
+
+  &:hover {
+    background: $light;
+  }
+
+  * {
+    font-size: $font-size-default;
+    pointer-events: none;
+  }
+}

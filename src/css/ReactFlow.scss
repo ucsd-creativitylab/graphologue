@@ -8,6 +8,7 @@ $node-selection-border-width: rem-to-px(2rem);
     flex-direction: row;
     white-space: nowrap;
     align-items: center;
+    width: max-content;
     // overflow: hidden;
 
     padding: $padding-xs;
@@ -17,9 +18,10 @@ $node-selection-border-width: rem-to-px(2rem);
     box-shadow: $shadow-default;
 
     .react-flow__controls-button {
+      flex-shrink: 0;
       justify-content: center;
       gap: $padding-xs;
-      height: fit-content;
+      height: 100%;
       width: fit-content;
       padding: $padding-small $padding-mid;
       border: none !important;
@@ -31,6 +33,11 @@ $node-selection-border-width: rem-to-px(2rem);
 
       * {
         font-size: $font-size-default;
+      }
+
+      svg {
+        width: $font-size-default;
+        height: $font-size-default;
       }
 
       &.disabled-control-button {

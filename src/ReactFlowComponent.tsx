@@ -49,7 +49,8 @@ import { EdgeContext, FlowContext } from './components/Contexts'
 import { getItem, storeItem } from './components/storage'
 import { useTimeMachine } from './components/timeMachine'
 import { roundTo } from './components/utils'
-import { PromptType } from './components/magicExplain'
+import { PromptSourceComponentsType } from './components/magicExplain'
+import { MagicNode } from './components/MagicNode'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -62,6 +63,7 @@ const defaultEdges = storedData.edges as Edge[]
 
 const nodeTypes = {
   custom: CustomNode,
+  magic: MagicNode,
 } as NodeTypes
 
 const edgeTypes = {
@@ -100,7 +102,7 @@ const Flow = () => {
   const [selectedComponents, setSelectedComponents] = useState({
     nodes: [],
     edges: [],
-  } as PromptType)
+  } as PromptSourceComponentsType)
 
   const currentConnectingNode = useRef({
     id: '',
@@ -208,7 +210,7 @@ const Flow = () => {
       e.preventDefault()
       e.stopPropagation()
 
-      doSetNodesEditing([node.id], true)
+      if (node.type === 'custom') doSetNodesEditing([node.id], true)
     },
     [doSetNodesEditing]
   )
@@ -354,6 +356,7 @@ const Flow = () => {
       value={{
         ...thisReactFlowInstance,
         metaPressed,
+        selectedComponents: selectedComponents,
         doSetNodesEditing,
         doSetEdgesEditing,
       }}
@@ -361,7 +364,6 @@ const Flow = () => {
       <EdgeContext.Provider
         value={{
           roughZoomLevel,
-          selectedComponents: selectedComponents,
         }}
       >
         <div id="react-flow-wrapper" ref={reactFlowWrapper}>
@@ -415,10 +417,15 @@ const Flow = () => {
               // }}
               nodeColor={n => {
                 if (n.data.editing) return `#ff06b7aa`
-                else if (n.selected)
-                  return `${styles.edgeColorStrokeSelected}aa`
-                else return '#cfcfcf'
+                else if (n.selected) {
+                  if (n.type === 'magic') return `#${`57068c`}aa`
+                  else return `${styles.edgeColorStrokeSelected}aa`
+                } else return '#cfcfcf'
               }}
+              // nodeStrokeColor={n => {
+              //   if (n.type === 'magic') return `#${`57068c`}99`
+              //   else return 'none'
+              // }}
             />
             <CustomControls
               nodes={nodes}
