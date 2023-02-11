@@ -9,6 +9,7 @@ import {
   ReactFlowState,
   NodeProps,
 } from 'reactflow'
+
 import {
   hardcodedNodeSize,
   transitionDuration,
@@ -39,6 +40,13 @@ const connectionNodeIdSelector = (state: ReactFlowState) =>
 export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
     const { metaPressed } = useContext(FlowContext)
+    // const {  selectedComponents } = useContext(EdgeContext)
+
+    // const moreThanOneComponentsSelected =
+    //   selectedComponents.selectedNodes.length +
+    //     selectedComponents.selectedEdges.length >
+    //   1
+
     const { label, sourceHandleId, targetHandleId, editing } =
       data as CustomNodeData
 
@@ -85,7 +93,30 @@ export const CustomNode = memo(
             content={label}
             editing={editing}
             selected={selected}
-          />
+          >
+            {/* {label.length > 0 ? (
+              <>
+                <MagicToolbox
+                  className={`edge-label-toolbox${
+                    selected && !moreThanOneComponentsSelected
+                      ? ' magic-toolbox-show'
+                      : ''
+                  }`}
+                  zoom={roughZoomLevel}
+                >
+                  <MagicAskItem
+                    prompt={{
+                      edges: [],
+                      nodes: [getNode(id)!] || [],
+                    }}
+                  />
+                </MagicToolbox>
+              </>
+            ) : (
+              <></>
+            )} */}
+            <></>
+          </SuperTextEditor>
         </div>
       </div>
     )

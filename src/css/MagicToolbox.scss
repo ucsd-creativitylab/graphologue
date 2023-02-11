@@ -4,7 +4,7 @@
   gap: $padding-small;
 
   position: absolute;
-  top: 0;
+  top: 0%;
   left: calc(100% + $padding-small);
 
   padding: $padding-small;
@@ -23,7 +23,7 @@
   pointer-events: none;
 
   z-index: 9;
-  transition: transform $transition-fast, opacity $transition-fast;
+  transition: opacity $transition-fast;
 
   * {
     color: $dark-grey;

@@ -2,6 +2,8 @@ $edge-color-stroke: #aaa;
 $edge-stroke-width: 2px;
 
 .react-flow__edge {
+  position: absolute !important;
+
   .react-flow__edge-path {
     stroke: $edge-color-stroke;
     stroke-width: $edge-stroke-width;
@@ -20,6 +22,10 @@ $edge-stroke-width: 2px;
   }
 
   // ! selected
+  &.selected {
+    z-index: 999 !important;
+  }
+
   &.selected,
   &:focus,
   &:focus-visible {
@@ -48,7 +54,7 @@ $edge-stroke-width: 2px;
     .edge-custom-type-switch {
       display: flex;
       flex-direction: row;
-      gap: $padding-xs;
+      gap: $padding-small;
 
       width: 100%;
       pointer-events: all;
@@ -56,6 +62,8 @@ $edge-stroke-width: 2px;
       .type-switch-button {
         flex-grow: 1;
         padding: $padding-small !important;
+
+        transition: outline $transition-fast;
 
         &.selected {
           outline: rem-to-px(1rem) solid $elegant-blue !important;

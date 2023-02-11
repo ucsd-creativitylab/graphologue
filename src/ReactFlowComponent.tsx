@@ -49,6 +49,7 @@ import { EdgeContext, FlowContext } from './components/Contexts'
 import { getItem, storeItem } from './components/storage'
 import { useTimeMachine } from './components/timeMachine'
 import { roundTo } from './components/utils'
+import { PromptType } from './components/magicExplain'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -70,8 +71,6 @@ const edgeTypes = {
 const Flow = () => {
   const thisReactFlowInstance = useReactFlow()
   const {
-    getNodes,
-    getEdges,
     setNodes,
     setEdges,
     setViewport,
@@ -97,6 +96,12 @@ const Flow = () => {
   /* -------------------------------------------------------------------------- */
   // ! internal states
   const reactFlowWrapper = useRef(null)
+
+  const [selectedComponents, setSelectedComponents] = useState({
+    nodes: [],
+    edges: [],
+  } as PromptType)
+
   const currentConnectingNode = useRef({
     id: '',
     sourceHandleId: '',
@@ -112,12 +117,12 @@ const Flow = () => {
 
   // viewport
   const [roughZoomLevel, setRoughZoomLevel] = useState(
-    roundTo(getViewport().zoom, 1)
+    roundTo(getViewport().zoom, 2)
   )
   useOnViewportChange({
     onChange: (v: Viewport) => {
-      if (roughZoomLevel !== roundTo(getViewport().zoom, 1))
-        setRoughZoomLevel(roundTo(getViewport().zoom, 1))
+      if (roughZoomLevel !== roundTo(getViewport().zoom, 2))
+        setRoughZoomLevel(roundTo(getViewport().zoom, 2))
     },
   })
 
@@ -135,10 +140,16 @@ const Flow = () => {
     if (editing) return
 
     storeItem(toObject(), setTime)
+
+    // update selected
+    setSelectedComponents({
+      nodes: nodes.filter((nd: Node) => nd.selected),
+      edges: edges.filter((ed: Edge) => ed.selected),
+    })
   }, [nodes, edges, toObject, setTime])
 
   // ! keys
-  const metaPressed = useKeyPress(['Meta', 'Alt'])
+  const metaPressed = useKeyPress(['Ctrl', 'Alt'])
   // const undoPressed = useKeyPress('Meta+z')
   // const redoPressed = useKeyPress('Meta+x')
 
@@ -336,14 +347,7 @@ const Flow = () => {
   /* -------------------------------------------------------------------------- */
   // ! other rendering related
 
-  const getSelectedComponents = useCallback((): {
-    selectedNodes: any[] // TODO type
-    selectedEdges: any[]
-  } => {
-    const selectedNodes = getNodes().filter((node: Node) => node.selected)
-    const selectedEdges = getEdges().filter((edge: Edge) => edge.selected)
-    return { selectedNodes, selectedEdges }
-  }, [getEdges, getNodes])
+  // none
 
   return (
     <FlowContext.Provider
@@ -357,7 +361,7 @@ const Flow = () => {
       <EdgeContext.Provider
         value={{
           roughZoomLevel,
-          selectedComponents: getSelectedComponents(),
+          selectedComponents: selectedComponents,
         }}
       >
         <div id="react-flow-wrapper" ref={reactFlowWrapper}>
@@ -419,6 +423,7 @@ const Flow = () => {
             <CustomControls
               nodes={nodes}
               edges={edges}
+              selectedComponents={selectedComponents}
               undoTime={undoTime}
               redoTime={redoTime}
               canUndo={canUndo}

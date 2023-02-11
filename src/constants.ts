@@ -22,3 +22,7 @@ export const styles = {
   edgeMarkerSize: 12,
   edgeDashLineArray: '5, 7',
 }
+
+export const terms = {
+  gpt: 'GPT-3',
+}

@@ -174,9 +174,7 @@ export const EdgeCustomLabel = memo(
     const { selectedComponents } = useContext(EdgeContext)
 
     const moreThanOneComponentsSelected =
-      selectedComponents.selectedNodes.length +
-        selectedComponents.selectedEdges.length >
-      1
+      selectedComponents.nodes.length + selectedComponents.edges.length > 1
 
     // ! add node from edge
     const handleAddNodeFromEdge = useCallback(() => {
@@ -285,6 +283,7 @@ export const EdgeCustomLabel = memo(
           editing={edgeData.editing}
           selected={selected}
         >
+          {/* -------------------------------------------------------------------------- */}
           <MagicToolbox
             className={`edge-label-toolbox${
               selected && !moreThanOneComponentsSelected
@@ -293,6 +292,20 @@ export const EdgeCustomLabel = memo(
             }`}
             zoom={roughZoomLevel}
           >
+            {/* <MagicAskItem
+              prompt={{
+                nodes: [],
+                edges: [getEdge(edgeId)!] || [],
+              }}
+            /> */}
+
+            <MagicToolboxItem title="switch type">
+              <EdgeCustomTypeSwitch
+                currentType={edgeData.customType}
+                handleChange={handleSwitchCustomEdgeType}
+              />
+            </MagicToolboxItem>
+
             <MagicToolboxItem title="make node">
               <MagicToolboxButton
                 content={
@@ -306,14 +319,8 @@ export const EdgeCustomLabel = memo(
                 onClick={handleAddNodeFromEdge}
               />
             </MagicToolboxItem>
-
-            <MagicToolboxItem title="switch type">
-              <EdgeCustomTypeSwitch
-                currentType={edgeData.customType}
-                handleChange={handleSwitchCustomEdgeType}
-              />
-            </MagicToolboxItem>
           </MagicToolbox>
+          {/* -------------------------------------------------------------------------- */}
         </SuperTextEditor>
       </foreignObject>
     )

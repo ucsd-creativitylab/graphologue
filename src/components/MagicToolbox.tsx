@@ -1,8 +1,13 @@
 import { BaseSyntheticEvent, ReactElement, useCallback } from 'react'
 
+import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
+
+import { terms } from '../constants'
+import { magicExplain, PromptType } from './magicExplain'
+
 interface MagicToolboxProps {
   className?: string
-  children: ReactElement[]
+  children: ReactElement | ReactElement[]
   zoom: number
 }
 export const MagicToolbox = ({
@@ -68,5 +73,26 @@ export const MagicToolboxButton = ({
     <button className="magic-toolbox-button" onClick={handleOnClick}>
       {content}
     </button>
+  )
+}
+
+interface MagicAskItemProps {
+  prompt: PromptType
+}
+export const MagicAskItem = ({ prompt }: MagicAskItemProps) => {
+  return (
+    <MagicToolboxItem title={`ask ${terms.gpt}`}>
+      <MagicToolboxButton
+        content={
+          <>
+            <AutoFixHighRoundedIcon />
+            <span>explain</span>
+          </>
+        }
+        onClick={() => {
+          magicExplain(prompt)
+        }}
+      />
+    </MagicToolboxItem>
   )
 }

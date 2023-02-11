@@ -4,6 +4,8 @@ $shadow-node-selected: $shadow-heavy;
   user-select: none;
   border: none;
 
+  // z-index: -1 !important;
+
   .customNodeBody {
     display: flex !important;
     align-items: center;
@@ -12,7 +14,7 @@ $shadow-node-selected: $shadow-heavy;
     background: $white;
     border: none;
     border-radius: $radius-default;
-    overflow: hidden;
+    // overflow: hidden;
 
     box-shadow: $shadow-default; // !
     outline: rem-to-px(2rem) solid transparent;
@@ -33,6 +35,7 @@ $shadow-node-selected: $shadow-heavy;
     padding: 0;
     background: $white;
 
+    border-radius: $radius-default;
     transition: transform $transition-fast;
 
     &.customNodeContentTarget {

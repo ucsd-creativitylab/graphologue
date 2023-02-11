@@ -3,11 +3,12 @@ import { ControlButton, Controls, Edge, Node } from 'reactflow'
 
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import GridOnRoundedIcon from '@mui/icons-material/GridOnRounded'
+import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 import LightbulbRoundedIcon from '@mui/icons-material/LightbulbRounded'
 import LaptopChromebookRoundedIcon from '@mui/icons-material/LaptopChromebookRounded'
 import FitScreenRoundedIcon from '@mui/icons-material/FitScreenRounded'
 import SwipeRoundedIcon from '@mui/icons-material/SwipeRounded'
-import KeyboardCommandKeyRoundedIcon from '@mui/icons-material/KeyboardCommandKeyRounded'
+import KeyboardOptionKeyRoundedIcon from '@mui/icons-material/KeyboardOptionKeyRounded'
 // import MouseRoundedIcon from '@mui/icons-material/MouseRounded'
 import EditRoundedIcon from '@mui/icons-material/EditRounded'
 import UndoRoundedIcon from '@mui/icons-material/UndoRounded'
@@ -19,14 +20,20 @@ import { customAddNodes } from './Node'
 import { getGraphBounds } from './utils'
 import {
   hardcodedNodeSize,
+  terms,
   transitionDuration,
   viewFittingPadding,
 } from '../constants'
 import { FlowContext } from './Contexts'
+import { magicExplain } from './magicExplain'
 
 type CustomControlsProps = {
   nodes: Node[]
   edges: Edge[]
+  selectedComponents: {
+    nodes: Node[]
+    edges: Edge[]
+  }
   undoTime: () => void
   redoTime: () => void
   canRedo: boolean
@@ -36,6 +43,7 @@ export const CustomControls = memo(
   ({
     nodes,
     edges,
+    selectedComponents,
     undoTime,
     redoTime,
     canUndo,
@@ -99,7 +107,17 @@ export const CustomControls = memo(
 
     /* -------------------------------------------------------------------------- */
 
+    // ! explain
+
+    const handleExplain = useCallback(() => {
+      magicExplain(selectedComponents)
+    }, [selectedComponents])
+
+    /* -------------------------------------------------------------------------- */
+
     const isEmptyCanvas = nodes.length === 0
+    const anyThingSelected =
+      selectedComponents.nodes.length > 0 || selectedComponents.edges.length > 0
 
     return (
       <Controls
@@ -128,7 +146,23 @@ export const CustomControls = memo(
           onClick={handleClearCanvas}
         >
           <GridOnRoundedIcon />
-          <span>clear canvas</span>
+          <span>clear</span>
+        </ControlButton>
+
+        <ControlButton
+          className={
+            'explain-button' +
+            (!anyThingSelected ? ' disabled-control-button' : '')
+          }
+          onClick={handleExplain}
+        >
+          <AutoFixHighRoundedIcon className="control-button-explain-icon" />
+          <span>explain</span>
+          <ControlButtonTooltip>
+            <TooltipLine>
+              <span>ask {terms.gpt}</span>
+            </TooltipLine>
+          </ControlButtonTooltip>
         </ControlButton>
 
         <ControlButton
@@ -191,9 +225,9 @@ export const CustomControls = memo(
               </span>
             </TooltipLine>
             <TooltipLine>
-              <KeyboardCommandKeyRoundedIcon />
+              <KeyboardOptionKeyRoundedIcon />
               <span>
-                press meta key to <strong>connect</strong>
+                press option key to <strong>connect</strong>
               </span>
             </TooltipLine>
             <TooltipLine>
