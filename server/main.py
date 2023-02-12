@@ -89,6 +89,7 @@ if __name__ == '__main__':
     PORT = int(os.environ.get("PORT", 8000))
     server = WebsocketServer(port=PORT, host='0.0.0.0')
 
+    print('HERE')
     print(server_side_messages['start'] % PORT)
 
     # https://github.com/Pithikos/python-websocket-server/blob/master/server.py
