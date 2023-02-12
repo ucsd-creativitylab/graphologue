@@ -67,8 +67,8 @@ def new_client(client, server):
 
 
 # Called for every client disconnecting
-def client_left(client, server):
-    print(server_side_messages['disconnect'] % client['id'])
+# def client_left(client, server):
+#     print(server_side_messages['disconnect'] % client['id'])
 
 
 # Called when a client sends a message
@@ -86,13 +86,13 @@ def message_received(client, server, message):
 
 
 if __name__ == '__main__':
-    PORT = int(os.environ.get("PORT", 2023))
-    server = WebsocketServer(host='0.0.0.0', port=PORT)
+    PORT = int(os.environ.get("PORT", 8000))
+    server = WebsocketServer(port=PORT, host='0.0.0.0')
 
     print(server_side_messages['start'] % PORT)
 
     # https://github.com/Pithikos/python-websocket-server/blob/master/server.py
     server.set_fn_new_client(new_client)
-    server.set_fn_client_left(client_left)
+    # server.set_fn_client_left(client_left)
     server.set_fn_message_received(message_received)
     server.run_forever()

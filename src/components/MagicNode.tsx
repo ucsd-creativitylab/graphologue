@@ -131,7 +131,9 @@ export const MagicNode = memo(
         return
       }
 
-      setModelResponse(response.choices[0].text)
+      const modelText = response.choices[0].text
+
+      setModelResponse(modelText)
       setWaitingForModel(false)
     }, [data.prompt, waitingForModel])
 
