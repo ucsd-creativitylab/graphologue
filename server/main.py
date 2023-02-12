@@ -4,6 +4,7 @@ import os
 
 import websockets
 import spacy
+import json
 
 from entity_manager import EntityManager
 
@@ -86,7 +87,13 @@ server_side_messages = {
 
 
 async def parse(websocket):
-    async for message in websocket:
+    async for data in websocket:
+        # parse incoming json
+        data = json.loads(data)
+
+        message = data['message']
+        id = data['id']
+
         if len(message) > 10:
             short_message = message[:10] + '...'
         else:
@@ -96,7 +103,10 @@ async def parse(websocket):
         doc = nlp(message)
         entities = extract_entities(EntityManager(), doc)
 
-        await websocket.send(str(entities))
+        await websocket.send(str({
+            'entities': entities,
+            'id': id
+        }))
 
 
 async def main():
