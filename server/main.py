@@ -60,7 +60,7 @@ server_side_messages = {
     'start':      '[0] Server @ %d',
     'connect':    '[+] New user %d',
     'disconnect': '[-] User bye %d',
-    'message':    '[*] New Task %d'
+    'message':    '[*] New Task %s'
 }
 
 
