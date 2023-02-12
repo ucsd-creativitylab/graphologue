@@ -1,5 +1,8 @@
+import asyncio
+import signal
 import os
-from websocket_server import WebsocketServer
+
+import websockets
 import spacy
 
 from entity_manager import EntityManager
@@ -52,48 +55,66 @@ def categorize_entities(entity_manager, entities):
 
 # ---------------------------------------------------------------------------- #
 
+
 server_side_messages = {
     'start':      '[0] Server @ %d',
     'connect':    '[+] New user %d',
     'disconnect': '[-] User bye %d',
-    'message':    '[*] New Task %d [%s]'
+    'message':    '[*] New Task %d'
 }
 
 
-# Called for every client connecting (after handshake)
-def new_client(client, server):
-    print(server_side_messages['connect'] % client['id'])
-    # server.send_message_to_all("Hey all, a new client has joined us")
+# def new_client(client, server):
+#     print(server_side_messages['connect'] % client['id'])
 
 
-# Called for every client disconnecting
 # def client_left(client, server):
 #     print(server_side_messages['disconnect'] % client['id'])
 
 
-# Called when a client sends a message
-def message_received(client, server, message):
-    if len(message) > 10:
-        short_message = message[:10] + '...'
-    else:
-        short_message = message
-    print(server_side_messages['message'] % (client['id'], short_message))
+# def message_received(client, server, message):
+#     if len(message) > 10:
+#         short_message = message[:10] + '...'
+#     else:
+#         short_message = message
+#     print(server_side_messages['message'] % (client['id'], short_message))
 
-    doc = nlp(message)
-    entities = extract_entities(EntityManager(), doc)
+#     doc = nlp(message)
+#     entities = extract_entities(EntityManager(), doc)
 
-    server.send_message(client, str(entities))
+#     server.send_message(client, str(entities))
 
 
-if __name__ == '__main__':
-    PORT = int(os.environ.get("PORT", 8000))
-    server = WebsocketServer(port=PORT, host='0.0.0.0')
+async def parse(websocket):
+    async for message in websocket:
+        if len(message) > 10:
+            short_message = message[:10] + '...'
+        else:
+            short_message = message
+        print(server_side_messages['message'] % short_message)
 
-    print('HERE')
-    print(server_side_messages['start'] % PORT)
+        doc = nlp(message)
+        entities = extract_entities(EntityManager(), doc)
 
-    # https://github.com/Pithikos/python-websocket-server/blob/master/server.py
-    server.set_fn_new_client(new_client)
-    # server.set_fn_client_left(client_left)
-    server.set_fn_message_received(message_received)
-    server.run_forever()
+        await websocket.send(str(entities))
+
+
+async def main():
+    # Set the stop condition when receiving SIGTERM.
+    loop = asyncio.get_running_loop()
+    stop = loop.create_future()
+    loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
+
+    port = int(os.environ["PORT"])
+    print(server_side_messages['start'] % port)
+
+    async with websockets.serve(
+        parse,
+        host="",
+        port=port,
+    ):
+        await stop
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
