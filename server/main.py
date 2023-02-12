@@ -87,7 +87,7 @@ def message_received(client, server, message):
 
 if __name__ == '__main__':
     PORT = int(os.environ.get("PORT", 2023))
-    server = WebsocketServer(port=PORT)
+    server = WebsocketServer(host='0.0.0.0', port=PORT)
 
     print(server_side_messages['start'] % PORT)
 
