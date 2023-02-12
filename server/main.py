@@ -1,6 +1,6 @@
-import spacy
-from websocket_server import WebsocketServer
 import os
+from websocket_server import WebsocketServer
+import spacy
 
 from entity_manager import EntityManager
 
