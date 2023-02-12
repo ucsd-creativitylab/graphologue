@@ -1,4 +1,4 @@
-export const socketPath = `ws://graphologue.herokuapp.com/`
+export const socketPath = `wss://graphologue.herokuapp.com/`
 
 // export const webSocketServer = new WebSocket(socketPath)
 
