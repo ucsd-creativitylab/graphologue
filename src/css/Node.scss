@@ -201,7 +201,11 @@ $shadow-node-selected: $shadow-heavy;
       gap: $padding-small;
 
       box-sizing: border-box;
-      padding: $padding-small 0 $padding-large 0;
+      padding: $padding-small 0;
+
+      * {
+        box-sizing: border-box;
+      }
     }
 
     .magic-node-content {

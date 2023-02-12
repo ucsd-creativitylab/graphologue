@@ -26,6 +26,11 @@ import { PromptSourceComponentsType } from './magicExplain'
 import { getMagicNodeId } from './utils'
 import { MagicToolboxButton } from './MagicToolbox'
 import { getOpenAICompletion } from './openAI'
+import {
+  socketPath,
+  WebSocketMessageType,
+  WebSocketResponseType,
+} from './socket'
 
 export interface MagicNodeData {
   sourceComponents: PromptSourceComponentsType
@@ -49,6 +54,29 @@ export const MagicNode = memo(
     const promptTextCursorPosition = useRef(data.prompt.length)
 
     // socket
+    const ws = useRef<WebSocket | null>(null)
+    useEffect(() => {
+      ws.current = new WebSocket(socketPath)
+      // ws.current!.onopen = () => console.log('[connected to graphologue heroku server]')
+      // ws.current!.onclose = () => console.log('[disconnected to graphologue heroku server]')
+
+      const wsCurrent = ws.current
+
+      // on message
+      wsCurrent.onmessage = e => {
+        const { entities, id: responseId } = JSON.parse(
+          e.data
+        ) as WebSocketResponseType
+
+        if (id === responseId) {
+          window.console.log(entities)
+        }
+      }
+
+      return () => {
+        wsCurrent.close()
+      }
+    }, [id])
 
     // ! delete
     const handleDeleteNode = useCallback(
@@ -135,7 +163,15 @@ export const MagicNode = memo(
 
       setModelResponse(modelText)
       setWaitingForModel(false)
-    }, [data.prompt, waitingForModel])
+
+      // send to server
+      ws.current?.send(
+        JSON.stringify({
+          message: modelText,
+          id: id,
+        } as WebSocketMessageType)
+      )
+    }, [data.prompt, id, waitingForModel])
 
     // ! suggest prompt
     const handleSuggestPrompt = useCallback(() => {}, [])
@@ -200,7 +236,7 @@ export const MagicNode = memo(
 
         {waitingForModel && (
           <div className="waiting-for-model-placeholder">
-            <PuffLoader size={30} color="#57068c" />
+            <PuffLoader size={32} color="#57068c" />
           </div>
         )}
 
