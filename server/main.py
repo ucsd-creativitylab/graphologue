@@ -103,7 +103,7 @@ async def parse(websocket):
         doc = nlp(message)
         entities = extract_entities(EntityManager(), doc)
 
-        await websocket.send(str({
+        await websocket.send(json.dumps({
             'entities': entities,
             'id': id
         }))
