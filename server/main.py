@@ -1,5 +1,6 @@
 import spacy
 from websocket_server import WebsocketServer
+import os
 
 from entity_manager import EntityManager
 
@@ -85,7 +86,7 @@ def message_received(client, server, message):
 
 
 if __name__ == '__main__':
-    PORT = 2023
+    PORT = int(os.environ.get("PORT", 5000))
     server = WebsocketServer(port=PORT)
 
     print(server_side_messages['start'] % PORT)
