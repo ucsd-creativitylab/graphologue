@@ -1,12 +1,11 @@
 # This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
 # platform: osx-arm64
-autopep8=1.6.0=pyhd3eb1b0_1
 brotlipy=0.7.0=py311he2be06e_1005
-bzip2=1.0.8=h620ffc9_4
-ca-certificates=2023.01.10=hca03da5_0
+bzip2=1.0.8=h3422bc3_4
+ca-certificates=2022.12.7=h4653dfc_0
 catalogue=2.0.8=py311h267d04e_1
-certifi=2022.9.24=py311hca03da5_0
+certifi=2022.12.7=pyhd8ed1ab_0
 cffi=1.15.1=py311hae827db_3
 charset-normalizer=2.1.1=pyhd8ed1ab_0
 click=8.1.3=unix_pyhd8ed1ab_2
@@ -25,7 +24,7 @@ langcodes=3.3.0=pyhd8ed1ab_0
 libblas=3.9.0=16_osxarm64_openblas
 libcblas=3.9.0=16_osxarm64_openblas
 libcxx=14.0.6=h2692d47_0
-libffi=3.4.2=hca03da5_6
+libffi=3.4.2=h3422bc3_5
 libgfortran=5.0.0=11_3_0_hd922786_27
 libgfortran5=11.3.0=hdaf2cc0_27
 liblapack=3.9.0=16_osxarm64_openblas
@@ -35,14 +34,13 @@ libzlib=1.2.13=h03a7124_4
 llvm-openmp=15.0.7=h7cfbb63_0
 markupsafe=2.1.2=py311he2be06e_0
 murmurhash=1.0.9=py311ha397e9f_1
-ncurses=6.4=h313beb8_0
+ncurses=6.3=h07bb92c_1
 numpy=1.24.2=py311h60f8152_0
 openssl=3.0.8=h03a7124_0
 packaging=23.0=pyhd8ed1ab_0
 pathy=0.10.1=pyhd8ed1ab_0
-pip=22.2.2=py311hca03da5_0
+pip=23.0=pyhd8ed1ab_0
 preshed=3.0.8=py311ha397e9f_1
-pycodestyle=2.8.0=pyhd3eb1b0_0
 pycparser=2.21=pyhd8ed1ab_0
 pydantic=1.10.4=py311he2be06e_1
 pygments=2.14.0=pyhd8ed1ab_0
@@ -50,7 +48,7 @@ pyopenssl=23.0.0=pyhd8ed1ab_0
 pysocks=1.7.1=pyha2e5f31_6
 python=3.11.0=h3ba56d0_1_cpython
 python_abi=3.11=3_cp311
-readline=8.2=h1a28f6b_0
+readline=8.1.2=h46ed386_0
 requests=2.28.2=pyhd8ed1ab_0
 rich=12.6.0=pyhd8ed1ab_0
 setuptools=67.1.0=pyhd8ed1ab_0
@@ -59,19 +57,16 @@ smart_open=5.2.1=pyhd8ed1ab_0
 spacy=3.5.0=py311h5c64717_0
 spacy-legacy=3.0.12=pyhd8ed1ab_0
 spacy-loggers=1.0.4=pyhd8ed1ab_0
-sqlite=3.40.1=h7a7dc30_0
 srsly=2.4.5=py311ha397e9f_1
 thinc=8.1.7=py311h5c64717_0
-tk=8.6.12=hb8d0fd4_0
-toml=0.10.2=pyhd3eb1b0_0
+tk=8.6.12=he1e0b03_0
 tqdm=4.64.1=pyhd8ed1ab_0
 typer=0.7.0=pyhd8ed1ab_0
 typing-extensions=4.4.0=hd8ed1ab_0
 typing_extensions=4.4.0=pyha770c72_0
-tzdata=2022g=h04d1e81_0
+tzdata=2022g=h191b570_0
 urllib3=1.26.14=pyhd8ed1ab_0
 wasabi=1.1.1=py311h267d04e_1
 websocket-server=0.6.4=pypi_0
-wheel=0.37.1=pyhd3eb1b0_0
-xz=5.2.10=h80987f9_1
-zlib=1.2.13=h03a7124_4
+wheel=0.38.4=pyhd8ed1ab_0
+xz=5.2.6=h57fd34a_0
