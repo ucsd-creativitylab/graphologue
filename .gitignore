@@ -25,3 +25,8 @@ yarn-debug.log*
 yarn-error.log*
 
 .idea
+
+# python
+*.pyc
+__pycache__/
+local_settings.py

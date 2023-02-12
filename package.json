@@ -23,6 +23,7 @@
   "scripts": {
     "start": "REACT_APP_DEV_IDE=code react-scripts start",
     "start:jet": "REACT_APP_DEV_IDE=jet react-scripts start",
+    "start:server": "python server/main.py",
     "build": "REACT_APP_DEV_IDE=code react-scripts build",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,html,scss}\"",
     "prepare": "husky install"
