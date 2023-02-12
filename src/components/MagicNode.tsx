@@ -278,7 +278,7 @@ export const addMagicNode = (
     data: {
       sourceComponents: sourceComponents,
       suggestedPrompts: suggestedPrompts,
-      prompt: (suggestedPrompts[0] || 'Hi.') as string,
+      prompt: (suggestedPrompts[0] ?? 'Hi.') as string,
     } as MagicNodeData,
     position: {
       x,
