@@ -31,6 +31,7 @@ import {
   WebSocketMessageType,
   WebSocketResponseType,
 } from './socket'
+import isEqual from 'react-fast-compare'
 
 export interface MagicNodeData {
   sourceComponents: PromptSourceComponentsType
@@ -51,6 +52,7 @@ export const MagicNode = memo(
     const [modelResponse, setModelResponse] = useState<string>('')
 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
+
     const promptTextCursorPosition = useRef(data.prompt.length)
 
     // socket
@@ -247,7 +249,8 @@ export const MagicNode = memo(
         )}
       </div>
     )
-  }
+  },
+  isEqual
 )
 
 export interface AddMagicNodeOptions {
@@ -275,7 +278,7 @@ export const addMagicNode = (
     data: {
       sourceComponents: sourceComponents,
       suggestedPrompts: suggestedPrompts,
-      prompt: suggestedPrompts[0],
+      prompt: suggestedPrompts[0] as string,
     } as MagicNodeData,
     position: {
       x,

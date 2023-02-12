@@ -178,6 +178,7 @@ $shadow-node-selected: $shadow-heavy;
         border-radius: $radius-small;
         box-sizing: border-box;
 
+        font-size: $font-size-default;
         font-family: 'Roboto Slab', serif;
         color: $black;
 
@@ -218,11 +219,11 @@ $shadow-node-selected: $shadow-heavy;
       height: fit-content;
       box-sizing: border-box;
 
-      padding: $padding-small 0;
+      padding: $padding-small $padding-xs;
       z-index: 1;
 
       font-size: $font-size-default;
-      line-height: 150%;
+      line-height: 170%;
 
       pointer-events: all;
 

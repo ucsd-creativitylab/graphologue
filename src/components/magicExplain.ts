@@ -1,4 +1,4 @@
-import { Edge, FitView, Instance, Node } from 'reactflow'
+import { Node, Edge, FitView, Instance } from 'reactflow'
 import { nodeGap } from '../constants'
 
 import { addMagicNode, AddMagicNodeOptions } from './MagicNode'
@@ -23,7 +23,7 @@ export const magicExplain = (
     nodes as Node[]
   )
 
-  const suggestedPrompts = generateSuggestedPrompts(sourceComponents)
+  const suggestedPrompts = generateSuggestedPrompts(nodes, sourceComponents)
 
   addMagicNode(addNodes, right + nodeGap, top, {
     sourceComponents,
@@ -34,6 +34,7 @@ export const magicExplain = (
 }
 
 export const generateSuggestedPrompts = (
+  nodes: Node[],
   sourceComponents: PromptSourceComponentsType
 ): string[] => {
   const nodeLabels = sourceComponents.nodes
@@ -48,10 +49,45 @@ export const generateSuggestedPrompts = (
 
   if (labels.length === 0) return ['Tell me something interesting.']
 
-  // naive prompt
-  let naivePrompt = ''
-  if (labels.length === 1) naivePrompt = `Explain ${labels[0]}.`
-  else naivePrompt = `What is the relationship between ${labels.join(' and ')}?`
+  const magicPrompts = []
 
-  return [naivePrompt]
+  // ! edge-based prompt
+  if (sourceComponents.edges.length > 0) {
+    const edgePrompts = sourceComponents.edges
+      .map((edge: Edge) => {
+        const sourceId = edge.source
+        const targetId = edge.target
+        const sourceNode = nodes.find((node: Node) => node.id === sourceId)
+        const targetNode = nodes.find((node: Node) => node.id === targetId)
+
+        if (sourceNode && targetNode) {
+          if (edge.data.label.length === 0)
+            // the edge is empty yet
+            return `What is the relationship between ${sourceNode?.data.label} and ${targetNode?.data.label}?`
+          else
+            return `How does ${sourceNode?.data.label} ${edge.data.label} ${targetNode?.data.label}?`
+        }
+
+        return ''
+      })
+      .filter(prompt => prompt.length > 0)
+    const edgePrompt =
+      edgePrompts.join(' ') +
+      (edgePrompts.length > 1
+        ? ` How are these ${edgePrompts.length} questions related?`
+        : '')
+
+    if (edgePrompt.length > 0) magicPrompts.push(edgePrompt)
+  }
+
+  // ! naive prompt for nodes
+  let naivePrompt = ''
+  if (nodeLabels.length === 1) naivePrompt = `Explain ${nodeLabels[0]}.`
+  else
+    naivePrompt = `What is the relationship between ${nodeLabels.join(
+      ' and '
+    )}?`
+  if (naivePrompt.length > 0) magicPrompts.push(naivePrompt)
+
+  return magicPrompts
 }

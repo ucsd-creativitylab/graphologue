@@ -28,6 +28,7 @@ import ReactFlow, {
   useOnViewportChange,
   Viewport,
 } from 'reactflow'
+import isEqual from 'react-fast-compare'
 
 import {
   CustomConnectionLine,
@@ -141,14 +142,22 @@ const Flow = () => {
       edges.find((ed: Edge) => ed.data.editing)
     if (editing) return
 
+    // ! store and save in time machine
     storeItem(toObject(), setTime)
 
-    // update selected
-    setSelectedComponents({
-      nodes: nodes.filter((nd: Node) => nd.selected),
-      edges: edges.filter((ed: Edge) => ed.selected),
-    })
-  }, [nodes, edges, toObject, setTime])
+    // ! update selected
+    // TODO any more efficient way to do this?
+    const selectedNodes = nodes.filter((nd: Node) => nd.selected)
+    const selectedEdges = edges.filter((ed: Edge) => ed.selected)
+    if (
+      !isEqual(selectedComponents.nodes, selectedNodes) ||
+      !isEqual(selectedComponents.edges, selectedEdges)
+    )
+      setSelectedComponents({
+        nodes: selectedNodes,
+        edges: selectedEdges,
+      })
+  }, [nodes, edges, toObject, setTime, selectedComponents])
 
   // ! keys
   const metaPressed = useKeyPress(['Ctrl', 'Alt'])
@@ -182,7 +191,7 @@ const Flow = () => {
     (nodeIds: string[], editing: boolean) => {
       setNodes((nds: Node[]) => {
         return nds.map((nd: Node) => {
-          if (!nodeIds.includes(nd.id)) return nd
+          if (!nodeIds.includes(nd.id) || nd.type !== 'custom') return nd
           else {
             return {
               ...nd,
@@ -329,7 +338,7 @@ const Flow = () => {
   const handlePaneClick = useCallback(() => {
     setNodes((nds: Node[]) => {
       return nds.map((nd: Node) => {
-        if (!nd.data.editing) return nd
+        if (!nd.data.editing || nd.type !== 'custom') return nd
         return {
           ...nd,
           data: {
