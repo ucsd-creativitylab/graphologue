@@ -1,1 +1,1 @@
-web: npm run start:server
+web: python main.py
