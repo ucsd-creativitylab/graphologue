@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react'
 import { FitView, Instance, Node, NodeProps } from 'reactflow'
+import { PuffLoader } from 'react-spinners'
 
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded'
 import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
@@ -25,7 +26,6 @@ import { PromptSourceComponentsType } from './magicExplain'
 import { getMagicNodeId } from './utils'
 import { MagicToolboxButton } from './MagicToolbox'
 import { getOpenAICompletion } from './openAI'
-import { PuffLoader } from 'react-spinners'
 
 export interface MagicNodeData {
   sourceComponents: PromptSourceComponentsType
@@ -47,6 +47,8 @@ export const MagicNode = memo(
 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const promptTextCursorPosition = useRef(data.prompt.length)
+
+    // socket
 
     // ! delete
     const handleDeleteNode = useCallback(
