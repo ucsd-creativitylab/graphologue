@@ -1,7 +1,9 @@
 import {
   ChangeEvent,
+  DragEvent,
   memo,
   MouseEvent,
+  ReactElement,
   useCallback,
   useContext,
   useEffect,
@@ -13,25 +15,36 @@ import { PuffLoader } from 'react-spinners'
 
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded'
 import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
+import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded'
 import SavingsRoundedIcon from '@mui/icons-material/SavingsRounded'
 import DriveFileRenameOutlineRoundedIcon from '@mui/icons-material/DriveFileRenameOutlineRounded'
+import TranslateRoundedIcon from '@mui/icons-material/TranslateRounded'
+import LinkRoundedIcon from '@mui/icons-material/LinkRounded'
+// import LinkOffRoundedIcon from '@mui/icons-material/LinkOffRounded';
 
 import {
   hardcodedNodeSize,
+  nodeGap,
+  terms,
   transitionDuration,
+  useTokenDataTransferHandle,
   viewFittingPadding,
 } from '../constants'
 import { FlowContext } from './Contexts'
 import { PromptSourceComponentsType } from './magicExplain'
-import { getMagicNodeId } from './utils'
+import { getMagicNodeId, isEmptyTokenization } from './utils'
 import { MagicToolboxButton } from './MagicToolbox'
 import { getOpenAICompletion } from './openAI'
 import {
+  emptyTokenization,
+  EntityType,
   socketPath,
+  Tokenization,
   WebSocketMessageType,
   WebSocketResponseType,
 } from './socket'
 import isEqual from 'react-fast-compare'
+import { deepCopyNodes } from './storage'
 
 export interface MagicNodeData {
   sourceComponents: PromptSourceComponentsType
@@ -45,11 +58,14 @@ interface MagicNodeProps extends NodeProps {
 
 export const MagicNode = memo(
   ({ id, data, xPos, yPos, selected }: MagicNodeProps) => {
-    const { getNode, setNodes, deleteElements, metaPressed } =
+    const { getNode, setNodes, deleteElements, metaPressed, fitView } =
       useContext(FlowContext)
 
     const [waitingForModel, setWaitingForModel] = useState(false)
     const [modelResponse, setModelResponse] = useState<string>('')
+    const [modelTokenization, setModelTokenization] =
+      useState<Tokenization>(emptyTokenization)
+    // const [selectedTokens, setSelectedTokens] = useState<EntityType[]>([])
 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -71,7 +87,7 @@ export const MagicNode = memo(
         ) as WebSocketResponseType
 
         if (id === responseId) {
-          window.console.log(entities)
+          setModelTokenization(entities)
         }
       }
 
@@ -93,8 +109,36 @@ export const MagicNode = memo(
       [deleteElements, getNode, id]
     )
 
-    // ! add to node
-    const handleAddToNode = useCallback(() => {}, [])
+    // ! duplicate
+    const handleDuplicate = useCallback(() => {
+      const node = getNode(id)
+
+      if (node) {
+        const newNode = {
+          ...deepCopyNodes([node!])[0],
+          id: getMagicNodeId(),
+          position: {
+            x: node.position.x + hardcodedNodeSize.magicWidth + nodeGap,
+            y: node.position.y,
+          },
+        }
+
+        setNodes((nodes: Node[]) => [...nodes, newNode])
+
+        setTimeout(() => {
+          fitView({
+            duration: transitionDuration,
+            padding: viewFittingPadding,
+          })
+        }, 0)
+      }
+    }, [fitView, getNode, id, setNodes])
+
+    // ! linkage
+    const handleToggleLinkage = useCallback(() => {}, [])
+
+    // ! add to note
+    const handleAddToNote = useCallback(() => {}, [])
 
     // ! prompt text change
     const autoGrow = useCallback(() => {
@@ -143,6 +187,7 @@ export const MagicNode = memo(
 
       setWaitingForModel(true)
       setModelResponse('')
+      setModelTokenization(emptyTokenization)
 
       // ! ask model
       const response = await getOpenAICompletion(data.prompt)
@@ -197,7 +242,16 @@ export const MagicNode = memo(
           <button className="magic-node-bar-button" onClick={handleDeleteNode}>
             <ClearRoundedIcon />
           </button>
-          <button className="magic-node-bar-button" onClick={handleAddToNode}>
+          <button className="magic-node-bar-button" onClick={handleDuplicate}>
+            <ContentCopyRoundedIcon />
+          </button>
+          <button
+            className="magic-node-bar-button"
+            onClick={handleToggleLinkage}
+          >
+            <LinkRoundedIcon />
+          </button>
+          <button className="magic-node-bar-button" onClick={handleAddToNote}>
             <DriveFileRenameOutlineRoundedIcon />
           </button>
         </div>
@@ -244,7 +298,20 @@ export const MagicNode = memo(
 
         {modelResponse.length > 0 && (
           <div className={`magic-node-content`}>
-            <p className="magic-node-content-text">{modelResponse}</p>
+            <p className="magic-node-content-text">
+              {!isEmptyTokenization(modelTokenization) ? (
+                <MagicTokenizedText
+                  originalText={modelResponse}
+                  tokenization={modelTokenization}
+                />
+              ) : (
+                <span className="magic-original-text">{modelResponse}</span>
+              )}
+            </p>
+            <div className="model-response-warning">
+              <TranslateRoundedIcon />
+              Generated by {terms.gpt}. Verify the facts.
+            </div>
           </div>
         )}
       </div>
@@ -252,6 +319,73 @@ export const MagicNode = memo(
   },
   isEqual
 )
+
+/* -------------------------------------------------------------------------- */
+
+const MagicToken = ({
+  token,
+  onDragStart,
+}: {
+  token: EntityType
+  onDragStart: (e: DragEvent, token: EntityType) => void
+}) => {
+  return (
+    <span
+      draggable
+      className={`magic-token magic-token-${token.type.toLowerCase()}`}
+      onDragStart={e => onDragStart(e, token)}
+    >
+      {token.value}
+    </span>
+  )
+}
+
+interface MagicTokenizedTextProps {
+  originalText: string
+  tokenization: Tokenization
+}
+const MagicTokenizedText = ({
+  originalText,
+  tokenization,
+}: MagicTokenizedTextProps) => {
+  const onDragStart = useCallback((event: DragEvent, token: EntityType) => {
+    event.dataTransfer.setData(
+      `application/${useTokenDataTransferHandle}`,
+      JSON.stringify(token)
+    )
+    event.dataTransfer.effectAllowed = 'move'
+  }, [])
+
+  const { noun, verb } = tokenization
+
+  // ! merge noun and verb arrays and sort by offset field
+  // currently only NOUN and VERB
+  const tokens = [...noun, ...verb].sort((a, b) => a.offset - b.offset)
+
+  let tokenizedText: (string | ReactElement)[] = []
+  if (tokens[0].offset > 0) {
+    tokenizedText.push(originalText.slice(0, tokens[0].offset))
+  }
+
+  tokens.forEach((token, i) => {
+    tokenizedText.push(<MagicToken token={token} onDragStart={onDragStart} />)
+
+    if (i < tokens.length - 1) {
+      tokenizedText.push(
+        originalText.slice(
+          token.offset + token.value.length,
+          tokens[i + 1].offset
+        )
+      )
+    } else {
+      tokenizedText.push(originalText.slice(token.offset + token.value.length))
+    }
+  })
+
+  return <span className="magic-tokenized-text">{tokenizedText}</span>
+}
+
+/* -------------------------------------------------------------------------- */
 
 export interface AddMagicNodeOptions {
   sourceComponents: PromptSourceComponentsType

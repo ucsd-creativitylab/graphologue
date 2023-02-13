@@ -1,6 +1,8 @@
 import { Edge, Node, Position } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
+import { Tokenization } from './socket'
+
 export const getNodeId = () => `node-${uuidv4()}`
 export const getMagicNodeId = () => `magic-node-${uuidv4()}`
 export const getHandleId = () => `handle-${uuidv4()}`
@@ -172,4 +174,13 @@ export const downloadData = (data: any, filename: string) => {
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
+}
+
+/* -------------------------------------------------------------------------- */
+
+export const isEmptyTokenization = (tokenization: Tokenization) => {
+  for (const key in tokenization) {
+    if (tokenization[key].length > 0) return false
+  }
+  return true
 }

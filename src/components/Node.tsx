@@ -143,7 +143,7 @@ export const CustomNode = memo(
 type CustomAddNodesOptions = {
   label?: string
   editing: boolean
-  fitView: FitView
+  fitView: FitView | undefined
   toFitView: boolean
 }
 export const customAddNodes = (

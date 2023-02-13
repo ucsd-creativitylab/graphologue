@@ -10,20 +10,33 @@ export interface WebSocketMessageType {
 export interface EntityType {
   length: number
   offset: number
-  type: string
+  type: 'NOUN' | 'VERB' | 'PROPN' | 'NUM' | 'SYM' | 'MISC'
   value: string
 }
 
+export type EntityKeys =
+  | 'misc'
+  | 'noun'
+  | 'number'
+  | 'proper_noun'
+  | 'symbol'
+  | 'verb'
+
+export type Tokenization = {
+  [key in EntityKeys as string]: EntityType[]
+}
+
+export const emptyTokenization: Tokenization = {
+  misc: [],
+  noun: [],
+  number: [],
+  proper_noun: [],
+  symbol: [],
+  verb: [],
+}
+
 export interface WebSocketResponseType {
-  entities: {
-    [key in
-      | 'misc'
-      | 'noun'
-      | 'number'
-      | 'proper_noun'
-      | 'symbol'
-      | 'verb']: EntityType[]
-  }
+  entities: Tokenization
   id: string
 }
 

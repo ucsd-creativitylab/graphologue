@@ -5,6 +5,7 @@ import React, {
   MouseEvent,
   useRef,
   useState,
+  DragEvent,
 } from 'react'
 import ReactFlow, {
   useReactFlow,
@@ -44,6 +45,7 @@ import {
   hardcodedNodeSize,
   styles,
   transitionDuration,
+  useTokenDataTransferHandle,
   viewFittingPadding,
 } from './constants'
 import { EdgeContext, FlowContext } from './components/Contexts'
@@ -52,6 +54,7 @@ import { useTimeMachine } from './components/timeMachine'
 import { roundTo } from './components/utils'
 import { PromptSourceComponentsType } from './components/magicExplain'
 import { MagicNode } from './components/MagicNode'
+import { EntityType } from './components/socket'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -233,6 +236,48 @@ const Flow = () => {
   }, [])
 
   /* -------------------------------------------------------------------------- */
+
+  // ! drag and drop from tokens
+
+  const handleDragOver = useCallback((e: DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }, [])
+
+  const handleDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault()
+
+      const token = JSON.parse(
+        e.dataTransfer.getData(`application/${useTokenDataTransferHandle}`)
+      ) as EntityType
+
+      // check if the dropped element is valid
+      if (typeof token === 'undefined' || !token || !token.value) {
+        return
+      }
+
+      const position = thisReactFlowInstance.project({
+        x: e.clientX,
+        y: e.clientY,
+      })
+
+      customAddNodes(
+        addNodes,
+        position.x - hardcodedNodeSize.width / 2,
+        position.y - hardcodedNodeSize.height / 2,
+        {
+          label: `${token.value}`,
+          editing: false,
+          toFitView: false,
+          fitView: undefined,
+        }
+      )
+    },
+    [addNodes, thisReactFlowInstance]
+  )
+
+  /* -------------------------------------------------------------------------- */
   // ! edge
 
   // build new nodes on drag out
@@ -409,12 +454,21 @@ const Flow = () => {
             onNodeDragStop={handleNodeDragStop}
             onEdgeDoubleClick={handleEdgeDoubleClick}
             onPaneClick={handlePaneClick}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
             // onPaneContextMenu={handlePaneContextMenu}
           >
             <CustomMarkerDefs
               markerOptions={
                 {
                   color: styles.edgeColorStrokeSelected,
+                } as EdgeMarker
+              }
+            />
+            <CustomMarkerDefs
+              markerOptions={
+                {
+                  color: styles.edgeColorStrokeExplained,
                 } as EdgeMarker
               }
             />
@@ -427,7 +481,8 @@ const Flow = () => {
               nodeColor={n => {
                 if (n.data.editing) return `#ff06b7aa`
                 else if (n.selected) {
-                  if (n.type === 'magic') return `#${`57068c`}aa`
+                  if (n.type === 'magic')
+                    return `#${styles.edgeColorStrokeExplained}aa`
                   else return `${styles.edgeColorStrokeSelected}aa`
                 } else return '#cfcfcf'
               }}

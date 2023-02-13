@@ -90,6 +90,17 @@ export const CustomEdge = memo(
       return false
     })
 
+    let customMarkerEnd = undefined
+    if (customType === 'arrow') {
+      if (isExplainedByMagicNode)
+        customMarkerEnd = `url(#${getMarkerId(
+          styles.edgeColorStrokeExplained
+        )})`
+      else if (selected)
+        customMarkerEnd = `url(#${getMarkerId(styles.edgeColorStrokeSelected)})`
+      else customMarkerEnd = markerEnd as string
+    }
+
     return (
       <>
         {/* background */}
@@ -113,13 +124,7 @@ export const CustomEdge = memo(
           strokeDasharray={
             customType === 'dash' ? styles.edgeDashLineArray : undefined
           }
-          markerEnd={
-            customType === 'arrow'
-              ? selected
-                ? `url(#${getMarkerId(styles.edgeColorStrokeSelected)})`
-                : (markerEnd as string)
-              : undefined
-          }
+          markerEnd={customMarkerEnd}
         />
         <EdgeCustomLabel
           edgeId={id}

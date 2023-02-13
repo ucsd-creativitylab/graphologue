@@ -219,7 +219,7 @@ $shadow-node-selected: $shadow-heavy;
       height: fit-content;
       box-sizing: border-box;
 
-      padding: $padding-small $padding-xs;
+      padding: 0 $padding-xs $padding-xs $padding-xs;
       z-index: 1;
 
       font-size: $font-size-default;
@@ -240,6 +240,69 @@ $shadow-node-selected: $shadow-heavy;
 
         &::selection {
           background: $light;
+        }
+
+        .magic-token {
+          border-bottom: rem-to-px(1rem) dotted;
+          border-radius: 0;
+          z-index: 1;
+
+          transition: background-color $transition-fast,
+            border-color $transition-fast, outline $transition-fast,
+            color $transition-fast, border-radius $transition-fast;
+
+          &[draggable='true'] {
+            cursor: grab;
+          }
+
+          &.magic-token-noun {
+            border-color: rgba($blue, 1);
+          }
+
+          &.magic-token-verb {
+            border-color: rgba($pink, 1);
+          }
+
+          &:hover {
+            // border-radius: $radius-small;
+            // padding: $padding-xxs;
+
+            &.magic-token-noun {
+              color: $white;
+              background: rgba($blue, $opacity-default);
+              border-color: transparent;
+            }
+
+            &.magic-token-verb {
+              color: $white;
+              background: rgba($pink, $opacity-default);
+              border-color: transparent;
+            }
+          }
+        }
+      }
+
+      .model-response-warning {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: $padding-xs;
+
+        color: $warn-yellow;
+        font-size: $font-size-default !important;
+        white-space: nowrap;
+        // background: $warn-yellow-x-light;
+        padding: $padding-xxs $padding-small;
+
+        border: none;
+        outline: rem-to-px(1rem) solid $warn-yellow;
+        user-select: none;
+        border-radius: $padding-large;
+
+        * {
+          font-size: $font-size-default;
+          pointer-events: none;
         }
       }
     }

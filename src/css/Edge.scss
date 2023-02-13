@@ -35,6 +35,7 @@ $edge-stroke-width: 2px;
 
   // ! explained
   .edge-explained {
+    stroke-linecap: round !important;
     stroke-dasharray: 0, 4;
     stroke: rgba($purple, $opacity-mid) !important;
   }
