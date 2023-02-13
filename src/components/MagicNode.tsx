@@ -92,7 +92,7 @@ export const MagicNode = memo(
       }
 
       return () => {
-        wsCurrent.close()
+        if (wsCurrent.readyState === 1) wsCurrent.close()
       }
     }, [id])
 
@@ -301,6 +301,7 @@ export const MagicNode = memo(
             <p className="magic-node-content-text">
               {!isEmptyTokenization(modelTokenization) ? (
                 <MagicTokenizedText
+                  magicNodeId={id}
                   originalText={modelResponse}
                   tokenization={modelTokenization}
                 />
@@ -341,10 +342,12 @@ const MagicToken = ({
 }
 
 interface MagicTokenizedTextProps {
+  magicNodeId: string
   originalText: string
   tokenization: Tokenization
 }
 const MagicTokenizedText = ({
+  magicNodeId,
   originalText,
   tokenization,
 }: MagicTokenizedTextProps) => {
@@ -368,7 +371,13 @@ const MagicTokenizedText = ({
   }
 
   tokens.forEach((token, i) => {
-    tokenizedText.push(<MagicToken token={token} onDragStart={onDragStart} />)
+    tokenizedText.push(
+      <MagicToken
+        key={magicNodeId + '-token-' + i}
+        token={token}
+        onDragStart={onDragStart}
+      />
+    )
 
     if (i < tokens.length - 1) {
       tokenizedText.push(
