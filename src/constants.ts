@@ -6,7 +6,7 @@ export const useTokenDataTransferHandle = '__reactFlowGraphologueToken__'
 
 export const viewFittingPadding = 0.1
 export const transitionDuration = 500
-export const hideEdgeTextZoomLevel = 0.7
+export const hideEdgeTextZoomLevel = 0.6
 
 export const timeMachineMaxSize = 50
 
