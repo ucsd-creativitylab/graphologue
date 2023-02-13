@@ -25,7 +25,7 @@ $edge-stroke-width: 2px;
   &.selected,
   &:focus,
   &:focus-visible {
-    z-index: 999 !important;
+    z-index: 9999 !important;
 
     .react-flow__edge-path {
       stroke: rgba($red, $opacity-mid) !important;

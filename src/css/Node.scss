@@ -6,6 +6,10 @@ $shadow-node-selected: $shadow-heavy;
 
   // z-index: -1 !important;
 
+  &.react-flow__node-magic {
+    z-index: 9999 !important;
+  }
+
   .custom-node-body {
     display: flex !important;
     align-items: center;

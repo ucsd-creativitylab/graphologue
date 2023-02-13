@@ -28,6 +28,8 @@ import {
 import { FlowContext } from './Contexts'
 import { magicExplain } from './magicExplain'
 
+import defaultExample from '../examples/default.json'
+
 type CustomControlsProps = {
   nodes: Node[]
   edges: Edge[]
@@ -57,6 +59,7 @@ export const CustomControls = memo(
       getViewport,
       getNodes,
       addNodes,
+      addEdges,
       deleteElements,
       toObject,
     } = useContext(FlowContext)
@@ -135,6 +138,36 @@ export const CustomControls = memo(
         `graphologue-${new Date().toJSON().slice(0, 10)}.json`
       )
     }, [toObject])
+
+    /* -------------------------------------------------------------------------- */
+
+    // ! load example
+
+    const handleLoadExample = useCallback(async () => {
+      if (defaultExample) {
+        const { nodes, edges } = defaultExample
+
+        // TODO instead of clearing the canvas, preserve the current nodes and add example nodes on the side
+        // clear the canvas
+        handleClearCanvas()
+
+        // add nodes
+        addNodes(nodes as Node[])
+
+        // add edges
+        addEdges(edges as Edge[])
+
+        // fit view
+        setTimeout(
+          () =>
+            fitView({
+              padding: viewFittingPadding,
+              duration: transitionDuration,
+            }),
+          0
+        )
+      }
+    }, [addEdges, addNodes, fitView, handleClearCanvas])
 
     /* -------------------------------------------------------------------------- */
 
@@ -233,12 +266,12 @@ export const CustomControls = memo(
           </ControlButtonTooltip> */}
         </ControlButton>
 
-        <ControlButton onClick={() => {}}>
+        <ControlButton onClick={handleLoadExample}>
           <TheatersRoundedIcon />
           <span>examples</span>
-          <ControlButtonTooltip>
+          {/* <ControlButtonTooltip>
             <TooltipLine>coming soon</TooltipLine>
-          </ControlButtonTooltip>
+          </ControlButtonTooltip> */}
         </ControlButton>
 
         <ControlButton className="tips-button">

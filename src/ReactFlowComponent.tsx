@@ -482,7 +482,7 @@ const Flow = () => {
                 if (n.data.editing) return `#ff06b7aa`
                 else if (n.selected) {
                   if (n.type === 'magic')
-                    return `#${styles.edgeColorStrokeExplained}aa`
+                    return `${styles.edgeColorStrokeExplained}aa`
                   else return `${styles.edgeColorStrokeSelected}aa`
                 } else return '#cfcfcf'
               }}

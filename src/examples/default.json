@@ -1,0 +1,850 @@
+{
+  "nodes": [
+    {
+      "width": 246,
+      "height": 43,
+      "id": "node-e80ee015-ad93-4cb0-9a40-d3c1ccda6ff4",
+      "type": "custom",
+      "data": {
+        "label": "Potential Drug Test Interactions",
+        "sourceHandleId": "handle-e76ab1d8-0840-409b-bc89-1baef0264d60",
+        "targetHandleId": "handle-a7c3fbbe-7b21-408e-b274-a320bc1ce34f",
+        "editing": false
+      },
+      "position": {
+        "x": 1515,
+        "y": 405
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1515,
+        "y": 405
+      },
+      "dragging": false
+    },
+    {
+      "width": 210,
+      "height": 43,
+      "id": "node-a4da6793-79da-4438-902b-9ab291dbedc1",
+      "type": "custom",
+      "data": {
+        "label": "Pre-Therapy Assessment",
+        "sourceHandleId": "handle-cf88011d-c1ca-464d-9f17-93f77bd9f7be",
+        "targetHandleId": "handle-a11f3c64-3495-48d6-8b42-6e4234defbd7",
+        "editing": false
+      },
+      "position": {
+        "x": 1635,
+        "y": 585
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1635,
+        "y": 585
+      },
+      "dragging": false
+    },
+    {
+      "width": 227,
+      "height": 43,
+      "id": "node-b621e8b9-91d1-4ad8-aeb6-7b8ab3583a82",
+      "type": "custom",
+      "data": {
+        "label": "Cultural or Religious Factors",
+        "sourceHandleId": "handle-c6925232-a648-4699-b2ab-23db80f9cdff",
+        "targetHandleId": "handle-7c92cc86-1dff-4b8c-baa5-9532597c4bcd",
+        "editing": false
+      },
+      "position": {
+        "x": 1440,
+        "y": 720
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1440,
+        "y": 720
+      },
+      "dragging": false
+    },
+    {
+      "width": 252,
+      "height": 43,
+      "id": "node-49e91f88-0ab9-41c3-98e0-af3c4844cd82",
+      "type": "custom",
+      "data": {
+        "label": "Potential Drug-Drug Interactions",
+        "sourceHandleId": "handle-600b8723-5903-454d-8ad4-5527f6d6fa9f",
+        "targetHandleId": "handle-733282bd-5957-40dd-9072-bd5020075789",
+        "editing": false
+      },
+      "position": {
+        "x": 1125,
+        "y": 795
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1125,
+        "y": 795
+      },
+      "dragging": false
+    },
+    {
+      "width": 253,
+      "height": 43,
+      "id": "node-342e534d-9e19-4985-81dd-385a56664101",
+      "type": "custom",
+      "data": {
+        "label": "Potential Drug-Food Interactions",
+        "sourceHandleId": "handle-36e04176-c28b-4cff-afe8-d28c79474735",
+        "targetHandleId": "handle-0af071be-ac53-46f5-ba81-1564c55e44a2",
+        "editing": false
+      },
+      "position": {
+        "x": 810,
+        "y": 690
+      },
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 810,
+        "y": 690
+      }
+    },
+    {
+      "width": 160,
+      "height": 43,
+      "id": "node-bdbfa656-4579-4deb-9e15-061e5c697a2c",
+      "type": "custom",
+      "data": {
+        "label": "Assessment",
+        "sourceHandleId": "handle-ba69cabf-be57-4671-983f-6d65225c7c00",
+        "targetHandleId": "handle-d1f41281-bcf5-4aae-b151-350bbd79f977",
+        "editing": false
+      },
+      "position": {
+        "x": 1125,
+        "y": 495
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1125,
+        "y": 495
+      },
+      "dragging": false
+    },
+    {
+      "width": 160,
+      "height": 43,
+      "id": "node-4a404c99-87bd-462f-a608-3a02d10b31ce",
+      "type": "custom",
+      "data": {
+        "label": "Evaluation",
+        "sourceHandleId": "handle-960cffb9-3ae8-4000-814a-5921958c64da",
+        "targetHandleId": "handle-767ddca5-66a5-40c6-bbae-874796e33eec",
+        "editing": false
+      },
+      "position": {
+        "x": 870,
+        "y": 60
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 870,
+        "y": 60
+      },
+      "dragging": false
+    },
+    {
+      "width": 160,
+      "height": 43,
+      "id": "node-cf28c3bb-3cc7-4b84-95b5-7098100151ca",
+      "type": "custom",
+      "data": {
+        "label": "Teaching",
+        "sourceHandleId": "handle-2ce127ca-cbde-4e14-acb9-b7187fc04936",
+        "targetHandleId": "handle-16d363ba-5c79-493e-a1ea-49efcc8edf9d",
+        "editing": false
+      },
+      "position": {
+        "x": 630,
+        "y": 60
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 630,
+        "y": 60
+      },
+      "dragging": false
+    },
+    {
+      "width": 210,
+      "height": 43,
+      "id": "node-9bf68eb2-47c2-4e2a-b4cf-bc94686cee55",
+      "type": "custom",
+      "data": {
+        "label": "Administration",
+        "sourceHandleId": "handle-432809a2-04b3-4eb0-959c-96cc02bac775",
+        "targetHandleId": "handle-564a0ed0-cf19-4775-a661-9719ce0daaf0",
+        "editing": false
+      },
+      "position": {
+        "x": 360,
+        "y": 60
+      },
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 360,
+        "y": 60
+      }
+    },
+    {
+      "width": 160,
+      "height": 43,
+      "id": "node-785338ac-3016-41a6-ac4f-f088c93b593c",
+      "type": "custom",
+      "data": {
+        "label": "Doing",
+        "sourceHandleId": "handle-8a80cc73-bbd6-4056-9c1d-6f098db8649f",
+        "targetHandleId": "handle-ab821c44-fecb-4d21-8ef7-25856e7c40c2",
+        "editing": false
+      },
+      "position": {
+        "x": 675,
+        "y": 210
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 675,
+        "y": 210
+      },
+      "dragging": false
+    },
+    {
+      "width": 210,
+      "height": 43,
+      "id": "node-8084b7e7-d14e-4c03-86fd-a76699dd976f",
+      "type": "custom",
+      "data": {
+        "label": "Alternatives",
+        "sourceHandleId": "handle-b668d817-23c0-4c3a-bb2d-6d581d4bf281",
+        "targetHandleId": "handle-5e87310e-9663-4911-b64d-604d1960d654",
+        "editing": false
+      },
+      "position": {
+        "x": 810,
+        "y": 945
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 810,
+        "y": 945
+      },
+      "dragging": false
+    },
+    {
+      "width": 210,
+      "height": 43,
+      "id": "node-3091b842-bb46-4c69-a02b-2c12264db978",
+      "type": "custom",
+      "data": {
+        "label": "Cost Effectiveness",
+        "sourceHandleId": "handle-a995cb25-00b6-4df9-a7c9-3dc9dd0db24d",
+        "targetHandleId": "handle-90b01841-db9a-46d3-9acc-1189a47a91bd",
+        "editing": false
+      },
+      "position": {
+        "x": 570,
+        "y": 945
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 570,
+        "y": 945
+      },
+      "dragging": false
+    },
+    {
+      "width": 210,
+      "height": 43,
+      "id": "node-a1e686b4-f21d-412f-8381-d287a5e485e1",
+      "type": "custom",
+      "data": {
+        "label": "Economic Factors",
+        "sourceHandleId": "handle-a48eaee6-82e8-498e-bc0e-c5cd143e470e",
+        "targetHandleId": "handle-99b8d8d3-9fe8-4683-873b-eff03d2ec046",
+        "editing": false
+      },
+      "position": {
+        "x": 690,
+        "y": 810
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 690,
+        "y": 810
+      },
+      "dragging": false
+    },
+    {
+      "width": 263,
+      "height": 43,
+      "id": "node-d5de2523-d0a0-4374-a1a3-f5bd5eaf335a",
+      "type": "custom",
+      "data": {
+        "label": "Pediatric or Gerontological Factors",
+        "sourceHandleId": "handle-51ef97a1-3e93-455c-8892-376b9fc69510",
+        "targetHandleId": "handle-bac5e794-631c-4921-8f9f-f43e882f1ee6",
+        "editing": false
+      },
+      "position": {
+        "x": 315,
+        "y": 810
+      },
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 315,
+        "y": 810
+      }
+    },
+    {
+      "width": 210,
+      "height": 43,
+      "id": "node-f40dd41b-7023-498e-afee-0bb2b7367bb5",
+      "type": "custom",
+      "data": {
+        "label": "Reproductive Factors",
+        "sourceHandleId": "handle-578c8696-1666-4a88-87d1-de0ed4bcdbb8",
+        "targetHandleId": "handle-4b44ebdf-c340-4c3d-9b1e-f861b233f76b",
+        "editing": false
+      },
+      "position": {
+        "x": 15,
+        "y": 780
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 15,
+        "y": 780
+      },
+      "dragging": false
+    },
+    {
+      "width": 210,
+      "height": 43,
+      "id": "node-9d729062-852f-42b6-a82a-e30a3019deb0",
+      "type": "custom",
+      "data": {
+        "label": "Informed Consent",
+        "sourceHandleId": "handle-34629489-b89c-47cc-bdf0-d80ae22c01ee",
+        "targetHandleId": "handle-c1d85c27-a58e-4a5f-925b-97038f3002ed",
+        "editing": false
+      },
+      "position": {
+        "x": -315,
+        "y": 735
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": -315,
+        "y": 735
+      },
+      "dragging": false
+    },
+    {
+      "width": 210,
+      "height": 43,
+      "id": "node-5fccecd3-00f4-465a-8166-ccc1d3a81e28",
+      "type": "custom",
+      "data": {
+        "label": "Ethical or Legal Issues",
+        "sourceHandleId": "handle-8ce8f820-0a59-4207-927e-658f0c125e73",
+        "targetHandleId": "handle-b219b1de-6c79-4233-a60c-2aea38c9564e",
+        "editing": false
+      },
+      "position": {
+        "x": -150,
+        "y": 615
+      },
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": -150,
+        "y": 615
+      }
+    },
+    {
+      "width": 210,
+      "height": 43,
+      "id": "node-10a8a518-23bd-4b6c-9bf8-f925650eafa0",
+      "type": "custom",
+      "data": {
+        "label": "Nursing Diagnosis",
+        "sourceHandleId": "handle-dc477519-9985-4ef7-b9b4-f4af958edeb7",
+        "targetHandleId": "handle-410d53d6-d802-4b05-ac5f-d03209a0707f",
+        "editing": false
+      },
+      "position": {
+        "x": -255,
+        "y": 435
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": -255,
+        "y": 435
+      },
+      "dragging": false
+    },
+    {
+      "width": 210,
+      "height": 43,
+      "id": "node-9b265a6c-ce98-4c9d-a336-23381d019c41",
+      "type": "custom",
+      "data": {
+        "label": "Decision Making",
+        "sourceHandleId": "handle-9f0decb1-5fb3-4d9e-81c7-361fdced6398",
+        "targetHandleId": "handle-41bfaa88-05ba-4813-8967-475becd1093b",
+        "editing": false
+      },
+      "position": {
+        "x": 330,
+        "y": 495
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 330,
+        "y": 495
+      },
+      "dragging": false
+    },
+    {
+      "width": 374,
+      "height": 43,
+      "id": "node-fab7f049-c5c0-43e2-8987-e0f7fd6a8bee",
+      "type": "custom",
+      "data": {
+        "label": "Nursing Management for Dextroamphetamine Therapy",
+        "sourceHandleId": "handle-77c17f9b-17cd-40ce-97ad-973db8554c1b",
+        "targetHandleId": "handle-e0bc1c3a-e371-418d-81d6-de772b1074f7",
+        "editing": false
+      },
+      "position": {
+        "x": 600,
+        "y": 360
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 600,
+        "y": 360
+      },
+      "dragging": false
+    }
+  ],
+  "edges": [
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-fab7f049-c5c0-43e2-8987-e0f7fd6a8bee",
+      "sourceHandle": "handle-77c17f9b-17cd-40ce-97ad-973db8554c1b",
+      "target": "node-9b265a6c-ce98-4c9d-a336-23381d019c41",
+      "targetHandle": "handle-41bfaa88-05ba-4813-8967-475becd1093b",
+      "id": "node-fab7f049-c5c0-43e2-8987-e0f7fd6a8bee---node-9b265a6c-ce98-4c9d-a336-23381d019c41",
+      "data": {
+        "label": "includes",
+        "customType": "arrow",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-9b265a6c-ce98-4c9d-a336-23381d019c41",
+      "sourceHandle": "handle-9f0decb1-5fb3-4d9e-81c7-361fdced6398",
+      "target": "node-10a8a518-23bd-4b6c-9bf8-f925650eafa0",
+      "targetHandle": "handle-410d53d6-d802-4b05-ac5f-d03209a0707f",
+      "id": "node-9b265a6c-ce98-4c9d-a336-23381d019c41---node-10a8a518-23bd-4b6c-9bf8-f925650eafa0",
+      "data": {
+        "label": "includes",
+        "customType": "plain",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-9b265a6c-ce98-4c9d-a336-23381d019c41",
+      "sourceHandle": "handle-9f0decb1-5fb3-4d9e-81c7-361fdced6398",
+      "target": "node-5fccecd3-00f4-465a-8166-ccc1d3a81e28",
+      "targetHandle": "handle-b219b1de-6c79-4233-a60c-2aea38c9564e",
+      "id": "node-9b265a6c-ce98-4c9d-a336-23381d019c41---node-5fccecd3-00f4-465a-8166-ccc1d3a81e28",
+      "data": {
+        "label": "may include",
+        "customType": "plain",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-5fccecd3-00f4-465a-8166-ccc1d3a81e28",
+      "sourceHandle": "handle-8ce8f820-0a59-4207-927e-658f0c125e73",
+      "target": "node-9d729062-852f-42b6-a82a-e30a3019deb0",
+      "targetHandle": "handle-c1d85c27-a58e-4a5f-925b-97038f3002ed",
+      "id": "node-5fccecd3-00f4-465a-8166-ccc1d3a81e28---node-9d729062-852f-42b6-a82a-e30a3019deb0",
+      "data": {
+        "label": "requires",
+        "customType": "dash",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-9b265a6c-ce98-4c9d-a336-23381d019c41",
+      "sourceHandle": "handle-9f0decb1-5fb3-4d9e-81c7-361fdced6398",
+      "target": "node-f40dd41b-7023-498e-afee-0bb2b7367bb5",
+      "targetHandle": "handle-4b44ebdf-c340-4c3d-9b1e-f861b233f76b",
+      "id": "node-9b265a6c-ce98-4c9d-a336-23381d019c41---node-f40dd41b-7023-498e-afee-0bb2b7367bb5",
+      "data": {
+        "label": "may include",
+        "customType": "plain",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-9b265a6c-ce98-4c9d-a336-23381d019c41",
+      "sourceHandle": "handle-9f0decb1-5fb3-4d9e-81c7-361fdced6398",
+      "target": "node-d5de2523-d0a0-4374-a1a3-f5bd5eaf335a",
+      "targetHandle": "handle-bac5e794-631c-4921-8f9f-f43e882f1ee6",
+      "id": "node-9b265a6c-ce98-4c9d-a336-23381d019c41---node-d5de2523-d0a0-4374-a1a3-f5bd5eaf335a",
+      "data": {
+        "label": "may include",
+        "customType": "plain",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-9b265a6c-ce98-4c9d-a336-23381d019c41",
+      "sourceHandle": "handle-9f0decb1-5fb3-4d9e-81c7-361fdced6398",
+      "target": "node-a1e686b4-f21d-412f-8381-d287a5e485e1",
+      "targetHandle": "handle-99b8d8d3-9fe8-4683-873b-eff03d2ec046",
+      "id": "node-9b265a6c-ce98-4c9d-a336-23381d019c41---node-a1e686b4-f21d-412f-8381-d287a5e485e1",
+      "data": {
+        "label": "includes",
+        "customType": "plain",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-a1e686b4-f21d-412f-8381-d287a5e485e1",
+      "sourceHandle": "handle-a48eaee6-82e8-498e-bc0e-c5cd143e470e",
+      "target": "node-3091b842-bb46-4c69-a02b-2c12264db978",
+      "targetHandle": "handle-90b01841-db9a-46d3-9acc-1189a47a91bd",
+      "id": "node-a1e686b4-f21d-412f-8381-d287a5e485e1---node-3091b842-bb46-4c69-a02b-2c12264db978",
+      "data": {
+        "label": "considers",
+        "customType": "dash",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-a1e686b4-f21d-412f-8381-d287a5e485e1",
+      "sourceHandle": "handle-a48eaee6-82e8-498e-bc0e-c5cd143e470e",
+      "target": "node-8084b7e7-d14e-4c03-86fd-a76699dd976f",
+      "targetHandle": "handle-5e87310e-9663-4911-b64d-604d1960d654",
+      "id": "node-a1e686b4-f21d-412f-8381-d287a5e485e1---node-8084b7e7-d14e-4c03-86fd-a76699dd976f",
+      "data": {
+        "label": "considers",
+        "customType": "dash",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-fab7f049-c5c0-43e2-8987-e0f7fd6a8bee",
+      "sourceHandle": "handle-77c17f9b-17cd-40ce-97ad-973db8554c1b",
+      "target": "node-785338ac-3016-41a6-ac4f-f088c93b593c",
+      "targetHandle": "handle-ab821c44-fecb-4d21-8ef7-25856e7c40c2",
+      "id": "node-fab7f049-c5c0-43e2-8987-e0f7fd6a8bee---node-785338ac-3016-41a6-ac4f-f088c93b593c",
+      "data": {
+        "label": "involves",
+        "customType": "arrow",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-785338ac-3016-41a6-ac4f-f088c93b593c",
+      "sourceHandle": "handle-8a80cc73-bbd6-4056-9c1d-6f098db8649f",
+      "target": "node-9bf68eb2-47c2-4e2a-b4cf-bc94686cee55",
+      "targetHandle": "handle-564a0ed0-cf19-4775-a661-9719ce0daaf0",
+      "id": "node-785338ac-3016-41a6-ac4f-f088c93b593c---node-9bf68eb2-47c2-4e2a-b4cf-bc94686cee55",
+      "data": {
+        "label": "involves",
+        "customType": "plain",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-785338ac-3016-41a6-ac4f-f088c93b593c",
+      "sourceHandle": "handle-8a80cc73-bbd6-4056-9c1d-6f098db8649f",
+      "target": "node-cf28c3bb-3cc7-4b84-95b5-7098100151ca",
+      "targetHandle": "handle-16d363ba-5c79-493e-a1ea-49efcc8edf9d",
+      "id": "node-785338ac-3016-41a6-ac4f-f088c93b593c---node-cf28c3bb-3cc7-4b84-95b5-7098100151ca",
+      "data": {
+        "label": "involves",
+        "customType": "plain",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-785338ac-3016-41a6-ac4f-f088c93b593c",
+      "sourceHandle": "handle-8a80cc73-bbd6-4056-9c1d-6f098db8649f",
+      "target": "node-4a404c99-87bd-462f-a608-3a02d10b31ce",
+      "targetHandle": "handle-767ddca5-66a5-40c6-bbae-874796e33eec",
+      "id": "node-785338ac-3016-41a6-ac4f-f088c93b593c---node-4a404c99-87bd-462f-a608-3a02d10b31ce",
+      "data": {
+        "label": "involves",
+        "customType": "plain",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-fab7f049-c5c0-43e2-8987-e0f7fd6a8bee",
+      "sourceHandle": "handle-77c17f9b-17cd-40ce-97ad-973db8554c1b",
+      "target": "node-bdbfa656-4579-4deb-9e15-061e5c697a2c",
+      "targetHandle": "handle-d1f41281-bcf5-4aae-b151-350bbd79f977",
+      "id": "node-fab7f049-c5c0-43e2-8987-e0f7fd6a8bee---node-bdbfa656-4579-4deb-9e15-061e5c697a2c",
+      "data": {
+        "label": "involves",
+        "customType": "arrow",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-bdbfa656-4579-4deb-9e15-061e5c697a2c",
+      "sourceHandle": "handle-ba69cabf-be57-4671-983f-6d65225c7c00",
+      "target": "node-342e534d-9e19-4985-81dd-385a56664101",
+      "targetHandle": "handle-0af071be-ac53-46f5-ba81-1564c55e44a2",
+      "id": "node-bdbfa656-4579-4deb-9e15-061e5c697a2c---node-342e534d-9e19-4985-81dd-385a56664101",
+      "data": {
+        "label": "awareness of",
+        "customType": "plain",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-bdbfa656-4579-4deb-9e15-061e5c697a2c",
+      "sourceHandle": "handle-ba69cabf-be57-4671-983f-6d65225c7c00",
+      "target": "node-49e91f88-0ab9-41c3-98e0-af3c4844cd82",
+      "targetHandle": "handle-733282bd-5957-40dd-9072-bd5020075789",
+      "id": "node-bdbfa656-4579-4deb-9e15-061e5c697a2c---node-49e91f88-0ab9-41c3-98e0-af3c4844cd82",
+      "data": {
+        "label": "accounts for",
+        "customType": "plain",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-bdbfa656-4579-4deb-9e15-061e5c697a2c",
+      "sourceHandle": "handle-ba69cabf-be57-4671-983f-6d65225c7c00",
+      "target": "node-b621e8b9-91d1-4ad8-aeb6-7b8ab3583a82",
+      "targetHandle": "handle-7c92cc86-1dff-4b8c-baa5-9532597c4bcd",
+      "id": "node-bdbfa656-4579-4deb-9e15-061e5c697a2c---node-b621e8b9-91d1-4ad8-aeb6-7b8ab3583a82",
+      "data": {
+        "label": "awareness of",
+        "customType": "plain",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-bdbfa656-4579-4deb-9e15-061e5c697a2c",
+      "sourceHandle": "handle-ba69cabf-be57-4671-983f-6d65225c7c00",
+      "target": "node-a4da6793-79da-4438-902b-9ab291dbedc1",
+      "targetHandle": "handle-a11f3c64-3495-48d6-8b42-6e4234defbd7",
+      "id": "node-bdbfa656-4579-4deb-9e15-061e5c697a2c---node-a4da6793-79da-4438-902b-9ab291dbedc1",
+      "data": {
+        "label": "requires",
+        "customType": "plain",
+        "editing": false
+      },
+      "selected": false
+    },
+    {
+      "type": "custom",
+      "animated": false,
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 12,
+        "height": 12,
+        "color": "#aaaaaa"
+      },
+      "source": "node-bdbfa656-4579-4deb-9e15-061e5c697a2c",
+      "sourceHandle": "handle-ba69cabf-be57-4671-983f-6d65225c7c00",
+      "target": "node-e80ee015-ad93-4cb0-9a40-d3c1ccda6ff4",
+      "targetHandle": "handle-a7c3fbbe-7b21-408e-b274-a320bc1ce34f",
+      "id": "node-bdbfa656-4579-4deb-9e15-061e5c697a2c---node-e80ee015-ad93-4cb0-9a40-d3c1ccda6ff4",
+      "data": {
+        "label": "awareness of",
+        "customType": "plain",
+        "editing": false
+      },
+      "selected": false
+    }
+  ],
+  "viewport": {
+    "x": 309.75,
+    "y": 110.83333333333331,
+    "zoom": 0.5833333333333334
+  }
+}
