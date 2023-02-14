@@ -19,8 +19,11 @@ import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded'
 import SavingsRoundedIcon from '@mui/icons-material/SavingsRounded'
 import DriveFileRenameOutlineRoundedIcon from '@mui/icons-material/DriveFileRenameOutlineRounded'
 import TranslateRoundedIcon from '@mui/icons-material/TranslateRounded'
+
+import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded'
+import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded'
 import LinkRoundedIcon from '@mui/icons-material/LinkRounded'
-// import LinkOffRoundedIcon from '@mui/icons-material/LinkOffRounded';
+import LinkOffRoundedIcon from '@mui/icons-material/LinkOffRounded'
 
 import {
   hardcodedNodeSize,
@@ -109,6 +112,12 @@ export const MagicNode = memo(
       [deleteElements, getNode, id]
     )
 
+    // ! fold and unfold
+    const [folded, setFolded] = useState(false)
+    const handleToggleFold = useCallback(() => {
+      setFolded(folded => !folded)
+    }, [])
+
     // ! duplicate
     const handleDuplicate = useCallback(() => {
       const node = getNode(id)
@@ -135,7 +144,10 @@ export const MagicNode = memo(
     }, [fitView, getNode, id, setNodes])
 
     // ! linkage
-    const handleToggleLinkage = useCallback(() => {}, [])
+    const [linked, setLinked] = useState(true)
+    const handleToggleLinkage = useCallback(() => {
+      setLinked(linked => !linked)
+    }, [])
 
     // ! add to note
     const handleAddToNote = useCallback(() => {}, [])
@@ -245,84 +257,104 @@ export const MagicNode = memo(
       <div
         className={`custom-node-body magic-node-body${
           metaPressed ? ' magic-node-meta-pressed' : ''
-        }`}
+        }${folded ? ' magic-node-draggable' : ''}`}
       >
-        <div className="magic-node-bar">
+        <div className="magic-node-bar magic-node-draggable">
           <button className="magic-node-bar-button" onClick={handleDeleteNode}>
             <ClearRoundedIcon />
+          </button>
+          <button className="magic-node-bar-button" onClick={handleToggleFold}>
+            {folded ? <UnfoldMoreRoundedIcon /> : <UnfoldLessRoundedIcon />}
           </button>
           <button className="magic-node-bar-button" onClick={handleDuplicate}>
             <ContentCopyRoundedIcon />
           </button>
-          <button
-            className="magic-node-bar-button"
-            onClick={handleToggleLinkage}
-          >
-            <LinkRoundedIcon />
-          </button>
-          <button className="magic-node-bar-button" onClick={handleAddToNote}>
-            <DriveFileRenameOutlineRoundedIcon />
-          </button>
+          {!folded && (
+            <>
+              <button
+                className="magic-node-bar-button"
+                onClick={handleToggleLinkage}
+              >
+                {linked ? <LinkRoundedIcon /> : <LinkOffRoundedIcon />}
+              </button>
+              <button
+                className="magic-node-bar-button"
+                onClick={handleAddToNote}
+              >
+                <DriveFileRenameOutlineRoundedIcon />
+              </button>
+            </>
+          )}
         </div>
 
-        <div className="magic-prompt">
-          <textarea
-            ref={textareaRef}
-            className="magic-prompt-text"
-            value={data.prompt}
-            onChange={handlePromptTextChange}
-            autoFocus={true}
-          />
-
-          <div className="magic-prompt-line">
-            <MagicToolboxButton
-              className="magic-button"
-              content={
-                <>
-                  <AutoFixHighRoundedIcon />
-                  <span>ask</span>
-                </>
-              }
-              onClick={handleAsk}
-            />
-
-            <MagicToolboxButton
-              className="magic-button"
-              content={
-                <>
-                  <SavingsRoundedIcon />
-                  <span>suggested prompts</span>
-                </>
-              }
-              onClick={handleSuggestPrompt}
-            />
-          </div>
-        </div>
-
-        {waitingForModel && (
-          <div className="waiting-for-model-placeholder">
-            <PuffLoader size={32} color="#57068c" />
-          </div>
+        {folded && (
+          <p className="magic-folded-text magic-node-draggable">
+            {data.prompt}
+          </p>
         )}
 
-        {modelResponse.length > 0 && (
-          <div className={`magic-node-content`}>
-            <p className="magic-node-content-text">
-              {!isEmptyTokenization(modelTokenization) ? (
-                <MagicTokenizedText
-                  magicNodeId={id}
-                  originalText={modelResponse}
-                  tokenization={modelTokenization}
+        {!folded && (
+          <>
+            <div className="magic-prompt">
+              <textarea
+                ref={textareaRef}
+                className="magic-prompt-text"
+                value={data.prompt}
+                onChange={handlePromptTextChange}
+                autoFocus={true}
+              />
+
+              <div className="magic-prompt-line">
+                <MagicToolboxButton
+                  className="magic-button"
+                  content={
+                    <>
+                      <AutoFixHighRoundedIcon />
+                      <span>ask</span>
+                    </>
+                  }
+                  onClick={handleAsk}
                 />
-              ) : (
-                <span className="magic-original-text">{modelResponse}</span>
-              )}
-            </p>
-            <div className="model-response-warning">
-              <TranslateRoundedIcon />
-              Generated by {terms.gpt}. Verify the facts.
+
+                <MagicToolboxButton
+                  className="magic-button"
+                  content={
+                    <>
+                      <SavingsRoundedIcon />
+                      <span>suggested prompts</span>
+                    </>
+                  }
+                  onClick={handleSuggestPrompt}
+                />
+              </div>
             </div>
-          </div>
+
+            {waitingForModel && (
+              <div className="waiting-for-model-placeholder">
+                <PuffLoader size={32} color="#57068c" />
+              </div>
+            )}
+
+            {modelResponse.length > 0 && (
+              <div className={`magic-node-content`}>
+                <p className="magic-node-content-text">
+                  {!isEmptyTokenization(modelTokenization) ? (
+                    <MagicTokenizedText
+                      magicNodeId={id}
+                      originalText={modelResponse}
+                      tokenization={modelTokenization}
+                    />
+                  ) : (
+                    <span className="magic-original-text">{modelResponse}</span>
+                  )}
+                </p>
+                <div className="model-response-warning">
+                  <TranslateRoundedIcon />
+                  Generated by {terms.gpt}. Verify the facts.
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     )
@@ -439,7 +471,7 @@ export const addMagicNode = (
     selected: false,
     width: hardcodedNodeSize.magicWidth,
     height: hardcodedNodeSize.magicHeight,
-    dragHandle: '.magic-node-bar',
+    dragHandle: '.magic-node-draggable',
   } as Node
 
   addNodes(newMagicNode)

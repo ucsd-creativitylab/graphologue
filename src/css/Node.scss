@@ -114,9 +114,11 @@ $shadow-node-selected: $shadow-heavy;
     justify-content: flex-start;
     gap: $padding-small;
 
-    width: 20rem;
-    // min-height: 10rem;
+    width: max-content; // ?
+    min-width: 20rem;
+    max-width: 20rem;
     height: fit-content;
+    // min-height: 10rem;
     box-sizing: border-box;
 
     padding: $padding-small;
@@ -156,6 +158,17 @@ $shadow-node-selected: $shadow-heavy;
           background: $light;
         }
       }
+    }
+
+    .magic-folded-text {
+      padding: $padding-small;
+      box-sizing: border-box;
+      width: 100%;
+      margin: 0;
+
+      font-size: $font-size-default;
+      font-family: 'Roboto Slab', serif;
+      color: $black;
     }
 
     .magic-prompt {
