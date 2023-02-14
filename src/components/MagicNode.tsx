@@ -232,6 +232,15 @@ export const MagicNode = memo(
 
     /* -------------------------------------------------------------------------- */
 
+    // ! ask automatically on mount
+    const autoAsk = useRef(true)
+    useEffect(() => {
+      if (autoAsk.current) {
+        handleAsk()
+        autoAsk.current = false
+      }
+    }, [handleAsk])
+
     return (
       <div
         className={`custom-node-body magic-node-body${
