@@ -174,9 +174,14 @@ export const MagicSuggestItem = memo(
 
     const responseButtons: ReactElement[] = modelResponse
       .split(', ')
+      .slice(0, 5)
       .map((label, i) => {
         // remove extra spaces and line breaks around the label string
+        // and remove the last character if it's a period
         label = label.trim()
+        if (label[label.length - 1] === '.') {
+          label = label.slice(0, -1)
+        }
 
         return (
           <MagicToolboxButton
