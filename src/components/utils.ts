@@ -8,6 +8,23 @@ export const getMagicNodeId = () => `magic-node-${uuidv4()}`
 export const getHandleId = () => `handle-${uuidv4()}`
 export const getEdgeId = () => `edge-${uuidv4()}`
 
+export const getNodeLabels = (nodes: Node[]): string[] => {
+  const labels: string[] = []
+
+  nodes.forEach(node => {
+    if (node.type !== 'magic' && node.data.label) labels.push(node.data.label)
+  })
+  return labels
+}
+
+export const getEdgeLabels = (edges: Edge[]) => {
+  const labels: string[] = []
+  edges.forEach(edge => {
+    if (edge.data.label) labels.push(edge.data.label)
+  })
+  return labels
+}
+
 /* -------------------------------------------------------------------------- */
 
 export const getComponentsBounds = (

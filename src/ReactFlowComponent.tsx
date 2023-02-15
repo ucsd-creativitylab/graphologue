@@ -214,7 +214,6 @@ const Flow = () => {
   const handleNodeContextMenu = useCallback((e: BaseSyntheticEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    console.log(e)
   }, [])
 
   const handleNodeDoubleClick = useCallback(

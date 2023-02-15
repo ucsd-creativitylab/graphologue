@@ -22,12 +22,13 @@ import { hardcodedNodeSize, hideEdgeTextZoomLevel, styles } from '../constants'
 import { EdgeContext, FlowContext } from './Contexts'
 import { getMarkerId } from './CustomDefs'
 import {
+  MagicSuggestItem,
   MagicToolbox,
   MagicToolboxButton,
   MagicToolboxItem,
 } from './MagicToolbox'
 import { SuperTextEditor } from './SuperTextEditor'
-import { getEdgeParams } from './utils'
+import { getEdgeParams, getNodeLabels } from './utils'
 import { customAddNodes } from './Node'
 import { MagicNodeData } from './MagicNode'
 
@@ -173,6 +174,25 @@ export const getNewEdge = (
 
 /* -------------------------------------------------------------------------- */
 
+// !for magic suggestions
+const getRelevantNodesForEdge = (connection: Connection, nodes: Node[]) => {
+  const targetNode = nodes.find(node => node.id === connection.target)
+  const sourceNode = nodes.find(node => node.id === connection.source)
+
+  if (
+    targetNode &&
+    sourceNode &&
+    (targetNode.data.label.length > 0 || sourceNode.data.label.length > 0)
+  )
+    return [targetNode, sourceNode]
+
+  return nodes
+}
+
+/* -------------------------------------------------------------------------- */
+
+// ! edge label component
+
 type EdgeCustomLabelProps = {
   edgeId: string
   edgeData: CustomEdgeData
@@ -192,7 +212,7 @@ export const EdgeCustomLabel = memo(
     selected,
     roughZoomLevel,
   }: EdgeCustomLabelProps) => {
-    const { addNodes, setEdges, fitView, selectedComponents } =
+    const { getNodes, addNodes, setEdges, fitView, selectedComponents } =
       useContext(FlowContext)
 
     const moreThanOneComponentsSelected =
@@ -314,12 +334,18 @@ export const EdgeCustomLabel = memo(
             }`}
             zoom={roughZoomLevel}
           >
-            {/* <MagicAskItem
-              prompt={{
-                nodes: [],
-                edges: [getEdge(edgeId)!] || [],
-              }}
-            /> */}
+            {edgeData.label.length === 0 && selected ? (
+              <MagicSuggestItem
+                target="edge"
+                targetId={edgeId}
+                nodeLabels={getNodeLabels(
+                  getRelevantNodesForEdge(connection, getNodes())
+                )}
+                edgeLabels={[]}
+              />
+            ) : (
+              <></>
+            )}
 
             <MagicToolboxItem title="switch type">
               <EdgeCustomTypeSwitch

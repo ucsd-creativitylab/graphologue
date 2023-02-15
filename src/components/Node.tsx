@@ -15,11 +15,12 @@ import {
   transitionDuration,
   viewFittingPadding,
 } from '../constants'
-import { FlowContext } from './Contexts'
+import { EdgeContext, FlowContext } from './Contexts'
 import { MagicNodeData } from './MagicNode'
+import { MagicSuggestItem, MagicToolbox } from './MagicToolbox'
 import randomPhrases from './randomPhrases'
 import { SuperTextEditor } from './SuperTextEditor'
-import { getHandleId, getNodeId } from './utils'
+import { getHandleId, getNodeId, getNodeLabels } from './utils'
 
 export interface CustomNodeData {
   label: string
@@ -40,12 +41,12 @@ const connectionNodeIdSelector = (state: ReactFlowState) =>
 
 export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
-    const { metaPressed, selectedComponents } = useContext(FlowContext)
+    const { getNodes, metaPressed, selectedComponents } =
+      useContext(FlowContext)
+    const { roughZoomLevel } = useContext(EdgeContext)
 
-    // const moreThanOneComponentsSelected =
-    //   selectedComponents.selectedNodes.length +
-    //     selectedComponents.selectedEdges.length >
-    //   1
+    const moreThanOneComponentsSelected =
+      selectedComponents.nodes.length + selectedComponents.edges.length > 1
 
     const { label, sourceHandleId, targetHandleId, editing } =
       data as CustomNodeData
@@ -108,28 +109,25 @@ export const CustomNode = memo(
             editing={editing}
             selected={selected}
           >
-            {/* {label.length > 0 ? (
-              <>
-                <MagicToolbox
-                  className={`edge-label-toolbox${
-                    selected && !moreThanOneComponentsSelected
-                      ? ' magic-toolbox-show'
-                      : ''
-                  }`}
-                  zoom={roughZoomLevel}
-                >
-                  <MagicAskItem
-                    prompt={{
-                      edges: [],
-                      nodes: [getNode(id)!] || [],
-                    }}
-                  />
-                </MagicToolbox>
-              </>
+            {label.length === 0 && selected ? (
+              <MagicToolbox
+                className={`edge-label-toolbox${
+                  selected && !moreThanOneComponentsSelected
+                    ? ' magic-toolbox-show'
+                    : ''
+                }`}
+                zoom={roughZoomLevel}
+              >
+                <MagicSuggestItem
+                  target="node"
+                  targetId={id}
+                  nodeLabels={getNodeLabels(getNodes())}
+                  edgeLabels={[]} // TODO
+                />
+              </MagicToolbox>
             ) : (
               <></>
-            )} */}
-            <></>
+            )}
           </SuperTextEditor>
         </div>
       </div>

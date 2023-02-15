@@ -4,6 +4,9 @@ import {
   ReactElement,
   useCallback,
   useContext,
+  useEffect,
+  useRef,
+  useState,
 } from 'react'
 
 import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
@@ -11,6 +14,11 @@ import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 import { terms } from '../constants'
 import { magicExplain, PromptSourceComponentsType } from './magicExplain'
 import { FlowContext } from './Contexts'
+import { Edge, Node } from 'reactflow'
+import { getOpenAICompletion } from './openAI'
+import { predefinedPrompts, predefinedResponses } from './promptsAndResponses'
+import { PuffLoader } from 'react-spinners'
+import isEqual from 'react-fast-compare'
 
 interface MagicToolboxProps {
   className?: string
@@ -40,13 +48,15 @@ export const MagicToolbox = ({
 interface MagicToolboxItemProps {
   title?: string
   children: ReactElement
+  className?: string
 }
 export const MagicToolboxItem = ({
   title,
   children,
+  className,
 }: MagicToolboxItemProps) => {
   return (
-    <div className="magic-toolbox-item">
+    <div className={`magic-toolbox-item${className ? ' ' + className : ''}`}>
       {title && <span className="magic-toolbox-item-title">{title}</span>}
       {/* <div className="magic-toolbox-item-content">{children}</div> */}
       {children}
@@ -88,6 +98,115 @@ export const MagicToolboxButton = memo(
       </button>
     )
   }
+)
+
+interface MagicSuggestItemProps {
+  target: 'node' | 'edge'
+  targetId: string
+  nodeLabels: string[]
+  edgeLabels: string[]
+}
+export const MagicSuggestItem = memo(
+  ({ target, targetId, nodeLabels, edgeLabels }: MagicSuggestItemProps) => {
+    const { setNodes, setEdges } = useContext(FlowContext)
+
+    const [modelResponse, setModelResponse] = useState<string>('')
+
+    const handleSetSuggestion = useCallback(
+      (suggestion: string) => {
+        if (target === 'node') {
+          setNodes((nodes: Node[]) => {
+            return nodes.map(node => {
+              if (node.id === targetId) {
+                return {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    label: suggestion,
+                  },
+                }
+              }
+              return node
+            })
+          })
+        } else if (target === 'edge') {
+          setEdges((edges: Edge[]) => {
+            return edges.map(edge => {
+              if (edge.id === targetId) {
+                return {
+                  ...edge,
+                  data: {
+                    ...edge.data,
+                    label: suggestion,
+                  },
+                }
+              }
+              return edge
+            })
+          })
+        }
+      },
+      [setEdges, setNodes, target, targetId]
+    )
+
+    const handleSuggest = useCallback(async () => {
+      const prompt =
+        predefinedPrompts.giveNodeLabelSuggestionsFromNodes(nodeLabels)
+
+      // !
+      const response = await getOpenAICompletion(prompt)
+
+      if (response.error) {
+        // TODO
+        setModelResponse(predefinedResponses.noValidResponse)
+      }
+
+      setModelResponse(response.choices[0].text)
+    }, [nodeLabels])
+
+    const autoSuggest = useRef(true)
+    useEffect(() => {
+      if (autoSuggest.current) {
+        autoSuggest.current = false
+        handleSuggest()
+      }
+    }, [handleSuggest])
+
+    const responseButtons: ReactElement[] = modelResponse
+      .split(', ')
+      .map((label, i) => {
+        // remove extra spaces and line breaks around the label string
+        label = label.trim()
+
+        return (
+          <MagicToolboxButton
+            key={i}
+            content={label}
+            onClick={() => {
+              handleSetSuggestion(label)
+            }}
+          />
+        )
+      })
+
+    return (
+      <MagicToolboxItem
+        className="magic-suggest-item"
+        title={`suggested by ${terms.gpt}`}
+      >
+        <div className="magic-suggest-options">
+          {modelResponse.length > 0 ? (
+            <>{responseButtons}</>
+          ) : (
+            <div className="waiting-for-model-placeholder">
+              <PuffLoader size={32} color="#57068c" />
+            </div>
+          )}
+        </div>
+      </MagicToolboxItem>
+    )
+  },
+  isEqual
 )
 
 interface MagicAskItemProps {

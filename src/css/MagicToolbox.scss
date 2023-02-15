@@ -47,6 +47,18 @@
       font-weight: $font-weight-default;
       color: $light-grey;
     }
+
+    // suggest
+    .magic-suggest-options {
+      display: flex;
+      flex-direction: column;
+      gap: $padding-xs;
+      align-items: stretch;
+      justify-content: flex-start;
+
+      width: max-content;
+      min-width: 8rem;
+    }
   }
 
   .magic-toolbox-button {

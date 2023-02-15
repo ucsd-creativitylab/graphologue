@@ -48,6 +48,7 @@ import {
 } from './socket'
 import isEqual from 'react-fast-compare'
 import { deepCopyNodes } from './storage'
+import { predefinedPrompts, predefinedResponses } from './promptsAndResponses'
 
 export interface MagicNodeData {
   sourceComponents: PromptSourceComponentsType
@@ -64,7 +65,7 @@ export const MagicNode = memo(
     const { getNode, setNodes, deleteElements, metaPressed, fitView } =
       useContext(FlowContext)
 
-    const [waitingForModel, setWaitingForModel] = useState(false)
+    const [waitingForModel, setWaitingForModel] = useState<boolean>(false)
     const [modelResponse, setModelResponse] = useState<string>('')
     const [modelTokenization, setModelTokenization] =
       useState<Tokenization>(emptyTokenization)
@@ -95,7 +96,7 @@ export const MagicNode = memo(
       }
 
       return () => {
-        if (wsCurrent.readyState === 1) wsCurrent.close()
+        if (wsCurrent.readyState === wsCurrent.OPEN) wsCurrent.close()
       }
     }, [id])
 
@@ -113,7 +114,7 @@ export const MagicNode = memo(
     )
 
     // ! fold and unfold
-    const [folded, setFolded] = useState(false)
+    const [folded, setFolded] = useState<boolean>(false)
     const handleToggleFold = useCallback(() => {
       setFolded(folded => !folded)
     }, [])
@@ -202,15 +203,15 @@ export const MagicNode = memo(
       setModelTokenization(emptyTokenization)
 
       // ! ask model
-      const response = await getOpenAICompletion(data.prompt)
+      const response = await getOpenAICompletion(
+        data.prompt + predefinedPrompts.addScholar()
+      )
 
       // TODO handle error
       if (response.error) {
         setWaitingForModel(false)
 
-        setModelResponse(
-          'The model is down. Again, the model is D-O-W-N. Please try again later.'
-        )
+        setModelResponse(predefinedResponses.modelDown())
         setTimeout(() => {
           setModelResponse('')
         }, 3000)
@@ -224,12 +225,13 @@ export const MagicNode = memo(
       setWaitingForModel(false)
 
       // send to server
-      ws.current?.send(
-        JSON.stringify({
-          message: modelText,
-          id: id,
-        } as WebSocketMessageType)
-      )
+      if (ws.current?.readyState === ws.current?.OPEN)
+        ws.current?.send(
+          JSON.stringify({
+            message: modelText,
+            id: id,
+          } as WebSocketMessageType)
+        )
     }, [data.prompt, id, waitingForModel])
 
     // ! suggest prompt
@@ -248,8 +250,8 @@ export const MagicNode = memo(
     const autoAsk = useRef(true)
     useEffect(() => {
       if (autoAsk.current) {
-        handleAsk()
         autoAsk.current = false
+        handleAsk()
       }
     }, [handleAsk])
 
