@@ -11,6 +11,7 @@ import {
   useState,
 } from 'react'
 import { FitView, Instance, Node, NodeProps } from 'reactflow'
+import isEqual from 'react-fast-compare'
 import { PuffLoader } from 'react-spinners'
 
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded'
@@ -46,9 +47,8 @@ import {
   WebSocketMessageType,
   WebSocketResponseType,
 } from './socket'
-import isEqual from 'react-fast-compare'
 import { deepCopyNodes } from './storage'
-import { predefinedPrompts, predefinedResponses } from './promptsAndResponses'
+import { predefinedResponses } from './promptsAndResponses'
 
 export interface MagicNodeData {
   sourceComponents: PromptSourceComponentsType
@@ -204,7 +204,8 @@ export const MagicNode = memo(
 
       // ! ask model
       const response = await getOpenAICompletion(
-        data.prompt + predefinedPrompts.addScholar()
+        // data.prompt + predefinedPrompts.addScholar()
+        data.prompt
       )
 
       // TODO handle error

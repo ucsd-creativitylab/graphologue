@@ -8,6 +8,8 @@ import {
   useRef,
   useState,
 } from 'react'
+import isEqual from 'react-fast-compare'
+import { PuffLoader } from 'react-spinners'
 
 import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 
@@ -17,8 +19,6 @@ import { FlowContext } from './Contexts'
 import { Edge, Node } from 'reactflow'
 import { getOpenAICompletion } from './openAI'
 import { predefinedPrompts, predefinedResponses } from './promptsAndResponses'
-import { PuffLoader } from 'react-spinners'
-import isEqual from 'react-fast-compare'
 
 interface MagicToolboxProps {
   className?: string
