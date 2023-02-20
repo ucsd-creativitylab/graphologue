@@ -6,7 +6,6 @@ import {
   useContext,
   useEffect,
   useRef,
-  useState,
 } from 'react'
 import isEqual from 'react-fast-compare'
 import {
@@ -21,13 +20,11 @@ import {
 } from 'reactflow'
 
 import {
-  contentEditingTimeout,
   hardcodedNodeSize,
   transitionDuration,
   viewFittingPadding,
 } from '../constants'
 import { EdgeContext, FlowContext } from './Contexts'
-import { usePrevious } from '../utils/hooks'
 import { MagicNodeData } from './MagicNode'
 import {
   MagicNodeTaggingItem,
@@ -37,7 +34,6 @@ import {
 import randomPhrases from '../utils/randomPhrases'
 import { SuperTextEditor } from './SuperTextEditor'
 import { getHandleId, getNodeId, getNodeLabelAndTags } from '../utils/utils'
-import { getWikiData } from '../utils/wikiBase'
 
 export interface CustomNodeData {
   label: string
@@ -73,38 +69,7 @@ export const CustomNode = memo(
     const tagRef = useRef<HTMLDivElement>(null)
 
     // ! tags to clarify the node label
-    const [availableTags, setAvailableTags] = useState<string[]>([])
-    // wait for 1000 seconds and if the label is not changing
-    // it means that the user is not editing the node
-    // and make a request using the label as a query
-    const prevEditing = usePrevious(editing)
-    const prevLabel = usePrevious(label)
-    useEffect(() => {
-      if (tags.length > 0) {
-        if (availableTags.length > 0) return setAvailableTags([])
-        else return
-      }
-
-      const timeout = setTimeout(() => {
-        if (
-          label.length !== 0 &&
-          ((editing && !prevEditing) || prevLabel !== label)
-        )
-          getWikiData(label).then(res => {
-            setAvailableTags(res)
-          })
-        else return
-      }, contentEditingTimeout)
-
-      return () => timeout && clearTimeout(timeout)
-    }, [
-      availableTags.length,
-      editing,
-      label,
-      prevEditing,
-      prevLabel,
-      tags.length,
-    ])
+    ////
     useEffect(() => {
       // use js to adjust the width of the tag div
       tagRef.current &&
@@ -113,11 +78,11 @@ export const CustomNode = memo(
           textAreaRef.current!.scrollWidth
         )}px`)
 
-      if (selected && tags.length === 0 && label.length !== 0 && !editing) {
-        getWikiData(label).then(res => {
-          setAvailableTags(res)
-        })
-      }
+      // if (selected && tags.length === 0 && label.length !== 0 && !editing) {
+      //   getWikiData(label).then(res => {
+      //     setAvailableTags(res)
+      //   })
+      // }
     }, [editing, label, selected, tags.length])
     ////
     const handleRemoveTags = useCallback(() => {
@@ -208,10 +173,7 @@ export const CustomNode = memo(
                 zoom={roughZoomLevel}
               >
                 {label.length !== 0 && tags.length === 0 ? (
-                  <MagicNodeTaggingItem
-                    targetId={id}
-                    availableTags={availableTags}
-                  />
+                  <MagicNodeTaggingItem targetId={id} label={label} />
                 ) : (
                   <></>
                 )}

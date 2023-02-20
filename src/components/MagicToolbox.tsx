@@ -13,7 +13,7 @@ import { PuffLoader } from 'react-spinners'
 
 import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 
-import { terms, wikiRequestTimeout } from '../constants'
+import { contentEditingTimeout, terms } from '../constants'
 import { magicExplain, PromptSourceComponentsType } from '../utils/magicExplain'
 import { FlowContext } from './Contexts'
 import { Edge, Node } from 'reactflow'
@@ -23,6 +23,7 @@ import {
   predefinedPrompts,
   predefinedResponses,
 } from '../utils/promptsAndResponses'
+import { getWikiData } from './wikiBase'
 
 interface MagicToolboxProps {
   className?: string
@@ -135,12 +136,15 @@ export const MagicTag = memo(
 
 interface MagicNodeTaggingItemProps {
   targetId: string
-  availableTags: string[]
+  label: string
 }
 export const MagicNodeTaggingItem = memo(
-  ({ targetId, availableTags }: MagicNodeTaggingItemProps) => {
+  ({ targetId, label }: MagicNodeTaggingItemProps) => {
     const { setNodes } = useContext(FlowContext)
-    const [requestTimeout, setRequestTimeout] = useState<boolean>(false)
+
+    const [availableTags, setAvailableTags] = useState<string[]>([])
+    const [noAvailable, setNoAvailable] = useState<boolean>(false)
+    // const prevLabel = usePrevious(label)
 
     const handleOnClick = useCallback(
       (tag: string) => {
@@ -163,13 +167,20 @@ export const MagicNodeTaggingItem = memo(
     )
 
     useEffect(() => {
-      const timeout = setTimeout(() => {
-        if (availableTags.length === 0) setRequestTimeout(true)
-      }, wikiRequestTimeout)
-      return () => {
-        timeout && clearTimeout(timeout)
-      }
-    }, [availableTags.length])
+      setNoAvailable(false)
+      setAvailableTags([])
+
+      const _timeout = setTimeout(() => {
+        if (label) {
+          getWikiData(label).then(res => {
+            setAvailableTags(res)
+            if (res.length === 0) setNoAvailable(true)
+          })
+        }
+      }, contentEditingTimeout)
+
+      return () => _timeout && clearTimeout(_timeout)
+    }, [label])
 
     return (
       <MagicToolboxItem
@@ -178,7 +189,7 @@ export const MagicNodeTaggingItem = memo(
       >
         <div className="magic-tagging-options">
           {availableTags.length === 0 ? (
-            !requestTimeout ? (
+            !noAvailable ? (
               <div className="waiting-for-model-placeholder">
                 <PuffLoader size={32} color="#13a600" />
               </div>

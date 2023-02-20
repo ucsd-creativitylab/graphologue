@@ -24,6 +24,6 @@ export const predefinedPrompts = {
 export const predefinedResponses = {
   modelDown: () =>
     'The model is down. Again, the model is D-O-W-N. Please try again later.',
-  noValidTags: () => 'n/a',
-  noValidResponse: () => 'n/a',
+  noValidTags: () => 'no available tags',
+  noValidResponse: () => 'response unavailable',
 }

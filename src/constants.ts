@@ -10,7 +10,7 @@ export const hideEdgeTextZoomLevel = 0.6
 
 export const timeMachineMaxSize = 50
 export const contentEditingTimeout = 500
-export const wikiRequestTimeout = 2000
+// export const wikiRequestTimeout = 2000
 
 export const hardcodedNodeSize = {
   width: 160,
