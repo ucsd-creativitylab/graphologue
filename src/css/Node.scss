@@ -28,11 +28,69 @@ $shadow-node-selected: $shadow-heavy;
 
     &.custom-node-meta-pressed {
       box-shadow: $light-grey 0 0 rem-to-px(0) rem-to-px(2rem) !important;
+
+      .custom-node-tag {
+        opacity: 0;
+      }
     }
 
     &.custom-node-explained {
       outline: rem-to-px(2rem) dotted rgba($purple, $opacity-mid) !important;
       outline-offset: rem-to-px(2rem);
+    }
+
+    .custom-node-tag {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      position: absolute;
+      z-index: 999;
+
+      color: $white;
+      font-size: $font-size-xs;
+      background-color: $mid-grey;
+      box-sizing: border-box;
+      padding: $padding-xs $padding-small;
+      border-radius: $padding-large;
+      white-space: nowrap;
+      overflow: hidden;
+
+      width: max-content;
+      max-width: calc(100% - $padding-small * 2);
+      margin: 0 auto;
+      bottom: 0;
+      left: 50%;
+      transform: translate(-50%, calc(50% + rem-to-px(3rem)));
+
+      transition: opacity $transition-fast;
+      cursor: pointer;
+
+      span {
+        position: relative;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      span::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        background-image: linear-gradient(
+          transparent 0 calc(50% - rem-to-px(0.5rem)),
+          $white calc(50% - rem-to-px(0.5rem)) calc(50% + rem-to-px(0.5rem)),
+          transparent calc(50% + rem-to-px(0.5rem)) 100%
+        );
+        width: 0;
+        height: 100%;
+        transition: width $transition-normal ease-out;
+        display: inline-block;
+      }
+
+      &:hover span::before {
+        width: 100%;
+      }
     }
   }
 

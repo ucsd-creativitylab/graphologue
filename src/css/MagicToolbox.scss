@@ -1,3 +1,7 @@
+// $magic-tag-color: $light-grey;
+$magic-tag-color: $mid-grey;
+$magic-tag-color-hover: $grey;
+
 .magic-toolbox {
   display: flex;
   flex-direction: column;
@@ -48,8 +52,9 @@
       color: $light-grey;
     }
 
-    // suggest
-    .magic-suggest-options {
+    // suggest / tagging
+    .magic-suggest-options,
+    .magic-tagging-options {
       display: flex;
       flex-direction: column;
       gap: $padding-xs;
@@ -58,6 +63,62 @@
 
       width: max-content;
       min-width: 8rem;
+    }
+
+    .magic-tagging-options {
+      max-width: 16rem;
+
+      .magic-toolbox-tag {
+        @include magic-button;
+
+        display: inline-flex;
+        // justify-content: flex-start;
+        flex-wrap: nowrap;
+        position: relative;
+        color: $white;
+
+        width: min-content;
+        max-width: 16rem;
+
+        font-size: $font-size-small !important;
+        // white-space: pre-wrap;
+        background: $magic-tag-color;
+        // padding: $padding-small;
+
+        // border-radius: calc((2 * $padding-xs + $font-size-small) / 2);
+        border-radius: $padding-x-large;
+
+        overflow: hidden;
+
+        &:disabled {
+          pointer-events: none;
+          opacity: $opacity-high;
+        }
+
+        &::before {
+          content: '';
+
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+
+          box-shadow: inset rgba($magic-tag-color, $opacity-default) 0 0
+            rem-to-px(6rem) rem-to-px(6rem);
+        }
+
+        &:hover {
+          background: $magic-tag-color-hover;
+
+          &::before {
+            box-shadow: inset rgba($magic-tag-color-hover, $opacity-default) 0 0
+              rem-to-px(6rem) rem-to-px(6rem);
+          }
+        }
+      }
     }
   }
 

@@ -437,7 +437,7 @@ const Flow = () => {
             fitView={false}
             attributionPosition="top-right"
             // edge specs
-            elevateEdgesOnSelect={true}
+            elevateEdgesOnSelect={false}
             defaultEdgeOptions={customEdgeOptions} // adding a new edge with this configs without notice
             connectionLineComponent={CustomConnectionLine}
             connectionLineStyle={customConnectionLineStyle}

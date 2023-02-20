@@ -1,6 +1,7 @@
 import { Edge, Node, Position } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
+import { NodeLabelAndTags } from './promptsAndResponses'
 import { Tokenization } from './socket'
 
 export const getNodeId = () => `node-${uuidv4()}`
@@ -8,13 +9,17 @@ export const getMagicNodeId = () => `magic-node-${uuidv4()}`
 export const getHandleId = () => `handle-${uuidv4()}`
 export const getEdgeId = () => `edge-${uuidv4()}`
 
-export const getNodeLabels = (nodes: Node[]): string[] => {
-  const labels: string[] = []
+export const getNodeLabelAndTags = (nodes: Node[]): NodeLabelAndTags[] => {
+  const labelAndTags: NodeLabelAndTags[] = []
 
   nodes.forEach(node => {
-    if (node.type !== 'magic' && node.data.label) labels.push(node.data.label)
+    if (node.type !== 'magic' && node.data.label)
+      labelAndTags.push({
+        label: node.data.label,
+        tags: node.data.tags || [],
+      })
   })
-  return labels
+  return labelAndTags
 }
 
 export const getEdgeLabels = (edges: Edge[]) => {
@@ -25,43 +30,8 @@ export const getEdgeLabels = (edges: Edge[]) => {
   return labels
 }
 
-/* -------------------------------------------------------------------------- */
-
-export const getComponentsBounds = (
-  targetNodes: Node[],
-  targetEdges: Edge[],
-  nodes: Node[]
-) => {
-  const bounds = {
-    left: Infinity,
-    top: Infinity,
-    right: -Infinity,
-    bottom: -Infinity,
-  }
-
-  // recover edges to nodes
-  const nodesFromEdges = targetEdges.reduce((acc: any[], edge: Edge) => {
-    const sourceNode = nodes.find(n => n.id === edge.source)
-    const targetNode = nodes.find(n => n.id === edge.target)
-    return [...acc, sourceNode, targetNode]
-  }, [] as Node[])
-
-  targetNodes = [...targetNodes, ...nodesFromEdges]
-
-  targetNodes.forEach(node => {
-    const {
-      position: { x, y },
-      width,
-      height,
-    } = node
-
-    if (x! < bounds.left) bounds.left = x!
-    if (y! < bounds.top) bounds.top = y!
-    if (x! + width! > bounds.right) bounds.right = x! + width!
-    if (y! + height! > bounds.bottom) bounds.bottom = y! + height!
-  })
-
-  return bounds
+export const tagsToString = (tags: string[]) => {
+  return tags.length > 0 ? `(${tags.join(', ')})` : ''
 }
 
 /* -------------------------------------------------------------------------- */
@@ -165,6 +135,43 @@ export const getGraphBounds = (nodes: Node[]) => {
 
   bounds.width -= bounds.x
   bounds.height -= bounds.y
+
+  return bounds
+}
+
+export const getComponentsBounds = (
+  targetNodes: Node[],
+  targetEdges: Edge[],
+  nodes: Node[]
+) => {
+  const bounds = {
+    left: Infinity,
+    top: Infinity,
+    right: -Infinity,
+    bottom: -Infinity,
+  }
+
+  // recover edges to nodes
+  const nodesFromEdges = targetEdges.reduce((acc: any[], edge: Edge) => {
+    const sourceNode = nodes.find(n => n.id === edge.source)
+    const targetNode = nodes.find(n => n.id === edge.target)
+    return [...acc, sourceNode, targetNode]
+  }, [] as Node[])
+
+  targetNodes = [...targetNodes, ...nodesFromEdges]
+
+  targetNodes.forEach(node => {
+    const {
+      position: { x, y },
+      width,
+      height,
+    } = node
+
+    if (x! < bounds.left) bounds.left = x!
+    if (y! < bounds.top) bounds.top = y!
+    if (x! + width! > bounds.right) bounds.right = x! + width!
+    if (y! + height! > bounds.bottom) bounds.bottom = y! + height!
+  })
 
   return bounds
 }

@@ -1,4 +1,5 @@
-import { memo, useContext } from 'react'
+import { memo, useCallback, useContext, useEffect, useState } from 'react'
+import isEqual from 'react-fast-compare'
 import {
   Handle,
   Position,
@@ -11,19 +12,27 @@ import {
 } from 'reactflow'
 
 import {
+  contentEditingTimeout,
   hardcodedNodeSize,
   transitionDuration,
   viewFittingPadding,
 } from '../constants'
 import { EdgeContext, FlowContext } from './Contexts'
+import { usePrevious } from './hooks'
 import { MagicNodeData } from './MagicNode'
-import { MagicSuggestItem, MagicToolbox } from './MagicToolbox'
+import {
+  MagicNodeTaggingItem,
+  MagicSuggestItem,
+  MagicToolbox,
+} from './MagicToolbox'
 import randomPhrases from './randomPhrases'
 import { SuperTextEditor } from './SuperTextEditor'
-import { getHandleId, getNodeId, getNodeLabels } from './utils'
+import { getHandleId, getNodeId, getNodeLabelAndTags } from './utils'
+import { getWikiData } from './wikiBase'
 
 export interface CustomNodeData {
   label: string
+  tags: string[]
   sourceHandleId: string
   targetHandleId: string
   // states
@@ -41,18 +50,77 @@ const connectionNodeIdSelector = (state: ReactFlowState) =>
 
 export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
-    const { getNodes, metaPressed, selectedComponents } =
+    const { getNodes, setNodes, metaPressed, selectedComponents } =
       useContext(FlowContext)
     const { roughZoomLevel } = useContext(EdgeContext)
 
     const moreThanOneComponentsSelected =
       selectedComponents.nodes.length + selectedComponents.edges.length > 1
 
-    const { label, sourceHandleId, targetHandleId, editing } =
+    const { label, tags, sourceHandleId, targetHandleId, editing } =
       data as CustomNodeData
 
-    const connectionNodeId = useStore(connectionNodeIdSelector)
+    // ! tags to clarify the node label
+    const [availableTags, setAvailableTags] = useState<string[]>([])
+    // wait for 1000 seconds and if the label is not changing
+    // it means that the user is not editing the node
+    // and make a request using the label as a query
+    const prevEditing = usePrevious(editing)
+    const prevLabel = usePrevious(label)
+    useEffect(() => {
+      if (tags.length > 0) {
+        if (availableTags.length > 0) return setAvailableTags([])
+        else return
+      }
 
+      const timeout = setTimeout(() => {
+        if (
+          label.length !== 0 &&
+          ((editing && !prevEditing) || prevLabel !== label)
+        )
+          getWikiData(label).then(res => {
+            setAvailableTags(res)
+          })
+        else return
+      }, contentEditingTimeout)
+
+      return () => timeout && clearTimeout(timeout)
+    }, [
+      availableTags.length,
+      editing,
+      label,
+      prevEditing,
+      prevLabel,
+      tags.length,
+    ])
+    useEffect(() => {
+      if (selected && tags.length === 0 && label.length !== 0 && !editing) {
+        getWikiData(label).then(res => {
+          setAvailableTags(res)
+        })
+      }
+    }, [editing, label, selected, tags.length])
+    ////
+    const handleRemoveTags = useCallback(() => {
+      setNodes((nodes: Node[]) => {
+        return nodes.map(node => {
+          if (node.id === id) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                tags: [],
+              },
+            }
+          }
+          return node
+        })
+      })
+    }, [id, setNodes])
+
+    ////
+    // for connections
+    const connectionNodeId = useStore(connectionNodeIdSelector)
     // is the node being source of an ongoing new connection?
     const isTarget = connectionNodeId && connectionNodeId !== id
 
@@ -94,6 +162,18 @@ export const CustomNode = memo(
             zIndex: 2,
           }}
         />
+
+        {/* {tags.length > 0 && (
+          <div className="custom-node-tags">
+            {tags.map((tag, index) => (
+              <span key={index} className="custom-node-tag">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )} */}
+        <CustomNodeTag tags={tags} removeTags={handleRemoveTags} />
+
         <div
           className={`custom-node-content${
             isTarget ? ' custom-node-content-target' : ''
@@ -109,7 +189,7 @@ export const CustomNode = memo(
             editing={editing}
             selected={selected}
           >
-            {label.length === 0 && selected ? (
+            {(label.length === 0 || tags.length === 0) && selected ? (
               <MagicToolbox
                 className={`edge-label-toolbox${
                   selected && !moreThanOneComponentsSelected
@@ -118,12 +198,24 @@ export const CustomNode = memo(
                 }`}
                 zoom={roughZoomLevel}
               >
-                <MagicSuggestItem
-                  target="node"
-                  targetId={id}
-                  nodeLabels={getNodeLabels(getNodes())}
-                  edgeLabels={[]} // TODO
-                />
+                {label.length !== 0 && tags.length === 0 ? (
+                  <MagicNodeTaggingItem
+                    targetId={id}
+                    availableTags={availableTags}
+                  />
+                ) : (
+                  <></>
+                )}
+                {label.length === 0 ? (
+                  <MagicSuggestItem
+                    target="node"
+                    targetId={id}
+                    nodeLabelAndTags={getNodeLabelAndTags(getNodes())}
+                    edgeLabels={[]} // TODO
+                  />
+                ) : (
+                  <></>
+                )}
               </MagicToolbox>
             ) : (
               <></>
@@ -131,6 +223,25 @@ export const CustomNode = memo(
           </SuperTextEditor>
         </div>
       </div>
+    )
+  },
+  isEqual
+)
+
+/* -------------------------------------------------------------------------- */
+
+interface CustomNodeTagProps {
+  tags: string[]
+  removeTags: () => void
+}
+export const CustomNodeTag = memo(
+  ({ tags, removeTags }: CustomNodeTagProps) => {
+    return tags.length > 0 ? (
+      <div className="custom-node-tag" onClick={removeTags}>
+        <span>{tags[0]}</span>
+      </div>
+    ) : (
+      <></>
     )
   }
 )
@@ -166,6 +277,7 @@ export const customAddNodes = (
     type: 'custom', // ! use custom node
     data: {
       label: label,
+      tags: [],
       sourceHandleId: sourceHandleId,
       targetHandleId: targetHandleId,
       editing: editing,
