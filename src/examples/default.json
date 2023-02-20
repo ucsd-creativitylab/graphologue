@@ -7,6 +7,7 @@
       "type": "custom",
       "data": {
         "label": "Potential Drug Test Interactions",
+        "tags": [],
         "sourceHandleId": "handle-e76ab1d8-0840-409b-bc89-1baef0264d60",
         "targetHandleId": "handle-a7c3fbbe-7b21-408e-b274-a320bc1ce34f",
         "editing": false
@@ -29,6 +30,7 @@
       "type": "custom",
       "data": {
         "label": "Pre-Therapy Assessment",
+        "tags": [],
         "sourceHandleId": "handle-cf88011d-c1ca-464d-9f17-93f77bd9f7be",
         "targetHandleId": "handle-a11f3c64-3495-48d6-8b42-6e4234defbd7",
         "editing": false
@@ -51,6 +53,7 @@
       "type": "custom",
       "data": {
         "label": "Cultural or Religious Factors",
+        "tags": [],
         "sourceHandleId": "handle-c6925232-a648-4699-b2ab-23db80f9cdff",
         "targetHandleId": "handle-7c92cc86-1dff-4b8c-baa5-9532597c4bcd",
         "editing": false
@@ -73,6 +76,7 @@
       "type": "custom",
       "data": {
         "label": "Potential Drug-Drug Interactions",
+        "tags": [],
         "sourceHandleId": "handle-600b8723-5903-454d-8ad4-5527f6d6fa9f",
         "targetHandleId": "handle-733282bd-5957-40dd-9072-bd5020075789",
         "editing": false
@@ -95,6 +99,7 @@
       "type": "custom",
       "data": {
         "label": "Potential Drug-Food Interactions",
+        "tags": [],
         "sourceHandleId": "handle-36e04176-c28b-4cff-afe8-d28c79474735",
         "targetHandleId": "handle-0af071be-ac53-46f5-ba81-1564c55e44a2",
         "editing": false
@@ -117,6 +122,7 @@
       "type": "custom",
       "data": {
         "label": "Assessment",
+        "tags": [],
         "sourceHandleId": "handle-ba69cabf-be57-4671-983f-6d65225c7c00",
         "targetHandleId": "handle-d1f41281-bcf5-4aae-b151-350bbd79f977",
         "editing": false
@@ -139,6 +145,7 @@
       "type": "custom",
       "data": {
         "label": "Evaluation",
+        "tags": [],
         "sourceHandleId": "handle-960cffb9-3ae8-4000-814a-5921958c64da",
         "targetHandleId": "handle-767ddca5-66a5-40c6-bbae-874796e33eec",
         "editing": false
@@ -161,6 +168,7 @@
       "type": "custom",
       "data": {
         "label": "Teaching",
+        "tags": [],
         "sourceHandleId": "handle-2ce127ca-cbde-4e14-acb9-b7187fc04936",
         "targetHandleId": "handle-16d363ba-5c79-493e-a1ea-49efcc8edf9d",
         "editing": false
@@ -183,6 +191,7 @@
       "type": "custom",
       "data": {
         "label": "Administration",
+        "tags": [],
         "sourceHandleId": "handle-432809a2-04b3-4eb0-959c-96cc02bac775",
         "targetHandleId": "handle-564a0ed0-cf19-4775-a661-9719ce0daaf0",
         "editing": false
@@ -205,6 +214,7 @@
       "type": "custom",
       "data": {
         "label": "Doing",
+        "tags": [],
         "sourceHandleId": "handle-8a80cc73-bbd6-4056-9c1d-6f098db8649f",
         "targetHandleId": "handle-ab821c44-fecb-4d21-8ef7-25856e7c40c2",
         "editing": false
@@ -227,6 +237,7 @@
       "type": "custom",
       "data": {
         "label": "Alternatives",
+        "tags": [],
         "sourceHandleId": "handle-b668d817-23c0-4c3a-bb2d-6d581d4bf281",
         "targetHandleId": "handle-5e87310e-9663-4911-b64d-604d1960d654",
         "editing": false
@@ -249,6 +260,7 @@
       "type": "custom",
       "data": {
         "label": "Cost Effectiveness",
+        "tags": [],
         "sourceHandleId": "handle-a995cb25-00b6-4df9-a7c9-3dc9dd0db24d",
         "targetHandleId": "handle-90b01841-db9a-46d3-9acc-1189a47a91bd",
         "editing": false
@@ -271,6 +283,7 @@
       "type": "custom",
       "data": {
         "label": "Economic Factors",
+        "tags": [],
         "sourceHandleId": "handle-a48eaee6-82e8-498e-bc0e-c5cd143e470e",
         "targetHandleId": "handle-99b8d8d3-9fe8-4683-873b-eff03d2ec046",
         "editing": false
@@ -293,6 +306,7 @@
       "type": "custom",
       "data": {
         "label": "Pediatric or Gerontological Factors",
+        "tags": [],
         "sourceHandleId": "handle-51ef97a1-3e93-455c-8892-376b9fc69510",
         "targetHandleId": "handle-bac5e794-631c-4921-8f9f-f43e882f1ee6",
         "editing": false
@@ -315,6 +329,7 @@
       "type": "custom",
       "data": {
         "label": "Reproductive Factors",
+        "tags": [],
         "sourceHandleId": "handle-578c8696-1666-4a88-87d1-de0ed4bcdbb8",
         "targetHandleId": "handle-4b44ebdf-c340-4c3d-9b1e-f861b233f76b",
         "editing": false
@@ -337,6 +352,7 @@
       "type": "custom",
       "data": {
         "label": "Informed Consent",
+        "tags": [],
         "sourceHandleId": "handle-34629489-b89c-47cc-bdf0-d80ae22c01ee",
         "targetHandleId": "handle-c1d85c27-a58e-4a5f-925b-97038f3002ed",
         "editing": false
@@ -359,6 +375,7 @@
       "type": "custom",
       "data": {
         "label": "Ethical or Legal Issues",
+        "tags": [],
         "sourceHandleId": "handle-8ce8f820-0a59-4207-927e-658f0c125e73",
         "targetHandleId": "handle-b219b1de-6c79-4233-a60c-2aea38c9564e",
         "editing": false
@@ -381,6 +398,7 @@
       "type": "custom",
       "data": {
         "label": "Nursing Diagnosis",
+        "tags": [],
         "sourceHandleId": "handle-dc477519-9985-4ef7-b9b4-f4af958edeb7",
         "targetHandleId": "handle-410d53d6-d802-4b05-ac5f-d03209a0707f",
         "editing": false
@@ -403,6 +421,7 @@
       "type": "custom",
       "data": {
         "label": "Decision Making",
+        "tags": [],
         "sourceHandleId": "handle-9f0decb1-5fb3-4d9e-81c7-361fdced6398",
         "targetHandleId": "handle-41bfaa88-05ba-4813-8967-475becd1093b",
         "editing": false
@@ -425,6 +444,7 @@
       "type": "custom",
       "data": {
         "label": "Nursing Management for Dextroamphetamine Therapy",
+        "tags": [],
         "sourceHandleId": "handle-77c17f9b-17cd-40ce-97ad-973db8554c1b",
         "targetHandleId": "handle-e0bc1c3a-e371-418d-81d6-de772b1074f7",
         "editing": false

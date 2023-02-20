@@ -19,7 +19,7 @@ $edge-stroke-width: 2px;
 
   .react-flow__edge-path-background {
     stroke: $white;
-    opacity: $opacity-default;
+    // opacity: $opacity-default;
     stroke-width: 3 * $edge-stroke-width;
     stroke-linecap: round;
     z-index: -1;

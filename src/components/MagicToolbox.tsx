@@ -13,7 +13,7 @@ import { PuffLoader } from 'react-spinners'
 
 import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 
-import { terms } from '../constants'
+import { terms, wikiRequestTimeout } from '../constants'
 import { magicExplain, PromptSourceComponentsType } from './magicExplain'
 import { FlowContext } from './Contexts'
 import { Edge, Node } from 'reactflow'
@@ -96,6 +96,106 @@ export const MagicToolboxButton = memo(
       >
         {content}
       </button>
+    )
+  }
+)
+
+interface MagicTagProps {
+  tag: string
+  onClick?: (tag: string) => void
+  disabled?: boolean
+}
+export const MagicTag = memo(
+  ({ tag, onClick, disabled = false }: MagicTagProps) => {
+    const handleOnClick = useCallback(
+      (e: BaseSyntheticEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        onClick && onClick(tag)
+      },
+      [onClick, tag]
+    )
+
+    return (
+      <button
+        className={'magic-toolbox-tag'}
+        onClick={handleOnClick}
+        disabled={disabled}
+      >
+        {tag}
+      </button>
+    )
+  }
+)
+
+interface MagicNodeTaggingItemProps {
+  targetId: string
+  availableTags: string[]
+}
+export const MagicNodeTaggingItem = memo(
+  ({ targetId, availableTags }: MagicNodeTaggingItemProps) => {
+    const { setNodes } = useContext(FlowContext)
+    const [requestTimeout, setRequestTimeout] = useState<boolean>(false)
+
+    const handleOnClick = useCallback(
+      (tag: string) => {
+        setNodes((nodes: Node[]) => {
+          return nodes.map(node => {
+            if (node.id === targetId) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  tags: [...node.data.tags, tag],
+                },
+              }
+            }
+            return node
+          })
+        })
+      },
+      [setNodes, targetId]
+    )
+
+    useEffect(() => {
+      const timeout = setTimeout(() => {
+        if (availableTags.length === 0) setRequestTimeout(true)
+      }, wikiRequestTimeout)
+      return () => {
+        timeout && clearTimeout(timeout)
+      }
+    }, [availableTags.length])
+
+    return (
+      <MagicToolboxItem
+        className="magic-tagging-item"
+        title={`${terms.wiki} tags`}
+      >
+        <div className="magic-tagging-options">
+          {availableTags.length === 0 ? (
+            !requestTimeout ? (
+              <div className="waiting-for-model-placeholder">
+                <PuffLoader size={32} color="#13a600" />
+              </div>
+            ) : (
+              <MagicTag
+                key={`no available tags`}
+                tag={`no available tags`}
+                disabled={true}
+              />
+            )
+          ) : (
+            availableTags.map(tag => (
+              <MagicTag
+                key={`${targetId}-${tag}`}
+                tag={tag}
+                onClick={handleOnClick}
+              />
+            ))
+          )}
+        </div>
+      </MagicToolboxItem>
     )
   }
 )
@@ -197,7 +297,7 @@ export const MagicSuggestItem = memo(
     return (
       <MagicToolboxItem
         className="magic-suggest-item"
-        title={`suggested by ${terms.gpt}`}
+        title={`${terms.gpt} suggestions`}
       >
         <div className="magic-suggest-options">
           {modelResponse.length > 0 ? (
