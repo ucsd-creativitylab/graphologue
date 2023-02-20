@@ -6,7 +6,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@mui/icons-material": "^5.11.9",
-    "@mui/material": "^5.11.9",
+    "@mui/material": "^5.11.10",
     "@react-buddy/ide-toolbox": "^2.3.1",
     "@react-buddy/palette-mui": "^5.0.1",
     "openai": "^3.1.0",
