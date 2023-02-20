@@ -28,7 +28,7 @@ import {
   MagicToolboxItem,
 } from './MagicToolbox'
 import { SuperTextEditor } from './SuperTextEditor'
-import { getEdgeParams, getNodeLabels } from './utils'
+import { getEdgeParams, getNodeLabelAndTags } from './utils'
 import { customAddNodes } from './Node'
 import { MagicNodeData } from './MagicNode'
 
@@ -338,7 +338,7 @@ export const EdgeCustomLabel = memo(
               <MagicSuggestItem
                 target="edge"
                 targetId={edgeId}
-                nodeLabels={getNodeLabels(
+                nodeLabelAndTags={getNodeLabelAndTags(
                   getRelevantNodesForEdge(connection, getNodes())
                 )}
                 edgeLabels={[]}

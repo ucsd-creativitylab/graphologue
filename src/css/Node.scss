@@ -61,9 +61,36 @@ $shadow-node-selected: $shadow-heavy;
       margin: 0 auto;
       bottom: 0;
       left: 50%;
-      transform: translate(-50%, 50%);
+      transform: translate(-50%, calc(50% + rem-to-px(3rem)));
 
       transition: opacity $transition-fast;
+      cursor: pointer;
+
+      span {
+        position: relative;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      span::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        background-image: linear-gradient(
+          transparent 0 calc(50% - rem-to-px(0.5rem)),
+          $white calc(50% - rem-to-px(0.5rem)) calc(50% + rem-to-px(0.5rem)),
+          transparent calc(50% + rem-to-px(0.5rem)) 100%
+        );
+        width: 0;
+        height: 100%;
+        transition: width $transition-normal ease-out;
+        display: inline-block;
+      }
+
+      &:hover span::before {
+        width: 100%;
+      }
     }
   }
 

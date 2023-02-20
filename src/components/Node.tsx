@@ -1,4 +1,5 @@
-import { memo, useContext, useEffect, useState } from 'react'
+import { memo, useCallback, useContext, useEffect, useState } from 'react'
+import isEqual from 'react-fast-compare'
 import {
   Handle,
   Position,
@@ -26,7 +27,7 @@ import {
 } from './MagicToolbox'
 import randomPhrases from './randomPhrases'
 import { SuperTextEditor } from './SuperTextEditor'
-import { getHandleId, getNodeId, getNodeLabels } from './utils'
+import { getHandleId, getNodeId, getNodeLabelAndTags } from './utils'
 import { getWikiData } from './wikiBase'
 
 export interface CustomNodeData {
@@ -49,7 +50,7 @@ const connectionNodeIdSelector = (state: ReactFlowState) =>
 
 export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
-    const { getNodes, metaPressed, selectedComponents } =
+    const { getNodes, setNodes, metaPressed, selectedComponents } =
       useContext(FlowContext)
     const { roughZoomLevel } = useContext(EdgeContext)
 
@@ -99,6 +100,23 @@ export const CustomNode = memo(
         })
       }
     }, [editing, label, selected, tags.length])
+    ////
+    const handleRemoveTags = useCallback(() => {
+      setNodes((nodes: Node[]) => {
+        return nodes.map(node => {
+          if (node.id === id) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                tags: [],
+              },
+            }
+          }
+          return node
+        })
+      })
+    }, [id, setNodes])
 
     ////
     // for connections
@@ -154,7 +172,7 @@ export const CustomNode = memo(
             ))}
           </div>
         )} */}
-        {tags.length > 0 && <div className="custom-node-tag">{tags[0]}</div>}
+        <CustomNodeTag tags={tags} removeTags={handleRemoveTags} />
 
         <div
           className={`custom-node-content${
@@ -192,7 +210,7 @@ export const CustomNode = memo(
                   <MagicSuggestItem
                     target="node"
                     targetId={id}
-                    nodeLabels={getNodeLabels(getNodes())}
+                    nodeLabelAndTags={getNodeLabelAndTags(getNodes())}
                     edgeLabels={[]} // TODO
                   />
                 ) : (
@@ -205,6 +223,25 @@ export const CustomNode = memo(
           </SuperTextEditor>
         </div>
       </div>
+    )
+  },
+  isEqual
+)
+
+/* -------------------------------------------------------------------------- */
+
+interface CustomNodeTagProps {
+  tags: string[]
+  removeTags: () => void
+}
+export const CustomNodeTag = memo(
+  ({ tags, removeTags }: CustomNodeTagProps) => {
+    return tags.length > 0 ? (
+      <div className="custom-node-tag" onClick={removeTags}>
+        <span>{tags[0]}</span>
+      </div>
+    ) : (
+      <></>
     )
   }
 )

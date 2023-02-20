@@ -18,7 +18,11 @@ import { magicExplain, PromptSourceComponentsType } from './magicExplain'
 import { FlowContext } from './Contexts'
 import { Edge, Node } from 'reactflow'
 import { getOpenAICompletion } from './openAI'
-import { predefinedPrompts, predefinedResponses } from './promptsAndResponses'
+import {
+  NodeLabelAndTags,
+  predefinedPrompts,
+  predefinedResponses,
+} from './promptsAndResponses'
 
 interface MagicToolboxProps {
   className?: string
@@ -203,11 +207,16 @@ export const MagicNodeTaggingItem = memo(
 interface MagicSuggestItemProps {
   target: 'node' | 'edge'
   targetId: string
-  nodeLabels: string[]
+  nodeLabelAndTags: NodeLabelAndTags[]
   edgeLabels: string[]
 }
 export const MagicSuggestItem = memo(
-  ({ target, targetId, nodeLabels, edgeLabels }: MagicSuggestItemProps) => {
+  ({
+    target,
+    targetId,
+    nodeLabelAndTags,
+    edgeLabels,
+  }: MagicSuggestItemProps) => {
     const { setNodes, setEdges } = useContext(FlowContext)
 
     const [modelResponse, setModelResponse] = useState<string>('')
@@ -251,7 +260,7 @@ export const MagicSuggestItem = memo(
 
     const handleSuggest = useCallback(async () => {
       const prompt =
-        predefinedPrompts.giveNodeLabelSuggestionsFromNodes(nodeLabels)
+        predefinedPrompts.giveNodeLabelSuggestionsFromNodes(nodeLabelAndTags)
 
       // !
       const response = await getOpenAICompletion(prompt)
@@ -261,8 +270,8 @@ export const MagicSuggestItem = memo(
         setModelResponse(predefinedResponses.noValidResponse)
       }
 
-      setModelResponse(response.choices[0].text)
-    }, [nodeLabels])
+      setModelResponse(response?.choices[0]?.text || '')
+    }, [nodeLabelAndTags])
 
     const autoSuggest = useRef(true)
     useEffect(() => {
