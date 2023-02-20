@@ -49,12 +49,12 @@ import {
   viewFittingPadding,
 } from './constants'
 import { EdgeContext, FlowContext } from './components/Contexts'
-import { getItem, storeItem } from './components/storage'
-import { useTimeMachine } from './components/timeMachine'
-import { roundTo } from './components/utils'
-import { PromptSourceComponentsType } from './components/magicExplain'
+import { getItem, storeItem } from './utils/storage'
+import { useTimeMachine } from './utils/timeMachine'
+import { roundTo } from './utils/utils'
+import { PromptSourceComponentsType } from './utils/magicExplain'
 import { MagicNode } from './components/MagicNode'
-import { EntityType } from './components/socket'
+import { EntityType } from './utils/socket'
 
 const reactFlowWrapperStyle = {
   width: '100%',

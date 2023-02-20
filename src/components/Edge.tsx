@@ -28,7 +28,7 @@ import {
   MagicToolboxItem,
 } from './MagicToolbox'
 import { SuperTextEditor } from './SuperTextEditor'
-import { getEdgeParams, getNodeLabelAndTags } from './utils'
+import { getEdgeParams, getNodeLabelAndTags } from '../utils/utils'
 import { customAddNodes } from './Node'
 import { MagicNodeData } from './MagicNode'
 

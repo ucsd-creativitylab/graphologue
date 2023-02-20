@@ -18,7 +18,7 @@ import TheatersRoundedIcon from '@mui/icons-material/TheatersRounded'
 import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded'
 
 import { customAddNodes } from './Node'
-import { downloadData, getGraphBounds } from './utils'
+import { downloadData, getGraphBounds } from '../utils/utils'
 import {
   hardcodedNodeSize,
   terms,
@@ -26,7 +26,7 @@ import {
   viewFittingPadding,
 } from '../constants'
 import { FlowContext } from './Contexts'
-import { magicExplain } from './magicExplain'
+import { magicExplain } from '../utils/magicExplain'
 
 import defaultExample from '../examples/default.json'
 
