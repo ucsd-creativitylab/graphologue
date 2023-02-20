@@ -184,8 +184,8 @@ export const MagicNodeTaggingItem = memo(
               </div>
             ) : (
               <MagicTag
-                key={`no available tags`}
-                tag={`no available tags`}
+                key={predefinedResponses.noValidTags()}
+                tag={predefinedResponses.noValidTags()}
                 disabled={true}
               />
             )

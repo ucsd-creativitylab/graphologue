@@ -13,7 +13,7 @@ $shadow-node-selected: $shadow-heavy;
   .custom-node-body {
     display: flex !important;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     padding: 0;
     background: $white;
     border: none;
@@ -27,11 +27,11 @@ $shadow-node-selected: $shadow-heavy;
       outline-offset $transition-fast;
 
     &.custom-node-meta-pressed {
-      box-shadow: $light-grey 0 0 rem-to-px(0) rem-to-px(2rem) !important;
+      box-shadow: $light-grey 0 0 0 rem-to-px(2rem) !important;
 
-      .custom-node-tag {
-        opacity: 0;
-      }
+      // .custom-node-tag {
+      //   opacity: 0;
+      // }
     }
 
     &.custom-node-explained {
@@ -44,29 +44,28 @@ $shadow-node-selected: $shadow-heavy;
       align-items: center;
       justify-content: center;
 
-      position: absolute;
+      // position: absolute;
       z-index: 999;
 
-      color: $white;
-      font-size: $font-size-xs;
       background-color: $mid-grey;
       box-sizing: border-box;
       padding: $padding-xs $padding-small;
-      border-radius: $padding-large;
+      border-radius: 0 0 $radius-default $radius-default;
       white-space: nowrap;
       overflow: hidden;
 
-      width: max-content;
-      max-width: calc(100% - $padding-small * 2);
-      margin: 0 auto;
-      bottom: 0;
-      left: 50%;
-      transform: translate(-50%, calc(50% + rem-to-px(3rem)));
+      width: min-content;
+      margin: 0;
+      // bottom: 0;
+      // left: 50%;
+      // transform: translate(-50%, calc(50% + rem-to-px(3rem)));
 
       transition: opacity $transition-fast;
-      cursor: pointer;
+      cursor: not-allowed;
 
       span {
+        color: $white;
+        font-size: $font-size-xs;
         position: relative;
         z-index: 1;
         pointer-events: none;
@@ -96,6 +95,7 @@ $shadow-node-selected: $shadow-heavy;
 
   .custom-node-content {
     display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
     margin: 0;
@@ -151,8 +151,8 @@ $shadow-node-selected: $shadow-heavy;
     z-index: -1 !important; // edges on top of the nodes
   }
 
-  .custom-node-content {
-    transform: scale(0.98);
+  .custom-node-body {
+    transform: scale(0.99);
     transform-origin: center;
   }
 }

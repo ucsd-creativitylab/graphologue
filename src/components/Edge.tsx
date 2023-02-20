@@ -324,6 +324,7 @@ export const EdgeCustomLabel = memo(
           content={edgeData.label}
           editing={edgeData.editing}
           selected={selected}
+          textareaRef={null}
         >
           {/* -------------------------------------------------------------------------- */}
           <MagicToolbox

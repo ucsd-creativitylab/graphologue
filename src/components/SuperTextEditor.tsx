@@ -3,6 +3,7 @@ import {
   KeyboardEvent,
   memo,
   ReactElement,
+  RefObject,
   useCallback,
   useContext,
   useEffect,
@@ -16,6 +17,7 @@ type SuperTextEditorProps = {
   targetId: string
   content: string
   editing: boolean
+  textareaRef: RefObject<HTMLTextAreaElement> | null
   selected: boolean
   children?: ReactElement
 }
@@ -27,6 +29,7 @@ export const SuperTextEditor = memo(
     editing,
     selected,
     children,
+    textareaRef,
   }: SuperTextEditorProps) => {
     const flow = useContext(FlowContext) as FlowContextType
     const { setNodes, setEdges } = flow
@@ -34,19 +37,20 @@ export const SuperTextEditor = memo(
     const isNode = target === 'node'
     const isEdge = target === 'edge'
 
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
+    // const superTextareaRef = useRef<HTMLTextAreaElement>(null)
+    const superTextareaRef = textareaRef
     const inputRef = useRef<HTMLInputElement>(null)
 
     // ! on start editing
     useEffect(() => {
       if (editing) {
-        const ele = isNode ? textareaRef?.current : inputRef?.current
+        const ele = isNode ? superTextareaRef?.current : inputRef?.current
         if (ele) {
           ele.focus()
           ele.setSelectionRange(ele.value.length, ele.value.length)
         }
       }
-    }, [editing, isNode])
+    }, [editing, isNode, superTextareaRef])
 
     // dynamic size setting for edge input
     const getEdgeInputSize = useCallback(
@@ -97,7 +101,7 @@ export const SuperTextEditor = memo(
                   data: {
                     ...nd.data,
                     editing: continueEditing,
-                    label: textareaRef.current?.value,
+                    label: superTextareaRef?.current?.value,
                   },
                 }
               }
@@ -105,7 +109,7 @@ export const SuperTextEditor = memo(
           })
         }
       },
-      [isEdge, isNode, setEdges, targetId, setNodes]
+      [isEdge, isNode, setEdges, targetId, setNodes, superTextareaRef]
     )
 
     // cursor control
@@ -172,6 +176,14 @@ export const SuperTextEditor = memo(
       [onFinishEditing]
     )
 
+    // ! component did mount
+    // useEffect(() => {
+    //   onBoundingWidthChange &&
+    //     onBoundingWidthChange(
+    //       textareaRef?.current?.getBoundingClientRect().width || 0
+    //     )
+    // }, [onBoundingWidthChange])
+
     return (
       <div
         key={`${target}-${targetId}-super-wrapper`}
@@ -184,7 +196,7 @@ export const SuperTextEditor = memo(
           /* -------------------------------- for node -------------------------------- */
           <textarea
             key={`${target}-${targetId}-textarea`}
-            ref={textareaRef}
+            ref={superTextareaRef}
             className={`super-text-editor${
               editing ? '' : ' disabled-text-editor'
             }${selected ? ' selected-text-editor' : ''}${

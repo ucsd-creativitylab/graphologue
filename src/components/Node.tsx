@@ -1,4 +1,13 @@
-import { memo, useCallback, useContext, useEffect, useState } from 'react'
+import {
+  ForwardedRef,
+  forwardRef,
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import isEqual from 'react-fast-compare'
 import {
   Handle,
@@ -60,6 +69,9 @@ export const CustomNode = memo(
     const { label, tags, sourceHandleId, targetHandleId, editing } =
       data as CustomNodeData
 
+    const textAreaRef = useRef<HTMLTextAreaElement>(null)
+    const tagRef = useRef<HTMLDivElement>(null)
+
     // ! tags to clarify the node label
     const [availableTags, setAvailableTags] = useState<string[]>([])
     // wait for 1000 seconds and if the label is not changing
@@ -94,6 +106,13 @@ export const CustomNode = memo(
       tags.length,
     ])
     useEffect(() => {
+      // use js to adjust the width of the tag div
+      tagRef.current &&
+        textAreaRef.current &&
+        (tagRef.current!.style.width = `${Math.ceil(
+          textAreaRef.current!.scrollWidth
+        )}px`)
+
       if (selected && tags.length === 0 && label.length !== 0 && !editing) {
         getWikiData(label).then(res => {
           setAvailableTags(res)
@@ -163,17 +182,6 @@ export const CustomNode = memo(
           }}
         />
 
-        {/* {tags.length > 0 && (
-          <div className="custom-node-tags">
-            {tags.map((tag, index) => (
-              <span key={index} className="custom-node-tag">
-                {tag}
-              </span>
-            ))}
-          </div>
-        )} */}
-        <CustomNodeTag tags={tags} removeTags={handleRemoveTags} />
-
         <div
           className={`custom-node-content${
             isTarget ? ' custom-node-content-target' : ''
@@ -188,6 +196,7 @@ export const CustomNode = memo(
             content={label}
             editing={editing}
             selected={selected}
+            textareaRef={textAreaRef}
           >
             {(label.length === 0 || tags.length === 0) && selected ? (
               <MagicToolbox
@@ -221,6 +230,21 @@ export const CustomNode = memo(
               <></>
             )}
           </SuperTextEditor>
+
+          {/* {tags.length > 0 && (
+          <div className="custom-node-tags">
+            {tags.map((tag, index) => (
+              <span key={index} className="custom-node-tag">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )} */}
+          <CustomNodeTag
+            ref={tagRef}
+            tags={tags}
+            removeTags={handleRemoveTags}
+          />
         </div>
       </div>
     )
@@ -235,15 +259,20 @@ interface CustomNodeTagProps {
   removeTags: () => void
 }
 export const CustomNodeTag = memo(
-  ({ tags, removeTags }: CustomNodeTagProps) => {
-    return tags.length > 0 ? (
-      <div className="custom-node-tag" onClick={removeTags}>
-        <span>{tags[0]}</span>
-      </div>
-    ) : (
-      <></>
-    )
-  }
+  forwardRef<HTMLDivElement, CustomNodeTagProps>(
+    (
+      { tags, removeTags }: CustomNodeTagProps,
+      ref: ForwardedRef<HTMLDivElement>
+    ) => {
+      return tags.length > 0 ? (
+        <div ref={ref} className="custom-node-tag" onClick={removeTags}>
+          <span>{tags[0]}</span>
+        </div>
+      ) : (
+        <></>
+      )
+    }
+  )
 )
 
 /* -------------------------------------------------------------------------- */
