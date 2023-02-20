@@ -30,6 +30,10 @@ export const getEdgeLabels = (edges: Edge[]) => {
   return labels
 }
 
+export const tagsToString = (tags: string[]) => {
+  return tags.length > 0 ? `(${tags.join(', ')})` : ''
+}
+
 /* -------------------------------------------------------------------------- */
 // ! generate edge params
 

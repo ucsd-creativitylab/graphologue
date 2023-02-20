@@ -1,3 +1,5 @@
+import { tagsToString } from './utils'
+
 export interface NodeLabelAndTags {
   label: string
   tags: string[]
@@ -10,9 +12,7 @@ export const predefinedPrompts = {
       return 'List 3 random words or short phrases. Separate them with commas.'
     return `List 3 relevant words or short phrases given: ${existingNodeLabelAndTags
       .filter((s: NodeLabelAndTags) => s && s.label.length > 0)
-      .map((s: NodeLabelAndTags) =>
-        s.tags.length > 0 ? s.label + `(${s.tags.join(', ')})` : s.label
-      )
+      .map((s: NodeLabelAndTags) => s.label + tagsToString(s.tags))
       .join(
         ', '
       )}. Avoid responding the given words and phrases. Separate them with commas.`
