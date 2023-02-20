@@ -14,15 +14,15 @@ import { PuffLoader } from 'react-spinners'
 import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 
 import { terms, wikiRequestTimeout } from '../constants'
-import { magicExplain, PromptSourceComponentsType } from './magicExplain'
+import { magicExplain, PromptSourceComponentsType } from '../utils/magicExplain'
 import { FlowContext } from './Contexts'
 import { Edge, Node } from 'reactflow'
-import { getOpenAICompletion } from './openAI'
+import { getOpenAICompletion } from '../utils/openAI'
 import {
   NodeLabelAndTags,
   predefinedPrompts,
   predefinedResponses,
-} from './promptsAndResponses'
+} from '../utils/promptsAndResponses'
 
 interface MagicToolboxProps {
   className?: string

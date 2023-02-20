@@ -18,17 +18,17 @@ import {
   viewFittingPadding,
 } from '../constants'
 import { EdgeContext, FlowContext } from './Contexts'
-import { usePrevious } from './hooks'
+import { usePrevious } from '../utils/hooks'
 import { MagicNodeData } from './MagicNode'
 import {
   MagicNodeTaggingItem,
   MagicSuggestItem,
   MagicToolbox,
 } from './MagicToolbox'
-import randomPhrases from './randomPhrases'
+import randomPhrases from '../utils/randomPhrases'
 import { SuperTextEditor } from './SuperTextEditor'
-import { getHandleId, getNodeId, getNodeLabelAndTags } from './utils'
-import { getWikiData } from './wikiBase'
+import { getHandleId, getNodeId, getNodeLabelAndTags } from '../utils/utils'
+import { getWikiData } from '../utils/wikiBase'
 
 export interface CustomNodeData {
   label: string

@@ -1,7 +1,7 @@
 import { Node, Edge, FitView, Instance } from 'reactflow'
 import { nodeGap } from '../constants'
 
-import { addMagicNode, AddMagicNodeOptions } from './MagicNode'
+import { addMagicNode, AddMagicNodeOptions } from '../components/MagicNode'
 import { getComponentsBounds } from './utils'
 
 export interface PromptSourceComponentsType {

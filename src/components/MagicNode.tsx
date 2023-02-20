@@ -35,10 +35,10 @@ import {
   viewFittingPadding,
 } from '../constants'
 import { FlowContext } from './Contexts'
-import { PromptSourceComponentsType } from './magicExplain'
-import { getMagicNodeId, isEmptyTokenization } from './utils'
+import { PromptSourceComponentsType } from '../utils/magicExplain'
+import { getMagicNodeId, isEmptyTokenization } from '../utils/utils'
 import { MagicToolboxButton } from './MagicToolbox'
-import { getOpenAICompletion } from './openAI'
+import { getOpenAICompletion } from '../utils/openAI'
 import {
   emptyTokenization,
   EntityType,
@@ -46,9 +46,9 @@ import {
   Tokenization,
   WebSocketMessageType,
   WebSocketResponseType,
-} from './socket'
-import { deepCopyNodes } from './storage'
-import { predefinedResponses } from './promptsAndResponses'
+} from '../utils/socket'
+import { deepCopyNodes } from '../utils/storage'
+import { predefinedResponses } from '../utils/promptsAndResponses'
 
 export interface MagicNodeData {
   sourceComponents: PromptSourceComponentsType
