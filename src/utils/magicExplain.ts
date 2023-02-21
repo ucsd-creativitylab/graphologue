@@ -2,7 +2,8 @@ import { Node, Edge, FitView, Instance } from 'reactflow'
 import { nodeGap } from '../constants'
 
 import { addMagicNode, AddMagicNodeOptions } from '../components/MagicNode'
-import { getComponentsBounds } from './utils'
+import { getComponentsBounds, nodeAndTagsToString, nodeToString } from './utils'
+import { NodeLabelAndTags } from './promptsAndResponses'
 
 export interface PromptSourceComponentsType {
   nodes: Node[]
@@ -37,10 +38,13 @@ export const generateSuggestedPrompts = (
   nodes: Node[],
   sourceComponents: PromptSourceComponentsType
 ): string[] => {
-  const nodeLabels = sourceComponents.nodes
-    .map((node: Node) => node.data.label)
-    .filter(label => label.length)
+  const nodeLabelAndTags: NodeLabelAndTags[] = sourceComponents.nodes
+    .map((node: Node) => {
+      return { label: node.data.label, tags: node.data.tags }
+    })
+    .filter(item => item.label.length)
 
+  const nodeLabels = nodeLabelAndTags.map(item => item.label)
   const edgeLabels = sourceComponents.edges
     .map((edge: Edge) => edge.data.label)
     .filter(label => label.length)
@@ -63,9 +67,13 @@ export const generateSuggestedPrompts = (
         if (sourceNode && targetNode) {
           if (edge.data.label.length === 0)
             // the edge is empty yet
-            return `What is the relationship between ${sourceNode?.data.label} and ${targetNode?.data.label}?`
+            return `What is the relationship between ${nodeToString(
+              sourceNode
+            )} and ${nodeToString(targetNode)}?`
           else
-            return `How does ${sourceNode?.data.label} ${edge.data.label} ${targetNode?.data.label}?`
+            return `How does ${nodeToString(sourceNode)} ${
+              edge.data.label
+            } ${nodeToString(targetNode)}?`
         }
 
         return ''
@@ -82,11 +90,13 @@ export const generateSuggestedPrompts = (
 
   // ! naive prompt for nodes
   let naivePrompt = ''
-  if (nodeLabels.length === 1) naivePrompt = `Explain ${nodeLabels[0]}.`
-  else
-    naivePrompt = `What is the relationship between ${nodeLabels.join(
-      ' and '
-    )}?`
+  if (nodeLabelAndTags.length === 1)
+    naivePrompt = `Explain ${nodeAndTagsToString(nodeLabelAndTags[0])}.`
+  else {
+    naivePrompt = `What is the relationship between ${nodeLabelAndTags
+      .map(item => nodeAndTagsToString(item))
+      .join(' and ')}?`
+  }
   if (naivePrompt.length > 0) magicPrompts.push(naivePrompt)
 
   return magicPrompts

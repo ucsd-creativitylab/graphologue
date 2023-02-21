@@ -31,7 +31,15 @@ export const getEdgeLabels = (edges: Edge[]) => {
 }
 
 export const tagsToString = (tags: string[]) => {
-  return tags.length > 0 ? `(${tags.join(', ')})` : ''
+  return tags.length > 0 ? ` (${tags.join(', ')})` : ''
+}
+
+export const nodeToString = (node: Node) => {
+  return `${node.data.label}${tagsToString(node.data.tags)}`
+}
+
+export const nodeAndTagsToString = (item: NodeLabelAndTags) => {
+  return `${item.label}${tagsToString(item.tags)}`
 }
 
 /* -------------------------------------------------------------------------- */
