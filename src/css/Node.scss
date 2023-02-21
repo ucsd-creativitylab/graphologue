@@ -43,9 +43,10 @@ $shadow-node-selected: $shadow-heavy;
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
 
       // position: absolute;
-      z-index: 999;
+      // z-index: 999;
 
       background-color: $mid-grey;
       box-sizing: border-box;
@@ -62,6 +63,24 @@ $shadow-node-selected: $shadow-heavy;
 
       transition: opacity $transition-fast;
       cursor: not-allowed;
+
+      &::before {
+        content: '';
+
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+
+        z-index: 2;
+        box-shadow: inset rgba($mid-grey, $opacity-mid) rem-to-px(-3rem) 0
+            rem-to-px(4rem) rem-to-px(3rem),
+          inset rgba($mid-grey, $opacity-mid) rem-to-px(3rem) 0 rem-to-px(4rem)
+            rem-to-px(3rem);
+      }
 
       span {
         color: $white;
