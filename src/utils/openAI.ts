@@ -8,7 +8,7 @@
 
 export const getCompletionOptions = (prompt: string) => ({
   prompt: prompt,
-  //
+  ////
   model: 'text-davinci-003',
   temperature: 0.7,
   max_tokens: 500,

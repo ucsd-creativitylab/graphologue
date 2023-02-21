@@ -77,13 +77,7 @@ export const CustomNode = memo(
         (tagRef.current!.style.width = `${Math.ceil(
           textAreaRef.current!.scrollWidth
         )}px`)
-
-      // if (selected && tags.length === 0 && label.length !== 0 && !editing) {
-      //   getWikiData(label).then(res => {
-      //     setAvailableTags(res)
-      //   })
-      // }
-    }, [editing, label, selected, tags.length])
+    }, [label, tags])
     ////
     const handleRemoveTags = useCallback(() => {
       setNodes((nodes: Node[]) => {
@@ -183,6 +177,7 @@ export const CustomNode = memo(
                     targetId={id}
                     nodeLabelAndTags={getNodeLabelAndTags(getNodes())}
                     edgeLabels={[]} // TODO
+                    disabled={moreThanOneComponentsSelected}
                   />
                 ) : (
                   <></>

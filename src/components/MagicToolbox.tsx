@@ -96,7 +96,13 @@ export const MagicToolboxButton = memo(
 
     return (
       <button
-        className={'magic-toolbox-button' + (className ? ` ${className}` : '')}
+        className={
+          'magic-toolbox-button' +
+          (content === predefinedResponses.noValidResponse()
+            ? ' disabled'
+            : '') +
+          (className ? ` ${className}` : '')
+        }
         onClick={handleOnClick}
       >
         {content}
@@ -220,6 +226,7 @@ interface MagicSuggestItemProps {
   targetId: string
   nodeLabelAndTags: NodeLabelAndTags[]
   edgeLabels: string[]
+  disabled?: boolean
 }
 export const MagicSuggestItem = memo(
   ({
@@ -227,6 +234,7 @@ export const MagicSuggestItem = memo(
     targetId,
     nodeLabelAndTags,
     edgeLabels,
+    disabled = false,
   }: MagicSuggestItemProps) => {
     const { setNodes, setEdges } = useContext(FlowContext)
 
@@ -274,23 +282,28 @@ export const MagicSuggestItem = memo(
         predefinedPrompts.giveNodeLabelSuggestionsFromNodes(nodeLabelAndTags)
 
       // !
-      const response = await getOpenAICompletion(prompt)
+      if (!disabled) {
+        const response = await getOpenAICompletion(prompt)
 
-      if (response.error) {
-        // TODO
-        setModelResponse(predefinedResponses.noValidResponse)
-      }
+        if (response.error) {
+          // TODO like try again?
+          setModelResponse(predefinedResponses.noValidResponse)
+        }
 
-      setModelResponse(response?.choices[0]?.text || '')
-    }, [nodeLabelAndTags])
+        if (response && response.choices && response.choices.length > 0)
+          setModelResponse(response.choices[0]?.text)
+        else setModelResponse(predefinedResponses.noValidResponse)
+      } else setModelResponse(predefinedResponses.noValidResponse)
+    }, [disabled, nodeLabelAndTags])
 
     const autoSuggest = useRef(true)
     useEffect(() => {
+      if (disabled) return
       if (autoSuggest.current) {
         autoSuggest.current = false
         handleSuggest()
       }
-    }, [handleSuggest])
+    }, [disabled, handleSuggest])
 
     const responseButtons: ReactElement[] = modelResponse
       .split(', ')

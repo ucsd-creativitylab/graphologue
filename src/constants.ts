@@ -19,6 +19,7 @@ export const hardcodedNodeSize = {
   magicHeight: 160,
 }
 export const nodeGap = 30 // ?
+export const nodePosAdjustStep = 50
 
 export const styles = {
   edgeColorStrokeDefault: '#aaaaaa',

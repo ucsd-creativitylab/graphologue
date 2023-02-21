@@ -1,5 +1,6 @@
 import { Edge, Node, Position } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
+import { hardcodedNodeSize, nodePosAdjustStep } from '../constants'
 
 import { NodeLabelAndTags } from './promptsAndResponses'
 import { Tokenization } from './socket'
@@ -182,6 +183,92 @@ export const getComponentsBounds = (
   })
 
   return bounds
+}
+
+const getCurrentIntersections = (
+  nodes: Node[],
+  node: {
+    position: { x: number; y: number }
+    width: number
+    height: number
+  }
+) => {
+  return nodes.filter(n => {
+    return (
+      node.position.x! + node.width! > n.position.x! &&
+      node.position.x! < n.position.x! + n.width! &&
+      node.position.y! + node.height! > n.position.y! &&
+      node.position.y! < n.position.y! + n.height!
+    )
+  })
+}
+
+export const adjustNewNodePositionAvoidIntersections = (
+  nodes: Node[],
+  initialX: number,
+  initialY: number,
+  newNodeWidth = hardcodedNodeSize.width,
+  newNodeHeight = hardcodedNodeSize.height,
+  possibleDirections = {
+    up: true,
+    down: true,
+    left: true,
+    right: true,
+  }
+): {
+  adjustedX: number
+  adjustedY: number
+} => {
+  // loop through all nodes and check if the new node intersects with any of them
+  const currentIntersections = getCurrentIntersections(nodes, {
+    position: { x: initialX, y: initialY },
+    width: newNodeWidth,
+    height: newNodeHeight,
+  })
+
+  // if there are no intersections, return the initial position
+  if (currentIntersections.length === 0)
+    return { adjustedX: initialX, adjustedY: initialY }
+
+  // if there are intersections, move to four directions until there are no intersections and return the new position with the least move
+  const directions = []
+  if (possibleDirections.right) directions.push({ x: 1, y: 0 })
+  if (possibleDirections.down) directions.push({ x: 0, y: 1 })
+  if (possibleDirections.left) directions.push({ x: -1, y: 0 })
+  if (possibleDirections.up) directions.push({ x: 0, y: -1 })
+
+  let adjustedX = initialX
+  let adjustedY = initialY
+
+  let minMove = Infinity
+  const stepX = nodePosAdjustStep
+  const stepY = nodePosAdjustStep
+
+  directions.forEach(direction => {
+    let x = initialX + direction.x * stepX
+    let y = initialY + direction.y * stepY
+    let move = 1
+
+    while (
+      getCurrentIntersections(nodes, {
+        position: { x, y },
+        width: newNodeWidth,
+        height: newNodeHeight,
+      }).length > 0
+    ) {
+      x += direction.x * stepX
+      y += direction.y * stepY
+      move++
+    }
+
+    if (move < minMove) {
+      minMove = move
+      adjustedX = x
+      adjustedY = y
+    }
+  })
+
+  return { adjustedX, adjustedY }
 }
 
 /* -------------------------------------------------------------------------- */

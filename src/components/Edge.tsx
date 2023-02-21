@@ -343,6 +343,7 @@ export const EdgeCustomLabel = memo(
                   getRelevantNodesForEdge(connection, getNodes())
                 )}
                 edgeLabels={[]}
+                disabled={moreThanOneComponentsSelected}
               />
             ) : (
               <></>

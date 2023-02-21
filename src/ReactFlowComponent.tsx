@@ -261,6 +261,7 @@ const Flow = () => {
         y: e.clientY,
       })
 
+      // add by drop tokens
       customAddNodes(
         addNodes,
         position.x - hardcodedNodeSize.width / 2,
@@ -303,6 +304,7 @@ const Flow = () => {
         const { x, y, zoom } = getViewport()
         const { width: nodeWidth, height: nodeHeight } = hardcodedNodeSize
 
+        // add by drop edge
         const { nodeId, targetHandleId } = customAddNodes(
           addNodes,
           event.clientX / zoom - left - x / zoom - nodeWidth / 2,

@@ -18,7 +18,11 @@ import TheatersRoundedIcon from '@mui/icons-material/TheatersRounded'
 import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded'
 
 import { customAddNodes } from './Node'
-import { downloadData, getGraphBounds } from '../utils/utils'
+import {
+  adjustNewNodePositionAvoidIntersections,
+  downloadData,
+  getGraphBounds,
+} from '../utils/utils'
 import {
   hardcodedNodeSize,
   terms,
@@ -88,19 +92,18 @@ export const CustomControls = memo(
       const { width, height } = hardcodedNodeSize
 
       // add nodes at the center of the viewport
-      // TODO adjust the location of the new node by its size, so that it appears at the center of the viewport
-      customAddNodes(
-        addNodes,
+      const { adjustedX, adjustedY } = adjustNewNodePositionAvoidIntersections(
+        getNodes(),
         window.innerWidth / zoom / 2 - x / zoom - width / zoom / 2,
-        window.innerHeight / zoom / 2 - y / zoom - height / zoom / 2,
-        {
-          label: '',
-          editing: false,
-          fitView,
-          toFitView: true,
-        }
+        window.innerHeight / zoom / 2 - y / zoom - height / zoom / 2
       )
-    }, [addNodes, fitView, getViewport])
+      customAddNodes(addNodes, adjustedX, adjustedY, {
+        label: '',
+        editing: false,
+        fitView,
+        toFitView: true,
+      })
+    }, [addNodes, fitView, getNodes, getViewport])
 
     // !
     const handleClearCanvas = useCallback(() => {

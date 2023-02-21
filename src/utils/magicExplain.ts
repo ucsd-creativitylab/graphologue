@@ -1,8 +1,13 @@
 import { Node, Edge, FitView, Instance } from 'reactflow'
-import { nodeGap } from '../constants'
+import { hardcodedNodeSize, nodeGap } from '../constants'
 
 import { addMagicNode, AddMagicNodeOptions } from '../components/MagicNode'
-import { getComponentsBounds, nodeAndTagsToString, nodeToString } from './utils'
+import {
+  adjustNewNodePositionAvoidIntersections,
+  getComponentsBounds,
+  nodeAndTagsToString,
+  nodeToString,
+} from './utils'
 import { NodeLabelAndTags } from './promptsAndResponses'
 
 export interface PromptSourceComponentsType {
@@ -26,7 +31,21 @@ export const magicExplain = (
 
   const suggestedPrompts = generateSuggestedPrompts(nodes, sourceComponents)
 
-  addMagicNode(addNodes, right + nodeGap, top, {
+  // ! actual add magic node
+  const { adjustedX, adjustedY } = adjustNewNodePositionAvoidIntersections(
+    nodes.filter(node => node.type === 'magic'),
+    right + nodeGap,
+    top,
+    hardcodedNodeSize.magicWidth,
+    hardcodedNodeSize.magicHeight,
+    {
+      up: false,
+      down: false,
+      left: false,
+      right: true,
+    }
+  )
+  addMagicNode(addNodes, adjustedX, adjustedY, {
     sourceComponents,
     suggestedPrompts,
     fitView: fitView,
