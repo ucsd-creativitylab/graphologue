@@ -1,7 +1,7 @@
 [build]
 environment = { NODE_VERSION = "16" }
 publish = "build/"
-command = "npm run netlify"
+command = "npm run build"
 
 [[plugins]]
 package = "@netlify/plugin-functions-install-core"
