@@ -248,7 +248,6 @@ export const MagicNode = memo(
       }
 
       const modelText = response.choices[0].text
-      console.log(modelText)
 
       const { parsedResponse, searchQueries, researchPapers } =
         parseModelResponseText(modelText)
