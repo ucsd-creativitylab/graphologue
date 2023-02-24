@@ -5,10 +5,11 @@ import { addMagicNode, AddMagicNodeOptions } from '../components/MagicNode'
 import {
   adjustNewNodePositionAvoidIntersections,
   getComponentsBounds,
+  matchItemsInQuotes,
   nodeAndTagsToString,
   nodeToString,
 } from './utils'
-import { NodeLabelAndTags } from './promptsAndResponses'
+import { NodeLabelAndTags, promptTerms } from './promptsAndResponses'
 
 export interface PromptSourceComponentsType {
   nodes: Node[]
@@ -52,6 +53,9 @@ export const magicExplain = (
     toFitView: true,
   } as AddMagicNodeOptions)
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 export const generateSuggestedPrompts = (
   nodes: Node[],
@@ -119,4 +123,28 @@ export const generateSuggestedPrompts = (
   if (naivePrompt.length > 0) magicPrompts.push(naivePrompt)
 
   return magicPrompts
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+export const parseModelResponseText = (
+  responseText: string
+): {
+  parsedResponse: string
+  searchQueries: string[]
+  researchPapers: string[]
+} => {
+  const splitResponse = responseText.split(
+    new RegExp(
+      `${promptTerms.searchQueries}|${promptTerms.researchPapers}`,
+      'g'
+    )
+  )
+
+  return {
+    parsedResponse: splitResponse[0].trim(),
+    searchQueries: matchItemsInQuotes(splitResponse[1].trim()),
+    researchPapers: matchItemsInQuotes(splitResponse[2].trim()),
+  }
 }

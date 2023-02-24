@@ -309,7 +309,7 @@ $shadow-node-selected: $shadow-heavy;
 
       .magic-node-content-text {
         padding: 0;
-        margin: 0;
+        margin: 0 0 $padding-small 0;
         width: 100%;
         color: $dark-grey;
         word-break: normal;
@@ -368,18 +368,19 @@ $shadow-node-selected: $shadow-heavy;
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: center;
         gap: $padding-xs;
 
         color: $warn-yellow;
         font-size: $font-size-default !important;
+        width: 100%;
         line-height: 100%;
         white-space: nowrap;
         background: $white;
         padding: $padding-small $padding-small !important;
 
-        border: none;
-        outline: rem-to-px(1rem) solid $warn-yellow;
+        outline: none;
+        border: rem-to-px(1rem) solid $warn-yellow;
         user-select: none;
         border-radius: $padding-large;
         box-sizing: border-box;
@@ -389,6 +390,65 @@ $shadow-node-selected: $shadow-heavy;
         * {
           font-size: $font-size-default;
           pointer-events: none;
+        }
+
+        &:hover {
+          background: $warn-yellow;
+          color: $white;
+        }
+
+        &:active {
+          background: $warn-yellow-dark;
+          border-color: $warn-yellow-dark;
+          color: $white;
+        }
+      }
+
+      .model-response-verify {
+        display: flex;
+        flex-direction: column;
+        gap: $padding-mid;
+
+        * {
+          color: $dark-grey;
+        }
+
+        .verify-section {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: $padding-small;
+
+          .section-title {
+            font-size: $font-size-small;
+            font-weight: $font-weight-default;
+            color: $light-grey !important;
+            margin: 0;
+            line-height: 100%;
+          }
+
+          .verify-options {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: $padding-small;
+
+            .verify-option {
+              @include magic-button;
+
+              gap: $padding-small;
+
+              text-decoration: none;
+              line-height: 150%;
+              font-size: $font-size-small !important;
+              white-space: pre-wrap !important;
+              // word-break: break-all;
+
+              * {
+                font-size: $font-size-small !important;
+              }
+            }
+          }
         }
       }
     }

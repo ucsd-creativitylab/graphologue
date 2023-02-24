@@ -1,5 +1,10 @@
 import { tagsToString } from './utils'
 
+export const promptTerms = {
+  searchQueries: 'Google search queries',
+  researchPapers: 'Research papers',
+}
+
 export interface NodeLabelAndTags {
   label: string
   tags: string[]
@@ -17,8 +22,12 @@ export const predefinedPrompts = {
         ', '
       )}. Avoid responding the given words and phrases. Separate them with commas.`
   },
+  simpleAnswer: () =>
+    ` Use simple sentences. Limit the answer to 100 words max.`,
+  addGooglePrompts: () =>
+    `\n\nAfter the response, list 3 Google search queries for people the verify the response. Separate them with commas. Start with "${promptTerms.searchQueries}".`,
   addScholar: () =>
-    ' After the response, add a new section starting with <scholar>, and query Google Scholar and provide titles of peer-reviewed articles that support it. Only provide papers that are either available in Google Scholar or Semantic Scholar. Do not include links.',
+    `\n\nFinally, query Google Scholar and provide titles of peer-reviewed articles that support the response. Only provide papers that are either available in Google Scholar or Semantic Scholar. Do not include links. Separate them with comma. Start with "${promptTerms.researchPapers}".`,
 }
 
 export const predefinedResponses = {

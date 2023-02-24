@@ -280,6 +280,21 @@ export const roundTo = (num: number, precision: number) => {
 }
 
 /* -------------------------------------------------------------------------- */
+// ! pure string
+
+export const matchItemsInQuotes = (str: string): string[] => {
+  const regex = /"(.*?)"/g
+  const matches = []
+  let match
+
+  while ((match = regex.exec(str))) {
+    matches.push(match[1])
+  }
+
+  return matches
+}
+
+/* -------------------------------------------------------------------------- */
 
 export const downloadData = (data: any, filename: string) => {
   // download json as a file
