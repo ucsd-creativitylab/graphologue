@@ -51,7 +51,7 @@ import {
   EntityType,
   socketPath,
   Tokenization,
-  WebSocketMessageType,
+  // WebSocketMessageType,
   WebSocketResponseType,
 } from '../utils/socket'
 import { deepCopyNodes } from '../utils/storage'
