@@ -27,7 +27,7 @@ export const predefinedPrompts = {
   addGooglePrompts: () =>
     `\n\nAfter the response, list 3 Google search queries for people the verify the response. Separate them with commas. Start with "${promptTerms.searchQueries}".`,
   addScholar: () =>
-    `\n\nFinally, query Google Scholar and provide titles of peer-reviewed articles that support the response. Only provide papers that are either available in Google Scholar or Semantic Scholar. Do not include links. Separate them with comma. Start with "${promptTerms.researchPapers}".`,
+    `\n\nFinally, query Google Scholar and provide titles of peer-reviewed articles that support the response. Only provide papers that are either available in Google Scholar or Semantic Scholar. Do not include links. Separate them with commas. Start with "${promptTerms.researchPapers}".`,
 }
 
 export const predefinedResponses = {
