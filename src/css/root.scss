@@ -61,6 +61,7 @@ $scrollbar-width: $padding-xs;
 $scrollbar-width-large: $padding-small;
 
 // FONT
+$font-size-xxx-s: 0.375rem;
 $font-size-xxs: 0.375rem;
 $font-size-xs: 0.5rem;
 $font-size-small: 0.675rem;
@@ -224,7 +225,7 @@ $shadow-heavy: rgba($cold-grey, 0.6) 0 rem-to-px(2rem) rem-to-px(10rem)
 
   border: none;
   outline: rem-to-px(1rem) solid $light;
-  user-select: none;
+  // user-select: none;
   border-radius: $radius-small;
   cursor: pointer;
 

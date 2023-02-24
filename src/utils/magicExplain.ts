@@ -137,7 +137,7 @@ export const parseModelResponseText = (
 ): {
   parsedResponse: string
   searchQueries: string[]
-  researchPapers: string[]
+  researchPaperKeywords: string[]
 } => {
   const parsedResponseRegex = new RegExp(`${promptTerms.answer}: "(.*?)"`, 'g')
   const parsedResponse = parsedResponseRegex.exec(responseText) || [
@@ -155,6 +155,6 @@ export const parseModelResponseText = (
   return {
     parsedResponse: parsedResponse[1].trim(),
     searchQueries: matchItemsInQuotes(verify[1].trim()),
-    researchPapers: matchItemsInQuotes(verify[2].trim()),
+    researchPaperKeywords: matchItemsInQuotes(verify[2].trim()),
   }
 }

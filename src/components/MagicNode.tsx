@@ -23,7 +23,6 @@ import TranslateRoundedIcon from '@mui/icons-material/TranslateRounded'
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded'
 import ArrowUpwardRoundedIcon from '@mui/icons-material/ArrowUpwardRounded'
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
-import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded'
 
 import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded'
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded'
@@ -59,6 +58,11 @@ import {
   predefinedPrompts,
   predefinedResponses,
 } from '../utils/promptsAndResponses'
+import {
+  getScholarPapersFromKeywords,
+  Scholar,
+  SemanticScholarPaperEntity,
+} from './Scholar'
 
 export interface MagicNodeData {
   sourceComponents: PromptSourceComponentsType
@@ -66,13 +70,13 @@ export interface MagicNodeData {
   prompt: string
 }
 
-interface MagicNodeProps extends NodeProps {
-  data: MagicNodeData
-}
-
 interface VerifyEntities {
   searchQueries: string[]
-  researchPapers: string[]
+  researchPapers: SemanticScholarPaperEntity[]
+}
+
+interface MagicNodeProps extends NodeProps {
+  data: MagicNodeData
 }
 
 export const MagicNode = memo(
@@ -249,12 +253,16 @@ export const MagicNode = memo(
 
       const modelText = response.choices[0].text
 
-      const { parsedResponse, searchQueries, researchPapers } =
+      const { parsedResponse, searchQueries, researchPaperKeywords } =
         parseModelResponseText(modelText)
+
+      const papersFromKeywords = await getScholarPapersFromKeywords(
+        researchPaperKeywords
+      )
 
       setVerifyEntities({
         searchQueries,
-        researchPapers,
+        researchPapers: papersFromKeywords,
       })
 
       setModelResponse(parsedResponse)
@@ -437,25 +445,7 @@ export const MagicNode = memo(
                         </div>
                       )}
                       {verifyEntities.researchPapers.length > 0 && (
-                        <div className="verify-section">
-                          <p className="section-title">
-                            supporting research papers
-                          </p>
-                          <div className="verify-options">
-                            {verifyEntities.researchPapers.map((query, i) => (
-                              <a
-                                key={i}
-                                className="verify-option"
-                                href={`https://www.google.com/search?q=${query}`}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                <BookmarkBorderRoundedIcon />
-                                <span>{query}</span>
-                              </a>
-                            ))}
-                          </div>
-                        </div>
+                        <Scholar papers={verifyEntities.researchPapers} />
                       )}
                     </div>
                   )}

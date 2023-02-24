@@ -1,0 +1,13 @@
+[build]
+environment = { NODE_VERSION = "16" }
+publish = "build/"
+command = "npm run netlify"
+
+[[plugins]]
+package = "@netlify/plugin-functions-install-core"
+
+[dev]
+port = 9999
+
+[functions]
+node_bundler = "esbuild"

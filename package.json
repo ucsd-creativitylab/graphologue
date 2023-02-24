@@ -21,6 +21,7 @@
   "scripts": {
     "start": "REACT_APP_DEV_IDE=code react-scripts start",
     "start:jet": "REACT_APP_DEV_IDE=jet react-scripts start",
+    "start:netlify": "netlify dev",
     "start:server": "python server/main.py",
     "build": "REACT_APP_DEV_IDE=code react-scripts build",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,html,scss}\"",
@@ -55,6 +56,7 @@
     "@types/uuid": "^9.0.1",
     "husky": "^8.0.3",
     "lint-staged": "^13.1.2",
+    "netlify-cli": "^13.0.0",
     "prettier": "^2.8.4",
     "react-scripts": "^5.0.1",
     "typescript": "^4.9.5"

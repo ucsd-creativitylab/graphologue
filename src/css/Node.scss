@@ -447,6 +447,97 @@ $shadow-node-selected: $shadow-heavy;
               * {
                 font-size: $font-size-small !important;
               }
+
+              &.verify-scholar {
+                flex-direction: column;
+                gap: $padding-xs !important;
+                width: 100%;
+                box-sizing: border-box;
+                cursor: initial;
+
+                * {
+                  pointer-events: all !important;
+                  user-select: initial;
+                }
+
+                .scholar-option-info {
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                  justify-content: space-between;
+                  gap: $padding-small;
+                  width: 100%;
+                  line-height: 150%;
+
+                  * {
+                    line-height: 150%;
+                    color: $grey;
+                    font-size: $font-size-xs !important;
+                  }
+
+                  .scholar-option-info-set {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: flex-start;
+                    gap: $padding-small;
+                  }
+
+                  a {
+                    display: inline-flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: flex-end;
+                    gap: 0;
+                    flex-shrink: 0;
+                    padding: 0 0 0 $padding-xxs;
+                    border-radius: $radius-xs;
+
+                    font-weight: $font-weight-bold;
+                    color: $warn-yellow;
+                    text-decoration: none;
+
+                    * {
+                      color: $warn-yellow;
+                    }
+
+                    &:hover {
+                      color: $white;
+                      background-color: $warn-yellow;
+
+                      * {
+                        color: $white;
+                      }
+                    }
+                  }
+                }
+
+                .scholar-option-title,
+                .scholar-option-authors,
+                .scholar-option-keyword {
+                  display: flex;
+                  flex-direction: row;
+                  justify-content: flex-start;
+                  width: 100%;
+                  // user-select: initial;
+                }
+
+                .scholar-option-authors,
+                .scholar-option-keyword {
+                  font-size: $font-size-xs !important;
+                  color: $grey;
+                  line-height: 150%;
+                }
+
+                .scholar-option-keyword {
+                  color: $warn-yellow;
+                }
+
+                &:hover {
+                  background: $white;
+                  // color: $dark-grey;
+                }
+              }
             }
           }
         }

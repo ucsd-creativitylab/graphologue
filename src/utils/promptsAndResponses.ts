@@ -24,11 +24,12 @@ export const predefinedPrompts = {
       )}. Avoid responding the given words and phrases. Separate them with commas.`
   },
   simpleAnswer: () =>
-    ` Use simple sentences. Answer concisely and for no more than 100 words. Start with ${promptTerms.answer} and put the answer in quotation marks. For example, ${promptTerms.answer}: "The answer is 42."`,
+    ` Use simple sentences. Be as detailed as possible. Start with ${promptTerms.answer} and put the answer in quotation marks. For example, ${promptTerms.answer}: "The answer is 42."`,
   addGooglePrompts: () =>
     `\n\nAfter the answer, list 3 Google search queries for people the verify the response. Separate them with commas, use quotation marks for every item. Start with ${promptTerms.searchQueries}. For example, ${promptTerms.searchQueries}: "a", "b", "c".`,
   addScholar: () =>
-    `\n\nFinally, query Google Scholar and provide titles of peer-reviewed articles that support the response. Only provide papers that are either available in Google Scholar or Semantic Scholar. Do not include links. Separate them with commas, use quotation marks for every item. Start with ${promptTerms.researchPapers}. For example, ${promptTerms.researchPapers}: "a", "b", "c".`,
+    // `\n\nFinally, query Google Scholar and provide titles of peer-reviewed articles that support the response. Only provide papers that are either available in Google Scholar or Semantic Scholar. Do not include links. Separate them with commas, use quotation marks for every item. Start with ${promptTerms.researchPapers}. For example, ${promptTerms.researchPapers}: "a", "b", "c".`,
+    `\n\nFinally, list 3 keywords of relevant and supporting research articles. Separate them with commas, use quotation marks for every item. Start with ${promptTerms.researchPapers}. For example, ${promptTerms.researchPapers}: "a", "b", "c".`,
 }
 
 export const predefinedResponses = {
