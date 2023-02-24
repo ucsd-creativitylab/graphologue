@@ -9,7 +9,11 @@ import {
   nodeAndTagsToString,
   nodeToString,
 } from './utils'
-import { NodeLabelAndTags, promptTerms } from './promptsAndResponses'
+import {
+  NodeLabelAndTags,
+  predefinedResponses,
+  promptTerms,
+} from './promptsAndResponses'
 
 export interface PromptSourceComponentsType {
   nodes: Node[]
@@ -135,16 +139,22 @@ export const parseModelResponseText = (
   searchQueries: string[]
   researchPapers: string[]
 } => {
-  const splitResponse = responseText.split(
-    new RegExp(
-      `${promptTerms.searchQueries}|${promptTerms.researchPapers}`,
-      'g'
-    )
+  const parsedResponseRegex = new RegExp(`${promptTerms.answer}: "(.*?)"`, 'g')
+  const parsedResponse = parsedResponseRegex.exec(responseText) || [
+    '',
+    predefinedResponses.noValidModelText(),
+  ]
+
+  ////
+  const verifyRegex = new RegExp(
+    `${promptTerms.searchQueries}([^]*)${promptTerms.researchPapers}([^]*)`,
+    'gm'
   )
+  const verify = verifyRegex.exec(responseText) || ['', '', '']
 
   return {
-    parsedResponse: splitResponse[0].trim(),
-    searchQueries: matchItemsInQuotes(splitResponse[1].trim()),
-    researchPapers: matchItemsInQuotes(splitResponse[2].trim()),
+    parsedResponse: parsedResponse[1].trim(),
+    searchQueries: matchItemsInQuotes(verify[1].trim()),
+    researchPapers: matchItemsInQuotes(verify[2].trim()),
   }
 }
