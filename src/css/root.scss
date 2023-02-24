@@ -236,4 +236,13 @@ $shadow-heavy: rgba($cold-grey, 0.6) 0 rem-to-px(2rem) rem-to-px(10rem)
     font-size: $font-size-default;
     pointer-events: none;
   }
+
+  &:disabled {
+    opacity: $opacity-high;
+    cursor: not-allowed;
+
+    &:hover {
+      background: $white;
+    }
+  }
 }

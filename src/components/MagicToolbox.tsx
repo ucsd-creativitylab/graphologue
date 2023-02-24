@@ -74,6 +74,7 @@ interface MagicToolboxButtonProps {
   onClick?: () => void
   preventDefault?: boolean
   className?: string
+  disabled?: boolean
 }
 export const MagicToolboxButton = memo(
   ({
@@ -81,6 +82,7 @@ export const MagicToolboxButton = memo(
     onClick,
     preventDefault = true,
     className = '',
+    disabled = false,
   }: MagicToolboxButtonProps) => {
     // handle click
     const handleOnClick = useCallback(
@@ -104,6 +106,7 @@ export const MagicToolboxButton = memo(
           (className ? ` ${className}` : '')
         }
         onClick={handleOnClick}
+        disabled={disabled}
       >
         {content}
       </button>

@@ -373,14 +373,18 @@ $shadow-node-selected: $shadow-heavy;
 
         color: $warn-yellow;
         font-size: $font-size-default !important;
+        line-height: 100%;
         white-space: nowrap;
-        // background: $warn-yellow-x-light;
-        padding: $padding-xxs $padding-small;
+        background: $white;
+        padding: $padding-small $padding-small !important;
 
         border: none;
         outline: rem-to-px(1rem) solid $warn-yellow;
         user-select: none;
         border-radius: $padding-large;
+        box-sizing: border-box;
+
+        cursor: pointer;
 
         * {
           font-size: $font-size-default;
