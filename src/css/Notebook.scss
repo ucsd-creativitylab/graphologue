@@ -1,0 +1,50 @@
+.notebook {
+  display: flex;
+  flex-direction: column;
+
+  position: fixed;
+  right: 0;
+
+  padding: 0 0 $padding-xs 0;
+  margin: $padding-mid;
+  height: calc(100vh - 2 * $padding-mid);
+  width: calc(20rem + 2 * $padding-xs);
+
+  border-radius: $radius-large;
+
+  background: rgba(#fefefe, $opacity-mid);
+  backdrop-filter: blur($blur-xh);
+
+  z-index: 999;
+  box-shadow: rgba($light-grey, $opacity-mid) 0 0 0 rem-to-px(1rem);
+
+  transition: right $transition-normal-slow ease-in-out;
+
+  box-sizing: border-box;
+  * {
+    box-sizing: border-box;
+  }
+
+  .notebook-bar {
+    @include the-bar($radius-large);
+
+    justify-content: space-between;
+  }
+
+  h1.notebook-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $padding-small;
+
+    text-align: center;
+    padding: $padding-small $padding-mid;
+    margin: 0;
+    line-height: 100%;
+
+    font-family: 'Roboto Slab', serif;
+    font-size: $font-size-x-large;
+    font-weight: $font-weight-default;
+    color: $light-grey;
+  }
+}

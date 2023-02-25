@@ -112,8 +112,8 @@ $shadow-heavy: rgba($cold-grey, 0.6) 0 rem-to-px(2rem) rem-to-px(10rem)
   width: max-content;
 
   color: $white;
-  background: rgba($dark-grey, $opacity-high);
-  backdrop-filter: blur($blur-high);
+  background: rgba($dark-mid-grey, $opacity-default);
+  // backdrop-filter: blur($blur-high);
 }
 
 /* -------------------------------------------------------------------------- */

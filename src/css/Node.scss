@@ -180,6 +180,72 @@ $shadow-node-selected: $shadow-heavy;
 /* -------------------------------------------------------------------------- */
 // ! magic here
 
+@mixin the-bar($radius: $radius-default) {
+  position: absolute;
+  top: 0;
+
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: $padding-small;
+
+  border-bottom: rem-to-px(1rem) solid $light;
+  padding: $padding-small;
+  width: 100%;
+
+  background-color: rgba($white, $opacity-mid);
+  backdrop-filter: blur($blur-high);
+  border-radius: $radius $radius 0 0;
+  overflow: hidden;
+  z-index: 100;
+
+  .bar-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: row;
+    gap: $padding-small;
+  }
+
+  .bar-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: $padding-small;
+    border: none;
+    outline: none;
+    border-radius: 50%;
+    user-select: none;
+
+    background: $white;
+    outline: rem-to-px(1rem) solid $light;
+
+    cursor: pointer;
+
+    * {
+      font-size: $font-size-default;
+    }
+
+    &:hover {
+      background: $light;
+    }
+
+    &.bar-un-clickable {
+      border: none;
+      outline: none;
+      color: $grey;
+      background: none;
+      pointer-events: none;
+
+      &:hover {
+        background: none;
+      }
+    }
+  }
+}
+
 .react-flow__node {
   &.selected {
     .magic-node-body {
@@ -231,67 +297,7 @@ $shadow-node-selected: $shadow-heavy;
     }
 
     .magic-node-bar {
-      position: absolute;
-      top: 0;
-
-      display: inline-flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      gap: $padding-small;
-
-      border-bottom: rem-to-px(1rem) solid $light;
-      padding: $padding-small;
-      width: 100%;
-
-      background-color: rgba($white, $opacity-mid);
-      backdrop-filter: blur($blur-high);
-      border-radius: $radius-default $radius-default 0 0;
-      overflow: hidden;
-      z-index: 100;
-
-      .bar-buttons {
-        display: flex;
-        flex-direction: row;
-        gap: $padding-small;
-      }
-
-      .magic-node-bar-button {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        padding: $padding-small;
-        border: none;
-        outline: none;
-        border-radius: 50%;
-        user-select: none;
-
-        background: $white;
-        outline: rem-to-px(1rem) solid $light;
-
-        cursor: pointer;
-
-        * {
-          font-size: $font-size-default;
-        }
-
-        &:hover {
-          background: $light;
-        }
-
-        &.bar-un-clickable {
-          border: none;
-          outline: none;
-          color: $grey;
-          background: none;
-          pointer-events: none;
-
-          &:hover {
-            background: none;
-          }
-        }
-      }
+      @include the-bar($radius-default);
     }
 
     .magic-folded-text,
@@ -310,6 +316,7 @@ $shadow-node-selected: $shadow-heavy;
 
       font-size: $font-size-default;
       font-family: 'Roboto Slab', serif;
+      font-weight: 300;
       color: $black;
     }
 
@@ -339,6 +346,7 @@ $shadow-node-selected: $shadow-heavy;
 
         font-size: $font-size-default;
         font-family: 'Roboto Slab', serif;
+        font-weight: 300;
         color: $black;
         // word-break: break-all;
 

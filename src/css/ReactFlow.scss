@@ -3,6 +3,11 @@ $node-selection-border-width: rem-to-px(2rem);
 .react-flow {
   user-select: none;
 
+  .react-flow__minimap {
+    margin: $padding-mid;
+    opacity: $opacity-default;
+  }
+
   .react-flow__controls {
     display: flex;
     flex-direction: row;
@@ -12,6 +17,7 @@ $node-selection-border-width: rem-to-px(2rem);
     // overflow: hidden;
 
     padding: $padding-xs;
+    margin: $padding-mid;
     border-radius: $radius-default;
     background: rgba($white, $opacity-default);
     backdrop-filter: blur($blur-high);
@@ -31,6 +37,10 @@ $node-selection-border-width: rem-to-px(2rem);
 
       &:hover {
         background: $light;
+      }
+
+      &.button-highlighted {
+        background: $light-grey;
       }
 
       * {

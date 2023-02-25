@@ -41,6 +41,7 @@ import {
 import { customAddNodes, CustomNode, CustomNodeData } from './components/Node'
 import { CustomControls } from './components/CustomControl'
 import { CustomMarkerDefs } from './components/CustomDefs'
+import { Note, NoteBook } from './components/Notebook'
 import {
   hardcodedNodeSize,
   styles,
@@ -74,7 +75,15 @@ const edgeTypes = {
   custom: CustomEdge,
 } as EdgeTypes
 
-const Flow = () => {
+const Flow = ({
+  setNotes,
+  notesOpened,
+  setNotesOpened,
+}: {
+  setNotes: (notes: Note[]) => void
+  notesOpened: boolean
+  setNotesOpened: (notesOpened: boolean) => void
+}) => {
   const thisReactFlowInstance = useReactFlow()
   const {
     setNodes,
@@ -468,6 +477,7 @@ const Flow = () => {
             }
           />
           <MiniMap
+            position={'bottom-left'}
             pannable={true}
             // nodeStrokeColor={n => {
             //   if (n.selected) return styles.edgeColorStrokeSelected
@@ -494,6 +504,8 @@ const Flow = () => {
             redoTime={redoTime}
             canUndo={canUndo}
             canRedo={canRedo}
+            notesOpened={notesOpened}
+            setNotesOpened={setNotesOpened}
           />
           <Background color="#008ddf" />
         </ReactFlow>
@@ -503,9 +515,22 @@ const Flow = () => {
 }
 
 const ReactFlowComponent = () => {
+  const [notes, setNotes] = useState<Note[]>([])
+  const [notesOpened, setNotesOpened] = useState<boolean>(false)
+
   return (
     <ReactFlowProvider>
-      <Flow />
+      <Flow
+        setNotes={setNotes}
+        notesOpened={notesOpened}
+        setNotesOpened={setNotesOpened}
+      />
+      <NoteBook
+        notes={notes}
+        setNotes={setNotes}
+        notesOpened={notesOpened}
+        setNotesOpened={setNotesOpened}
+      />
     </ReactFlowProvider>
   )
 }

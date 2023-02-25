@@ -44,6 +44,8 @@ type CustomControlsProps = {
   redoTime: () => void
   canRedo: boolean
   canUndo: boolean
+  notesOpened: boolean
+  setNotesOpened: (notesOpened: boolean) => void
 }
 export const CustomControls = memo(
   ({
@@ -54,6 +56,8 @@ export const CustomControls = memo(
     redoTime,
     canUndo,
     canRedo,
+    notesOpened,
+    setNotesOpened,
   }: CustomControlsProps) => {
     const {
       setViewport,
@@ -130,6 +134,14 @@ export const CustomControls = memo(
         fitView
       )
     }, [addNodes, fitView, nodes, selectedComponents])
+
+    /* -------------------------------------------------------------------------- */
+
+    // ! notebook
+
+    const handleToggleNotebook = useCallback(() => {
+      setNotesOpened(!notesOpened)
+    }, [notesOpened, setNotesOpened])
 
     /* -------------------------------------------------------------------------- */
 
@@ -226,11 +238,16 @@ export const CustomControls = memo(
           </ControlButtonTooltip>
         </ControlButton>
 
-        <ControlButton onClick={() => {}}>
+        <ControlButton
+          onClick={handleToggleNotebook}
+          className={notesOpened ? 'button-highlighted' : ''}
+        >
           <FormatListBulletedRoundedIcon />
           <span>notes</span>
           <ControlButtonTooltip>
-            <TooltipLine>coming soon</TooltipLine>
+            <TooltipLine>
+              {notesOpened ? 'close notebook' : 'open notebook'}
+            </TooltipLine>
           </ControlButtonTooltip>
         </ControlButton>
 

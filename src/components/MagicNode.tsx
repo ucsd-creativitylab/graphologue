@@ -27,8 +27,8 @@ import DocumentScannerRoundedIcon from '@mui/icons-material/DocumentScannerRound
 
 import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded'
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded'
-import LinkRoundedIcon from '@mui/icons-material/LinkRounded'
-import LinkOffRoundedIcon from '@mui/icons-material/LinkOffRounded'
+// import LinkRoundedIcon from '@mui/icons-material/LinkRounded'
+// import LinkOffRoundedIcon from '@mui/icons-material/LinkOffRounded'
 
 import {
   hardcodedNodeSize,
@@ -175,10 +175,10 @@ export const MagicNode = memo(
     }, [fitView, getNode, id, setNodes])
 
     // ! linkage
-    const [linked, setLinked] = useState(true)
-    const handleToggleLinkage = useCallback(() => {
-      setLinked(linked => !linked)
-    }, [])
+    // const [linked, setLinked] = useState(true)
+    // const handleToggleLinkage = useCallback(() => {
+    //   setLinked(linked => !linked)
+    // }, [])
 
     // ! add to note
     const handleAddToNote = useCallback(() => {}, [])
@@ -350,40 +350,28 @@ export const MagicNode = memo(
       >
         <div className="magic-node-bar magic-node-draggable">
           <div className="bar-buttons">
-            <button
-              className="magic-node-bar-button"
-              onClick={handleDeleteNode}
-            >
+            <button className="bar-button" onClick={handleDeleteNode}>
               <ClearRoundedIcon />
             </button>
-            <button
-              className="magic-node-bar-button"
-              onClick={handleToggleFold}
-            >
+            <button className="bar-button" onClick={handleToggleFold}>
               {folded ? <UnfoldMoreRoundedIcon /> : <UnfoldLessRoundedIcon />}
             </button>
-            <button className="magic-node-bar-button" onClick={handleDuplicate}>
+            <button className="bar-button" onClick={handleDuplicate}>
               <ContentCopyRoundedIcon />
             </button>
             {!folded && (
               <>
-                <button
-                  className="magic-node-bar-button"
-                  onClick={handleToggleLinkage}
-                >
+                {/* <button className="bar-button" onClick={handleToggleLinkage}>
                   {linked ? <LinkRoundedIcon /> : <LinkOffRoundedIcon />}
-                </button>
-                <button
-                  className="magic-node-bar-button"
-                  onClick={handleAddToNote}
-                >
+                </button> */}
+                <button className="bar-button" onClick={handleAddToNote}>
                   <DriveFileRenameOutlineRoundedIcon />
                 </button>
               </>
             )}
           </div>
           {preventWheel && (
-            <div className="magic-node-bar-button bar-un-clickable">
+            <div className="bar-button bar-un-clickable">
               <DocumentScannerRoundedIcon />
             </div>
           )}
