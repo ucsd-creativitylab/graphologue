@@ -275,7 +275,7 @@ export const MagicNode = memo(
           researchPapers: papers,
         })
       },
-      [modelResponse]
+      []
     )
 
     // ! actual ask
