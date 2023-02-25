@@ -85,18 +85,18 @@ $outline-dark: 1px solid $black;
 
 $outline-highlight: 1px solid $elegant-red;
 
-$blur-small: 2px;
-$blur-default: 3px;
-$blur-high: 5px;
-$blur-xh: 7px;
-
-/* -------------------------------------------------------------------------- */
-
 $rem-to-px: 16;
 
 @function rem-to-px($value) {
   @return calc($value / $rem-to-px);
 }
+
+$blur-small: rem-to-px(2rem);
+$blur-default: rem-to-px(3rem);
+$blur-high: rem-to-px(5rem);
+$blur-xh: rem-to-px(7rem);
+
+/* -------------------------------------------------------------------------- */
 
 $shadow-grey-default: rgba($grey, 0.3) 0 rem-to-px(2rem) rem-to-px(12rem)
   rem-to-px(0em);

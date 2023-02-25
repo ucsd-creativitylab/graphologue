@@ -9,6 +9,7 @@ import {
   useEffect,
   useRef,
   useState,
+  WheelEvent,
 } from 'react'
 import { FitView, Instance, Node, NodeProps } from 'reactflow'
 import isEqual from 'react-fast-compare'
@@ -299,11 +300,26 @@ export const MagicNode = memo(
       }
     }, [handleAsk])
 
+    /* -------------------------------------------------------------------------- */
+
+    // handle wheel
+
+    const handleWheel = useCallback(
+      (event: WheelEvent) => {
+        if (verifyFacts && verifyEntities.researchPapers.length > 0) {
+          event.stopPropagation()
+          event.preventDefault()
+        }
+      },
+      [verifyEntities.researchPapers.length, verifyFacts]
+    )
+
     return (
       <div
         className={`custom-node-body magic-node-body${
           metaPressed ? ' magic-node-meta-pressed' : ''
         }${folded ? ' magic-node-draggable' : ''}`}
+        onWheelCapture={handleWheel}
       >
         <div className="magic-node-bar magic-node-draggable">
           <button className="magic-node-bar-button" onClick={handleDeleteNode}>

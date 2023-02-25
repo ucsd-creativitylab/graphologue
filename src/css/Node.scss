@@ -18,6 +18,7 @@ $shadow-node-selected: $shadow-heavy;
     background: $white;
     border: none;
     border-radius: $radius-default;
+
     // overflow: hidden;
 
     box-shadow: $shadow-default; // !
@@ -195,12 +196,26 @@ $shadow-node-selected: $shadow-heavy;
     min-width: 20rem;
     max-width: 20rem;
     height: fit-content;
-    // min-height: 10rem;
+    max-height: 40rem;
     box-sizing: border-box;
 
-    padding: $padding-small;
+    padding: 0 $padding-small $padding-small $padding-small;
+    overflow: scroll;
+
+    * {
+      box-sizing: border-box;
+    }
+
+    // style the scrollbar
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
 
     .magic-node-bar {
+      position: absolute;
+      top: 0;
+
       display: inline-flex;
       flex-direction: row;
       align-items: center;
@@ -208,8 +223,14 @@ $shadow-node-selected: $shadow-heavy;
       gap: $padding-small;
 
       border-bottom: rem-to-px(1rem) solid $light;
-      padding-bottom: $padding-small;
+      padding: $padding-small;
       width: 100%;
+
+      background-color: rgba($white, $opacity-mid);
+      backdrop-filter: blur($blur-high);
+      border-radius: $radius-default $radius-default 0 0;
+      overflow: hidden;
+      z-index: 9;
 
       .magic-node-bar-button {
         display: flex;
@@ -235,6 +256,14 @@ $shadow-node-selected: $shadow-heavy;
           background: $light;
         }
       }
+    }
+
+    .magic-folded-text,
+    .magic-prompt {
+      margin-top: calc(
+        $font-size-default + 4 * $padding-small + rem-to-px(1rem) +
+          $padding-small
+      ) !important;
     }
 
     .magic-folded-text {
