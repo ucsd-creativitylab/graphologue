@@ -5,12 +5,10 @@ import {
   ReactElement,
   RefObject,
   useCallback,
-  useContext,
   useEffect,
   useRef,
 } from 'react'
-import { Edge, Node } from 'reactflow'
-import { FlowContext, FlowContextType } from './Contexts'
+import { Edge, Node, useReactFlow } from 'reactflow'
 
 type SuperTextEditorProps = {
   target: 'node' | 'edge'
@@ -31,8 +29,7 @@ export const SuperTextEditor = memo(
     children,
     textareaRef,
   }: SuperTextEditorProps) => {
-    const flow = useContext(FlowContext) as FlowContextType
-    const { setNodes, setEdges } = flow
+    const { setNodes, setEdges } = useReactFlow()
 
     const isNode = target === 'node'
     const isEdge = target === 'edge'

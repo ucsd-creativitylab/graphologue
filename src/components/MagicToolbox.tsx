@@ -3,11 +3,11 @@ import {
   memo,
   ReactElement,
   useCallback,
-  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react'
+import { Edge, Node, useReactFlow } from 'reactflow'
 import isEqual from 'react-fast-compare'
 import { PuffLoader } from 'react-spinners'
 
@@ -15,8 +15,6 @@ import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 
 import { contentEditingTimeout, terms } from '../constants'
 import { magicExplain, PromptSourceComponentsType } from '../utils/magicExplain'
-import { FlowContext } from './Contexts'
-import { Edge, Node } from 'reactflow'
 import { getOpenAICompletion } from '../utils/openAI'
 import {
   NodeLabelAndTags,
@@ -149,7 +147,7 @@ interface MagicNodeTaggingItemProps {
 }
 export const MagicNodeTaggingItem = memo(
   ({ targetId, label }: MagicNodeTaggingItemProps) => {
-    const { setNodes } = useContext(FlowContext)
+    const { setNodes } = useReactFlow()
 
     const [availableTags, setAvailableTags] = useState<string[]>([])
     const [noAvailable, setNoAvailable] = useState<boolean>(false)
@@ -239,7 +237,7 @@ export const MagicSuggestItem = memo(
     edgeLabels,
     disabled = false,
   }: MagicSuggestItemProps) => {
-    const { setNodes, setEdges } = useContext(FlowContext)
+    const { setNodes, setEdges } = useReactFlow()
 
     const [modelResponse, setModelResponse] = useState<string>('')
 
@@ -354,7 +352,7 @@ interface MagicAskItemProps {
   sourceComponents: PromptSourceComponentsType
 }
 export const MagicAskItem = ({ sourceComponents }: MagicAskItemProps) => {
-  const { getNodes, addNodes, fitView } = useContext(FlowContext)
+  const { getNodes, addNodes, fitView } = useReactFlow()
 
   return (
     <MagicToolboxItem title={`ask ${terms.gpt}`}>

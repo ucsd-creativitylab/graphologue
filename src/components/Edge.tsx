@@ -10,6 +10,7 @@ import {
   getStraightPath,
   MarkerType,
   useStore,
+  useReactFlow,
 } from 'reactflow'
 
 import LinearScaleRoundedIcon from '@mui/icons-material/LinearScaleRounded'
@@ -19,7 +20,7 @@ import { ReactComponent as PlainLine } from '../media/plainLine.svg'
 import { ReactComponent as ArrowLine } from '../media/arrowLine.svg'
 
 import { hardcodedNodeSize, hideEdgeTextZoomLevel, styles } from '../constants'
-import { EdgeContext, FlowContext } from './Contexts'
+import { FlowContext } from './Contexts'
 import { getMarkerId } from './CustomDefs'
 import {
   MagicSuggestItem,
@@ -61,9 +62,9 @@ export const CustomEdge = memo(
     const targetNode = useStore(
       useCallback(store => store.nodeInternals.get(target), [target])
     )
+    const zoomLevel = useStore(useCallback(store => store.transform[2], []))
 
     const { selectedComponents } = useContext(FlowContext)
-    const { roughZoomLevel } = useContext(EdgeContext) // useContext cannot be called conditionally
 
     if (!sourceNode || !targetNode) return null
 
@@ -139,7 +140,7 @@ export const CustomEdge = memo(
             targetHandle: targetHandleId || null,
           }}
           selected={selected || false}
-          roughZoomLevel={roughZoomLevel}
+          roughZoomLevel={zoomLevel}
         />
         {/* <text>
           <textPath
@@ -212,8 +213,8 @@ export const EdgeCustomLabel = memo(
     selected,
     roughZoomLevel,
   }: EdgeCustomLabelProps) => {
-    const { getNodes, addNodes, setEdges, fitView, selectedComponents } =
-      useContext(FlowContext)
+    const { getNodes, addNodes, setEdges, fitView } = useReactFlow()
+    const { selectedComponents } = useContext(FlowContext)
 
     const moreThanOneComponentsSelected =
       selectedComponents.nodes.length + selectedComponents.edges.length > 1

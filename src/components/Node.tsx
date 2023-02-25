@@ -17,6 +17,7 @@ import {
   Node,
   ReactFlowState,
   NodeProps,
+  useReactFlow,
 } from 'reactflow'
 
 import {
@@ -24,7 +25,7 @@ import {
   transitionDuration,
   viewFittingPadding,
 } from '../constants'
-import { EdgeContext, FlowContext } from './Contexts'
+import { FlowContext } from './Contexts'
 import { MagicNodeData } from './MagicNode'
 import {
   MagicNodeTaggingItem,
@@ -55,9 +56,9 @@ const connectionNodeIdSelector = (state: ReactFlowState) =>
 
 export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
-    const { getNodes, setNodes, metaPressed, selectedComponents } =
-      useContext(FlowContext)
-    const { roughZoomLevel } = useContext(EdgeContext)
+    const { getNodes, setNodes } = useReactFlow()
+    const zoomLevel = useStore(useCallback(store => store.transform[2], []))
+    const { metaPressed, selectedComponents } = useContext(FlowContext)
 
     const moreThanOneComponentsSelected =
       selectedComponents.nodes.length + selectedComponents.edges.length > 1
@@ -164,7 +165,7 @@ export const CustomNode = memo(
                     ? ' magic-toolbox-show'
                     : ''
                 }`}
-                zoom={roughZoomLevel}
+                zoom={zoomLevel}
               >
                 {label.length !== 0 && tags.length === 0 ? (
                   <MagicNodeTaggingItem targetId={id} label={label} />

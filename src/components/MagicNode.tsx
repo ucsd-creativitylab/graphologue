@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { FitView, Instance, Node, NodeProps } from 'reactflow'
+import { FitView, Instance, Node, NodeProps, useReactFlow } from 'reactflow'
 import isEqual from 'react-fast-compare'
 import { PuffLoader } from 'react-spinners'
 
@@ -86,14 +86,9 @@ interface MagicNodeProps extends NodeProps {
 
 export const MagicNode = memo(
   ({ id, data, xPos, yPos, selected }: MagicNodeProps) => {
-    const {
-      getNode,
-      setNodes,
-      deleteElements,
-      metaPressed,
-      fitView,
-      fitBounds,
-    } = useContext(FlowContext)
+    const { getNode, setNodes, deleteElements, fitView, fitBounds } =
+      useReactFlow()
+    const { metaPressed } = useContext(FlowContext)
 
     const [waitingForModel, setWaitingForModel] = useState<boolean>(false)
     const [modelResponse, setModelResponse] = useState<string>('')

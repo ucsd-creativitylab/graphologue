@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useContext } from 'react'
-import { ControlButton, Controls, Edge, Node } from 'reactflow'
+import React, { memo, useCallback } from 'react'
+import { ControlButton, Controls, Edge, Node, useReactFlow } from 'reactflow'
 
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import GridOnRoundedIcon from '@mui/icons-material/GridOnRounded'
@@ -29,7 +29,6 @@ import {
   transitionDuration,
   viewFittingPadding,
 } from '../constants'
-import { FlowContext } from './Contexts'
 import { magicExplain } from '../utils/magicExplain'
 
 import defaultExample from '../examples/default.json'
@@ -66,7 +65,7 @@ export const CustomControls = memo(
       addEdges,
       deleteElements,
       toObject,
-    } = useContext(FlowContext)
+    } = useReactFlow()
 
     const _returnToOrigin = useCallback(() => {
       setViewport({ x: 0, y: 0, zoom: 1 }, { duration: transitionDuration })

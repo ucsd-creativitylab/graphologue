@@ -48,7 +48,7 @@ import {
   useTokenDataTransferHandle,
   viewFittingPadding,
 } from './constants'
-import { EdgeContext, FlowContext } from './components/Contexts'
+import { FlowContext } from './components/Contexts'
 import { getItem, storeItem } from './utils/storage'
 import { useTimeMachine } from './utils/timeMachine'
 import { roundTo } from './utils/utils'
@@ -409,102 +409,95 @@ const Flow = () => {
   return (
     <FlowContext.Provider
       value={{
-        ...thisReactFlowInstance,
         metaPressed,
         selectedComponents: selectedComponents,
         doSetNodesEditing,
         doSetEdgesEditing,
       }}
     >
-      <EdgeContext.Provider
-        value={{
-          roughZoomLevel,
-        }}
-      >
-        <div id="react-flow-wrapper" ref={reactFlowWrapper}>
-          <ReactFlow
-            className={metaPressed ? 'flow-meta-pressed' : ''}
-            // basic
+      <div id="react-flow-wrapper" ref={reactFlowWrapper}>
+        <ReactFlow
+          className={metaPressed ? 'flow-meta-pressed' : ''}
+          // basic
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onConnectStart={onConnectStart as OnConnectStart}
+          onConnectEnd={onConnectEnd as OnConnectEnd}
+          // flow view
+          style={reactFlowWrapperStyle}
+          fitView={false}
+          attributionPosition="top-right"
+          // edge specs
+          elevateEdgesOnSelect={false}
+          defaultEdgeOptions={customEdgeOptions} // adding a new edge with this configs without notice
+          connectionLineComponent={CustomConnectionLine}
+          connectionLineStyle={customConnectionLineStyle}
+          // viewport control
+          panOnScroll={true}
+          selectionOnDrag={true}
+          panOnDrag={[1, 2]}
+          selectionMode={SelectionMode.Partial}
+          // ! actions
+          onNodeDoubleClick={handleNodeDoubleClick}
+          onNodeContextMenu={handleNodeContextMenu}
+          onNodeDragStart={handleNodeDragStart}
+          onNodeDragStop={handleNodeDragStop}
+          onEdgeDoubleClick={handleEdgeDoubleClick}
+          onPaneClick={handlePaneClick}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          // onPaneContextMenu={handlePaneContextMenu}
+        >
+          <CustomMarkerDefs
+            markerOptions={
+              {
+                color: styles.edgeColorStrokeSelected,
+              } as EdgeMarker
+            }
+          />
+          <CustomMarkerDefs
+            markerOptions={
+              {
+                color: styles.edgeColorStrokeExplained,
+              } as EdgeMarker
+            }
+          />
+          <MiniMap
+            pannable={true}
+            // nodeStrokeColor={n => {
+            //   if (n.selected) return styles.edgeColorStrokeSelected
+            //   else return 'none'
+            // }}
+            nodeColor={n => {
+              if (n.data.editing) return `#ff06b7aa`
+              else if (n.selected) {
+                if (n.type === 'magic')
+                  return `${styles.edgeColorStrokeExplained}aa`
+                else return `${styles.edgeColorStrokeSelected}aa`
+              } else return '#cfcfcf'
+            }}
+            // nodeStrokeColor={n => {
+            //   if (n.type === 'magic') return `#${`57068c`}99`
+            //   else return 'none'
+            // }}
+          />
+          <CustomControls
             nodes={nodes}
             edges={edges}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onConnectStart={onConnectStart as OnConnectStart}
-            onConnectEnd={onConnectEnd as OnConnectEnd}
-            // flow view
-            style={reactFlowWrapperStyle}
-            fitView={false}
-            attributionPosition="top-right"
-            // edge specs
-            elevateEdgesOnSelect={false}
-            defaultEdgeOptions={customEdgeOptions} // adding a new edge with this configs without notice
-            connectionLineComponent={CustomConnectionLine}
-            connectionLineStyle={customConnectionLineStyle}
-            // viewport control
-            panOnScroll={true}
-            selectionOnDrag={true}
-            panOnDrag={[1, 2]}
-            selectionMode={SelectionMode.Partial}
-            // ! actions
-            onNodeDoubleClick={handleNodeDoubleClick}
-            onNodeContextMenu={handleNodeContextMenu}
-            onNodeDragStart={handleNodeDragStart}
-            onNodeDragStop={handleNodeDragStop}
-            onEdgeDoubleClick={handleEdgeDoubleClick}
-            onPaneClick={handlePaneClick}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            // onPaneContextMenu={handlePaneContextMenu}
-          >
-            <CustomMarkerDefs
-              markerOptions={
-                {
-                  color: styles.edgeColorStrokeSelected,
-                } as EdgeMarker
-              }
-            />
-            <CustomMarkerDefs
-              markerOptions={
-                {
-                  color: styles.edgeColorStrokeExplained,
-                } as EdgeMarker
-              }
-            />
-            <MiniMap
-              pannable={true}
-              // nodeStrokeColor={n => {
-              //   if (n.selected) return styles.edgeColorStrokeSelected
-              //   else return 'none'
-              // }}
-              nodeColor={n => {
-                if (n.data.editing) return `#ff06b7aa`
-                else if (n.selected) {
-                  if (n.type === 'magic')
-                    return `${styles.edgeColorStrokeExplained}aa`
-                  else return `${styles.edgeColorStrokeSelected}aa`
-                } else return '#cfcfcf'
-              }}
-              // nodeStrokeColor={n => {
-              //   if (n.type === 'magic') return `#${`57068c`}99`
-              //   else return 'none'
-              // }}
-            />
-            <CustomControls
-              nodes={nodes}
-              edges={edges}
-              selectedComponents={selectedComponents}
-              undoTime={undoTime}
-              redoTime={redoTime}
-              canUndo={canUndo}
-              canRedo={canRedo}
-            />
-            <Background color="#008ddf" />
-          </ReactFlow>
-        </div>
-      </EdgeContext.Provider>
+            selectedComponents={selectedComponents}
+            undoTime={undoTime}
+            redoTime={redoTime}
+            canUndo={canUndo}
+            canRedo={canRedo}
+          />
+          <Background color="#008ddf" />
+        </ReactFlow>
+      </div>
     </FlowContext.Provider>
   )
 }
