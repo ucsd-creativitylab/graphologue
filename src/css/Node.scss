@@ -587,7 +587,8 @@ $shadow-node-selected: $shadow-heavy;
 
                 .scholar-option-title,
                 .scholar-option-authors,
-                .scholar-option-keyword {
+                .scholar-option-keyword,
+                .scholar-option-explanation {
                   display: flex;
                   flex-direction: row;
                   justify-content: flex-start;
@@ -602,8 +603,14 @@ $shadow-node-selected: $shadow-heavy;
                   line-height: 150%;
                 }
 
-                .scholar-option-keyword {
+                .scholar-option-keyword,
+                .scholar-option-explanation {
                   color: $warn-yellow;
+                }
+
+                .scholar-option-title,
+                .scholar-option-explanation {
+                  font-size: $font-size-default;
                 }
 
                 &:hover {

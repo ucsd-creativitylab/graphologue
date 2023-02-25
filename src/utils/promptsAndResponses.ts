@@ -30,6 +30,13 @@ export const predefinedPrompts = {
   addScholar: () =>
     // `\n\nFinally, query Google Scholar and provide titles of peer-reviewed articles that support the response. Only provide papers that are either available in Google Scholar or Semantic Scholar. Do not include links. Separate them with commas, use quotation marks for every item. Start with ${promptTerms.researchPapers}. For example, ${promptTerms.researchPapers}: "a", "b", "c".`,
     `\n\nFinally, list 3 keywords of relevant and supporting research articles. Separate them with commas, use quotation marks for every item. Start with ${promptTerms.researchPapers}. For example, ${promptTerms.researchPapers}: "a", "b", "c".`,
+  explainScholar: (
+    response: string,
+    paperTitle: string,
+    paperAbstract: string
+  ) =>
+    `Use one or two simple and concise sentences to explain how does the paper "${paperTitle}" help understand this statement:\n\n${response}\n\nDon't repeat the title.` +
+    (paperAbstract.length > 0 ? `\n\n(Paper abstract: ${paperAbstract})` : ''),
 }
 
 export const predefinedResponses = {

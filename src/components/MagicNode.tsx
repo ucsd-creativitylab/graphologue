@@ -32,6 +32,7 @@ import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded'
 
 import {
   hardcodedNodeSize,
+  magicNodeVerifyPaperCountDefault,
   nodeGap,
   terms,
   transitionDuration,
@@ -47,6 +48,7 @@ import {
   getGraphBounds,
   getMagicNodeId,
   isEmptyTokenization,
+  slowDeepCopy,
 } from '../utils/utils'
 import { MagicToolboxButton } from './MagicToolbox'
 import { getOpenAICompletion } from '../utils/openAI'
@@ -224,6 +226,58 @@ export const MagicNode = memo(
 
     /* -------------------------------------------------------------------------- */
 
+    const askForPaperExplanation = useCallback(
+      async (
+        response: string,
+        searchQueries: string[],
+        papers: SemanticScholarPaperEntity[]
+      ) => {
+        papers = slowDeepCopy(papers)
+
+        for (const paperToExplain of papers.slice(
+          0,
+          magicNodeVerifyPaperCountDefault
+        ) as SemanticScholarPaperEntity[]) {
+          if (response.length && paperToExplain.title.length) {
+            const explanationResponse = await getOpenAICompletion(
+              predefinedPrompts.explainScholar(
+                response,
+                paperToExplain.title,
+                paperToExplain.abstract || ''
+              )
+            )
+
+            if (explanationResponse.error) {
+              // TODO
+              console.error(explanationResponse.error)
+            }
+
+            const explanation = explanationResponse.error
+              ? predefinedResponses.noValidResponse()
+              : explanationResponse.choices[0].text
+
+            papers = papers.map((p: SemanticScholarPaperEntity) => {
+              if (p.paperId === paperToExplain.paperId) {
+                return {
+                  ...p,
+                  explanation: explanation
+                    ? explanation.trim()
+                    : predefinedResponses.noValidResponse(),
+                }
+              }
+              return p
+            })
+          }
+        }
+
+        setVerifyEntities({
+          searchQueries,
+          researchPapers: papers,
+        })
+      },
+      [modelResponse]
+    )
+
     // ! actual ask
     const handleAsk = useCallback(async () => {
       if (waitingForModel) return
@@ -247,6 +301,8 @@ export const MagicNode = memo(
 
       // TODO handle error
       if (response.error) {
+        console.error(response.error)
+
         setWaitingForModel(false)
 
         setModelResponse(predefinedResponses.modelDown())
@@ -262,6 +318,15 @@ export const MagicNode = memo(
       const { parsedResponse, searchQueries, researchPaperKeywords } =
         parseModelResponseText(modelText)
 
+      if (!parsedResponse.length) {
+        setWaitingForModel(false)
+        setModelResponse(predefinedResponses.noValidModelText())
+        setTimeout(() => {
+          setModelResponse('')
+        }, 3000)
+        return
+      }
+
       const papersFromKeywords = await getScholarPapersFromKeywords(
         researchPaperKeywords
       )
@@ -271,8 +336,11 @@ export const MagicNode = memo(
         researchPapers: papersFromKeywords,
       })
 
-      setModelResponse(parsedResponse)
+      setModelResponse(parsedResponse) // ! actual model text
       setWaitingForModel(false)
+
+      // then get explanations for the papers
+      askForPaperExplanation(parsedResponse, searchQueries, papersFromKeywords)
 
       // ! send to server
       // if (ws.current?.readyState === ws.current?.OPEN)
@@ -282,7 +350,7 @@ export const MagicNode = memo(
       //       id: id,
       //     } as WebSocketMessageType)
       //   )
-    }, [data.prompt, waitingForModel])
+    }, [askForPaperExplanation, data.prompt, waitingForModel])
 
     // ! suggest prompt
     const handleSuggestPrompt = useCallback(() => {}, [])

@@ -35,3 +35,5 @@ export const terms = {
   gpt: 'GPT-3',
   wiki: 'Wikidata',
 }
+
+export const magicNodeVerifyPaperCountDefault = 3

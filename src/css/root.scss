@@ -242,6 +242,10 @@ $shadow-heavy: rgba($cold-grey, 0.6) 0 rem-to-px(2rem) rem-to-px(10rem)
     opacity: $opacity-high;
     cursor: not-allowed;
 
+    &.magic-button {
+      cursor: wait !important;
+    }
+
     &:hover {
       background: $white;
     }

@@ -1,23 +1,26 @@
 // import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded'
 import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded'
+import { PuffLoader } from 'react-spinners'
+import { magicNodeVerifyPaperCountDefault } from '../constants'
 
 export interface SemanticScholarAuthor {
   authorId: string
   name: string
 }
 
-export interface SemanticScholarPaper {
+interface SemanticScholarPaper {
   paperId: string
   title: string
   authors: SemanticScholarAuthor[]
-  abstract: string
+  abstract: string | null
   year: number
-  venue: string
+  venue: string | null
   url: string
 }
 
 export interface SemanticScholarPaperEntity extends SemanticScholarPaper {
   keyword: string
+  explanation?: string
 }
 
 export interface SemanticScholarResponse {
@@ -42,7 +45,7 @@ export const Scholar = ({ papers }: ScholarProps) => {
     <div className="verify-section">
       <p className="section-title">read relevant papers</p>
       <div className="verify-options">
-        {papers.slice(0, 3).map((query, i) => (
+        {papers.slice(0, magicNodeVerifyPaperCountDefault).map((query, i) => (
           <div key={i} className="verify-option verify-scholar">
             <div className="scholar-option-info">
               <div className="scholar-option-info-set">
@@ -63,6 +66,15 @@ export const Scholar = ({ papers }: ScholarProps) => {
             </div>
             {/* <div className="scholar-option-abstract">{query.abstract}</div> */}
             <div className="scholar-option-keyword">{`keyword [ ${query.keyword} ]`}</div>
+            {query.explanation ? (
+              <div className="scholar-option-explanation">
+                {query.explanation}
+              </div>
+            ) : (
+              <div className="waiting-for-model-placeholder">
+                <PuffLoader size={24} color="#ffaa00" />
+              </div>
+            )}
           </div>
         ))}
       </div>

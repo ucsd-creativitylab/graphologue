@@ -43,6 +43,10 @@ export const nodeAndTagsToString = (item: NodeLabelAndTags) => {
   return `${item.label}${tagsToString(item.tags)}`
 }
 
+export const slowDeepCopy = (obj: Object | Object[]) => {
+  return JSON.parse(JSON.stringify(obj))
+}
+
 /* -------------------------------------------------------------------------- */
 // ! generate edge params
 
