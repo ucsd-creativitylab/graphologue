@@ -42,7 +42,7 @@ export const Scholar = ({ papers }: ScholarProps) => {
     <div className="verify-section">
       <p className="section-title">read relevant papers</p>
       <div className="verify-options">
-        {papers.map((query, i) => (
+        {papers.slice(0, 3).map((query, i) => (
           <div key={i} className="verify-option verify-scholar">
             <div className="scholar-option-info">
               <div className="scholar-option-info-set">
@@ -51,7 +51,7 @@ export const Scholar = ({ papers }: ScholarProps) => {
                 <span>{query.venue}</span>
               </div>
               <a href={query.url} target="_blank" rel="noreferrer">
-                more <ArrowOutwardRoundedIcon />
+                details <ArrowOutwardRoundedIcon />
               </a>
             </div>
             <div className="scholar-option-title">{query.title}</div>
@@ -102,6 +102,7 @@ export const getScholarPapersFromKeywords = async (
   if (keywords.length === 0) return []
 
   const papers: SemanticScholarPaperEntity[] = []
+  const allPapers: SemanticScholarPaperEntity[] = []
 
   for (const keyword of keywords) {
     if (keyword === '') continue
@@ -124,6 +125,17 @@ export const getScholarPapersFromKeywords = async (
           keyword: keyword,
         })
       }
+
+      allPapers.push({
+        ...paper,
+        keyword: keyword,
+      })
+    }
+  }
+
+  for (const paper of allPapers) {
+    if (!paperAlreadyExists(papers, paper)) {
+      papers.push(paper)
     }
   }
 

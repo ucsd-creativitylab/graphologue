@@ -9,7 +9,6 @@ import {
   useEffect,
   useRef,
   useState,
-  WheelEvent,
 } from 'react'
 import { FitView, Instance, Node, NodeProps } from 'reactflow'
 import isEqual from 'react-fast-compare'
@@ -21,9 +20,10 @@ import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded'
 import SavingsRoundedIcon from '@mui/icons-material/SavingsRounded'
 import DriveFileRenameOutlineRoundedIcon from '@mui/icons-material/DriveFileRenameOutlineRounded'
 import TranslateRoundedIcon from '@mui/icons-material/TranslateRounded'
-import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded'
-import ArrowUpwardRoundedIcon from '@mui/icons-material/ArrowUpwardRounded'
+// import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded'
+// import ArrowUpwardRoundedIcon from '@mui/icons-material/ArrowUpwardRounded'
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
+import DocumentScannerRoundedIcon from '@mui/icons-material/DocumentScannerRounded'
 
 import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded'
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded'
@@ -43,7 +43,11 @@ import {
   parseModelResponseText,
   PromptSourceComponentsType,
 } from '../utils/magicExplain'
-import { getMagicNodeId, isEmptyTokenization } from '../utils/utils'
+import {
+  getGraphBounds,
+  getMagicNodeId,
+  isEmptyTokenization,
+} from '../utils/utils'
 import { MagicToolboxButton } from './MagicToolbox'
 import { getOpenAICompletion } from '../utils/openAI'
 import {
@@ -82,8 +86,14 @@ interface MagicNodeProps extends NodeProps {
 
 export const MagicNode = memo(
   ({ id, data, xPos, yPos, selected }: MagicNodeProps) => {
-    const { getNode, setNodes, deleteElements, metaPressed, fitView } =
-      useContext(FlowContext)
+    const {
+      getNode,
+      setNodes,
+      deleteElements,
+      metaPressed,
+      fitView,
+      fitBounds,
+    } = useContext(FlowContext)
 
     const [waitingForModel, setWaitingForModel] = useState<boolean>(false)
     const [modelResponse, setModelResponse] = useState<string>('')
@@ -302,50 +312,85 @@ export const MagicNode = memo(
 
     /* -------------------------------------------------------------------------- */
 
-    // handle wheel
+    // ! verify
+    const handleVerifyFacts = useCallback(() => {
+      setVerifyFacts(!verifyFacts)
+    }, [verifyFacts])
 
-    const handleWheel = useCallback(
-      (event: WheelEvent) => {
-        if (verifyFacts && verifyEntities.researchPapers.length > 0) {
-          event.stopPropagation()
-          event.preventDefault()
-        }
-      },
-      [verifyEntities.researchPapers.length, verifyFacts]
-    )
+    useEffect(() => {
+      if (verifyFacts) {
+        setTimeout(() => {
+          const node = getNode(id)
+
+          if (node) {
+            fitBounds(getGraphBounds([node]), {
+              padding: viewFittingPadding,
+              duration: transitionDuration,
+            })
+          }
+        }, 0)
+      }
+    }, [fitBounds, getNode, id, verifyFacts])
+
+    // handle wheel
+    // const handleWheel = useCallback(
+    //   (event: WheelEvent) => {
+    //     if (verifyFacts && verifyEntities.researchPapers.length > 0) {
+    //       event.stopPropagation()
+    //       event.preventDefault()
+    //     }
+    //   },
+    //   [verifyEntities.researchPapers.length, verifyFacts]
+    // )
+    const preventWheel =
+      !folded && verifyFacts && verifyEntities.researchPapers.length > 0
 
     return (
       <div
         className={`custom-node-body magic-node-body${
           metaPressed ? ' magic-node-meta-pressed' : ''
-        }${folded ? ' magic-node-draggable' : ''}`}
-        onWheelCapture={handleWheel}
+        }${folded ? ' magic-node-draggable' : ''}${
+          preventWheel ? ' nowheel' : ''
+        }`}
       >
         <div className="magic-node-bar magic-node-draggable">
-          <button className="magic-node-bar-button" onClick={handleDeleteNode}>
-            <ClearRoundedIcon />
-          </button>
-          <button className="magic-node-bar-button" onClick={handleToggleFold}>
-            {folded ? <UnfoldMoreRoundedIcon /> : <UnfoldLessRoundedIcon />}
-          </button>
-          <button className="magic-node-bar-button" onClick={handleDuplicate}>
-            <ContentCopyRoundedIcon />
-          </button>
-          {!folded && (
-            <>
-              <button
-                className="magic-node-bar-button"
-                onClick={handleToggleLinkage}
-              >
-                {linked ? <LinkRoundedIcon /> : <LinkOffRoundedIcon />}
-              </button>
-              <button
-                className="magic-node-bar-button"
-                onClick={handleAddToNote}
-              >
-                <DriveFileRenameOutlineRoundedIcon />
-              </button>
-            </>
+          <div className="bar-buttons">
+            <button
+              className="magic-node-bar-button"
+              onClick={handleDeleteNode}
+            >
+              <ClearRoundedIcon />
+            </button>
+            <button
+              className="magic-node-bar-button"
+              onClick={handleToggleFold}
+            >
+              {folded ? <UnfoldMoreRoundedIcon /> : <UnfoldLessRoundedIcon />}
+            </button>
+            <button className="magic-node-bar-button" onClick={handleDuplicate}>
+              <ContentCopyRoundedIcon />
+            </button>
+            {!folded && (
+              <>
+                <button
+                  className="magic-node-bar-button"
+                  onClick={handleToggleLinkage}
+                >
+                  {linked ? <LinkRoundedIcon /> : <LinkOffRoundedIcon />}
+                </button>
+                <button
+                  className="magic-node-bar-button"
+                  onClick={handleAddToNote}
+                >
+                  <DriveFileRenameOutlineRoundedIcon />
+                </button>
+              </>
+            )}
+          </div>
+          {preventWheel && (
+            <div className="magic-node-bar-button bar-un-clickable">
+              <DocumentScannerRoundedIcon />
+            </div>
           )}
         </div>
 
@@ -416,21 +461,19 @@ export const MagicNode = memo(
 
                 <button
                   className="model-response-warning"
-                  onClick={() => {
-                    setVerifyFacts(!verifyFacts)
-                  }}
+                  onClick={handleVerifyFacts}
                 >
                   {verifyFacts ? (
                     <>
                       <TranslateRoundedIcon />
-                      Generated by {terms.gpt}. Verify the facts.
-                      <ArrowUpwardRoundedIcon />
+                      Generated by {terms.gpt}. Verify the facts...
+                      {/* <ArrowUpwardRoundedIcon /> */}
                     </>
                   ) : (
                     <>
                       <TranslateRoundedIcon />
-                      Generated by {terms.gpt}. Verify the facts.
-                      <ArrowDownwardRoundedIcon />
+                      Generated by {terms.gpt}. Verify the facts...
+                      {/* <ArrowDownwardRoundedIcon /> */}
                     </>
                   )}
                 </button>

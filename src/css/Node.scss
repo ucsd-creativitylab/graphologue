@@ -219,7 +219,7 @@ $shadow-node-selected: $shadow-heavy;
       display: inline-flex;
       flex-direction: row;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: space-between;
       gap: $padding-small;
 
       border-bottom: rem-to-px(1rem) solid $light;
@@ -231,6 +231,12 @@ $shadow-node-selected: $shadow-heavy;
       border-radius: $radius-default $radius-default 0 0;
       overflow: hidden;
       z-index: 9;
+
+      .bar-buttons {
+        display: flex;
+        flex-direction: row;
+        gap: $padding-small;
+      }
 
       .magic-node-bar-button {
         display: flex;
@@ -254,6 +260,18 @@ $shadow-node-selected: $shadow-heavy;
 
         &:hover {
           background: $light;
+        }
+
+        &.bar-un-clickable {
+          border: none;
+          outline: none;
+          color: $grey;
+          background: none;
+          pointer-events: none;
+
+          &:hover {
+            background: none;
+          }
         }
       }
     }

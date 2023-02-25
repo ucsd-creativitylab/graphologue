@@ -13,7 +13,8 @@ $node-selection-border-width: rem-to-px(2rem);
 
     padding: $padding-xs;
     border-radius: $radius-default;
-    background: $white;
+    background: rgba($white, $opacity-default);
+    backdrop-filter: blur($blur-high);
 
     box-shadow: $shadow-default;
 
@@ -26,6 +27,7 @@ $node-selection-border-width: rem-to-px(2rem);
       padding: $padding-small $padding-mid;
       border: none !important;
       border-radius: $radius-small;
+      background: transparent;
 
       &:hover {
         background: $light;
