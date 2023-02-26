@@ -44,15 +44,17 @@ import { CustomMarkerDefs } from './components/CustomDefs'
 import { Note, NoteBook } from './components/Notebook'
 import {
   hardcodedNodeSize,
+  slowInteractionWaitTimeout,
   styles,
   transitionDuration,
+  useSessionStorageNotesHandle,
   useTokenDataTransferHandle,
   viewFittingPadding,
 } from './constants'
-import { FlowContext } from './components/Contexts'
+import { FlowContext, NotebookContext } from './components/Contexts'
 import { getItem, storeItem } from './utils/storage'
 import { useTimeMachine } from './utils/timeMachine'
-import { roundTo } from './utils/utils'
+import { roundTo, sleep } from './utils/utils'
 import { PromptSourceComponentsType } from './utils/magicExplain'
 import { MagicNode } from './components/MagicNode'
 import { EntityType } from './utils/socket'
@@ -76,11 +78,9 @@ const edgeTypes = {
 } as EdgeTypes
 
 const Flow = ({
-  setNotes,
   notesOpened,
   setNotesOpened,
 }: {
-  setNotes: (notes: Note[]) => void
   notesOpened: boolean
   setNotesOpened: (notesOpened: boolean) => void
 }) => {
@@ -515,22 +515,91 @@ const Flow = ({
 }
 
 const ReactFlowComponent = () => {
-  const [notes, setNotes] = useState<Note[]>([])
-  const [notesOpened, setNotesOpened] = useState<boolean>(false)
+  /* -------------------------------------------------------------------------- */
+  // ! notebook
+  const notebookRef = useRef<HTMLDivElement>(null)
+  // try to retrieve notes from session storage
+  const notesFromSessionStorage = sessionStorage.getItem(
+    useSessionStorageNotesHandle
+  )
+  const notesFromSessionStorageParsed = notesFromSessionStorage
+    ? JSON.parse(notesFromSessionStorage)
+    : null
+
+  const [notes, setNotes] = useState<Note[]>(
+    notesFromSessionStorageParsed?.notes || []
+  )
+  const [notesOpened, setNotesOpened] = useState<boolean>(
+    notesFromSessionStorageParsed?.notesOpened || false
+  )
+
+  useEffect(() => {
+    // save notes to session storage
+    sessionStorage.setItem(
+      useSessionStorageNotesHandle,
+      JSON.stringify({
+        notes,
+        notesOpened,
+      })
+    )
+  }, [notes, notesOpened])
+
+  const spotlightNotes = useCallback(async () => {
+    if (notesOpened) return
+    if (notebookRef.current) {
+      await sleep(5)
+      notebookRef.current.style.transform = 'translateX(-15rem)'
+      await sleep(750)
+      notebookRef.current.style.transform = 'translateX(0)'
+    }
+  }, [notesOpened])
+
+  const addNote = useCallback(
+    (note: Note) => {
+      if (note.type === 'magic') {
+        if (
+          notes.find(
+            n =>
+              n.data.magicNodeId === note.data.magicNodeId &&
+              n.data.response === note.data.response
+          )
+        )
+          return
+
+        setNotes(notes.concat(note))
+        if (!notesOpened) spotlightNotes()
+      }
+    },
+    [notes, notesOpened, spotlightNotes]
+  )
+
+  const deleteNote = useCallback(
+    (noteId: string) => {
+      const newNotes = notes.filter(n => n.id !== noteId)
+      setNotes(newNotes)
+
+      if (newNotes.length === 0)
+        setTimeout(() => setNotesOpened(false), slowInteractionWaitTimeout)
+    },
+    [notes]
+  )
+  /* -------------------------------------------------------------------------- */
 
   return (
     <ReactFlowProvider>
-      <Flow
-        setNotes={setNotes}
-        notesOpened={notesOpened}
-        setNotesOpened={setNotesOpened}
-      />
-      <NoteBook
-        notes={notes}
-        setNotes={setNotes}
-        notesOpened={notesOpened}
-        setNotesOpened={setNotesOpened}
-      />
+      <NotebookContext.Provider
+        value={{
+          notes,
+          setNotes,
+          notesOpened,
+          setNotesOpened,
+          addNote,
+          deleteNote,
+        }}
+      >
+        <Flow notesOpened={notesOpened} setNotesOpened={setNotesOpened} />
+        <NoteBook notebookRef={notebookRef} />
+      </NotebookContext.Provider>
     </ReactFlowProvider>
   )
 }

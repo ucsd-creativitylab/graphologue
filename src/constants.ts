@@ -3,6 +3,7 @@ export const useSessionStorage = true
 
 export const useSessionStorageHandle = '__reactFlowGraphologue__'
 export const useTokenDataTransferHandle = '__reactFlowGraphologueToken__'
+export const useSessionStorageNotesHandle = '__reactFlowGraphologueNotes__'
 
 export const viewFittingPadding = 0.1
 export const transitionDuration = 500
@@ -11,6 +12,7 @@ export const hideEdgeTextZoomLevel = 0.6
 export const timeMachineMaxSize = 50
 export const contentEditingTimeout = 500
 // export const wikiRequestTimeout = 2000
+export const slowInteractionWaitTimeout = 100
 
 export const hardcodedNodeSize = {
   width: 160,

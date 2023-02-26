@@ -252,7 +252,7 @@ export const CustomControls = memo(
         </ControlButton>
 
         <ControlButton
-          className={canUndo ? '' : 'disabled-control-button'}
+          className={canUndo ? '' : ' disabled-control-button'}
           onClick={undoTime}
         >
           <UndoRoundedIcon />

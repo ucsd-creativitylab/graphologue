@@ -171,17 +171,28 @@ $shadow-node-selected: $shadow-heavy;
     z-index: -1 !important; // edges on top of the nodes
   }
 
-  .custom-node-body {
+  .custom-node-body:not(.magic-node-body) {
     transform: scale(0.99);
     transform-origin: center;
   }
 }
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 // ! magic here
 
-@mixin the-bar($radius: $radius-default) {
-  position: absolute;
+@mixin the-bar(
+  $radius: $radius-default,
+  $bg: $white,
+  $button-bg: $white,
+  $button-color: $black,
+  $edge: $light,
+  $button-edge: $light
+) {
+  // position: absolute;
   top: 0;
 
   display: inline-flex;
@@ -190,15 +201,18 @@ $shadow-node-selected: $shadow-heavy;
   justify-content: space-between;
   gap: $padding-small;
 
-  border-bottom: rem-to-px(1rem) solid $light;
+  border-bottom: rem-to-px(1rem) solid $edge;
   padding: $padding-small;
   width: 100%;
 
-  background-color: rgba($white, $opacity-mid);
-  backdrop-filter: blur($blur-high);
   border-radius: $radius $radius 0 0;
   overflow: hidden;
   z-index: 100;
+
+  &:not(.in-notebook, .bar-no-need-to-blur) {
+    background-color: rgba($bg, $opacity-mid);
+    backdrop-filter: blur($blur-high);
+  }
 
   .bar-buttons {
     display: flex;
@@ -206,6 +220,7 @@ $shadow-node-selected: $shadow-heavy;
     justify-content: flex-start;
     flex-direction: row;
     gap: $padding-small;
+    z-index: 1;
   }
 
   .bar-button {
@@ -219,17 +234,35 @@ $shadow-node-selected: $shadow-heavy;
     border-radius: 50%;
     user-select: none;
 
-    background: $white;
-    outline: rem-to-px(1rem) solid $light;
+    background: $button-bg;
+    box-shadow: $button-edge 0 0 0 rem-to-px(1rem);
+
+    z-index: 1;
 
     cursor: pointer;
 
     * {
+      color: $button-color;
       font-size: $font-size-default;
     }
 
-    &:hover {
-      background: $light;
+    &:hover:not(:disabled, .disabled) {
+      background: $button-edge;
+    }
+
+    &.bar-de-highlighted {
+      * {
+        color: $grey !important;
+      }
+    }
+
+    &:disabled,
+    &.disabled {
+      pointer-events: all !important;
+      cursor: not-allowed !important;
+      opacity: 0.5;
+
+      z-index: 1;
     }
 
     &.bar-un-clickable {
@@ -246,7 +279,14 @@ $shadow-node-selected: $shadow-heavy;
   }
 }
 
-.react-flow__node {
+$the-bar-margin-top-offset: calc(
+  $font-size-default + 4 * $padding-small + rem-to-px(1rem) + $padding-small
+) !important;
+
+/* -------------------------------------------------------------------------- */
+
+.react-flow__node,
+.magic-note {
   &.selected {
     .magic-node-body {
       outline: rem-to-px(2rem) solid rgba($purple, $opacity-high) !important;
@@ -254,6 +294,8 @@ $shadow-node-selected: $shadow-heavy;
   }
 
   .magic-node-body {
+    position: relative;
+    display: flex;
     flex-direction: column;
     justify-content: flex-start;
     gap: $padding-small;
@@ -262,28 +304,49 @@ $shadow-node-selected: $shadow-heavy;
     min-width: 20rem;
     max-width: 20rem;
     height: fit-content;
-    max-height: 40rem;
     box-sizing: border-box;
 
     padding: 0 $padding-small $padding-small $padding-small;
     overflow: scroll;
 
-    &::before {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      left: 0;
-      top: 0;
-      right: 0;
-      bottom: 0;
+    // ! not note
+    &:not(.magic-note-in-notebook) {
+      max-height: 40rem;
+
+      .magic-node-bar {
+        position: fixed;
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: $radius-default;
+
+        z-index: 99;
+        outline: $white solid rem-to-px(2rem);
+        outline-offset: rem-to-px(-1rem);
+
+        pointer-events: none;
+      }
+    }
+
+    // ! note
+    &.magic-note-in-notebook {
+      gap: 0;
+      padding: 0;
+
       border-radius: $radius-default;
+      box-shadow: rgba($purple, $opacity-high) 0 0 0 rem-to-px(1rem);
 
-      z-index: 99;
-      outline: $white solid rem-to-px(2rem);
-      outline-offset: rem-to-px(-1rem);
-
-      pointer-events: none;
+      .magic-node-bar {
+        position: absolute;
+      }
     }
 
     * {
@@ -302,10 +365,7 @@ $shadow-node-selected: $shadow-heavy;
 
     .magic-folded-text,
     .magic-prompt {
-      margin-top: calc(
-        $font-size-default + 4 * $padding-small + rem-to-px(1rem) +
-          $padding-small
-      ) !important;
+      margin-top: $the-bar-margin-top-offset;
     }
 
     .magic-folded-text {
@@ -318,6 +378,11 @@ $shadow-node-selected: $shadow-heavy;
       font-family: 'Roboto Slab', serif;
       font-weight: 300;
       color: $black;
+
+      &.in-notebook {
+        padding: calc($padding-mid - $padding-small) $padding-small $padding-mid !important;
+        font-weight: $font-weight-default;
+      }
     }
 
     .magic-prompt {
@@ -380,6 +445,10 @@ $shadow-node-selected: $shadow-heavy;
 
       pointer-events: all;
 
+      // &.in-notebook {
+      //   padding: 0;
+      // }
+
       .magic-node-content-text {
         padding: 0;
         margin: 0 0 $padding-small 0;
@@ -441,8 +510,7 @@ $shadow-node-selected: $shadow-heavy;
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: center;
-        gap: $padding-xs;
+        justify-content: space-between;
 
         color: $warn-yellow;
         font-size: $font-size-default !important;
@@ -450,7 +518,7 @@ $shadow-node-selected: $shadow-heavy;
         line-height: 100%;
         white-space: nowrap;
         background: $white;
-        padding: $padding-small $padding-small !important;
+        padding: $padding-small $padding-mid !important;
 
         outline: none;
         border: rem-to-px(1rem) solid $warn-yellow;
@@ -459,6 +527,12 @@ $shadow-node-selected: $shadow-heavy;
         box-sizing: border-box;
 
         cursor: pointer;
+
+        span {
+          display: inline-flex;
+          align-items: center;
+          gap: $padding-xs;
+        }
 
         * {
           font-size: $font-size-default;

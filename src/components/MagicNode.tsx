@@ -20,8 +20,8 @@ import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded'
 import SavingsRoundedIcon from '@mui/icons-material/SavingsRounded'
 import DriveFileRenameOutlineRoundedIcon from '@mui/icons-material/DriveFileRenameOutlineRounded'
 import TranslateRoundedIcon from '@mui/icons-material/TranslateRounded'
-// import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded'
-// import ArrowUpwardRoundedIcon from '@mui/icons-material/ArrowUpwardRounded'
+import BackspaceRoundedIcon from '@mui/icons-material/BackspaceRounded'
+import FitScreenRoundedIcon from '@mui/icons-material/FitScreenRounded'
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
 import DocumentScannerRoundedIcon from '@mui/icons-material/DocumentScannerRounded'
 
@@ -39,7 +39,7 @@ import {
   useTokenDataTransferHandle,
   viewFittingPadding,
 } from '../constants'
-import { FlowContext } from './Contexts'
+import { NotebookContext } from './Contexts'
 import {
   parseModelResponseText,
   PromptSourceComponentsType,
@@ -47,6 +47,7 @@ import {
 import {
   getGraphBounds,
   getMagicNodeId,
+  getNoteId,
   isEmptyTokenization,
   slowDeepCopy,
 } from '../utils/utils'
@@ -70,6 +71,7 @@ import {
   Scholar,
   SemanticScholarPaperEntity,
 } from './Scholar'
+import { MagicNote, MagicNoteData } from './Notebook'
 
 export interface MagicNodeData {
   sourceComponents: PromptSourceComponentsType
@@ -77,20 +79,22 @@ export interface MagicNodeData {
   prompt: string
 }
 
-interface VerifyEntities {
+export interface VerifyEntities {
   searchQueries: string[]
   researchPapers: SemanticScholarPaperEntity[]
 }
 
 interface MagicNodeProps extends NodeProps {
   data: MagicNodeData
+  magicNoteInNotebook?: boolean
+  magicNoteData?: MagicNoteData
 }
 
 export const MagicNode = memo(
-  ({ id, data, xPos, yPos, selected }: MagicNodeProps) => {
+  ({ id, data, magicNoteInNotebook, magicNoteData }: MagicNodeProps) => {
     const { getNode, setNodes, deleteElements, fitView, fitBounds } =
       useReactFlow()
-    const { metaPressed } = useContext(FlowContext)
+    const { addNote, deleteNote } = useContext(NotebookContext)
 
     const [waitingForModel, setWaitingForModel] = useState<boolean>(false)
     const [modelResponse, setModelResponse] = useState<string>('')
@@ -183,7 +187,20 @@ export const MagicNode = memo(
     // }, [])
 
     // ! add to note
-    const handleAddToNote = useCallback(() => {}, [])
+    const handleAddToNote = useCallback(() => {
+      const noteId = getNoteId()
+      addNote({
+        type: 'magic',
+        id: noteId,
+        data: {
+          id: noteId,
+          prompt: data.prompt,
+          magicNodeId: id,
+          response: modelResponse,
+          verifyEntities: verifyEntities,
+        } as MagicNoteData,
+      } as MagicNote)
+    }, [addNote, data, id, modelResponse, verifyEntities])
 
     // ! prompt text change
     const autoGrow = useCallback(() => {
@@ -367,13 +384,26 @@ export const MagicNode = memo(
     // ! ask automatically on mount
     const autoAsk = useRef(true)
     useEffect(() => {
-      if (autoAsk.current) {
+      if (!magicNoteInNotebook && autoAsk.current) {
         autoAsk.current = false
         handleAsk()
       }
-    }, [handleAsk])
+    }, [handleAsk, magicNoteInNotebook])
 
     /* -------------------------------------------------------------------------- */
+
+    const fitMagicNode = useCallback(() => {
+      setTimeout(() => {
+        const node = getNode(id)
+
+        if (node) {
+          fitBounds(getGraphBounds([node]), {
+            padding: viewFittingPadding,
+            duration: transitionDuration,
+          })
+        }
+      }, 0)
+    }, [fitBounds, getNode, id])
 
     // ! verify
     const handleVerifyFacts = useCallback(() => {
@@ -382,18 +412,18 @@ export const MagicNode = memo(
 
     useEffect(() => {
       if (verifyFacts) {
-        setTimeout(() => {
-          const node = getNode(id)
-
-          if (node) {
-            fitBounds(getGraphBounds([node]), {
-              padding: viewFittingPadding,
-              duration: transitionDuration,
-            })
-          }
-        }, 0)
+        fitMagicNode()
       }
-    }, [fitBounds, getNode, id, verifyFacts])
+    }, [fitMagicNode, verifyFacts])
+
+    const verifyEntitiesExplained = useCallback(() => {
+      // as long as there are papers, we need to explain them
+      if (verifyEntities.researchPapers.length > 0) {
+        return verifyEntities.researchPapers.some(paper => paper.explanation)
+      }
+      // otherwise, the node is ready as long as there are model responses
+      return modelResponse.length > 0
+    }, [modelResponse.length, verifyEntities.researchPapers])
 
     // handle wheel
     // const handleWheel = useCallback(
@@ -408,46 +438,74 @@ export const MagicNode = memo(
     const preventWheel =
       !folded && verifyFacts && verifyEntities.researchPapers.length > 0
 
+    const hasModelResponse =
+      modelResponse.length > 0 ||
+      (magicNoteInNotebook &&
+        magicNoteData &&
+        magicNoteData.response.length > 0)
+    const renderedModelResponse = magicNoteInNotebook
+      ? magicNoteData?.response || predefinedResponses.noValidResponse()
+      : modelResponse
+    const renderedVerifyEntities = magicNoteInNotebook
+      ? magicNoteData?.verifyEntities || verifyEntities
+      : verifyEntities
+
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+
+    // ! note
+
+    const handleDeleteNote = useCallback(() => {
+      if (magicNoteInNotebook && magicNoteData) deleteNote(magicNoteData.id)
+    }, [deleteNote, magicNoteData, magicNoteInNotebook])
+
+    const handleLocateOriginalNode = useCallback(() => {
+      if (magicNoteData) {
+        const node = getNode(magicNoteData.magicNodeId)
+        if (node) {
+          fitBounds(getGraphBounds([node]), {
+            padding: viewFittingPadding,
+            duration: transitionDuration,
+          })
+        }
+      }
+    }, [fitBounds, getNode, magicNoteData])
+
     return (
       <div
         className={`custom-node-body magic-node-body${
-          metaPressed ? ' magic-node-meta-pressed' : ''
-        }${folded ? ' magic-node-draggable' : ''}${
-          preventWheel ? ' nowheel' : ''
+          folded && !magicNoteInNotebook ? ' magic-node-draggable' : ''
+        }${preventWheel && !magicNoteInNotebook ? ' nowheel' : ''}${
+          magicNoteInNotebook ? ' magic-note-in-notebook in-notebook' : ''
         }`}
       >
-        <div className="magic-node-bar magic-node-draggable">
-          <div className="bar-buttons">
-            <button className="bar-button" onClick={handleDeleteNode}>
-              <ClearRoundedIcon />
-            </button>
-            <button className="bar-button" onClick={handleToggleFold}>
-              {folded ? <UnfoldMoreRoundedIcon /> : <UnfoldLessRoundedIcon />}
-            </button>
-            <button className="bar-button" onClick={handleDuplicate}>
-              <ContentCopyRoundedIcon />
-            </button>
-            {!folded && (
-              <>
-                {/* <button className="bar-button" onClick={handleToggleLinkage}>
-                  {linked ? <LinkRoundedIcon /> : <LinkOffRoundedIcon />}
-                </button> */}
-                <button className="bar-button" onClick={handleAddToNote}>
-                  <DriveFileRenameOutlineRoundedIcon />
-                </button>
-              </>
-            )}
-          </div>
-          {preventWheel && (
-            <div className="bar-button bar-un-clickable">
-              <DocumentScannerRoundedIcon />
-            </div>
-          )}
-        </div>
+        <MagicNodeBar
+          magicNoteInNotebook={magicNoteInNotebook || false}
+          folded={folded}
+          preventWheel={preventWheel}
+          modelResponse={modelResponse}
+          magicNodeFunctions={{
+            handleDeleteNode,
+            handleToggleFold,
+            handleDuplicate,
+            verifyEntitiesExplained,
+            handleAddToNote,
+            fitMagicNode,
+          }}
+          magicNoteFunctions={{
+            handleDeleteNote,
+            handleLocateOriginalNode,
+          }}
+        />
 
         {/* folded */}
-        {folded && (
-          <p className="magic-folded-text magic-node-draggable">
+        {(folded || magicNoteInNotebook) && (
+          <p
+            className={`magic-folded-text magic-node-draggable${
+              magicNoteInNotebook ? ' in-notebook' : ''
+            }`}
+          >
             {data.prompt}
           </p>
         )}
@@ -455,40 +513,42 @@ export const MagicNode = memo(
         {/* unfolded */}
         {!folded && (
           <>
-            <div className="magic-prompt">
-              <textarea
-                ref={textareaRef}
-                className="magic-prompt-text"
-                value={data.prompt}
-                onChange={handlePromptTextChange}
-                autoFocus={true}
-              />
-
-              <div className="magic-prompt-line">
-                <MagicToolboxButton
-                  className="magic-button"
-                  content={
-                    <>
-                      <AutoFixHighRoundedIcon />
-                      <span>ask</span>
-                    </>
-                  }
-                  onClick={handleAsk}
-                  disabled={waitingForModel}
+            {!magicNoteInNotebook && (
+              <div className="magic-prompt">
+                <textarea
+                  ref={textareaRef}
+                  className="magic-prompt-text"
+                  value={data.prompt}
+                  onChange={handlePromptTextChange}
+                  autoFocus={true}
                 />
 
-                <MagicToolboxButton
-                  className="magic-button"
-                  content={
-                    <>
-                      <SavingsRoundedIcon />
-                      <span>suggested prompts</span>
-                    </>
-                  }
-                  onClick={handleSuggestPrompt}
-                />
+                <div className="magic-prompt-line">
+                  <MagicToolboxButton
+                    className="magic-button"
+                    content={
+                      <>
+                        <AutoFixHighRoundedIcon />
+                        <span>ask</span>
+                      </>
+                    }
+                    onClick={handleAsk}
+                    disabled={waitingForModel}
+                  />
+
+                  <MagicToolboxButton
+                    className="magic-button"
+                    content={
+                      <>
+                        <SavingsRoundedIcon />
+                        <span>suggested prompts</span>
+                      </>
+                    }
+                    onClick={handleSuggestPrompt}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {waitingForModel && (
               <div className="waiting-for-model-placeholder">
@@ -496,8 +556,12 @@ export const MagicNode = memo(
               </div>
             )}
 
-            {modelResponse.length > 0 && (
-              <div className={`magic-node-content`}>
+            {hasModelResponse && (
+              <div
+                className={`magic-node-content${
+                  magicNoteInNotebook ? ' in-notebook' : ''
+                }`}
+              >
                 <p className="magic-node-content-text">
                   {!isEmptyTokenization(modelTokenization) ? (
                     <MagicTokenizedText
@@ -506,7 +570,9 @@ export const MagicNode = memo(
                       tokenization={modelTokenization}
                     />
                   ) : (
-                    <span className="magic-original-text">{modelResponse}</span>
+                    <span className="magic-original-text">
+                      {renderedModelResponse}
+                    </span>
                   )}
                 </p>
 
@@ -514,48 +580,50 @@ export const MagicNode = memo(
                   className="model-response-warning"
                   onClick={handleVerifyFacts}
                 >
+                  <span>
+                    <TranslateRoundedIcon />
+                    {magicNoteInNotebook
+                      ? `Verify the facts generated by ${terms.gpt}...`
+                      : `Verify the facts generated by ${terms.gpt}...`}
+                  </span>
                   {verifyFacts ? (
-                    <>
-                      <TranslateRoundedIcon />
-                      Generated by {terms.gpt}. Verify the facts...
-                      {/* <ArrowUpwardRoundedIcon /> */}
-                    </>
+                    <UnfoldLessRoundedIcon />
                   ) : (
-                    <>
-                      <TranslateRoundedIcon />
-                      Generated by {terms.gpt}. Verify the facts...
-                      {/* <ArrowDownwardRoundedIcon /> */}
-                    </>
+                    <UnfoldMoreRoundedIcon />
                   )}
                 </button>
 
                 {verifyFacts &&
-                  (verifyEntities.researchPapers.length > 0 ||
-                    verifyEntities.searchQueries.length > 0) && (
+                  (renderedVerifyEntities.researchPapers.length > 0 ||
+                    renderedVerifyEntities.searchQueries.length > 0) && (
                     <div className="model-response-verify">
-                      {verifyEntities.searchQueries.length > 0 && (
+                      {renderedVerifyEntities.searchQueries.length > 0 && (
                         <div className="verify-section">
                           <p className="section-title">
                             google with suggested prompts
                           </p>
                           <div className="verify-options">
-                            {verifyEntities.searchQueries.map((query, i) => (
-                              <a
-                                key={i}
-                                className="verify-option"
-                                href={`https://www.google.com/search?q=${query}`}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                <SearchRoundedIcon />
-                                <span>{query}</span>
-                              </a>
-                            ))}
+                            {renderedVerifyEntities.searchQueries.map(
+                              (query, i) => (
+                                <a
+                                  key={i}
+                                  className="verify-option"
+                                  href={`https://www.google.com/search?q=${query}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  <SearchRoundedIcon />
+                                  <span>{query}</span>
+                                </a>
+                              )
+                            )}
                           </div>
                         </div>
                       )}
-                      {verifyEntities.researchPapers.length > 0 && (
-                        <Scholar papers={verifyEntities.researchPapers} />
+                      {renderedVerifyEntities.researchPapers.length > 0 && (
+                        <Scholar
+                          papers={renderedVerifyEntities.researchPapers}
+                        />
                       )}
                     </div>
                   )}
@@ -567,6 +635,114 @@ export const MagicNode = memo(
     )
   },
   isEqual
+)
+
+/* -------------------------------------------------------------------------- */
+
+const MagicNodeBar = memo(
+  ({
+    magicNoteInNotebook,
+    folded,
+    preventWheel,
+    modelResponse,
+    magicNodeFunctions: {
+      handleDeleteNode,
+      handleToggleFold,
+      handleDuplicate,
+      verifyEntitiesExplained,
+      handleAddToNote,
+      fitMagicNode,
+    },
+    magicNoteFunctions: { handleDeleteNote, handleLocateOriginalNode },
+  }: {
+    magicNoteInNotebook: boolean
+    folded: boolean
+    preventWheel: boolean
+    modelResponse: string
+    magicNodeFunctions: {
+      handleDeleteNode: (e: MouseEvent) => void
+      handleToggleFold: () => void
+      handleDuplicate: () => void
+      verifyEntitiesExplained: () => boolean
+      handleAddToNote: () => void
+      fitMagicNode: () => void
+    }
+    magicNoteFunctions: {
+      handleDeleteNote: () => void
+      handleLocateOriginalNode: () => void
+    }
+  }) => {
+    const addToNoteEnabled = modelResponse && verifyEntitiesExplained()
+
+    const addToNote = useCallback(() => {
+      if (addToNoteEnabled) {
+        handleAddToNote()
+      }
+    }, [addToNoteEnabled, handleAddToNote])
+
+    return (
+      <div
+        className={`magic-node-bar magic-node-draggable${
+          magicNoteInNotebook ? ' in-notebook' : ''
+        }${!preventWheel ? ' bar-no-need-to-blur' : ''}`}
+      >
+        <div className="bar-buttons">
+          <button className="bar-button" onClick={handleToggleFold}>
+            {folded ? <UnfoldMoreRoundedIcon /> : <UnfoldLessRoundedIcon />}
+          </button>
+
+          {magicNoteInNotebook ? (
+            <>
+              <button className="bar-button" onClick={handleDeleteNote}>
+                <BackspaceRoundedIcon
+                  style={{
+                    transform: 'scale(0.9)',
+                  }}
+                />
+              </button>
+              <button className="bar-button" onClick={handleLocateOriginalNode}>
+                <FitScreenRoundedIcon
+                  style={{
+                    transform: 'scale(1.1)',
+                  }}
+                />
+              </button>
+            </>
+          ) : (
+            <button className="bar-button" onClick={handleDeleteNode}>
+              <ClearRoundedIcon />
+            </button>
+          )}
+
+          {!magicNoteInNotebook && (
+            <button className="bar-button" onClick={handleDuplicate}>
+              <ContentCopyRoundedIcon />
+            </button>
+          )}
+          {!folded && !magicNoteInNotebook && (
+            <>
+              {/* <button className="bar-button" onClick={handleToggleLinkage}>
+                    {linked ? <LinkRoundedIcon /> : <LinkOffRoundedIcon />}
+                  </button> */}
+              {
+                <button
+                  className={`bar-button${addToNoteEnabled ? '' : ' disabled'}`}
+                  onClick={addToNote}
+                >
+                  <DriveFileRenameOutlineRoundedIcon />
+                </button>
+              }
+            </>
+          )}
+        </div>
+        {preventWheel && (
+          <div className="bar-button bar-de-highlighted" onClick={fitMagicNode}>
+            <DocumentScannerRoundedIcon />
+          </div>
+        )}
+      </div>
+    )
+  }
 )
 
 /* -------------------------------------------------------------------------- */

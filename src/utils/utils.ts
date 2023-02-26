@@ -9,6 +9,7 @@ export const getNodeId = () => `node-${uuidv4()}`
 export const getMagicNodeId = () => `magic-node-${uuidv4()}`
 export const getHandleId = () => `handle-${uuidv4()}`
 export const getEdgeId = () => `edge-${uuidv4()}`
+export const getNoteId = () => `note-${uuidv4()}`
 
 export const getNodeLabelAndTags = (nodes: Node[]): NodeLabelAndTags[] => {
   const labelAndTags: NodeLabelAndTags[] = []
@@ -45,6 +46,10 @@ export const nodeAndTagsToString = (item: NodeLabelAndTags) => {
 
 export const slowDeepCopy = (obj: Object | Object[]) => {
   return JSON.parse(JSON.stringify(obj))
+}
+
+export const sleep = async (ms: number) => {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 /* -------------------------------------------------------------------------- */
