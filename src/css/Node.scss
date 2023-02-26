@@ -319,7 +319,7 @@ $the-bar-margin-top-offset: calc(
 
       &::before {
         content: '';
-        position: absolute;
+        position: fixed;
         width: 100%;
         height: 100%;
         left: 0;
@@ -663,6 +663,7 @@ $the-bar-margin-top-offset: calc(
                 .scholar-option-authors,
                 .scholar-option-keyword,
                 .scholar-option-explanation {
+                  flex-shrink: 0;
                   display: flex;
                   flex-direction: row;
                   justify-content: flex-start;

@@ -243,6 +243,17 @@ export const MagicNode = memo(
 
     /* -------------------------------------------------------------------------- */
 
+    const handleModelError = useCallback((error: any) => {
+      console.error(error)
+
+      setWaitingForModel(false)
+
+      setModelResponse(predefinedResponses.modelDown())
+      setTimeout(() => {
+        setModelResponse('')
+      }, 3000)
+    }, [])
+
     const askForPaperExplanation = useCallback(
       async (
         response: string,
@@ -310,30 +321,14 @@ export const MagicNode = memo(
 
       // ! ask model
       const response = await getOpenAICompletion(
-        data.prompt +
-          predefinedPrompts.simpleAnswer() +
-          predefinedPrompts.addGooglePrompts() +
-          predefinedPrompts.addScholar()
+        data.prompt + predefinedPrompts.simpleAnswer()
       )
 
       // TODO handle error
-      if (response.error) {
-        console.error(response.error)
-
-        setWaitingForModel(false)
-
-        setModelResponse(predefinedResponses.modelDown())
-        setTimeout(() => {
-          setModelResponse('')
-        }, 3000)
-
-        return
-      }
+      if (response.error) return handleModelError(response.error)
 
       const modelText = response.choices[0].text
-
-      const { parsedResponse, searchQueries, researchPaperKeywords } =
-        parseModelResponseText(modelText)
+      const { parsedResponse } = parseModelResponseText(modelText, 'response')
 
       if (!parsedResponse.length) {
         setWaitingForModel(false)
@@ -343,6 +338,21 @@ export const MagicNode = memo(
         }, 3000)
         return
       }
+
+      // get secondary queries for verification
+
+      const secondaryResponse = await getOpenAICompletion(
+        predefinedPrompts.thisIsStatement(parsedResponse) +
+          predefinedPrompts.addGooglePrompts() +
+          predefinedPrompts.addScholar()
+      )
+      if (secondaryResponse.error)
+        return handleModelError(secondaryResponse.error)
+      const secondaryModelText = secondaryResponse.choices[0].text
+      const { searchQueries, researchPaperKeywords } = parseModelResponseText(
+        secondaryModelText,
+        'verify'
+      )
 
       const papersFromKeywords = await getScholarPapersFromKeywords(
         researchPaperKeywords
@@ -367,7 +377,7 @@ export const MagicNode = memo(
       //       id: id,
       //     } as WebSocketMessageType)
       //   )
-    }, [askForPaperExplanation, data.prompt, waitingForModel])
+    }, [askForPaperExplanation, data.prompt, handleModelError, waitingForModel])
 
     // ! suggest prompt
     const handleSuggestPrompt = useCallback(() => {}, [])

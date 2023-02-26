@@ -9,11 +9,7 @@ import {
   nodeAndTagsToString,
   nodeToString,
 } from './utils'
-import {
-  NodeLabelAndTags,
-  predefinedResponses,
-  promptTerms,
-} from './promptsAndResponses'
+import { NodeLabelAndTags, promptTerms } from './promptsAndResponses'
 
 export interface PromptSourceComponentsType {
   nodes: Node[]
@@ -133,28 +129,33 @@ export const generateSuggestedPrompts = (
 /* -------------------------------------------------------------------------- */
 
 export const parseModelResponseText = (
-  responseText: string
+  responseText: string,
+  target: 'response' | 'verify'
 ): {
   parsedResponse: string
   searchQueries: string[]
   researchPaperKeywords: string[]
 } => {
-  const parsedResponseRegex = new RegExp(`${promptTerms.answer}: "(.*?)"`, 'g')
-  const parsedResponse = parsedResponseRegex.exec(responseText) || [
-    '',
-    predefinedResponses.noValidModelText(),
-  ]
+  if (target === 'response') {
+    // const regex = new RegExp(`[^]*${promptTerms.answer}: "([^]*)"[^]*`, 'gm')
+    // const match = regex.exec(responseText) || ['', '']
 
-  ////
-  const verifyRegex = new RegExp(
-    `${promptTerms.searchQueries}([^]*)${promptTerms.researchPapers}([^]*)`,
-    'gm'
-  )
-  const verify = verifyRegex.exec(responseText) || ['', '', '']
+    return {
+      parsedResponse: responseText.trim(),
+      searchQueries: [],
+      researchPaperKeywords: [],
+    }
+  } else {
+    const regex = new RegExp(
+      `[^]*${promptTerms.searchQueries}([^]*)${promptTerms.researchPapers}([^]*)`,
+      'gm'
+    )
+    const match = regex.exec(responseText) || ['', '', '']
 
-  return {
-    parsedResponse: parsedResponse[1].trim(),
-    searchQueries: matchItemsInQuotes(verify[1].trim()),
-    researchPaperKeywords: matchItemsInQuotes(verify[2].trim()),
+    return {
+      searchQueries: matchItemsInQuotes(match[1].trim()),
+      researchPaperKeywords: matchItemsInQuotes(match[2].trim()),
+      parsedResponse: '',
+    }
   }
 }
