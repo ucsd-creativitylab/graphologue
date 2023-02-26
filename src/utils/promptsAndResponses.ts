@@ -19,9 +19,9 @@ export const predefinedPrompts = {
       return 'List 3 random words or short phrases. Separate them with commas.'
     return `List 3 ${
       target === 'node'
-        ? 'relevant words or short phrases'
-        : 'possible edge relation labels'
-    } given: ${existingNodeLabelAndTags
+        ? 'relevant words or short phrases given'
+        : 'possible relationship labels (e.g., has, part of, similar, positive) for'
+    }: ${existingNodeLabelAndTags
       .filter((s: NodeLabelAndTags) => s && s.label.length > 0)
       .map((s: NodeLabelAndTags) => s.label + tagsToString(s.tags))
       .join(

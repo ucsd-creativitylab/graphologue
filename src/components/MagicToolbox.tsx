@@ -315,6 +315,15 @@ export const MagicSuggestItem = memo(
         // remove extra spaces and line breaks around the label string
         // and remove the last character if it's a period
         label = label.trim()
+        // remove 1. 2. 3. etc. from the beginning of the label
+        label = label.replace(/^\d+\./, '')
+        // remove quotation marks
+        label = label.replace(/['"]+/g, '')
+        ////
+        label = label.trim()
+        // to lower case for edge labels
+        if (target === 'edge') label = label.toLowerCase()
+
         if (label[label.length - 1] === '.') {
           label = label.slice(0, -1)
         }
