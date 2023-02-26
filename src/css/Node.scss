@@ -311,7 +311,7 @@ $the-bar-margin-top-offset: calc(
 
     // ! not note
     &:not(.magic-note-in-notebook) {
-      max-height: 40rem;
+      max-height: 45rem;
 
       .magic-node-bar {
         position: fixed;
@@ -346,6 +346,11 @@ $the-bar-margin-top-offset: calc(
 
       .magic-node-bar {
         position: absolute;
+        justify-content: flex-end;
+
+        .bar-buttons {
+          flex-direction: row-reverse;
+        }
       }
     }
 

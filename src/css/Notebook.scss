@@ -38,7 +38,7 @@
       $light-grey
     );
     position: fixed !important;
-    padding-left: calc($padding-small + $padding-xs);
+    padding-right: calc($padding-small + $padding-xs);
 
     justify-content: space-between;
     z-index: 1;

@@ -12,11 +12,16 @@ export interface NodeLabelAndTags {
 }
 export const predefinedPrompts = {
   giveNodeLabelSuggestionsFromNodes: (
+    target: 'node' | 'edge',
     existingNodeLabelAndTags: NodeLabelAndTags[]
   ): string => {
     if (!existingNodeLabelAndTags.length)
       return 'List 3 random words or short phrases. Separate them with commas.'
-    return `List 3 relevant words or short phrases given: ${existingNodeLabelAndTags
+    return `List 3 ${
+      target === 'node'
+        ? 'relevant words or short phrases'
+        : 'possible edge relation labels'
+    } given: ${existingNodeLabelAndTags
       .filter((s: NodeLabelAndTags) => s && s.label.length > 0)
       .map((s: NodeLabelAndTags) => s.label + tagsToString(s.tags))
       .join(

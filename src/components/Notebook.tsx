@@ -54,9 +54,13 @@ export const NoteBook = memo(({ notebookRef }: NoteBookProps) => {
       }}
     >
       <div className="notebook-bar">
+        <h1 className="notebook-title">
+          {/* <BookRoundedIcon /> */}
+          <span>graphobook</span>
+        </h1>
         <div className="bar-buttons">
-          <button className="bar-button" onClick={handleCloseNotebook}>
-            <ArrowForwardIosRoundedIcon />
+          <button className="bar-button" onClick={handleDownloadNotebook}>
+            <DownloadRoundedIcon />
           </button>
           <button className="bar-button" onClick={handleClearNotebook}>
             <DeleteOutlineRoundedIcon
@@ -65,14 +69,10 @@ export const NoteBook = memo(({ notebookRef }: NoteBookProps) => {
               }}
             />
           </button>
-          <button className="bar-button" onClick={handleDownloadNotebook}>
-            <DownloadRoundedIcon />
+          <button className="bar-button" onClick={handleCloseNotebook}>
+            <ArrowForwardIosRoundedIcon />
           </button>
         </div>
-        <h1 className="notebook-title">
-          {/* <BookRoundedIcon /> */}
-          <span>notebook</span>
-        </h1>
       </div>
       <CustomNotes />
     </div>

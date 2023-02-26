@@ -279,8 +279,10 @@ export const MagicSuggestItem = memo(
     )
 
     const handleSuggest = useCallback(async () => {
-      const prompt =
-        predefinedPrompts.giveNodeLabelSuggestionsFromNodes(nodeLabelAndTags)
+      const prompt = predefinedPrompts.giveNodeLabelSuggestionsFromNodes(
+        target,
+        nodeLabelAndTags
+      )
 
       // !
       if (!disabled) {
@@ -295,7 +297,7 @@ export const MagicSuggestItem = memo(
           setModelResponse(response.choices[0]?.text)
         else setModelResponse(predefinedResponses.noValidResponse)
       } else setModelResponse(predefinedResponses.noValidResponse)
-    }, [disabled, nodeLabelAndTags])
+    }, [disabled, nodeLabelAndTags, target])
 
     const autoSuggest = useRef(true)
     useEffect(() => {
