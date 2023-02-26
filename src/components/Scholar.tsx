@@ -50,8 +50,12 @@ export const Scholar = ({ papers }: ScholarProps) => {
             <div className="scholar-option-info">
               <div className="scholar-option-info-set">
                 {/* <BookmarkBorderRoundedIcon /> */}
-                <span>{query.year}</span>
-                <span>{query.venue}</span>
+                <span>
+                  {query.year}
+                  {query.venue ? (
+                    <>&nbsp;&nbsp;&nbsp;&nbsp;{query.venue}</>
+                  ) : null}
+                </span>
               </div>
               <a href={query.url} target="_blank" rel="noreferrer">
                 details <ArrowOutwardRoundedIcon />

@@ -12,7 +12,10 @@ body {
 
 html,
 body {
+  height: 100vh;
+  width: 100vw;
   overscroll-behavior-x: none;
+  overflow: hidden;
 }
 
 code {
@@ -24,6 +27,7 @@ code {
   height: 100vh;
   width: 100vw;
   display: flex;
+  overflow: hidden;
 }
 
 .react-flow__attribution {
