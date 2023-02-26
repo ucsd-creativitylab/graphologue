@@ -260,7 +260,7 @@ $shadow-node-selected: $shadow-heavy;
     &.disabled {
       pointer-events: all !important;
       cursor: not-allowed !important;
-      opacity: 0.5;
+      opacity: $opacity-high;
 
       z-index: 1;
     }
