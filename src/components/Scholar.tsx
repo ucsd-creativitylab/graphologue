@@ -1,6 +1,9 @@
+import { MouseEvent, useCallback } from 'react'
+import { PuffLoader } from 'react-spinners'
+
 // import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded'
 import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded'
-import { PuffLoader } from 'react-spinners'
+
 import { magicNodeVerifyPaperCountDefault } from '../constants'
 
 export interface SemanticScholarAuthor {
@@ -38,9 +41,26 @@ export interface SemanticScholarResponseError {
 
 export interface ScholarProps {
   papers: SemanticScholarPaperEntity[]
+  removePaper: (paperId: string) => void
+  inNotebook: boolean
 }
 
-export const Scholar = ({ papers }: ScholarProps) => {
+export const Scholar = ({ papers, removePaper, inNotebook }: ScholarProps) => {
+  const handleRemovePaper = useCallback(
+    (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      const paperId = target.dataset.id
+
+      if (!paperId) return
+      removePaper(paperId)
+    },
+    [removePaper]
+  )
+
+  const anyDisplayedPaperStillWaitingForExplanation = papers
+    .slice(0, magicNodeVerifyPaperCountDefault)
+    .some(paper => !paper.explanation)
+
   return (
     <div className="verify-section">
       <p className="section-title">read relevant papers</p>
@@ -57,9 +77,30 @@ export const Scholar = ({ papers }: ScholarProps) => {
                   ) : null}
                 </span>
               </div>
-              <a href={query.url} target="_blank" rel="noreferrer">
-                details <ArrowOutwardRoundedIcon />
-              </a>
+              <div className="option-operations">
+                {!inNotebook && (
+                  <span
+                    className={`option-operation option-replace${
+                      anyDisplayedPaperStillWaitingForExplanation
+                        ? ' disabled'
+                        : ''
+                    }`}
+                    data-id={query.paperId}
+                    onClick={handleRemovePaper}
+                  >
+                    remove
+                  </span>
+                )}
+
+                <a
+                  className="option-operation option-details"
+                  href={query.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  details <ArrowOutwardRoundedIcon />
+                </a>
+              </div>
             </div>
             <div className="scholar-option-title">{query.title}</div>
             <div className="scholar-option-authors">

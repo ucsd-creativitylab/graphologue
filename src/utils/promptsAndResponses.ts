@@ -51,4 +51,5 @@ export const predefinedResponses = {
   noValidModelText: () => 'We cannot find an answer. Please try again.',
   noValidTags: () => 'no available tags',
   noValidResponse: () => 'response unavailable',
+  waitingPlaceholder: () => '[ loading... ]',
 }

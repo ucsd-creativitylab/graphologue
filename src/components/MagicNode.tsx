@@ -254,6 +254,12 @@ export const MagicNode = memo(
       }, 3000)
     }, [])
 
+    const paperExplanationDict = useRef<{
+      [paperId: string]: {
+        asked: boolean
+        explanation: string
+      }
+    }>({})
     const askForPaperExplanation = useCallback(
       async (
         response: string,
@@ -266,7 +272,17 @@ export const MagicNode = memo(
           0,
           magicNodeVerifyPaperCountDefault
         ) as SemanticScholarPaperEntity[]) {
-          if (response.length && paperToExplain.title.length) {
+          if (
+            response.length &&
+            paperToExplain.title.length &&
+            !paperToExplain.explanation &&
+            !paperExplanationDict.current[paperToExplain.paperId]
+          ) {
+            paperExplanationDict.current[paperToExplain.paperId] = {
+              asked: true,
+              explanation: '',
+            }
+
             const explanationResponse = await getOpenAICompletion(
               predefinedPrompts.explainScholar(
                 response,
@@ -275,22 +291,28 @@ export const MagicNode = memo(
               )
             )
 
-            if (explanationResponse.error) {
+            if (explanationResponse.error)
               // TODO
               console.error(explanationResponse.error)
-            }
 
-            const explanation = explanationResponse.error
+            let explanation = explanationResponse.error
               ? predefinedResponses.noValidResponse()
               : explanationResponse.choices[0].text
+
+            if (explanation) explanation = explanation.trim()
+            else explanation = predefinedResponses.noValidResponse()
+
+            if (explanation.length === 0)
+              explanation = predefinedResponses.noValidResponse()
+
+            paperExplanationDict.current[paperToExplain.paperId].explanation =
+              explanation
 
             papers = papers.map((p: SemanticScholarPaperEntity) => {
               if (p.paperId === paperToExplain.paperId) {
                 return {
                   ...p,
-                  explanation: explanation
-                    ? explanation.trim()
-                    : predefinedResponses.noValidResponse(),
+                  explanation: explanation,
                 }
               }
               return p
@@ -366,7 +388,7 @@ export const MagicNode = memo(
       setModelResponse(parsedResponse) // ! actual model text
       setWaitingForModel(false)
 
-      // then get explanations for the papers
+      // ! then get explanations for the papers
       askForPaperExplanation(parsedResponse, searchQueries, papersFromKeywords)
 
       // ! send to server
@@ -425,6 +447,26 @@ export const MagicNode = memo(
         fitMagicNode()
       }
     }, [fitMagicNode, verifyFacts])
+
+    const handleRemovePaper = useCallback(
+      (paperId: string) => {
+        const newPapers = verifyEntities.researchPapers.filter(
+          p => p.paperId !== paperId
+        )
+        setVerifyEntities({
+          searchQueries: verifyEntities.searchQueries,
+          researchPapers: newPapers,
+        })
+        askForPaperExplanation(
+          modelResponse,
+          verifyEntities.searchQueries,
+          newPapers
+        )
+      },
+      [askForPaperExplanation, modelResponse, verifyEntities]
+    )
+
+    useEffect(() => {}, [verifyEntities.researchPapers])
 
     const verifyEntitiesExplained = useCallback(() => {
       // as long as there are papers, we need to explain them
@@ -633,6 +675,8 @@ export const MagicNode = memo(
                       {renderedVerifyEntities.researchPapers.length > 0 && (
                         <Scholar
                           papers={renderedVerifyEntities.researchPapers}
+                          removePaper={handleRemovePaper}
+                          inNotebook={magicNoteInNotebook ?? false}
                         />
                       )}
                     </div>
