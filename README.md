@@ -1,4 +1,4 @@
-# Graphologue
+# <img src="./public/logo512.png" width="48" style="vertical-align: middle;"></img>raphologue
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
