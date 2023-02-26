@@ -204,6 +204,16 @@ $the-bar-margin-top-offset: calc(
       }
     }
 
+    .magic-prompt-line {
+      display: flex;
+      flex-direction: row;
+      gap: $padding-small;
+
+      .magic-button {
+        @include magic-button;
+      }
+    }
+
     .magic-prompt {
       display: flex;
       flex-direction: column;
@@ -211,12 +221,6 @@ $the-bar-margin-top-offset: calc(
       gap: $padding-small;
 
       width: 100%;
-
-      .magic-prompt-line {
-        display: flex;
-        flex-direction: row;
-        gap: $padding-small;
-      }
 
       .magic-prompt-text {
         padding: $padding-small;
@@ -270,7 +274,7 @@ $the-bar-margin-top-offset: calc(
 
       .magic-node-content-text {
         padding: 0;
-        margin: 0 0 $padding-small 0;
+        margin: 0;
         width: 100%;
         color: $dark-grey;
         word-break: normal;
@@ -338,6 +342,7 @@ $the-bar-margin-top-offset: calc(
         white-space: nowrap;
         background: $white;
         padding: $padding-small $padding-mid !important;
+        margin: $padding-small 0 0 0;
 
         outline: none;
         border: rem-to-px(1rem) solid $warn-yellow;

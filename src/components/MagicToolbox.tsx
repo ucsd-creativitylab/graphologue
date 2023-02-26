@@ -208,9 +208,9 @@ export const MagicNodeTaggingItem = memo(
               />
             )
           ) : (
-            availableTags.map(tag => (
+            availableTags.map((tag, ind) => (
               <MagicTag
-                key={`${targetId}-${tag}`}
+                key={`${targetId}-tag-${ind}-${tag}`}
                 tag={tag}
                 onClick={handleOnClick}
               />

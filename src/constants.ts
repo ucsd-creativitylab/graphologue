@@ -1,5 +1,6 @@
-export const useMagic = true // enable OpenAI?
-export const useSessionStorage = true
+export const debug = process.env.NODE_ENV === 'development'
+export const useMagic = true // enable OpenAI? // TODO
+export const useSessionStorage = true // TODO ?
 
 export const useSessionStorageHandle = '__reactFlowGraphologue__'
 export const useTokenDataTransferHandle = '__reactFlowGraphologueToken__'

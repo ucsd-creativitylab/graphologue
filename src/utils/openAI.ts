@@ -6,19 +6,27 @@
 
 // export const OpenAI = new OpenAIApi(configuration)
 
-export const getCompletionOptions = (prompt: string) => ({
+export const getCompletionOptions = (
+  prompt: string,
+  temperature: number,
+  token: number
+) => ({
   prompt: prompt,
   ////
   model: 'text-davinci-003',
-  temperature: 0.7,
-  max_tokens: 512,
+  temperature: temperature,
+  max_tokens: token,
   top_p: 1,
   frequency_penalty: 0,
   presence_penalty: 0,
 })
 
-export const getOpenAICompletion = async (prompt: string) => {
-  const options = getCompletionOptions(prompt)
+export const getOpenAICompletion = async (
+  prompt: string,
+  temperature = 0.7,
+  token = 512
+) => {
+  const options = getCompletionOptions(prompt, temperature, token)
 
   const requestOptions = {
     method: 'POST',

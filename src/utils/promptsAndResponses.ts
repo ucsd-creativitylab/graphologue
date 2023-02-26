@@ -4,6 +4,8 @@ export const promptTerms = {
   answer: 'Answer',
   searchQueries: 'Google search queries',
   researchPapers: 'Research papers',
+  itemRelationshipConnector: '-',
+  itemBreaker: '+%',
 }
 
 export interface NodeLabelAndTags {
@@ -28,6 +30,7 @@ export const predefinedPrompts = {
         ', '
       )}. Avoid responding the given words and phrases. Separate them with commas.`
   },
+  /* -------------------------------------------------------------------------- */
   simpleAnswer: () =>
     ` Use simple and concise sentences. Be as detailed as possible.`,
   thisIsStatement: (statement: string) => `Statement: "${statement}".`,
@@ -43,13 +46,32 @@ export const predefinedPrompts = {
   ) =>
     `Use one or two simple and concise sentences to explain how does the paper "${paperTitle}" help understand this statement:\n\n${response}\n\nDon't repeat the title.` +
     (paperAbstract.length > 0 ? `\n\n(Paper abstract: ${paperAbstract})` : ''),
+  /* -------------------------------------------------------------------------- */
+  textToGraph: (response: string) => {
+    const paragraphAndTask = `Paragraph: "${response}"\nTask: Construct a knowledge graph to reflect all the \
+relationships by the sentences in this paragraph, such that nodes can be used for multiple relationships.`
+    const format = `\nFormat: '{subject} ${promptTerms.itemRelationshipConnector} {short label indicating the relationship between subject and object} ${promptTerms.itemRelationshipConnector} {object}${promptTerms.itemBreaker}'. \
+Your response should contain nothing but the output in the specified format.`
+
+    return paragraphAndTask + format
+  },
 }
 
 export const predefinedResponses = {
   modelDown: () =>
     'The model is down. Again, the model is D-O-W-N. Please try again later.',
   noValidModelText: () => 'We cannot find an answer. Please try again.',
-  noValidTags: () => 'no available tags',
   noValidResponse: () => 'response unavailable',
+  noValidTags: () => 'no available tags',
   waitingPlaceholder: () => '[ loading... ]',
+}
+
+export const isValidResponse = (response: string) => {
+  return (
+    response !== predefinedResponses.modelDown() &&
+    response !== predefinedResponses.noValidModelText() &&
+    response !== predefinedResponses.noValidResponse() &&
+    response !== predefinedResponses.noValidTags() &&
+    response !== predefinedResponses.waitingPlaceholder()
+  )
 }
