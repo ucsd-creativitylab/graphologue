@@ -172,7 +172,7 @@ const Flow = ({
   }, [nodes, edges, toObject, setTime, selectedComponents])
 
   // ! keys
-  const metaPressed = useKeyPress(['Ctrl', 'Alt'])
+  const metaPressed = useKeyPress(['Ctrl', 'Alt', 'Space'])
   // const undoPressed = useKeyPress('Meta+z')
   // const redoPressed = useKeyPress('Meta+x')
 
@@ -390,20 +390,56 @@ const Flow = ({
   /* -------------------------------------------------------------------------- */
   // ! pane
 
-  const handlePaneClick = useCallback(() => {
-    setNodes((nds: Node[]) => {
-      return nds.map((nd: Node) => {
-        if (!nd.data.editing || nd.type !== 'custom') return nd
-        return {
-          ...nd,
-          data: {
-            ...nd.data,
-            editing: false,
-          } as CustomNodeData,
-        } as Node
-      })
-    })
-  }, [setNodes])
+  const lastClickTime = useRef<number | null>(null)
+  const handlePaneClick = useCallback(
+    (e: MouseEvent) => {
+      // if any node is editing
+      if (nodes.some(nd => nd.data.editing))
+        setNodes((nds: Node[]) => {
+          return nds.map((nd: Node) => {
+            if (!nd.data.editing || nd.type !== 'custom') return nd
+            return {
+              ...nd,
+              data: {
+                ...nd.data,
+                editing: false,
+              } as CustomNodeData,
+            } as Node
+          })
+        })
+
+      // check if it's a double click
+      if (lastClickTime.current) {
+        const now = performance.now()
+        const delta = now - lastClickTime.current
+
+        if (delta < 300) {
+          // double click
+          e.preventDefault()
+          e.stopPropagation()
+
+          // add by double click
+          const { x, y, zoom } = getViewport()
+          const { width: nodeWidth, height: nodeHeight } = hardcodedNodeSize
+
+          // add by double click
+          customAddNodes(
+            addNodes,
+            e.clientX / zoom - x / zoom - nodeWidth / 2,
+            e.clientY / zoom - y / zoom - nodeHeight / 2,
+            {
+              label: '',
+              editing: false,
+              toFitView: false,
+              fitView: fitView,
+            }
+          )
+        }
+      }
+      lastClickTime.current = performance.now()
+    },
+    [addNodes, fitView, getViewport, nodes, setNodes]
+  )
 
   // const handlePaneContextMenu = useCallback((e: BaseSyntheticEvent) => {
   //   e.preventDefault()

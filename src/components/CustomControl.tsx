@@ -8,7 +8,8 @@ import LightbulbRoundedIcon from '@mui/icons-material/LightbulbRounded'
 import LaptopChromebookRoundedIcon from '@mui/icons-material/LaptopChromebookRounded'
 import FitScreenRoundedIcon from '@mui/icons-material/FitScreenRounded'
 import SwipeRoundedIcon from '@mui/icons-material/SwipeRounded'
-import KeyboardOptionKeyRoundedIcon from '@mui/icons-material/KeyboardOptionKeyRounded'
+import SpaceBarRoundedIcon from '@mui/icons-material/SpaceBarRounded'
+// import KeyboardOptionKeyRoundedIcon from '@mui/icons-material/KeyboardOptionKeyRounded'
 // import MouseRoundedIcon from '@mui/icons-material/MouseRounded'
 import EditRoundedIcon from '@mui/icons-material/EditRounded'
 import UndoRoundedIcon from '@mui/icons-material/UndoRounded'
@@ -311,9 +312,10 @@ export const CustomControls = memo(
               </span>
             </TooltipLine>
             <TooltipLine>
-              <KeyboardOptionKeyRoundedIcon />
+              {/* <KeyboardOptionKeyRoundedIcon /> */}
+              <SpaceBarRoundedIcon />
               <span>
-                press option key to <strong>connect</strong>
+                press Space key to <strong>connect</strong>
               </span>
             </TooltipLine>
             <TooltipLine>
