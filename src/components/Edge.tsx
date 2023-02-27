@@ -29,7 +29,7 @@ import {
   MagicToolboxItem,
 } from './MagicToolbox'
 import { SuperTextEditor } from './SuperTextEditor'
-import { getEdgeParams, getNodeLabelAndTags } from '../utils/utils'
+import { getEdgeId, getEdgeParams, getNodeLabelAndTags } from '../utils/utils'
 import { customAddNodes } from './Node'
 import { MagicNodeData } from './MagicNode'
 
@@ -167,7 +167,7 @@ export const getNewEdge = (
   }
   return {
     ...params,
-    id: `${params.source}---${params.target}`,
+    id: getEdgeId(params.source || '', params.target || ''),
     data: data,
     selected: false,
   } as Edge

@@ -9,7 +9,8 @@ export const getNodeId = () => `node-${uuidv4()}`
 export const getMagicNodeId = () => `magic-node-${uuidv4()}`
 export const getGroupNodeId = () => `group-node-${uuidv4()}`
 export const getHandleId = () => `handle-${uuidv4()}`
-export const getEdgeId = () => `edge-${uuidv4()}`
+export const getEdgeId = (sourceId: string, targetId: string) =>
+  `edge-${sourceId}---${targetId}-${uuidv4()}`
 export const getNoteId = () => `note-${uuidv4()}`
 
 export const getNodeLabelAndTags = (nodes: Node[]): NodeLabelAndTags[] => {
