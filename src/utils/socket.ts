@@ -8,10 +8,10 @@ export interface WebSocketMessageType {
 }
 
 export interface EntityType {
-  length: number
-  offset: number
-  type: 'NOUN' | 'VERB' | 'PROPN' | 'NUM' | 'SYM' | 'MISC'
   value: string
+  offset: number
+  length: number
+  type: 'NOUN' | 'VERB' | 'PROPN' | 'NUM' | 'SYM' | 'MISC'
 }
 
 export type EntityKeys =

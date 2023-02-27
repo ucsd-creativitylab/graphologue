@@ -3,7 +3,6 @@ import {
   DragEvent,
   memo,
   MouseEvent,
-  ReactElement,
   useCallback,
   useContext,
   useEffect,
@@ -54,6 +53,7 @@ import {
   PromptSourceComponentsType,
 } from '../utils/magicExplain'
 import {
+  getCurrentTextSelection,
   getGraphBounds,
   getHandleId,
   getMagicNodeId,
@@ -93,6 +93,7 @@ import {
 import { getNewCustomNode } from './Node'
 import { getNewEdge } from './Edge'
 import { getNewGroupNode } from './GroupNode'
+import { MagicTokenizedText } from './MagicToken'
 
 export interface MagicNodeData {
   sourceComponents: PromptSourceComponentsType
@@ -143,17 +144,44 @@ export const MagicNode = memo(
       setMagicResponseExtractedRelationships,
     ] = useState<string[][]>([])
 
-    const [textSelection, setTextSelection] = useState<string>('')
     const [
-      textSelectionExtractedRelationships,
-      setTextSelectionExtractedRelationships,
-    ] = useState<string[][]>([])
+      resolvingTextSelectionExtractedRelationships,
+      setResolvingTextSelectionExtractedRelationships,
+    ] = useState<boolean>(false)
+    // const textSelectionExtractedRelationshipMemories = useRef<{
+    //   [key: string]: string[][]
+    // }>({})
+    const magicOriginalResponseTextSpanRef = useRef<HTMLSpanElement>(null)
     /* -------------------------------------------------------------------------- */
 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const promptTextCursorPosition = useRef(data.prompt.length)
 
-    // socket
+    /* -------------------------------------------------------------------------- */
+
+    // text response selection
+    const handleDragStart = useCallback((event: DragEvent) => {
+      const selectedResponse = getCurrentTextSelection()
+      if (!selectedResponse) return
+
+      const data = {
+        value: selectedResponse,
+        length: selectedResponse.length,
+        offset: 0,
+        type: 'MISC',
+      } as EntityType
+
+      event.dataTransfer.setData(
+        `application/${useTokenDataTransferHandle}`,
+        JSON.stringify(data)
+      )
+
+      event.dataTransfer.effectAllowed = 'move'
+    }, [])
+
+    /* -------------------------------------------------------------------------- */
+
+    // ! socket
     const ws = useRef<WebSocket | null>(null)
     useEffect(() => {
       ws.current = new WebSocket(socketPath)
@@ -377,8 +405,7 @@ export const MagicNode = memo(
       setModelTokenization(emptyTokenization)
 
       setMagicResponseExtractedRelationships([])
-      setTextSelection('')
-      setTextSelectionExtractedRelationships([])
+      setResolvingTextSelectionExtractedRelationships(false)
 
       setVerifyFacts(false)
       setVerifyEntities({
@@ -434,6 +461,7 @@ export const MagicNode = memo(
       setModelResponse(parsedResponse) // ! actual model text
       setWaitingForModel(false)
 
+      // ! ask model
       setMagicResponseExtractedRelationships(
         await constructGraphRelationsFromResponse(parsedResponse)
       )
@@ -767,7 +795,12 @@ export const MagicNode = memo(
                       tokenization={modelTokenization}
                     />
                   ) : (
-                    <span className="magic-original-text">
+                    <span
+                      ref={magicOriginalResponseTextSpanRef}
+                      className="magic-original-text"
+                      // draggable={true}
+                      onDragStart={handleDragStart}
+                    >
                       {renderedModelResponse}
                     </span>
                   )}
@@ -792,17 +825,29 @@ export const MagicNode = memo(
                               </span>
                             </>
                           }
-                          onClick={() =>
-                            handleConstructGraph(
-                              textSelection
-                                ? textSelectionExtractedRelationships
-                                : magicResponseExtractedRelationships
-                            )
-                          }
+                          onClick={async () => {
+                            const textSelection = getCurrentTextSelection()
+                            if (textSelection) {
+                              setResolvingTextSelectionExtractedRelationships(
+                                true
+                              )
+                              handleConstructGraph(
+                                await constructGraphRelationsFromResponse(
+                                  textSelection
+                                )
+                              )
+                              setResolvingTextSelectionExtractedRelationships(
+                                false
+                              )
+                            } else {
+                              handleConstructGraph(
+                                magicResponseExtractedRelationships
+                              )
+                            }
+                          }}
                           disabled={
-                            textSelection
-                              ? textSelectionExtractedRelationships.length === 0
-                              : magicResponseExtractedRelationships.length === 0
+                            resolvingTextSelectionExtractedRelationships ||
+                            magicResponseExtractedRelationships.length === 0
                           }
                         />
                       </div>
@@ -988,79 +1033,6 @@ const MagicNodeBar = memo(
     )
   }
 )
-
-/* -------------------------------------------------------------------------- */
-
-const MagicToken = ({
-  token,
-  onDragStart,
-}: {
-  token: EntityType
-  onDragStart: (e: DragEvent, token: EntityType) => void
-}) => {
-  return (
-    <span
-      draggable
-      className={`magic-token magic-token-${token.type.toLowerCase()}`}
-      onDragStart={e => onDragStart(e, token)}
-    >
-      {token.value}
-    </span>
-  )
-}
-
-interface MagicTokenizedTextProps {
-  magicNodeId: string
-  originalText: string
-  tokenization: Tokenization
-}
-const MagicTokenizedText = ({
-  magicNodeId,
-  originalText,
-  tokenization,
-}: MagicTokenizedTextProps) => {
-  const onDragStart = useCallback((event: DragEvent, token: EntityType) => {
-    event.dataTransfer.setData(
-      `application/${useTokenDataTransferHandle}`,
-      JSON.stringify(token)
-    )
-    event.dataTransfer.effectAllowed = 'move'
-  }, [])
-
-  const { noun, verb } = tokenization
-
-  // ! merge noun and verb arrays and sort by offset field
-  // currently only NOUN and VERB
-  const tokens = [...noun, ...verb].sort((a, b) => a.offset - b.offset)
-
-  let tokenizedText: (string | ReactElement)[] = []
-  if (tokens[0].offset > 0) {
-    tokenizedText.push(originalText.slice(0, tokens[0].offset))
-  }
-
-  tokens.forEach((token, i) => {
-    tokenizedText.push(
-      <MagicToken
-        key={magicNodeId + '-token-' + i}
-        token={token}
-        onDragStart={onDragStart}
-      />
-    )
-
-    if (i < tokens.length - 1) {
-      tokenizedText.push(
-        originalText.slice(
-          token.offset + token.value.length,
-          tokens[i + 1].offset
-        )
-      )
-    } else {
-      tokenizedText.push(originalText.slice(token.offset + token.value.length))
-    }
-  })
-
-  return <span className="magic-tokenized-text">{tokenizedText}</span>
-}
 
 /* -------------------------------------------------------------------------- */
 

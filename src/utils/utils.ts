@@ -328,3 +328,13 @@ export const isEmptyTokenization = (tokenization: Tokenization) => {
   }
   return true
 }
+
+/* -------------------------------------------------------------------------- */
+
+export const getCurrentTextSelection = () => {
+  const selection = window.getSelection()
+  if (!selection) return null
+  const range = selection.getRangeAt(0)
+  const text = range.toString()
+  return text
+}
