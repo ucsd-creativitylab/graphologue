@@ -67,7 +67,7 @@ $shadow-node-selected: $shadow-heavy;
       // transform: translate(-50%, calc(50% + rem-to-px(3rem)));
 
       transition: opacity $transition-fast;
-      cursor: not-allowed;
+      cursor: pointer;
 
       &::before {
         content: '';
@@ -131,6 +131,14 @@ $shadow-node-selected: $shadow-heavy;
 
     &.custom-node-content-target {
       pointer-events: none;
+    }
+
+    &.custom-node-grey {
+      background: $light-grey !important;
+
+      textarea {
+        color: $white !important;
+      }
     }
   }
 

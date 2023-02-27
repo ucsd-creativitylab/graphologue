@@ -87,6 +87,7 @@ import { MagicNote, MagicNoteData } from './Notebook'
 import {
   constructGraph,
   constructGraphRelationsFromResponse,
+  hasHiddenExpandId,
   removeHiddenExpandId,
 } from '../utils/magicGraphConstruct'
 import { getNewCustomNode } from './Node'
@@ -585,7 +586,8 @@ export const MagicNode = memo(
                 y,
                 sourceHandleId,
                 targetHandleId,
-                false
+                false,
+                hasHiddenExpandId(label) ? 'grey' : 'white' // expanded edge label will be grey
               )
             )
           }

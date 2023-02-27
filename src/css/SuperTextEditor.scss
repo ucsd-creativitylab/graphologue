@@ -9,6 +9,10 @@
   overflow: visible;
   z-index: 1;
 
+  textarea {
+    background: transparent !important;
+  }
+
   .super-text-editor {
     width: auto;
     // max-width: 12rem;

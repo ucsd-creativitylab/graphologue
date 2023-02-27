@@ -151,6 +151,10 @@ export const removeHiddenExpandId = (text: string) => {
   return text.replace(/____.*?____/g, '')
 }
 
+export const hasHiddenExpandId = (text: string) => {
+  return text.includes('____')
+}
+
 /* -------------------------------------------------------------------------- */
 
 export const constructGraph = (relationships: string[][]) => {

@@ -15,6 +15,7 @@ type SuperTextEditorProps = {
   targetId: string
   content: string
   editing: boolean
+  background: 'white' | 'grey'
   textareaRef: RefObject<HTMLTextAreaElement> | null
   selected: boolean
   children?: ReactElement
@@ -25,6 +26,7 @@ export const SuperTextEditor = memo(
     targetId,
     content,
     editing,
+    background,
     selected,
     children,
     textareaRef,
@@ -198,7 +200,7 @@ export const SuperTextEditor = memo(
               editing ? '' : ' disabled-text-editor'
             }${selected ? ' selected-text-editor' : ''}${
               content.length === 0 ? ' empty-text-editor' : ''
-            }`}
+            }${background === 'grey' ? ' grey-text-editor' : ''}`}
             rows={1}
             value={content}
             placeholder={'node'}

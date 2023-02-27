@@ -2,6 +2,7 @@ import {
   ForwardedRef,
   forwardRef,
   memo,
+  MouseEvent,
   useCallback,
   useContext,
   useEffect,
@@ -27,6 +28,8 @@ import {
   MagicNodeTaggingItem,
   MagicSuggestItem,
   MagicToolbox,
+  MagicToolboxButton,
+  MagicToolboxItem,
 } from './MagicToolbox'
 import randomPhrases from '../utils/randomPhrases'
 import { SuperTextEditor } from './SuperTextEditor'
@@ -39,6 +42,8 @@ export interface CustomNodeData {
   targetHandleId: string
   // states
   editing: boolean
+  // styles
+  styleBackground: 'white' | 'grey'
 }
 
 interface CustomNodeProps extends NodeProps {
@@ -59,8 +64,14 @@ export const CustomNode = memo(
     const moreThanOneComponentsSelected =
       selectedComponents.nodes.length + selectedComponents.edges.length > 1
 
-    const { label, tags, sourceHandleId, targetHandleId, editing } =
-      data as CustomNodeData
+    const {
+      label,
+      tags,
+      styleBackground,
+      sourceHandleId,
+      targetHandleId,
+      editing,
+    } = data as CustomNodeData
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
     const tagRef = useRef<HTMLDivElement>(null)
@@ -113,11 +124,44 @@ export const CustomNode = memo(
       return false
     })
 
+    /* -------------------------------------------------------------------------- */
+    // ! color
+    const handleToggleNodeColor = useCallback(
+      (e: MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        setNodes((nodes: Node[]) => {
+          return nodes.map(node => {
+            if (node.id === id) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  styleBackground:
+                    styleBackground === 'white' ? 'grey' : 'white',
+                },
+              }
+            }
+            return node
+          })
+        })
+      },
+      [id, setNodes, styleBackground]
+    )
+
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+    // ! render
+
     return (
       <div
         className={`custom-node-body${
           metaPressed ? ' custom-node-meta-pressed' : ''
-        }${isExplainedByMagicNode ? ' custom-node-explained' : ''}`}
+        }${isExplainedByMagicNode ? ' custom-node-explained' : ''}${
+          styleBackground === 'grey' ? ' custom-node-grey' : ''
+        }`}
       >
         <Handle
           id={targetHandleId}
@@ -141,7 +185,7 @@ export const CustomNode = memo(
         <div
           className={`custom-node-content${
             isTarget ? ' custom-node-content-target' : ''
-          }`}
+          }${styleBackground === 'grey' ? ' custom-node-grey' : ''}`}
           style={{
             zIndex: metaPressed ? 0 : 4,
           }}
@@ -151,10 +195,11 @@ export const CustomNode = memo(
             targetId={id}
             content={label}
             editing={editing}
+            background={styleBackground}
             selected={selected}
             textareaRef={textAreaRef}
           >
-            {(label.length === 0 || tags.length === 0) && selected ? (
+            {!moreThanOneComponentsSelected && selected ? (
               <MagicToolbox
                 className={`edge-label-toolbox${
                   selected && !moreThanOneComponentsSelected
@@ -179,6 +224,15 @@ export const CustomNode = memo(
                 ) : (
                   <></>
                 )}
+
+                <MagicToolboxItem title="color">
+                  <MagicToolboxButton
+                    content={`make ${
+                      styleBackground === 'white' ? 'grey' : 'white'
+                    }`}
+                    onClick={handleToggleNodeColor}
+                  />
+                </MagicToolboxItem>
               </MagicToolbox>
             ) : (
               <></>
@@ -239,7 +293,8 @@ export const getNewCustomNode = (
   y: number,
   sourceHandleId: string,
   targetHandleId: string,
-  editing: boolean
+  editing: boolean,
+  styleBackground: 'white' | 'grey'
 ) => {
   const { height: nodeHeight } = hardcodedNodeSize
 
@@ -252,6 +307,7 @@ export const getNewCustomNode = (
       sourceHandleId: sourceHandleId,
       targetHandleId: targetHandleId,
       editing: editing,
+      styleBackground: styleBackground,
     } as CustomNodeData,
     position: { x, y },
     selected: true,
@@ -263,6 +319,7 @@ export const getNewCustomNode = (
 type CustomAddNodesOptions = {
   label?: string
   editing: boolean
+  styleBackground: 'white' | 'grey'
   fitView: FitView | undefined
   toFitView: boolean
 }
@@ -270,7 +327,7 @@ export const customAddNodes = (
   addNodes: Instance.AddNodes<Node>,
   x: number,
   y: number,
-  { label, editing, fitView, toFitView }: CustomAddNodesOptions
+  { label, editing, styleBackground, fitView, toFitView }: CustomAddNodesOptions
 ): {
   nodeId: string
   sourceHandleId: string
@@ -289,7 +346,8 @@ export const customAddNodes = (
     y,
     sourceHandleId,
     targetHandleId,
-    editing
+    editing,
+    styleBackground
   )
 
   addNodes(newNode)

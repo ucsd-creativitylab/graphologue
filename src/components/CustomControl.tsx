@@ -101,6 +101,7 @@ export const CustomControls = memo(
       customAddNodes(addNodes, adjustedX, adjustedY, {
         label: '',
         editing: false,
+        styleBackground: 'white',
         fitView,
         toFitView: true,
       })

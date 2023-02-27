@@ -236,6 +236,7 @@ export const EdgeCustomLabel = memo(
         {
           label: edgeData.label,
           editing: false,
+          styleBackground: 'grey',
           toFitView: false,
           fitView: fitView,
         }
@@ -324,6 +325,7 @@ export const EdgeCustomLabel = memo(
           targetId={edgeId}
           content={edgeData.label}
           editing={edgeData.editing}
+          background={'white'}
           selected={selected}
           textareaRef={null}
         >

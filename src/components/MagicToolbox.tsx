@@ -1,6 +1,7 @@
 import {
   BaseSyntheticEvent,
   memo,
+  MouseEvent,
   ReactElement,
   useCallback,
   useEffect,
@@ -21,7 +22,7 @@ import {
   predefinedPrompts,
   predefinedResponses,
 } from '../utils/promptsAndResponses'
-import { getWikiData } from './wikiBase'
+import { getWikiData } from '../utils/wikiBase'
 
 interface MagicToolboxProps {
   className?: string
@@ -69,7 +70,7 @@ export const MagicToolboxItem = ({
 
 interface MagicToolboxButtonProps {
   content: ReactElement | string
-  onClick?: () => void
+  onClick?: (e: MouseEvent) => void
   preventDefault?: boolean
   className?: string
   disabled?: boolean
@@ -84,12 +85,12 @@ export const MagicToolboxButton = memo(
   }: MagicToolboxButtonProps) => {
     // handle click
     const handleOnClick = useCallback(
-      (e: BaseSyntheticEvent) => {
+      (e: MouseEvent) => {
         if (preventDefault) {
           e.preventDefault()
           e.stopPropagation()
         }
-        onClick && onClick()
+        onClick && onClick(e)
       },
       [onClick, preventDefault]
     )
