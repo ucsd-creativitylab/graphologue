@@ -637,7 +637,7 @@ export const MagicNode = memo(
               },
               {
                 label: edge,
-                customType: 'plain',
+                customType: 'arrow',
                 editing: false,
               }
             )
