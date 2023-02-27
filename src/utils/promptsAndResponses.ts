@@ -51,6 +51,7 @@ export const predefinedPrompts = {
     const paragraphAndTask = `Paragraph: "${response}"\nTask: Construct a knowledge graph to reflect all the \
 relationships by the sentences in this paragraph, such that nodes can be used for multiple relationships.`
     const format = `\nFormat: '{subject} ${promptTerms.itemRelationshipConnector} {short label indicating the relationship between subject and object} ${promptTerms.itemRelationshipConnector} {object}${promptTerms.itemBreaker}'. \
+Use lowercase letters when possible. \
 Your response should contain nothing but the output in the specified format.`
 
     return paragraphAndTask + format

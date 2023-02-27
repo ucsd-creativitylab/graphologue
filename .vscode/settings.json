@@ -4,7 +4,9 @@
     "dagre",
     "graphlib",
     "graphologue",
+    "graphonote",
     "OPENAI",
-    "reactflow"
+    "reactflow",
+    "uuidv"
   ]
 }

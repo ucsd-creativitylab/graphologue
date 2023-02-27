@@ -10,7 +10,14 @@ import {
   useRef,
   useState,
 } from 'react'
-import { FitView, Instance, Node, NodeProps, useReactFlow } from 'reactflow'
+import {
+  Edge,
+  FitView,
+  Instance,
+  Node,
+  NodeProps,
+  useReactFlow,
+} from 'reactflow'
 import isEqual from 'react-fast-compare'
 import { PuffLoader } from 'react-spinners'
 
@@ -36,10 +43,10 @@ import {
   hardcodedNodeSize,
   magicNodeVerifyPaperCountDefault,
   nodeGap,
+  nodePosAdjustStep,
   terms,
-  transitionDuration,
   useTokenDataTransferHandle,
-  viewFittingPadding,
+  viewFittingOptions,
 } from '../constants'
 import { NotebookContext } from './Contexts'
 import {
@@ -80,9 +87,11 @@ import { MagicNote, MagicNoteData } from './Notebook'
 import {
   constructGraph,
   constructGraphRelationsFromResponse,
+  removeHiddenExpandId,
 } from '../utils/magicGraphConstruct'
 import { getNewCustomNode } from './Node'
 import { getNewEdge } from './Edge'
+import { getNewGroupNode } from './GroupNode'
 
 export interface MagicNodeData {
   sourceComponents: PromptSourceComponentsType
@@ -204,10 +213,7 @@ export const MagicNode = memo(
         setNodes((nodes: Node[]) => [...nodes, newNode])
 
         setTimeout(() => {
-          fitView({
-            duration: transitionDuration,
-            padding: viewFittingPadding,
-          })
+          fitView(viewFittingOptions)
         }, 0)
       }
     }, [fitView, getNode, id, setNodes])
@@ -472,10 +478,7 @@ export const MagicNode = memo(
         const node = getNode(id)
 
         if (node) {
-          fitBounds(getGraphBounds([node]), {
-            padding: viewFittingPadding,
-            duration: transitionDuration,
-          })
+          fitBounds(getGraphBounds([node]), viewFittingOptions)
         }
       }, 0)
     }, [fitBounds, getNode, id])
@@ -557,6 +560,8 @@ export const MagicNode = memo(
 
         const currentNodes = deepCopyNodes(getNodes())
         const currentEdges = deepCopyEdges(getEdges())
+        const newNodes: Node[] = []
+        const newEdges: Edge[] = []
 
         const pseudoNodeObjects = computedNodes.map(({ label, x, y }) => {
           return {
@@ -568,13 +573,14 @@ export const MagicNode = memo(
             targetHandleId: getHandleId(),
           }
         })
+        console.log(pseudoNodeObjects) // TODO remove
 
         pseudoNodeObjects.forEach(
           ({ id, label, x, y, sourceHandleId, targetHandleId }) => {
-            currentNodes.push(
+            newNodes.push(
               getNewCustomNode(
                 id,
-                label,
+                removeHiddenExpandId(label),
                 x,
                 y,
                 sourceHandleId,
@@ -591,7 +597,7 @@ export const MagicNode = memo(
 
           if (!sourceNode || !targetNode) return
 
-          currentEdges.push(
+          newEdges.push(
             getNewEdge(
               {
                 source: sourceNode.id,
@@ -608,10 +614,38 @@ export const MagicNode = memo(
           )
         })
 
+        // get bounds of new nodes
+        const thisMagicNode = getNode(id)
+        if (!thisMagicNode) return
+
+        const { x, y, width, height } = getGraphBounds(newNodes)
+        const groupingNode = getNewGroupNode(
+          nodeGap +
+            (thisMagicNode.position.x +
+              (thisMagicNode.width || hardcodedNodeSize.magicWidth) || 0),
+          thisMagicNode.position.y,
+          width + nodePosAdjustStep * 2,
+          height + nodePosAdjustStep * 2
+        )
+
+        const originalNodesOffsetX = x - nodePosAdjustStep
+        const originalNodesOffsetY = y - nodePosAdjustStep
+
+        newNodes.forEach((node: Node) => {
+          node.position.x -= originalNodesOffsetX
+          node.position.y -= originalNodesOffsetY
+
+          node.extent = 'parent'
+          node.parentNode = groupingNode.id
+        })
+
+        currentNodes.push(groupingNode, ...newNodes)
+        currentEdges.push(...newEdges)
+
         setNodes(currentNodes)
         setEdges(currentEdges)
       },
-      [getEdges, getNodes, setEdges, setNodes]
+      [getEdges, getNode, getNodes, id, setEdges, setNodes]
     )
 
     /* -------------------------------------------------------------------------- */
@@ -628,10 +662,7 @@ export const MagicNode = memo(
       if (magicNoteData) {
         const node = getNode(magicNoteData.magicNodeId)
         if (node) {
-          fitBounds(getGraphBounds([node]), {
-            padding: viewFittingPadding,
-            duration: transitionDuration,
-          })
+          fitBounds(getGraphBounds([node]), viewFittingOptions)
         }
       }
     }, [fitBounds, getNode, magicNoteData])
@@ -1071,11 +1102,7 @@ export const addMagicNode = (
   addNodes(newMagicNode)
 
   setTimeout(() => {
-    if (toFitView && fitView)
-      fitView({
-        padding: viewFittingPadding,
-        duration: transitionDuration,
-      })
+    if (toFitView && fitView) fitView(viewFittingOptions)
   }, 0)
 
   return {

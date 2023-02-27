@@ -56,7 +56,7 @@ export const NoteBook = memo(({ notebookRef }: NoteBookProps) => {
       <div className="notebook-bar">
         <h1 className="notebook-title">
           {/* <BookRoundedIcon /> */}
-          <span>graphobook</span>
+          <span>graphonote</span>
         </h1>
         <div className="bar-buttons">
           <button className="bar-button" onClick={handleDownloadNotebook}>

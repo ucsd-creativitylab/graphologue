@@ -8,6 +8,10 @@ export const useSessionStorageNotesHandle = '__reactFlowGraphologueNotes__'
 
 export const viewFittingPadding = 0.1
 export const transitionDuration = 500
+export const viewFittingOptions = {
+  padding: viewFittingPadding,
+  duration: transitionDuration,
+}
 export const hideEdgeTextZoomLevel = 0.6
 
 export const timeMachineMaxSize = 50

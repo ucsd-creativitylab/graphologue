@@ -1,0 +1,14 @@
+.react-flow__node-group {
+  border-radius: $radius-default !important;
+  border: none !important;
+  outline: rem-to-px(0rem) solid transparent;
+
+  background: rgba($purple, $opacity-still-there) !important;
+  box-shadow: none !important;
+
+  transition: outline $transition-fast;
+
+  &.selected {
+    outline: rem-to-px(4rem) solid rgba($purple, $opacity-xh) !important;
+  }
+}

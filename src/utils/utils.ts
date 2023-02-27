@@ -7,6 +7,7 @@ import { Tokenization } from './socket'
 
 export const getNodeId = () => `node-${uuidv4()}`
 export const getMagicNodeId = () => `magic-node-${uuidv4()}`
+export const getGroupNodeId = () => `group-node-${uuidv4()}`
 export const getHandleId = () => `handle-${uuidv4()}`
 export const getEdgeId = () => `edge-${uuidv4()}`
 export const getNoteId = () => `note-${uuidv4()}`
@@ -15,7 +16,7 @@ export const getNodeLabelAndTags = (nodes: Node[]): NodeLabelAndTags[] => {
   const labelAndTags: NodeLabelAndTags[] = []
 
   nodes.forEach(node => {
-    if (node.type !== 'magic' && node.data.label)
+    if (node.type === 'custom' && node.data.label)
       labelAndTags.push({
         label: node.data.label,
         tags: node.data.tags || [],

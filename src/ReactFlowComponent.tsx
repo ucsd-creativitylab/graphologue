@@ -46,10 +46,9 @@ import {
   hardcodedNodeSize,
   slowInteractionWaitTimeout,
   styles,
-  transitionDuration,
   useSessionStorageNotesHandle,
   useTokenDataTransferHandle,
-  viewFittingPadding,
+  viewFittingOptions,
 } from './constants'
 import { FlowContext, NotebookContext } from './components/Contexts'
 import { getItem, storeItem } from './utils/storage'
@@ -58,6 +57,7 @@ import { roundTo, sleep } from './utils/utils'
 import { PromptSourceComponentsType } from './utils/magicExplain'
 import { MagicNode } from './components/MagicNode'
 import { EntityType } from './utils/socket'
+import { CustomGroupNode } from './components/GroupNode'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -71,6 +71,7 @@ const defaultEdges = storedData.edges as Edge[]
 const nodeTypes = {
   custom: CustomNode,
   magic: MagicNode,
+  group: CustomGroupNode,
 } as NodeTypes
 
 const edgeTypes = {
@@ -102,10 +103,7 @@ const Flow = ({
 
   // fit to view on page load
   useEffect(() => {
-    fitView({
-      duration: transitionDuration,
-      padding: viewFittingPadding,
-    })
+    fitView(viewFittingOptions)
   }, [fitView])
 
   /* -------------------------------------------------------------------------- */
@@ -150,7 +148,7 @@ const Flow = ({
 
     // if text editing then don't store
     const editing =
-      nodes.find((nd: Node) => nd.data.editing) ||
+      nodes.find((nd: Node) => nd.type === 'custom' && nd.data.editing) ||
       edges.find((ed: Edge) => ed.data.editing)
     if (editing) return
 
@@ -394,7 +392,7 @@ const Flow = ({
   const handlePaneClick = useCallback(
     (e: MouseEvent) => {
       // if any node is editing
-      if (nodes.some(nd => nd.data.editing))
+      if (nodes.some(nd => nd.data?.editing))
         setNodes((nds: Node[]) => {
           return nds.map((nd: Node) => {
             if (!nd.data.editing || nd.type !== 'custom') return nd
@@ -486,7 +484,7 @@ const Flow = ({
           panOnScroll={true}
           selectionOnDrag={true}
           panOnDrag={[1, 2]}
-          selectionMode={SelectionMode.Partial}
+          selectionMode={SelectionMode.Full}
           // ! actions
           onNodeDoubleClick={handleNodeDoubleClick}
           onNodeContextMenu={handleNodeContextMenu}
@@ -520,16 +518,33 @@ const Flow = ({
             //   else return 'none'
             // }}
             nodeColor={n => {
-              if (n.data.editing) return `#ff06b7aa`
-              else if (n.selected) {
-                if (n.type === 'magic')
-                  return `${styles.edgeColorStrokeExplained}aa`
-                else return `${styles.edgeColorStrokeSelected}aa`
-              } else return '#cfcfcf'
+              switch (n.type) {
+                case 'custom':
+                  if (n.data?.editing) return `#ff06b7aa`
+                  if (n.selected) {
+                    if (n.extent === 'parent')
+                      return `${styles.edgeColorStrokeSelected}aa`
+                    else return `${styles.edgeColorStrokeSelected}aa`
+                  }
+                  break
+
+                case 'magic':
+                  if (n.selected) return `${styles.edgeColorStrokeExplained}aa`
+                  break
+
+                case 'group':
+                  if (n.selected) return `${styles.edgeColorStrokeExplained}66`
+                  break
+
+                default:
+                  break
+              }
+              return '#cfcfcf'
             }}
             // nodeStrokeColor={n => {
-            //   if (n.type === 'magic') return `#${`57068c`}99`
-            //   else return 'none'
+            //   if (n.extent === 'parent' && n.selected)
+            //     return `${styles.edgeColorStrokeSelected}`
+            //   return 'none'
             // }}
           />
           <CustomControls

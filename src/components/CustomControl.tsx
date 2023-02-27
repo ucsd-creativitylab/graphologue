@@ -28,7 +28,7 @@ import {
   hardcodedNodeSize,
   terms,
   transitionDuration,
-  viewFittingPadding,
+  viewFittingOptions,
 } from '../constants'
 import { magicExplain } from '../utils/magicExplain'
 
@@ -84,10 +84,7 @@ export const CustomControls = memo(
       if (!nodes.length) return _returnToOrigin()
 
       const graphBonds = getGraphBounds(nodes)
-      fitBounds(graphBonds, {
-        padding: viewFittingPadding,
-        duration: transitionDuration,
-      })
+      fitBounds(graphBonds, viewFittingOptions)
     }, [_returnToOrigin, fitBounds, getNodes])
 
     // !
@@ -173,14 +170,7 @@ export const CustomControls = memo(
         addEdges(edges as Edge[])
 
         // fit view
-        setTimeout(
-          () =>
-            fitView({
-              padding: viewFittingPadding,
-              duration: transitionDuration,
-            }),
-          0
-        )
+        setTimeout(() => fitView(viewFittingOptions), 0)
       }
     }, [addEdges, addNodes, fitView, handleClearCanvas])
 

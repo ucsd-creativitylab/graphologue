@@ -1,4 +1,7 @@
 import dagre from 'dagre'
+import { v4 as uuidv4 } from 'uuid'
+
+import { hardcodedNodeWidthEstimation } from '../components/Node'
 import { hardcodedNodeSize } from '../constants'
 
 import { getOpenAICompletion } from './openAI'
@@ -8,31 +11,9 @@ import {
   promptTerms,
 } from './promptsAndResponses'
 
-export const constructGraphRelationsFromResponse = async (
-  response: string
-): Promise<string[][]> => {
-  if (
-    response.length === 0 ||
-    response === predefinedResponses.modelDown() ||
-    response === predefinedResponses.noValidModelText() ||
-    response === predefinedResponses.noValidResponse()
-  )
-    return []
-
-  const textRelationships = await getOpenAICompletion(
-    predefinedPrompts.textToGraph(response)
-  )
-
-  if (textRelationships.error) {
-    console.error(textRelationships.error)
-    return []
-  }
-
-  const textRelationshipsText = textRelationships.choices[0].text
-  if (textRelationshipsText.length === 0) return []
-
+const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
   // preprocess the response
-  const textRelationshipsArray: string[][] = textRelationshipsText
+  const textRelationshipsArray: string[][] = rawRelationsText
     .split(promptTerms.itemBreaker)
     .map((item: string) => {
       item = item.trim()
@@ -45,8 +26,9 @@ export const constructGraphRelationsFromResponse = async (
 
       // ! process the edge label
       // make the edge the lower case
-      // triplet[1] = triplet[1].toLowerCase()
-      triplet[1] = triplet[1].replace(/_/g, ' ') // avoid underscore
+      triplet[1] = triplet[1].toLowerCase()
+      // avoid underscore
+      triplet[1] = triplet[1].replace(/_/g, ' ')
       // ? [experimental] remove is, was, are, were, etc.
       // TODO optimize?
       triplet[1] = triplet[1].replace(
@@ -79,6 +61,7 @@ export const constructGraphRelationsFromResponse = async (
     [key: string]: {
       count: number
       expanded: boolean
+      expandHiddenId: string
     }
   } = {}
   textRelationshipsArray.map(item => {
@@ -90,6 +73,7 @@ export const constructGraphRelationsFromResponse = async (
         recurrentSubjectEdgePairs[key] = {
           count: 1,
           expanded: false,
+          expandHiddenId: uuidv4(),
         }
     }
     return item
@@ -98,13 +82,21 @@ export const constructGraphRelationsFromResponse = async (
     if (item[1].length === 0) expandedRelationshipsArray.push(item)
     else {
       const thisSubjectEdgePair = `${item[0]}${promptTerms.itemRelationshipConnector}${item[1]}`
-      if (recurrentSubjectEdgePairs[thisSubjectEdgePair].count >= 3) {
-        // expand
+      if (recurrentSubjectEdgePairs[thisSubjectEdgePair].count >= 2) {
+        // ! need to expand
+        const expandedEdgeItem = wrapWithHiddenExpandId(
+          item[1],
+          recurrentSubjectEdgePairs[thisSubjectEdgePair].expandHiddenId
+        )
+
         if (!recurrentSubjectEdgePairs[thisSubjectEdgePair].expanded) {
-          expandedRelationshipsArray.push([item[0], '', item[1]])
+          // not expanded yet
+          expandedRelationshipsArray.push([item[0], '', expandedEdgeItem])
           recurrentSubjectEdgePairs[thisSubjectEdgePair].expanded = true
         }
-        expandedRelationshipsArray.push([item[1], '', item[2]])
+
+        expandedRelationshipsArray.push([expandedEdgeItem, '', item[2]])
+        ////
       } else expandedRelationshipsArray.push(item)
     }
   })
@@ -120,7 +112,43 @@ export const constructGraphRelationsFromResponse = async (
     else finalRelationshipsArray.push(item)
   })
 
+  console.log(finalRelationshipsArray) // TODO remove
   return finalRelationshipsArray
+}
+
+export const constructGraphRelationsFromResponse = async (
+  response: string
+): Promise<string[][]> => {
+  if (
+    response.length === 0 ||
+    response === predefinedResponses.modelDown() ||
+    response === predefinedResponses.noValidModelText() ||
+    response === predefinedResponses.noValidResponse()
+  )
+    return []
+
+  const textRelationships = await getOpenAICompletion(
+    predefinedPrompts.textToGraph(response)
+  )
+
+  if (textRelationships.error) {
+    console.error(textRelationships.error)
+    return []
+  }
+
+  const textRelationshipsText = textRelationships.choices[0].text
+  if (textRelationshipsText.length === 0) return []
+
+  return rawRelationsToGraphRelations(textRelationshipsText)
+}
+
+// ? why - what if there are two 'contains' from two subjects?
+const wrapWithHiddenExpandId = (text: string, id: string) => {
+  return `${text}____${id}____`
+}
+
+export const removeHiddenExpandId = (text: string) => {
+  return text.replace(/____.*?____/g, '')
 }
 
 /* -------------------------------------------------------------------------- */
@@ -128,32 +156,37 @@ export const constructGraphRelationsFromResponse = async (
 export const constructGraph = (relationships: string[][]) => {
   // https://github.com/dagrejs/dagre/wiki#an-example-layout
   var pseudoGraph = new dagre.graphlib.Graph()
-  pseudoGraph.setGraph({})
+  pseudoGraph.setGraph({
+    rankdir: 'LR',
+    // align: 'UL',
+    ranksep: 100,
+    nodesep: 30,
+  })
   pseudoGraph.setDefaultEdgeLabel(function () {
     return ''
   })
 
   const addedNode = new Set()
-  relationships.forEach((item: string[]) => {
-    if (!addedNode.has(item[0])) {
-      pseudoGraph.setNode(item[0], {
-        label: item[0],
-        width: hardcodedNodeSize.width,
+  relationships.forEach(([a, edge, b]: string[]) => {
+    if (!addedNode.has(a)) {
+      pseudoGraph.setNode(a, {
+        label: a,
+        width: hardcodedNodeWidthEstimation(removeHiddenExpandId(a)),
         height: hardcodedNodeSize.height,
       })
-      addedNode.add(item[0])
+      addedNode.add(a)
     }
 
-    if (!addedNode.has(item[2])) {
-      pseudoGraph.setNode(item[2], {
-        label: item[2],
-        width: hardcodedNodeSize.width,
+    if (!addedNode.has(b)) {
+      pseudoGraph.setNode(b, {
+        label: b,
+        width: hardcodedNodeWidthEstimation(removeHiddenExpandId(b)),
         height: hardcodedNodeSize.height,
       })
-      addedNode.add(item[2])
+      addedNode.add(b)
     }
 
-    pseudoGraph.setEdge(item[0], item[2], { label: item[1] })
+    pseudoGraph.setEdge(a, b, { label: edge })
   })
 
   // ! compute

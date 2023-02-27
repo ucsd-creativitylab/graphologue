@@ -20,11 +20,7 @@ import {
   useReactFlow,
 } from 'reactflow'
 
-import {
-  hardcodedNodeSize,
-  transitionDuration,
-  viewFittingPadding,
-} from '../constants'
+import { hardcodedNodeSize, viewFittingOptions } from '../constants'
 import { FlowContext } from './Contexts'
 import { MagicNodeData } from './MagicNode'
 import {
@@ -245,7 +241,7 @@ export const getNewCustomNode = (
   targetHandleId: string,
   editing: boolean
 ) => {
-  const { width: nodeWidth, height: nodeHeight } = hardcodedNodeSize
+  const { height: nodeHeight } = hardcodedNodeSize
 
   return {
     id: nodeId,
@@ -259,7 +255,7 @@ export const getNewCustomNode = (
     } as CustomNodeData,
     position: { x, y },
     selected: true,
-    width: nodeWidth, // ! are you sure?
+    width: hardcodedNodeWidthEstimation(label), // ! are you sure?
     height: nodeHeight, // ! are you sure?
   } as Node
 }
@@ -299,11 +295,7 @@ export const customAddNodes = (
   addNodes(newNode)
 
   setTimeout(() => {
-    if (toFitView && fitView)
-      fitView({
-        padding: viewFittingPadding,
-        duration: transitionDuration,
-      })
+    if (toFitView && fitView) fitView(viewFittingOptions)
   }, 0)
 
   return {
@@ -311,4 +303,11 @@ export const customAddNodes = (
     sourceHandleId,
     targetHandleId,
   }
+}
+
+/* -------------------------------------------------------------------------- */
+
+export const hardcodedNodeWidthEstimation = (content: string) => {
+  if (content.length <= 10) return hardcodedNodeSize.width
+  return Math.max(210, 64 + content.length * 8) // TODO better ways?
 }

@@ -10,6 +10,10 @@ $shadow-node-selected: $shadow-heavy;
     z-index: 999999 !important;
   }
 
+  &.react-flow__node-group {
+    z-index: -1 !important;
+  }
+
   .custom-node-body {
     display: flex !important;
     align-items: center;
