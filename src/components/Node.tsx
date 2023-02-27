@@ -236,6 +236,34 @@ export const CustomNodeTag = memo(
 /* -------------------------------------------------------------------------- */
 // ! add node
 
+export const getNewCustomNode = (
+  nodeId: string,
+  label: string,
+  x: number,
+  y: number,
+  sourceHandleId: string,
+  targetHandleId: string,
+  editing: boolean
+) => {
+  const { width: nodeWidth, height: nodeHeight } = hardcodedNodeSize
+
+  return {
+    id: nodeId,
+    type: 'custom', // ! use custom node
+    data: {
+      label: label,
+      tags: [],
+      sourceHandleId: sourceHandleId,
+      targetHandleId: targetHandleId,
+      editing: editing,
+    } as CustomNodeData,
+    position: { x, y },
+    selected: true,
+    width: nodeWidth, // ! are you sure?
+    height: nodeHeight, // ! are you sure?
+  } as Node
+}
+
 type CustomAddNodesOptions = {
   label?: string
   editing: boolean
@@ -257,23 +285,16 @@ export const customAddNodes = (
   const targetHandleId = getHandleId()
 
   label = label ?? randomPhrases()
-  const { width: nodeWidth, height: nodeHeight } = hardcodedNodeSize
 
-  const newNode = {
-    id: nodeId,
-    type: 'custom', // ! use custom node
-    data: {
-      label: label,
-      tags: [],
-      sourceHandleId: sourceHandleId,
-      targetHandleId: targetHandleId,
-      editing: editing,
-    } as CustomNodeData,
-    position: { x, y },
-    selected: true,
-    width: nodeWidth, // ! are you sure?
-    height: nodeHeight, // ! are you sure?
-  } as Node
+  const newNode = getNewCustomNode(
+    nodeId,
+    label,
+    x,
+    y,
+    sourceHandleId,
+    targetHandleId,
+    editing
+  )
 
   addNodes(newNode)
 

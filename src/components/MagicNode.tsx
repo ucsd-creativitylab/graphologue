@@ -25,7 +25,6 @@ import FitScreenRoundedIcon from '@mui/icons-material/FitScreenRounded'
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
 import DocumentScannerRoundedIcon from '@mui/icons-material/DocumentScannerRounded'
 import GrainIcon from '@mui/icons-material/Grain'
-import SyncIcon from '@mui/icons-material/Sync'
 
 import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded'
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded'
@@ -49,7 +48,9 @@ import {
 } from '../utils/magicExplain'
 import {
   getGraphBounds,
+  getHandleId,
   getMagicNodeId,
+  getNodeId,
   getNoteId,
   isEmptyTokenization,
   slowDeepCopy,
@@ -64,7 +65,7 @@ import {
   // WebSocketMessageType,
   WebSocketResponseType,
 } from '../utils/socket'
-import { deepCopyNodes } from '../utils/storage'
+import { deepCopyNodes, deepCopyEdges } from '../utils/storage'
 import {
   isValidResponse,
   predefinedPrompts,
@@ -76,7 +77,12 @@ import {
   SemanticScholarPaperEntity,
 } from './Scholar'
 import { MagicNote, MagicNoteData } from './Notebook'
-import { constructGraphRelationsFromResponse } from '../utils/magicGraphConstruct'
+import {
+  constructGraph,
+  constructGraphRelationsFromResponse,
+} from '../utils/magicGraphConstruct'
+import { getNewCustomNode } from './Node'
+import { getNewEdge } from './Edge'
 
 export interface MagicNodeData {
   sourceComponents: PromptSourceComponentsType
@@ -97,8 +103,16 @@ interface MagicNodeProps extends NodeProps {
 
 export const MagicNode = memo(
   ({ id, data, magicNoteInNotebook, magicNoteData }: MagicNodeProps) => {
-    const { getNode, setNodes, deleteElements, fitView, fitBounds } =
-      useReactFlow()
+    const {
+      getNode,
+      setNodes,
+      getNodes,
+      getEdges,
+      setEdges,
+      deleteElements,
+      fitView,
+      fitBounds,
+    } = useReactFlow()
     const { addNote, deleteNote } = useContext(NotebookContext)
 
     /* -------------------------------------------------------------------------- */
@@ -117,6 +131,12 @@ export const MagicNode = memo(
     const [
       magicResponseExtractedRelationships,
       setMagicResponseExtractedRelationships,
+    ] = useState<string[][]>([])
+
+    const [textSelection, setTextSelection] = useState<string>('')
+    const [
+      textSelectionExtractedRelationships,
+      setTextSelectionExtractedRelationships,
     ] = useState<string[][]>([])
     /* -------------------------------------------------------------------------- */
 
@@ -344,10 +364,15 @@ export const MagicNode = memo(
     const handleAsk = useCallback(async () => {
       if (waitingForModel) return
 
+      // ! ground reset
       setWaitingForModel(true)
       setModelResponse('')
       setModelTokenization(emptyTokenization)
+
       setMagicResponseExtractedRelationships([])
+      setTextSelection('')
+      setTextSelectionExtractedRelationships([])
+
       setVerifyFacts(false)
       setVerifyEntities({
         searchQueries: [],
@@ -524,6 +549,75 @@ export const MagicNode = memo(
     /* -------------------------------------------------------------------------- */
     /* -------------------------------------------------------------------------- */
 
+    // ! text to graph
+
+    const handleConstructGraph = useCallback(
+      (relationships: string[][]) => {
+        const computedNodes = constructGraph(relationships)
+
+        const currentNodes = deepCopyNodes(getNodes())
+        const currentEdges = deepCopyEdges(getEdges())
+
+        const pseudoNodeObjects = computedNodes.map(({ label, x, y }) => {
+          return {
+            id: getNodeId(),
+            label,
+            x,
+            y,
+            sourceHandleId: getHandleId(),
+            targetHandleId: getHandleId(),
+          }
+        })
+
+        pseudoNodeObjects.forEach(
+          ({ id, label, x, y, sourceHandleId, targetHandleId }) => {
+            currentNodes.push(
+              getNewCustomNode(
+                id,
+                label,
+                x,
+                y,
+                sourceHandleId,
+                targetHandleId,
+                false
+              )
+            )
+          }
+        )
+
+        relationships.forEach(([source, edge, target]) => {
+          const sourceNode = pseudoNodeObjects.find(n => n.label === source)
+          const targetNode = pseudoNodeObjects.find(n => n.label === target)
+
+          if (!sourceNode || !targetNode) return
+
+          currentEdges.push(
+            getNewEdge(
+              {
+                source: sourceNode.id,
+                target: targetNode.id,
+                sourceHandle: sourceNode.sourceHandleId,
+                targetHandle: targetNode.targetHandleId,
+              },
+              {
+                label: edge,
+                customType: 'plain',
+                editing: false,
+              }
+            )
+          )
+        })
+
+        setNodes(currentNodes)
+        setEdges(currentEdges)
+      },
+      [getEdges, getNodes, setEdges, setNodes]
+    )
+
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+
     // ! note
 
     const handleDeleteNote = useCallback(() => {
@@ -655,15 +749,27 @@ export const MagicNode = memo(
                           className="magic-button"
                           content={
                             <>
-                              <GrainIcon />
+                              <GrainIcon
+                                style={{
+                                  transform: 'scale(1.1)',
+                                }}
+                              />
                               <span>
-                                tl<b>;</b>graphologue
+                                <b>tl;</b>graphologue
                               </span>
                             </>
                           }
-                          onClick={handleAsk}
+                          onClick={() =>
+                            handleConstructGraph(
+                              textSelection
+                                ? textSelectionExtractedRelationships
+                                : magicResponseExtractedRelationships
+                            )
+                          }
                           disabled={
-                            magicResponseExtractedRelationships.length === 0
+                            textSelection
+                              ? textSelectionExtractedRelationships.length === 0
+                              : magicResponseExtractedRelationships.length === 0
                           }
                         />
                       </div>

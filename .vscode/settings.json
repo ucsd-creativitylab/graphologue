@@ -1,3 +1,10 @@
 {
-  "cSpell.words": ["arrowclosed", "graphologue", "OPENAI", "reactflow"]
+  "cSpell.words": [
+    "arrowclosed",
+    "dagre",
+    "graphlib",
+    "graphologue",
+    "OPENAI",
+    "reactflow"
+  ]
 }
