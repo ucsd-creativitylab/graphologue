@@ -16,7 +16,7 @@ import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 
 import { contentEditingTimeout, terms } from '../constants'
 import { magicExplain, PromptSourceComponentsType } from '../utils/magicExplain'
-import { getOpenAICompletion } from '../utils/openAI'
+import { getOpenAICompletion, getTextFromModelResponse } from '../utils/openAI'
 import {
   NodeLabelAndTags,
   predefinedPrompts,
@@ -295,7 +295,7 @@ export const MagicSuggestItem = memo(
         }
 
         if (response && response.choices && response.choices.length > 0)
-          setModelResponse(response.choices[0]?.text)
+          setModelResponse(getTextFromModelResponse(response))
         else setModelResponse(predefinedResponses.noValidResponse)
       } else setModelResponse(predefinedResponses.noValidResponse)
     }, [disabled, nodeLabelAndTags, target])

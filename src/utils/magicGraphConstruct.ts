@@ -58,6 +58,18 @@ const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
 
   // ! post processing
   ////
+  // * split objects
+  const splittedRelationshipsArray: string[][] = []
+  textRelationshipsArray.forEach(item => {
+    // split comma separated items
+    if (item[2].includes(','))
+      item[2].split(',').forEach(i => {
+        splittedRelationshipsArray.push([item[0], item[1], i.trim()])
+      })
+    else splittedRelationshipsArray.push(item)
+  })
+  ////
+  // * expand recurrent edges
   const expandedRelationshipsArray: string[][] = []
   const recurrentSubjectEdgePairs: {
     [key: string]: {
@@ -66,7 +78,7 @@ const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
       expandHiddenId: string
     }
   } = {}
-  textRelationshipsArray.map(item => {
+  splittedRelationshipsArray.map(item => {
     // do this only for non empty items
     if (item[1].length) {
       const key = `${item[0]}${promptTerms.itemRelationshipConnector}${item[1]}`
@@ -80,7 +92,7 @@ const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
     }
     return item
   })
-  textRelationshipsArray.forEach(item => {
+  splittedRelationshipsArray.forEach(item => {
     if (item[1].length === 0) expandedRelationshipsArray.push(item)
     else {
       const thisSubjectEdgePair = `${item[0]}${promptTerms.itemRelationshipConnector}${item[1]}`
@@ -104,18 +116,7 @@ const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
   })
 
   ////
-  const finalRelationshipsArray: string[][] = []
-  expandedRelationshipsArray.forEach(item => {
-    // split comma separated items
-    if (item[2].includes(','))
-      item[2].split(',').forEach(i => {
-        finalRelationshipsArray.push([item[0], item[1], i.trim()])
-      })
-    else finalRelationshipsArray.push(item)
-  })
-
-  console.log(finalRelationshipsArray) // TODO remove
-  return finalRelationshipsArray
+  return expandedRelationshipsArray
 }
 
 export const constructGraphRelationsFromResponse = async (
