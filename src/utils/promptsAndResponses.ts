@@ -5,7 +5,7 @@ export const promptTerms = {
   searchQueries: 'Google search queries',
   researchPapers: 'Research papers',
   itemRelationshipConnector: '-',
-  itemBreaker: '+%',
+  itemBreaker: '%+%',
 }
 
 export interface NodeLabelAndTags {

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { hardcodedNodeWidthEstimation } from '../components/Node'
 import { hardcodedNodeSize } from '../constants'
 
-import { getOpenAICompletion } from './openAI'
+import { getOpenAICompletion, getTextFromModelResponse } from './openAI'
 import {
   predefinedPrompts,
   predefinedResponses,
@@ -12,6 +12,8 @@ import {
 } from './promptsAndResponses'
 
 const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
+  console.log(rawRelationsText)
+
   // preprocess the response
   const textRelationshipsArray: string[][] = rawRelationsText
     .split(promptTerms.itemBreaker)
@@ -136,7 +138,7 @@ export const constructGraphRelationsFromResponse = async (
     return []
   }
 
-  const textRelationshipsText = textRelationships.choices[0].text
+  const textRelationshipsText = getTextFromModelResponse(textRelationships)
   if (textRelationshipsText.length === 0) return []
 
   return rawRelationsToGraphRelations(textRelationshipsText)

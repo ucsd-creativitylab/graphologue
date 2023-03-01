@@ -10,16 +10,23 @@ export const getCompletionOptions = (
   prompt: string,
   temperature: number,
   token: number
-) => ({
-  prompt: prompt,
-  ////
-  model: 'text-davinci-003',
-  temperature: temperature,
-  max_tokens: token,
-  top_p: 1,
-  frequency_penalty: 0,
-  presence_penalty: 0,
-})
+) => {
+  return {
+    messages: [
+      {
+        role: 'user',
+        content: prompt,
+      },
+    ],
+    ////
+    model: 'gpt-3.5-turbo',
+    temperature: temperature,
+    max_tokens: token,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+  }
+}
 
 export const getOpenAICompletion = async (
   prompt: string,
@@ -38,10 +45,14 @@ export const getOpenAICompletion = async (
   }
 
   const response = await fetch(
-    'https://api.openai.com/v1/completions',
+    'https://api.openai.com/v1/chat/completions',
     requestOptions
   )
   const data = await response.json()
 
   return data
+}
+
+export const getTextFromModelResponse = (response: any) => {
+  return response.choices[0].message.content
 }

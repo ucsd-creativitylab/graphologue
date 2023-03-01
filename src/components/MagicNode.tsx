@@ -63,7 +63,7 @@ import {
   slowDeepCopy,
 } from '../utils/utils'
 import { MagicToolboxButton } from './MagicToolbox'
-import { getOpenAICompletion } from '../utils/openAI'
+import { getOpenAICompletion, getTextFromModelResponse } from '../utils/openAI'
 import {
   emptyTokenization,
   EntityType,
@@ -364,7 +364,7 @@ export const MagicNode = memo(
 
             let explanation = explanationResponse.error
               ? predefinedResponses.noValidResponse()
-              : explanationResponse.choices[0].text
+              : getTextFromModelResponse(explanationResponse)
 
             if (explanation) explanation = explanation.trim()
             else explanation = predefinedResponses.noValidResponse()
@@ -421,7 +421,7 @@ export const MagicNode = memo(
       // TODO handle error
       if (response.error) return handleModelError(response.error)
 
-      const modelText = response.choices[0].text
+      const modelText = getTextFromModelResponse(response)
       const { parsedResponse } = parseModelResponseText(modelText, 'response')
 
       if (!parsedResponse.length) {
@@ -442,7 +442,7 @@ export const MagicNode = memo(
       )
       if (secondaryResponse.error)
         return handleModelError(secondaryResponse.error)
-      const secondaryModelText = secondaryResponse.choices[0].text
+      const secondaryModelText = getTextFromModelResponse(secondaryResponse)
       const { searchQueries, researchPaperKeywords } = parseModelResponseText(
         secondaryModelText,
         'verify'
