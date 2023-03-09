@@ -133,13 +133,11 @@ $shadow-node-selected: $shadow-heavy;
       pointer-events: none;
     }
 
-    &.custom-node-grey {
-      background: $grey !important;
-
-      textarea {
-        color: $white !important;
-      }
-    }
+    // &.custom-node-background-color {
+    //   textarea {
+    //     color: $white !important;
+    //   }
+    // }
   }
 
   .custom-node-content,

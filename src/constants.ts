@@ -36,6 +36,8 @@ export const styles = {
   edgeWidth: 2,
   edgeMarkerSize: 12,
   edgeDashLineArray: '5, 7',
+  nodeColorDefaultWhite: '#ffffff',
+  nodeColorDefaultGrey: '#999999',
 }
 
 export const terms = {

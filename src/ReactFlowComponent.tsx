@@ -276,7 +276,7 @@ const Flow = ({
         {
           label: `${token.value}`,
           editing: false,
-          styleBackground: 'white',
+          styleBackground: styles.nodeColorDefaultWhite,
           toFitView: false,
           fitView: undefined,
         }
@@ -320,7 +320,7 @@ const Flow = ({
           {
             label: '',
             editing: false,
-            styleBackground: 'white',
+            styleBackground: styles.nodeColorDefaultWhite,
             toFitView: false,
             fitView: fitView,
           }
@@ -430,7 +430,7 @@ const Flow = ({
             {
               label: '',
               editing: false,
-              styleBackground: 'white',
+              styleBackground: styles.nodeColorDefaultWhite,
               toFitView: false,
               fitView: fitView,
             }

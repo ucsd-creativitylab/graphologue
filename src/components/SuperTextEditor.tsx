@@ -9,13 +9,14 @@ import {
   useRef,
 } from 'react'
 import { Edge, Node, useReactFlow } from 'reactflow'
+import tinycolor from 'tinycolor2'
 
 type SuperTextEditorProps = {
   target: 'node' | 'edge'
   targetId: string
   content: string
   editing: boolean
-  background: 'white' | 'grey'
+  background: string
   textareaRef: RefObject<HTMLTextAreaElement> | null
   selected: boolean
   children?: ReactElement
@@ -210,6 +211,9 @@ export const SuperTextEditor = memo(
             disabled={!editing}
             style={{
               width: content.length <= 10 ? '6rem' : 'auto',
+              color: tinycolor(background).isDark()
+                ? 'white'
+                : tinycolor(background).darken(45).toHexString(),
             }}
           ></textarea>
         ) : (

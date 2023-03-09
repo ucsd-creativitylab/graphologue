@@ -1,4 +1,5 @@
 import {
+  ChangeEvent,
   ForwardedRef,
   forwardRef,
   memo,
@@ -7,6 +8,7 @@ import {
   useContext,
   useEffect,
   useRef,
+  useState,
 } from 'react'
 import isEqual from 'react-fast-compare'
 import {
@@ -20,6 +22,7 @@ import {
   NodeProps,
   useReactFlow,
 } from 'reactflow'
+import { ColorResult, TwitterPicker } from 'react-color'
 
 import { hardcodedNodeSize, viewFittingOptions } from '../constants'
 import { FlowContext } from './Contexts'
@@ -43,7 +46,7 @@ export interface CustomNodeData {
   // states
   editing: boolean
   // styles
-  styleBackground: 'white' | 'grey'
+  styleBackground: string
 }
 
 interface CustomNodeProps extends NodeProps {
@@ -126,11 +129,19 @@ export const CustomNode = memo(
 
     /* -------------------------------------------------------------------------- */
     // ! color
-    const handleToggleNodeColor = useCallback(
+    const [showColorPicker, setShowColorPicker] = useState(false)
+    const handleToggleShowColorPicker = useCallback(
       (e: MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
 
+        setShowColorPicker(!showColorPicker)
+      },
+      [showColorPicker]
+    )
+
+    const handleChangeColor = useCallback(
+      (color: ColorResult, event: ChangeEvent<HTMLInputElement>) => {
         setNodes((nodes: Node[]) => {
           return nodes.map(node => {
             if (node.id === id) {
@@ -138,8 +149,7 @@ export const CustomNode = memo(
                 ...node,
                 data: {
                   ...node.data,
-                  styleBackground:
-                    styleBackground === 'white' ? 'grey' : 'white',
+                  styleBackground: color.hex,
                 },
               }
             }
@@ -147,7 +157,7 @@ export const CustomNode = memo(
           })
         })
       },
-      [id, setNodes, styleBackground]
+      [id, setNodes]
     )
 
     /* -------------------------------------------------------------------------- */
@@ -160,7 +170,7 @@ export const CustomNode = memo(
         className={`custom-node-body${
           metaPressed ? ' custom-node-meta-pressed' : ''
         }${isExplainedByMagicNode ? ' custom-node-explained' : ''}${
-          styleBackground === 'grey' ? ' custom-node-grey' : ''
+          styleBackground !== '#ffffff' ? ' custom-node-background-color' : ''
         }`}
       >
         <Handle
@@ -185,9 +195,10 @@ export const CustomNode = memo(
         <div
           className={`custom-node-content${
             isTarget ? ' custom-node-content-target' : ''
-          }${styleBackground === 'grey' ? ' custom-node-grey' : ''}`}
+          }`}
           style={{
             zIndex: metaPressed ? 0 : 4,
+            backgroundColor: styleBackground,
           }}
         >
           <SuperTextEditor
@@ -226,12 +237,18 @@ export const CustomNode = memo(
                 )}
 
                 <MagicToolboxItem title="color">
-                  <MagicToolboxButton
-                    content={`make ${
-                      styleBackground === 'white' ? 'grey' : 'white'
-                    }`}
-                    onClick={handleToggleNodeColor}
-                  />
+                  <>
+                    <MagicToolboxButton
+                      content={styleBackground}
+                      onClick={handleToggleShowColorPicker}
+                    />
+                    {showColorPicker && (
+                      <TwitterPicker
+                        color={styleBackground}
+                        onChange={handleChangeColor}
+                      />
+                    )}
+                  </>
                 </MagicToolboxItem>
               </MagicToolbox>
             ) : (
@@ -294,7 +311,7 @@ export const getNewCustomNode = (
   sourceHandleId: string,
   targetHandleId: string,
   editing: boolean,
-  styleBackground: 'white' | 'grey'
+  styleBackground: string
 ) => {
   const { height: nodeHeight } = hardcodedNodeSize
 
@@ -319,7 +336,7 @@ export const getNewCustomNode = (
 type CustomAddNodesOptions = {
   label?: string
   editing: boolean
-  styleBackground: 'white' | 'grey'
+  styleBackground: string
   fitView: FitView | undefined
   toFitView: boolean
 }

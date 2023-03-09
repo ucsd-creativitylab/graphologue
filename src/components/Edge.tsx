@@ -236,7 +236,7 @@ export const EdgeCustomLabel = memo(
         {
           label: edgeData.label,
           editing: false,
-          styleBackground: 'grey',
+          styleBackground: styles.nodeColorDefaultGrey,
           toFitView: false,
           fitView: fitView,
         }

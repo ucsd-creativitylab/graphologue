@@ -26,6 +26,7 @@ import {
 } from '../utils/utils'
 import {
   hardcodedNodeSize,
+  styles,
   terms,
   transitionDuration,
   viewFittingOptions,
@@ -101,7 +102,7 @@ export const CustomControls = memo(
       customAddNodes(addNodes, adjustedX, adjustedY, {
         label: '',
         editing: false,
-        styleBackground: 'white',
+        styleBackground: styles.nodeColorDefaultWhite,
         fitView,
         toFitView: true,
       })
