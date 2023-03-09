@@ -43,6 +43,7 @@ import {
   magicNodeVerifyPaperCountDefault,
   nodeGap,
   nodePosAdjustStep,
+  styles,
   terms,
   useTokenDataTransferHandle,
   viewFittingOptions,
@@ -615,7 +616,9 @@ export const MagicNode = memo(
                 sourceHandleId,
                 targetHandleId,
                 false,
-                hasHiddenExpandId(label) ? 'grey' : 'white' // expanded edge label will be grey
+                hasHiddenExpandId(label)
+                  ? styles.nodeColorDefaultGrey
+                  : styles.nodeColorDefaultWhite // expanded edge label will be grey
               )
             )
           }
