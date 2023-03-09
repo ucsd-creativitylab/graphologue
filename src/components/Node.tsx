@@ -160,6 +160,10 @@ export const CustomNode = memo(
       [id, setNodes]
     )
 
+    const onToolboxClose = useCallback(() => {
+      setShowColorPicker(false)
+    }, [])
+
     /* -------------------------------------------------------------------------- */
     /* -------------------------------------------------------------------------- */
     /* -------------------------------------------------------------------------- */
@@ -218,6 +222,7 @@ export const CustomNode = memo(
                     : ''
                 }`}
                 zoom={zoomLevel}
+                onUnmount={onToolboxClose}
               >
                 {label.length !== 0 && tags.length === 0 ? (
                   <MagicNodeTaggingItem targetId={id} label={label} />

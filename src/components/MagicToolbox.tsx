@@ -28,12 +28,21 @@ interface MagicToolboxProps {
   className?: string
   children: ReactElement | ReactElement[]
   zoom: number
+  onUnmount?: () => void
 }
 export const MagicToolbox = ({
   className,
   children,
   zoom,
+  onUnmount,
 }: MagicToolboxProps) => {
+  // unmount
+  useEffect(() => {
+    return () => {
+      onUnmount && onUnmount()
+    }
+  }, [onUnmount])
+
   return (
     <div
       className={`magic-toolbox${className ? ` ${className}` : ''}`}
