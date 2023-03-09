@@ -10,6 +10,7 @@ import {
 } from 'react'
 import { Edge, Node, useReactFlow } from 'reactflow'
 import tinycolor from 'tinycolor2'
+import { styles } from '../constants'
 
 type SuperTextEditorProps = {
   target: 'node' | 'edge'
@@ -211,9 +212,12 @@ export const SuperTextEditor = memo(
             disabled={!editing}
             style={{
               width: content.length <= 10 ? '6rem' : 'auto',
-              color: tinycolor(background).isDark()
-                ? 'white'
-                : tinycolor(background).darken(45).toHexString(),
+              color:
+                background === styles.nodeColorDefaultWhite
+                  ? '#333333'
+                  : tinycolor(background).isDark()
+                  ? 'white'
+                  : tinycolor(background).darken(45).toHexString(),
             }}
           ></textarea>
         ) : (
