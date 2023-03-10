@@ -39,8 +39,8 @@ type CustomControlsProps = {
   nodes: Node[]
   edges: Edge[]
   selectedComponents: {
-    nodes: Node[]
-    edges: Edge[]
+    nodes: string[]
+    edges: string[]
   }
   undoTime: () => void
   redoTime: () => void
@@ -123,17 +123,28 @@ export const CustomControls = memo(
     const handleExplain = useCallback(() => {
       magicExplain(
         nodes,
+        edges,
         {
           edges: selectedComponents.edges,
           nodes: selectedComponents.nodes.filter(
             // you cannot explain a magic node
-            (node: Node) => node.type !== 'magic'
+            (nodeId: string) => {
+              const node = nodes.find(node => node.id === nodeId)
+              return node && node.type !== 'magic'
+            }
           ),
         },
         addNodes,
         fitView
       )
-    }, [addNodes, fitView, nodes, selectedComponents])
+    }, [
+      addNodes,
+      edges,
+      fitView,
+      nodes,
+      selectedComponents.edges,
+      selectedComponents.nodes,
+    ])
 
     /* -------------------------------------------------------------------------- */
 
@@ -181,9 +192,10 @@ export const CustomControls = memo(
     const isEmptyCanvas = nodes.length === 0
     // you cannot explain a magic node
     const anyCustomNodesOrEdgesSelected =
-      selectedComponents.nodes.some(
-        node => node.type !== 'magic' && node.selected
-      ) || selectedComponents.edges.length > 0
+      selectedComponents.nodes.some(nodeId => {
+        const node = nodes.find(node => node.id === nodeId)
+        return node && node.type !== 'magic' && node.selected
+      }) || selectedComponents.edges.length > 0
 
     return (
       <Controls

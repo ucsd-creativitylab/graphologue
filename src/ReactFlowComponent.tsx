@@ -164,8 +164,8 @@ const Flow = ({
       !isEqual(selectedComponents.edges, selectedEdges)
     )
       setSelectedComponents({
-        nodes: selectedNodes,
-        edges: selectedEdges,
+        nodes: selectedNodes.map((nd: Node) => nd.id),
+        edges: selectedEdges.map((ed: Edge) => ed.id),
       })
   }, [nodes, edges, toObject, setTime, selectedComponents])
 

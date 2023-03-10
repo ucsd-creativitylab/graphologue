@@ -1,13 +1,12 @@
 import { createContext } from 'react'
-import { Edge, Node } from 'reactflow'
 
 import { Note } from './Notebook'
 
 export interface FlowContextType {
   metaPressed: boolean
   selectedComponents: {
-    nodes: Node[]
-    edges: Edge[]
+    nodes: string[]
+    edges: string[]
   }
   doSetNodesEditing: (nodeIds: string[], editing: boolean) => void
   doSetEdgesEditing: (edgeIds: string[], editing: boolean) => void

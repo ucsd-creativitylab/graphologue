@@ -12,17 +12,21 @@ import {
 import { NodeLabelAndTags, promptTerms } from './promptsAndResponses'
 
 export interface PromptSourceComponentsType {
-  nodes: Node[]
-  edges: Edge[]
+  nodes: string[]
+  edges: string[]
 }
 
 export const magicExplain = (
   nodes: Node[],
+  edges: Edge[],
   sourceComponents: PromptSourceComponentsType,
   addNodes: Instance.AddNodes<Node>,
   fitView: FitView
 ) => {
-  const { nodes: selectedNodes, edges: selectedEdges } = sourceComponents
+  const { nodes: selectedNodesIds, edges: selectedEdgesIds } = sourceComponents
+
+  const selectedNodes = nodes.filter(node => selectedNodesIds.includes(node.id))
+  const selectedEdges = edges.filter(edge => selectedEdgesIds.includes(edge.id))
 
   const { top, right } = getComponentsBounds(
     selectedNodes as Node[],
@@ -30,7 +34,11 @@ export const magicExplain = (
     nodes as Node[]
   )
 
-  const suggestedPrompts = generateSuggestedPrompts(nodes, sourceComponents)
+  const suggestedPrompts = generateSuggestedPrompts(
+    nodes,
+    edges,
+    sourceComponents
+  )
 
   // ! actual add magic node
   const { adjustedX, adjustedY } = adjustNewNodePositionAvoidIntersections(
@@ -59,17 +67,22 @@ export const magicExplain = (
 
 export const generateSuggestedPrompts = (
   nodes: Node[],
+  edges: Edge[],
   sourceComponents: PromptSourceComponentsType
 ): string[] => {
   const nodeLabelAndTags: NodeLabelAndTags[] = sourceComponents.nodes
-    .map((node: Node) => {
-      return { label: node.data.label, tags: node.data.tags }
+    .map((nodeId: string) => {
+      const node = nodes.find((node: Node) => node.id === nodeId)
+      return { label: node?.data.label ?? '', tags: node?.data.tags ?? [] }
     })
     .filter(item => item.label.length)
 
   const nodeLabels = nodeLabelAndTags.map(item => item.label)
   const edgeLabels = sourceComponents.edges
-    .map((edge: Edge) => edge.data.label)
+    .map((edgeId: string) => {
+      const edge = edges.find((edge: Edge) => edge.id === edgeId)
+      return edge?.data.label ?? ''
+    })
     .filter(label => label.length)
 
   const labels = [...nodeLabels, ...edgeLabels]
@@ -81,7 +94,11 @@ export const generateSuggestedPrompts = (
   // ! edge-based prompt
   if (sourceComponents.edges.length > 0) {
     const edgePrompts = sourceComponents.edges
-      .map((edge: Edge) => {
+      .map((edgeId: string) => {
+        const edge = edges.find((edge: Edge) => edge.id === edgeId)
+
+        if (!edge) return ''
+
         const sourceId = edge.source
         const targetId = edge.target
         const sourceNode = nodes.find((node: Node) => node.id === sourceId)

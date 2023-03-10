@@ -115,12 +115,18 @@ export const CustomNode = memo(
 
     // check if this node is explained by a magic node
     const selectedMagicNodes = selectedComponents.nodes.filter(
-      (node: Node) => node.type === 'magic'
+      (nodeId: string) => nodeId.includes('magic-node')
     )
-    const isExplainedByMagicNode = selectedMagicNodes.some((node: Node) => {
+    const isExplainedByMagicNode = selectedMagicNodes.some((nodeId: string) => {
+      const magicNode = getNodes().find(node => node.id === nodeId)
+      if (!magicNode) return false
+
       const {
-        sourceComponents: { nodes },
-      } = node.data as MagicNodeData
+        sourceComponents: { nodes: nodeIds },
+      } = magicNode.data as MagicNodeData
+
+      const nodes = getNodes().filter(node => nodeIds.includes(node.id))
+
       for (const node of nodes) {
         if (node.id === id) return true
       }

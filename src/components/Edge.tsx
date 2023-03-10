@@ -65,6 +65,7 @@ export const CustomEdge = memo(
     const zoomLevel = useStore(useCallback(store => store.transform[2], []))
 
     const { selectedComponents } = useContext(FlowContext)
+    const { getNodes, getEdges } = useReactFlow()
 
     if (!sourceNode || !targetNode) return null
 
@@ -80,12 +81,22 @@ export const CustomEdge = memo(
 
     // check if this node is explained by a magic node
     const selectedMagicNodes = selectedComponents.nodes.filter(
-      (node: Node) => node.type === 'magic'
+      (nodeId: string) => {
+        return nodeId.includes('magic-node-')
+      }
     )
-    const isExplainedByMagicNode = selectedMagicNodes.some((node: Node) => {
+    const isExplainedByMagicNode = selectedMagicNodes.some((nodeId: string) => {
+      const node = getNodes().find(node => node.id === nodeId)
+      if (!node) return false
+
       const {
-        sourceComponents: { edges },
+        sourceComponents: { edges: edgeIds },
       } = node.data as MagicNodeData
+
+      const edges = getEdges().filter(edge => {
+        return edgeIds.includes(edge.id)
+      })
+
       for (const ed of edges) {
         if (ed.id === id) return true
       }

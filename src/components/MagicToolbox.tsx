@@ -373,7 +373,7 @@ interface MagicAskItemProps {
   sourceComponents: PromptSourceComponentsType
 }
 export const MagicAskItem = ({ sourceComponents }: MagicAskItemProps) => {
-  const { getNodes, addNodes, fitView } = useReactFlow()
+  const { getNodes, getEdges, addNodes, fitView } = useReactFlow()
 
   return (
     <MagicToolboxItem title={`ask ${terms.gpt}`}>
@@ -385,7 +385,13 @@ export const MagicAskItem = ({ sourceComponents }: MagicAskItemProps) => {
           </>
         }
         onClick={() => {
-          magicExplain(getNodes(), sourceComponents, addNodes, fitView)
+          magicExplain(
+            getNodes(),
+            getEdges(),
+            sourceComponents,
+            addNodes,
+            fitView
+          )
         }}
       />
     </MagicToolboxItem>
