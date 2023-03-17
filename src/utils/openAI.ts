@@ -19,7 +19,7 @@ export const getCompletionOptions = (
       },
     ],
     ////
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4',
     temperature: temperature,
     max_tokens: token,
     top_p: 1,
