@@ -39,6 +39,9 @@ export interface CustomEdgeData {
   label: string
   customType: 'dash' | 'plain' | 'arrow'
   editing: boolean
+  // in zen mode
+  zenMaster: boolean
+  zenBuddy: boolean
 }
 
 interface CustomEdgeProps extends EdgeProps {
@@ -225,7 +228,7 @@ export const EdgeCustomLabel = memo(
     roughZoomLevel,
   }: EdgeCustomLabelProps) => {
     const { getNodes, addNodes, setEdges, fitView } = useReactFlow()
-    const { selectedComponents } = useContext(FlowContext)
+    const { selectedComponents, zenMode } = useContext(FlowContext)
 
     const moreThanOneComponentsSelected =
       selectedComponents.nodes.length + selectedComponents.edges.length > 1
@@ -248,6 +251,7 @@ export const EdgeCustomLabel = memo(
           label: edgeData.label,
           editing: false,
           styleBackground: styles.nodeColorDefaultGrey,
+          zenBuddy: zenMode,
           toFitView: false,
           fitView: fitView,
         }
@@ -270,6 +274,8 @@ export const EdgeCustomLabel = memo(
                 label: '',
                 customType: edgeData.customType,
                 editing: false,
+                zenMaster: false,
+                zenBuddy: zenMode,
               }
             ),
             getNewEdge(
@@ -283,6 +289,8 @@ export const EdgeCustomLabel = memo(
                 label: '',
                 customType: edgeData.customType,
                 editing: false,
+                zenMaster: false,
+                zenBuddy: zenMode,
               }
             ),
           ])
@@ -297,6 +305,7 @@ export const EdgeCustomLabel = memo(
       labelX,
       labelY,
       setEdges,
+      zenMode,
     ])
 
     // ! switch custom edge type

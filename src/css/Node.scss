@@ -4,6 +4,7 @@ $shadow-node-selected: $shadow-heavy;
   user-select: none;
   border: none;
 
+  transition: filter $transition-normal, opacity $transition-normal;
   // z-index: -1 !important;
 
   &.react-flow__node-magic {
@@ -12,6 +13,17 @@ $shadow-node-selected: $shadow-heavy;
 
   &.react-flow__node-group {
     z-index: -1 !important;
+  }
+
+  &:has(.zen-ed-out) {
+    filter: blur(rem-to-px(5rem));
+    opacity: $opacity-xh;
+    z-index: -1;
+    pointer-events: none !important;
+
+    * {
+      pointer-events: none !important;
+    }
   }
 
   .custom-node-body {

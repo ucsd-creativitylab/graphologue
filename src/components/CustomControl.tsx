@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react'
+import React, { memo, useCallback, useContext } from 'react'
 import { ControlButton, Controls, Edge, Node, useReactFlow } from 'reactflow'
 
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
@@ -31,9 +31,11 @@ import {
   transitionDuration,
   viewFittingOptions,
 } from '../constants'
-import { magicExplain } from '../utils/magicExplain'
+// import { magicExplain } from '../utils/magicExplain'
+import { quitZenExplain, zenExplain } from '../utils/zenExplain'
 
 import defaultExample from '../examples/default.json'
+import { FlowContext } from './Contexts'
 
 type CustomControlsProps = {
   nodes: Node[]
@@ -68,10 +70,13 @@ export const CustomControls = memo(
       getViewport,
       getNodes,
       addNodes,
+      setNodes,
       addEdges,
+      setEdges,
       deleteElements,
       toObject,
     } = useReactFlow()
+    const { zenMode, setZenMode, setZenModeLoading } = useContext(FlowContext)
 
     const _returnToOrigin = useCallback(() => {
       setViewport({ x: 0, y: 0, zoom: 1 }, { duration: transitionDuration })
@@ -103,10 +108,11 @@ export const CustomControls = memo(
         label: '',
         editing: false,
         styleBackground: styles.nodeColorDefaultWhite,
+        zenBuddy: zenMode,
         fitView,
         toFitView: true,
       })
-    }, [addNodes, fitView, getNodes, getViewport])
+    }, [addNodes, fitView, getNodes, getViewport, zenMode])
 
     // !
     const handleClearCanvas = useCallback(() => {
@@ -121,22 +127,50 @@ export const CustomControls = memo(
     // ! explain
 
     const handleExplain = useCallback(() => {
-      magicExplain(
-        nodes,
-        edges,
-        {
-          edges: selectedComponents.edges,
-          nodes: selectedComponents.nodes.filter(
-            // you cannot explain a magic node
-            (nodeId: string) => {
-              const node = nodes.find(node => node.id === nodeId)
-              return node && node.type !== 'magic'
+      zenMode
+        ? quitZenExplain(
+            nodes,
+            edges,
+            {
+              edges: selectedComponents.edges,
+              nodes: selectedComponents.nodes.filter(
+                // you cannot explain a magic node
+                (nodeId: string) => {
+                  const node = nodes.find(node => node.id === nodeId)
+                  return node && node.type !== 'magic'
+                }
+              ),
+            },
+            {
+              setNodes,
+              setEdges,
+              fitView,
+              setZenMode,
+              setZenModeLoading,
             }
-          ),
-        },
-        addNodes,
-        fitView
-      )
+          )
+        : zenExplain(
+            nodes,
+            edges,
+            {
+              edges: selectedComponents.edges,
+              nodes: selectedComponents.nodes.filter(
+                // you cannot explain a magic node
+                (nodeId: string) => {
+                  return !nodeId.includes('magic')
+                }
+              ),
+            },
+            {
+              addNodes,
+              setNodes,
+              setEdges,
+              fitView,
+              setZenMode,
+              setZenModeLoading,
+            },
+            true
+          )
     }, [
       addNodes,
       edges,
@@ -144,6 +178,11 @@ export const CustomControls = memo(
       nodes,
       selectedComponents.edges,
       selectedComponents.nodes,
+      setEdges,
+      setNodes,
+      setZenMode,
+      setZenModeLoading,
+      zenMode,
     ])
 
     /* -------------------------------------------------------------------------- */
@@ -230,17 +269,33 @@ export const CustomControls = memo(
         <ControlButton
           className={
             'explain-button' +
-            (!anyCustomNodesOrEdgesSelected ? ' disabled-control-button' : '')
+            (anyCustomNodesOrEdgesSelected || zenMode
+              ? ''
+              : ' disabled-control-button')
           }
           onClick={handleExplain}
         >
-          <AutoFixHighRoundedIcon className="control-button-explain-icon" />
-          <span>explain</span>
-          <ControlButtonTooltip>
-            <TooltipLine>
-              <span>ask {terms.gpt}</span>
-            </TooltipLine>
-          </ControlButtonTooltip>
+          {zenMode ? (
+            <>
+              <AutoFixHighRoundedIcon className="control-button-explain-icon" />
+              <span>return</span>
+              <ControlButtonTooltip>
+                <TooltipLine>
+                  <span>return to main graph</span>
+                </TooltipLine>
+              </ControlButtonTooltip>
+            </>
+          ) : (
+            <>
+              <AutoFixHighRoundedIcon className="control-button-explain-icon" />
+              <span>explain</span>
+              <ControlButtonTooltip>
+                <TooltipLine>
+                  <span>ask {terms.gpt}</span>
+                </TooltipLine>
+              </ControlButtonTooltip>
+            </>
+          )}
         </ControlButton>
 
         <ControlButton

@@ -2,6 +2,17 @@ $node-selection-border-width: rem-to-px(2rem);
 
 .react-flow {
   user-select: none;
+  transition: box-shadow $transition-normal;
+
+  &.flow-zen-mode {
+    box-shadow: inset 0 0 $padding-x-large $padding-xxs $grey !important;
+  }
+
+  &.flow-zen-mode-loading {
+    .react-flow__pane {
+      cursor: wait !important;
+    }
+  }
 
   .react-flow__minimap {
     margin: $padding-mid;

@@ -128,43 +128,59 @@ export const equalDataAcrossTime = (
   return isEqual(
     {
       nodes:
-        past.nodes?.map(node => {
-          const { selected, width, height, ...rest } = node
-          const { editing, ...restData } = node.data as CustomNodeData
-          return {
-            ...rest,
-            data: restData,
-          }
-        }) || [],
+        past.nodes
+          ?.filter(n => !n.data.zenBuddy)
+          .map(node => {
+            const { selected, width, height, ...rest } = node
+            const { editing, zenMaster, ...restData } =
+              node.data as CustomNodeData
+
+            return {
+              ...rest,
+              data: restData,
+            }
+          }) || [],
       edges:
-        past.edges?.map(edge => {
-          const { selected, ...rest } = edge
-          const { editing, ...restData } = edge.data as CustomEdgeData
-          return {
-            ...rest,
-            data: restData,
-          }
-        }) || [],
+        past.edges
+          ?.filter(n => !n.data.zenBuddy)
+          .map(edge => {
+            const { selected, ...rest } = edge
+            const { editing, zenMaster, ...restData } =
+              edge.data as CustomEdgeData
+
+            return {
+              ...rest,
+              data: restData,
+            }
+          }) || [],
     },
     {
       nodes:
-        present.nodes?.map(node => {
-          const { selected, width, height, ...rest } = node
-          const { editing, ...restData } = node.data as CustomNodeData
-          return {
-            ...rest,
-            data: restData,
-          }
-        }) || [],
+        present.nodes
+          ?.filter(n => !n.data.zenBuddy)
+          .map(node => {
+            const { selected, width, height, ...rest } = node
+            const { editing, zenMaster, ...restData } =
+              node.data as CustomNodeData
+
+            return {
+              ...rest,
+              data: restData,
+            }
+          }) || [],
       edges:
-        present.edges?.map(edge => {
-          const { selected, ...rest } = edge
-          const { editing, ...restData } = edge.data as CustomEdgeData
-          return {
-            ...rest,
-            data: restData,
-          }
-        }) || [],
+        present.edges
+          ?.filter(n => !n.data.zenBuddy)
+          .map(edge => {
+            const { selected, ...rest } = edge
+            const { editing, zenMaster, ...restData } =
+              edge.data as CustomEdgeData
+
+            return {
+              ...rest,
+              data: restData,
+            }
+          }) || [],
     }
   )
 }

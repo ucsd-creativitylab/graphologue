@@ -107,6 +107,11 @@ const Flow = ({
   }, [fitView])
 
   /* -------------------------------------------------------------------------- */
+  // ! zen mode
+  const [zenMode, setZenMode] = useState<boolean>(false)
+  const [zenModeLoading, setZenModeLoading] = useState<boolean>(false)
+
+  /* -------------------------------------------------------------------------- */
   // ! internal states
   const reactFlowWrapper = useRef(null)
 
@@ -277,12 +282,13 @@ const Flow = ({
           label: `${token.value}`,
           editing: false,
           styleBackground: styles.nodeColorDefaultWhite,
+          zenBuddy: zenMode,
           toFitView: false,
           fitView: undefined,
         }
       )
     },
-    [addNodes, thisReactFlowInstance]
+    [addNodes, thisReactFlowInstance, zenMode]
   )
 
   /* -------------------------------------------------------------------------- */
@@ -321,6 +327,7 @@ const Flow = ({
             label: '',
             editing: false,
             styleBackground: styles.nodeColorDefaultWhite,
+            zenBuddy: zenMode,
             toFitView: false,
             fitView: fitView,
           }
@@ -341,7 +348,7 @@ const Flow = ({
         // }, 50)
       }
     },
-    [addNodes, setEdges, getViewport, fitView]
+    [getViewport, addNodes, zenMode, fitView, setEdges]
   )
 
   const doSetEdgesEditing = useCallback(
@@ -431,6 +438,7 @@ const Flow = ({
               label: '',
               editing: false,
               styleBackground: styles.nodeColorDefaultWhite,
+              zenBuddy: zenMode,
               toFitView: false,
               fitView: fitView,
             }
@@ -439,7 +447,7 @@ const Flow = ({
       }
       lastClickTime.current = performance.now()
     },
-    [addNodes, fitView, getViewport, nodes, setNodes]
+    [addNodes, fitView, getViewport, nodes, setNodes, zenMode]
   )
 
   // const handlePaneContextMenu = useCallback((e: BaseSyntheticEvent) => {
@@ -459,11 +467,17 @@ const Flow = ({
         selectedComponents: selectedComponents,
         doSetNodesEditing,
         doSetEdgesEditing,
+        zenMode,
+        setZenMode,
+        zenModeLoading,
+        setZenModeLoading,
       }}
     >
       <div id="react-flow-wrapper" ref={reactFlowWrapper}>
         <ReactFlow
-          className={metaPressed ? 'flow-meta-pressed' : ''}
+          className={`custom-flow${metaPressed ? ' flow-meta-pressed' : ''}${
+            zenMode ? ' flow-zen-mode' : ''
+          }${zenModeLoading ? ' flow-zen-mode-loading' : ''}`}
           // basic
           nodes={nodes}
           edges={edges}
@@ -485,8 +499,8 @@ const Flow = ({
           connectionLineStyle={customConnectionLineStyle}
           // viewport control
           panOnScroll={true}
-          selectionOnDrag={true}
-          panOnDrag={[1, 2]}
+          selectionOnDrag={!zenMode}
+          panOnDrag={zenMode ? [0, 1, 2] : [1, 2]}
           selectionMode={SelectionMode.Full}
           // ! actions
           onNodeDoubleClick={handleNodeDoubleClick}
@@ -561,7 +575,7 @@ const Flow = ({
             notesOpened={notesOpened}
             setNotesOpened={setNotesOpened}
           />
-          <Background color="#008ddf" />
+          <Background color={zenMode ? '#dddddd' : '#008ddf'} />
         </ReactFlow>
       </div>
     </FlowContext.Provider>

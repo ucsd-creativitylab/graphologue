@@ -54,6 +54,8 @@ export const sleep = async (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+export const low = (str: string) => str.toLowerCase()
+
 /* -------------------------------------------------------------------------- */
 // ! generate edge params
 
@@ -180,7 +182,9 @@ export const getComponentsBounds = (
 
   targetNodes = [...targetNodes, ...nodesFromEdges]
 
-  targetNodes.forEach(node => {
+  targetNodes.forEach((node: Node) => {
+    if (!node) return
+
     const {
       position: { x, y },
       width,

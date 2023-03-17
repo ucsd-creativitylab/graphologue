@@ -10,6 +10,10 @@ export interface FlowContextType {
   }
   doSetNodesEditing: (nodeIds: string[], editing: boolean) => void
   doSetEdgesEditing: (edgeIds: string[], editing: boolean) => void
+  zenMode: boolean
+  setZenMode: (zenMode: boolean) => void
+  zenModeLoading: boolean
+  setZenModeLoading: (zenModeLoading: boolean) => void
 }
 export const FlowContext = createContext<FlowContextType>({} as FlowContextType)
 

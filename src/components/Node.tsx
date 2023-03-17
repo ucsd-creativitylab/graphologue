@@ -24,7 +24,7 @@ import {
 } from 'reactflow'
 import { ColorResult, TwitterPicker } from 'react-color'
 
-import { hardcodedNodeSize, viewFittingOptions } from '../constants'
+import { hardcodedNodeSize, viewFittingOptions, styles } from '../constants'
 import { FlowContext } from './Contexts'
 import { MagicNodeData } from './MagicNode'
 import {
@@ -47,6 +47,9 @@ export interface CustomNodeData {
   editing: boolean
   // styles
   styleBackground: string
+  // in zen mode
+  zenMaster: boolean
+  zenBuddy: boolean
 }
 
 interface CustomNodeProps extends NodeProps {
@@ -62,7 +65,7 @@ export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
     const { getNodes, setNodes } = useReactFlow()
     const zoomLevel = useStore(useCallback(store => store.transform[2], []))
-    const { metaPressed, selectedComponents } = useContext(FlowContext)
+    const { metaPressed, selectedComponents, zenMode } = useContext(FlowContext)
 
     const moreThanOneComponentsSelected =
       selectedComponents.nodes.length + selectedComponents.edges.length > 1
@@ -74,6 +77,8 @@ export const CustomNode = memo(
       sourceHandleId,
       targetHandleId,
       editing,
+      zenMaster,
+      zenBuddy,
     } = data as CustomNodeData
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
@@ -175,12 +180,15 @@ export const CustomNode = memo(
     /* -------------------------------------------------------------------------- */
     // ! render
 
+    const renderedBackground =
+      zenMaster && zenMode ? styles.edgeColorStrokeExplained : styleBackground
+
     return (
       <div
         className={`custom-node-body${
           metaPressed ? ' custom-node-meta-pressed' : ''
         }${isExplainedByMagicNode ? ' custom-node-explained' : ''}${
-          styleBackground !== '#ffffff' ? ' custom-node-background-color' : ''
+          zenMode && !zenMaster && !zenBuddy ? ' zen-ed-out' : ''
         }`}
       >
         <Handle
@@ -208,7 +216,7 @@ export const CustomNode = memo(
           }`}
           style={{
             zIndex: metaPressed ? 0 : 4,
-            backgroundColor: styleBackground,
+            backgroundColor: renderedBackground,
           }}
         >
           <SuperTextEditor
@@ -216,11 +224,11 @@ export const CustomNode = memo(
             targetId={id}
             content={label}
             editing={editing}
-            background={styleBackground}
+            background={renderedBackground}
             selected={selected}
             textareaRef={textAreaRef}
           >
-            {!moreThanOneComponentsSelected && selected ? (
+            {!moreThanOneComponentsSelected && selected && !zenMode ? (
               <MagicToolbox
                 className={`edge-label-toolbox${
                   selected && !moreThanOneComponentsSelected
@@ -230,6 +238,21 @@ export const CustomNode = memo(
                 zoom={zoomLevel}
                 onUnmount={onToolboxClose}
               >
+                <MagicToolboxItem title="color">
+                  <>
+                    <MagicToolboxButton
+                      content={styleBackground}
+                      onClick={handleToggleShowColorPicker}
+                    />
+                    {showColorPicker && (
+                      <TwitterPicker
+                        color={styleBackground}
+                        onChange={handleChangeColor}
+                      />
+                    )}
+                  </>
+                </MagicToolboxItem>
+
                 {label.length !== 0 && tags.length === 0 ? (
                   <MagicNodeTaggingItem targetId={id} label={label} />
                 ) : (
@@ -246,21 +269,6 @@ export const CustomNode = memo(
                 ) : (
                   <></>
                 )}
-
-                <MagicToolboxItem title="color">
-                  <>
-                    <MagicToolboxButton
-                      content={styleBackground}
-                      onClick={handleToggleShowColorPicker}
-                    />
-                    {showColorPicker && (
-                      <TwitterPicker
-                        color={styleBackground}
-                        onChange={handleChangeColor}
-                      />
-                    )}
-                  </>
-                </MagicToolboxItem>
               </MagicToolbox>
             ) : (
               <></>
@@ -322,7 +330,8 @@ export const getNewCustomNode = (
   sourceHandleId: string,
   targetHandleId: string,
   editing: boolean,
-  styleBackground: string
+  styleBackground: string,
+  zenBuddy: boolean
 ) => {
   const { height: nodeHeight } = hardcodedNodeSize
 
@@ -336,6 +345,8 @@ export const getNewCustomNode = (
       targetHandleId: targetHandleId,
       editing: editing,
       styleBackground: styleBackground,
+      zenMaster: false,
+      zenBuddy: zenBuddy,
     } as CustomNodeData,
     position: { x, y },
     selected: true,
@@ -348,6 +359,7 @@ type CustomAddNodesOptions = {
   label?: string
   editing: boolean
   styleBackground: string
+  zenBuddy: boolean
   fitView: FitView | undefined
   toFitView: boolean
 }
@@ -355,7 +367,14 @@ export const customAddNodes = (
   addNodes: Instance.AddNodes<Node>,
   x: number,
   y: number,
-  { label, editing, styleBackground, fitView, toFitView }: CustomAddNodesOptions
+  {
+    label,
+    editing,
+    styleBackground,
+    zenBuddy,
+    fitView,
+    toFitView,
+  }: CustomAddNodesOptions
 ): {
   nodeId: string
   sourceHandleId: string
@@ -375,7 +394,8 @@ export const customAddNodes = (
     sourceHandleId,
     targetHandleId,
     editing,
-    styleBackground
+    styleBackground,
+    zenBuddy
   )
 
   addNodes(newNode)

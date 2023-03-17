@@ -44,27 +44,33 @@ export const cleanStoredData = (
   data: ReactFlowJsonObject
 ): ReactFlowJsonObject => {
   // make sure all editing, selected, etc. properties are false
-  const nodes =
-    data.nodes?.map(node => {
-      // node.width = undefined
-      // node.height = undefined
-      node.selected = false
+  const nodes: Node[] =
+    data.nodes
+      ?.filter(n => !(n.data as CustomNodeData).zenBuddy)
+      .map((node: Node) => {
+        // node.width = undefined
+        // node.height = undefined
+        node.selected = false
 
-      // data
-      node.data.editing = false
+        // data
+        node.data.editing = false
+        node.data.zenMaster = false
 
-      return node
-    }) || []
+        return node
+      }) || []
 
   const edges =
-    data.edges?.map(edge => {
-      edge.selected = false
+    data.edges
+      ?.filter(n => !(n.data as CustomEdgeData).zenBuddy)
+      .map(edge => {
+        edge.selected = false
 
-      // data
-      edge.data.editing = false
+        // data
+        edge.data.editing = false
+        edge.data.zenMaster = false
 
-      return edge
-    }) || []
+        return edge
+      }) || []
 
   return {
     nodes,

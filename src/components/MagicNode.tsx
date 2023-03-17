@@ -48,7 +48,7 @@ import {
   useTokenDataTransferHandle,
   viewFittingOptions,
 } from '../constants'
-import { NotebookContext } from './Contexts'
+import { FlowContext, NotebookContext } from './Contexts'
 import {
   parseModelResponseText,
   PromptSourceComponentsType,
@@ -61,6 +61,7 @@ import {
   getNodeId,
   getNoteId,
   isEmptyTokenization,
+  low,
   slowDeepCopy,
 } from '../utils/utils'
 import { MagicToolboxButton } from './MagicToolbox'
@@ -79,11 +80,7 @@ import {
   predefinedPrompts,
   predefinedResponses,
 } from '../utils/promptsAndResponses'
-import {
-  getScholarPapersFromKeywords,
-  Scholar,
-  SemanticScholarPaperEntity,
-} from './Scholar'
+import { Scholar, SemanticScholarPaperEntity } from './Scholar'
 import { MagicNote, MagicNoteData } from './Notebook'
 import {
   constructGraph,
@@ -91,15 +88,20 @@ import {
   hasHiddenExpandId,
   removeHiddenExpandId,
 } from '../utils/magicGraphConstruct'
-import { getNewCustomNode } from './Node'
+import { CustomNodeData, getNewCustomNode } from './Node'
 import { getNewEdge } from './Edge'
 import { getNewGroupNode } from './GroupNode'
 import { MagicTokenizedText } from './MagicToken'
+import { VerifyLink } from '../utils/verification'
+import { quitZenExplain, zenExplain } from '../utils/zenExplain'
 
 export interface MagicNodeData {
   sourceComponents: PromptSourceComponentsType
   suggestedPrompts: string[]
   prompt: string
+  rawResponse: string
+  rawLinks: VerifyLink[]
+  rawGraphRelationships: string[][]
 }
 
 export interface VerifyEntities {
@@ -116,20 +118,22 @@ interface MagicNodeProps extends NodeProps {
 export const MagicNode = memo(
   ({ id, data, magicNoteInNotebook, magicNoteData }: MagicNodeProps) => {
     const {
+      addNodes,
       getNode,
       setNodes,
       getNodes,
+      getEdge,
       getEdges,
       setEdges,
       deleteElements,
       fitView,
       fitBounds,
     } = useReactFlow()
+    const { zenMode, setZenMode, setZenModeLoading } = useContext(FlowContext)
     const { addNote, deleteNote } = useContext(NotebookContext)
 
     /* -------------------------------------------------------------------------- */
     const [waitingForModel, setWaitingForModel] = useState<boolean>(false)
-    const [modelResponse, setModelResponse] = useState<string>('')
     const [modelTokenization, setModelTokenization] =
       useState<Tokenization>(emptyTokenization)
     // const [selectedTokens, setSelectedTokens] = useState<EntityType[]>([])
@@ -140,10 +144,6 @@ export const MagicNode = memo(
       researchPapers: [],
     })
     /* -------------------------------------------------------------------------- */
-    const [
-      magicResponseExtractedRelationships,
-      setMagicResponseExtractedRelationships,
-    ] = useState<string[][]>([])
 
     const [
       resolvingTextSelectionExtractedRelationships,
@@ -264,11 +264,11 @@ export const MagicNode = memo(
           id: noteId,
           prompt: data.prompt,
           magicNodeId: id,
-          response: modelResponse,
+          response: data.rawResponse,
           verifyEntities: verifyEntities,
         } as MagicNoteData,
       } as MagicNote)
-    }, [addNote, data, id, modelResponse, verifyEntities])
+    }, [addNote, data.prompt, data.rawResponse, id, verifyEntities])
 
     // ! prompt text change
     const autoGrow = useCallback(() => {
@@ -311,16 +311,59 @@ export const MagicNode = memo(
 
     /* -------------------------------------------------------------------------- */
 
-    const handleModelError = useCallback((error: any) => {
-      console.error(error)
+    const handleSetModelRawResponse = useCallback(
+      (newResponse: string) => {
+        setNodes((nodes: Node[]) => {
+          return nodes.map(node => {
+            if (node.id === id) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  rawResponse: newResponse,
+                },
+              }
+            }
+            return node
+          })
+        })
+      },
+      [id, setNodes]
+    )
 
-      setWaitingForModel(false)
+    const handleSetMagicResponseExtractedRelationships = useCallback(
+      (relationships: string[][]) => {
+        setNodes((nodes: Node[]) => {
+          return nodes.map(node => {
+            if (node.id === id) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  rawGraphRelationships: relationships,
+                } as MagicNodeData,
+              }
+            }
+            return node
+          })
+        })
+      },
+      [id, setNodes]
+    )
 
-      setModelResponse(predefinedResponses.modelDown())
-      setTimeout(() => {
-        setModelResponse('')
-      }, 3000)
-    }, [])
+    const handleModelError = useCallback(
+      (error: any) => {
+        console.error(error)
+
+        setWaitingForModel(false)
+
+        handleSetModelRawResponse(predefinedResponses.modelDown())
+        setTimeout(() => {
+          handleSetModelRawResponse('')
+        }, 3000)
+      },
+      [handleSetModelRawResponse]
+    )
 
     const paperExplanationDict = useRef<{
       [paperId: string]: {
@@ -400,12 +443,12 @@ export const MagicNode = memo(
     const handleAsk = useCallback(async () => {
       if (waitingForModel) return
 
-      // ! ground reset
+      // ! 0. ground reset
       setWaitingForModel(true)
-      setModelResponse('')
+      handleSetModelRawResponse('')
       setModelTokenization(emptyTokenization)
 
-      setMagicResponseExtractedRelationships([])
+      handleSetMagicResponseExtractedRelationships([])
       setResolvingTextSelectionExtractedRelationships(false)
 
       setVerifyFacts(false)
@@ -414,7 +457,7 @@ export const MagicNode = memo(
         researchPapers: [],
       })
 
-      // ! ask model
+      // ! 1. ask model for raw response
       const response = await getOpenAICompletion(
         data.prompt + predefinedPrompts.simpleAnswer()
       )
@@ -427,50 +470,51 @@ export const MagicNode = memo(
 
       if (!parsedResponse.length) {
         setWaitingForModel(false)
-        setModelResponse(predefinedResponses.noValidModelText())
+        handleSetModelRawResponse(predefinedResponses.noValidModelText())
         setTimeout(() => {
-          setModelResponse('')
+          handleSetModelRawResponse('')
         }, 3000)
         return
       }
 
       // get secondary queries for verification
-      // ! ask model
-      const secondaryResponse = await getOpenAICompletion(
-        predefinedPrompts.thisIsStatement(parsedResponse) +
-          predefinedPrompts.addGooglePrompts() +
-          predefinedPrompts.addScholar()
-      )
-      if (secondaryResponse.error)
-        return handleModelError(secondaryResponse.error)
-      const secondaryModelText = getTextFromModelResponse(secondaryResponse)
-      const { searchQueries, researchPaperKeywords } = parseModelResponseText(
-        secondaryModelText,
-        'verify'
-      )
+      // ! 2. ask model for verification
+      // * ask model for verification search queries and paper keywords
+      // const secondaryResponse = await getOpenAICompletion(
+      //   predefinedPrompts.thisIsStatement(parsedResponse) +
+      //     predefinedPrompts.addGooglePrompts() +
+      //     predefinedPrompts.addScholar()
+      // )
+      // if (secondaryResponse.error)
+      //   return handleModelError(secondaryResponse.error)
+      // const secondaryModelText = getTextFromModelResponse(secondaryResponse)
+      // const { searchQueries, researchPaperKeywords } = parseModelResponseText(
+      //   secondaryModelText,
+      //   'verify'
+      // )
 
-      // ! ask model
-      const papersFromKeywords = await getScholarPapersFromKeywords(
-        researchPaperKeywords
-      )
+      // * search papers from keywords
+      // const papersFromKeywords = await getScholarPapersFromKeywords(
+      //   researchPaperKeywords
+      // )
+      // * set queries and papers
+      // setVerifyEntities({
+      //   searchQueries,
+      //   researchPapers: papersFromKeywords,
+      // })
+      // * then get explanations for the papers
+      // askForPaperExplanation(parsedResponse, searchQueries, papersFromKeywords)
 
-      setVerifyEntities({
-        searchQueries,
-        researchPapers: papersFromKeywords,
-      })
-
-      setModelResponse(parsedResponse) // ! actual model text
+      handleSetModelRawResponse(parsedResponse) // ! actual model text
       setWaitingForModel(false)
 
-      // ! ask model
-      setMagicResponseExtractedRelationships(
+      // ! 3. ask model to extract relationships
+      handleSetMagicResponseExtractedRelationships(
         await constructGraphRelationsFromResponse(parsedResponse)
       )
 
-      // ! then get explanations for the papers
-      askForPaperExplanation(parsedResponse, searchQueries, papersFromKeywords)
-
-      // ! send to server
+      // no longer needed
+      // ! send to our server for tokenization
       // if (ws.current?.readyState === ws.current?.OPEN)
       //   ws.current?.send(
       //     JSON.stringify({
@@ -478,7 +522,13 @@ export const MagicNode = memo(
       //       id: id,
       //     } as WebSocketMessageType)
       //   )
-    }, [askForPaperExplanation, data.prompt, handleModelError, waitingForModel])
+    }, [
+      data.prompt,
+      handleModelError,
+      handleSetMagicResponseExtractedRelationships,
+      handleSetModelRawResponse,
+      waitingForModel,
+    ])
 
     // ! suggest prompt
     const handleSuggestPrompt = useCallback(() => {}, [])
@@ -534,12 +584,17 @@ export const MagicNode = memo(
           researchPapers: newPapers,
         })
         askForPaperExplanation(
-          modelResponse,
+          data.rawResponse,
           verifyEntities.searchQueries,
           newPapers
         )
       },
-      [askForPaperExplanation, modelResponse, verifyEntities]
+      [
+        askForPaperExplanation,
+        data.rawResponse,
+        verifyEntities.researchPapers,
+        verifyEntities.searchQueries,
+      ]
     )
 
     useEffect(() => {}, [verifyEntities.researchPapers])
@@ -550,8 +605,8 @@ export const MagicNode = memo(
         return verifyEntities.researchPapers.some(paper => paper.explanation)
       }
       // otherwise, the node is ready as long as there are model responses
-      return modelResponse.length > 0
-    }, [modelResponse.length, verifyEntities.researchPapers])
+      return data.rawResponse.length > 0
+    }, [data.rawResponse.length, verifyEntities.researchPapers])
 
     // handle wheel
     // const handleWheel = useCallback(
@@ -567,13 +622,13 @@ export const MagicNode = memo(
       !folded && verifyFacts && verifyEntities.researchPapers.length > 0
 
     const hasModelResponse =
-      modelResponse.length > 0 ||
+      data.rawResponse.length > 0 ||
       (magicNoteInNotebook &&
         magicNoteData &&
         magicNoteData.response.length > 0)
     const renderedModelResponse = magicNoteInNotebook
       ? magicNoteData?.response || predefinedResponses.noValidResponse()
-      : modelResponse
+      : data.rawResponse
     const renderedVerifyEntities = magicNoteInNotebook
       ? magicNoteData?.verifyEntities || verifyEntities
       : verifyEntities
@@ -593,6 +648,21 @@ export const MagicNode = memo(
         const newNodes: Node[] = []
         const newEdges: Edge[] = []
 
+        const sourceNodes: Node[] = data.sourceComponents.nodes
+          .map(nodeId => {
+            const node = getNode(nodeId)
+            if (!node) return undefined
+            return node
+          })
+          .filter(node => node) as Node[]
+        const sourceEdges: Edge[] = data.sourceComponents.edges
+          .map(edgeId => {
+            const edge = getEdge(edgeId)
+            if (!edge) return undefined
+            return edge
+          })
+          .filter(edge => edge) as Edge[]
+
         const pseudoNodeObjects = computedNodes.map(({ label, x, y }) => {
           return {
             id: getNodeId(),
@@ -606,7 +676,31 @@ export const MagicNode = memo(
         console.log(pseudoNodeObjects) // TODO remove
 
         pseudoNodeObjects.forEach(
-          ({ id, label, x, y, sourceHandleId, targetHandleId }) => {
+          (
+            { id, label, x, y, sourceHandleId, targetHandleId },
+            ind: number
+          ) => {
+            if (
+              sourceNodes.map(node => low(node.data.label)).includes(low(label))
+            ) {
+              const sourceNode = sourceNodes.find(
+                node => low(node.data.label) === low(label)
+              )
+              if (!sourceNode) return
+
+              const { data: sourceNodeData } = sourceNode
+
+              pseudoNodeObjects[ind] = {
+                ...pseudoNodeObjects[ind],
+                id: sourceNode.id,
+                label: sourceNodeData.label,
+                sourceHandleId: sourceNodeData.sourceHandleId,
+                targetHandleId: sourceNodeData.targetHandleId,
+              }
+
+              return
+            }
+
             newNodes.push(
               getNewCustomNode(
                 id,
@@ -618,15 +712,20 @@ export const MagicNode = memo(
                 false,
                 hasHiddenExpandId(label)
                   ? styles.nodeColorDefaultGrey
-                  : styles.nodeColorDefaultWhite // expanded edge label will be grey
+                  : styles.nodeColorDefaultWhite, // expanded edge label will be grey
+                true
               )
             )
           }
         )
 
         relationships.forEach(([source, edge, target]) => {
-          const sourceNode = pseudoNodeObjects.find(n => n.label === source)
-          const targetNode = pseudoNodeObjects.find(n => n.label === target)
+          const sourceNode = pseudoNodeObjects.find(
+            n => low(n.label) === source
+          )
+          const targetNode = pseudoNodeObjects.find(
+            n => low(n.label) === target
+          )
 
           if (!sourceNode || !targetNode) return
 
@@ -642,6 +741,8 @@ export const MagicNode = memo(
                 label: edge,
                 customType: 'arrow',
                 editing: false,
+                zenMaster: false,
+                zenBuddy: true,
               }
             )
           )
@@ -651,15 +752,15 @@ export const MagicNode = memo(
         const thisMagicNode = getNode(id)
         if (!thisMagicNode) return
 
-        const { x, y, width, height } = getGraphBounds(newNodes)
-        const groupingNode = getNewGroupNode(
-          nodeGap +
-            (thisMagicNode.position.x +
-              (thisMagicNode.width || hardcodedNodeSize.magicWidth) || 0),
-          thisMagicNode.position.y,
-          width + nodePosAdjustStep * 2,
-          height + nodePosAdjustStep * 2
-        )
+        const { x, y } = getGraphBounds(newNodes)
+        // const groupingNode = getNewGroupNode(
+        //   nodeGap +
+        //     (thisMagicNode.position.x +
+        //       (thisMagicNode.width || hardcodedNodeSize.magicWidth) || 0),
+        //   thisMagicNode.position.y,
+        //   width + nodePosAdjustStep * 2,
+        //   height + nodePosAdjustStep * 2
+        // )
 
         const originalNodesOffsetX = x - nodePosAdjustStep
         const originalNodesOffsetY = y - nodePosAdjustStep
@@ -668,11 +769,12 @@ export const MagicNode = memo(
           node.position.x -= originalNodesOffsetX
           node.position.y -= originalNodesOffsetY
 
-          node.extent = 'parent'
-          node.parentNode = groupingNode.id
+          // node.extent = 'parent'
+          // node.parentNode = groupingNode.id
         })
 
-        currentNodes.push(groupingNode, ...newNodes)
+        // currentNodes.push(groupingNode, ...newNodes)
+        currentNodes.push(...newNodes)
         currentEdges.push(...newEdges)
 
         setNodes(currentNodes)
@@ -712,7 +814,7 @@ export const MagicNode = memo(
           magicNoteInNotebook={magicNoteInNotebook || false}
           folded={folded}
           preventWheel={preventWheel}
-          modelResponse={modelResponse}
+          modelResponse={data.rawResponse}
           magicNodeFunctions={{
             handleDeleteNode,
             handleToggleFold,
@@ -757,7 +859,7 @@ export const MagicNode = memo(
                     content={
                       <>
                         <AutoFixHighRoundedIcon />
-                        <span>ask</span>
+                        <span>generate</span>
                       </>
                     }
                     onClick={handleAsk}
@@ -794,7 +896,7 @@ export const MagicNode = memo(
                   {!isEmptyTokenization(modelTokenization) ? (
                     <MagicTokenizedText
                       magicNodeId={id}
-                      originalText={modelResponse}
+                      originalText={data.rawResponse}
                       tokenization={modelTokenization}
                     />
                   ) : (
@@ -829,6 +931,38 @@ export const MagicNode = memo(
                             </>
                           }
                           onClick={async () => {
+                            const nodes = getNodes()
+                            const edges = getEdges()
+
+                            if (zenMode)
+                              quitZenExplain(
+                                nodes,
+                                edges,
+                                data.sourceComponents,
+                                {
+                                  setNodes,
+                                  setEdges,
+                                  fitView,
+                                  setZenMode,
+                                  setZenModeLoading,
+                                }
+                              )
+
+                            zenExplain(
+                              nodes,
+                              edges,
+                              data.sourceComponents,
+                              {
+                                addNodes,
+                                setNodes,
+                                setEdges,
+                                fitView,
+                                setZenMode,
+                                setZenModeLoading,
+                              },
+                              false
+                            )
+
                             const textSelection = getCurrentTextSelection()
                             if (textSelection) {
                               setResolvingTextSelectionExtractedRelationships(
@@ -843,43 +977,43 @@ export const MagicNode = memo(
                                 false
                               )
                             } else {
-                              handleConstructGraph(
-                                magicResponseExtractedRelationships
-                              )
+                              handleConstructGraph(data.rawGraphRelationships)
                             }
                           }}
                           disabled={
                             resolvingTextSelectionExtractedRelationships ||
-                            magicResponseExtractedRelationships.length === 0
+                            data.rawGraphRelationships.length === 0
                           }
                         />
                       </div>
                     )}
 
-                    <button
-                      className="model-response-warning"
-                      onClick={handleVerifyFacts}
-                    >
-                      <span>
-                        <TranslateRoundedIcon />
-                        {magicNoteInNotebook
-                          ? `Verify the facts generated by ${terms.gpt}...`
-                          : `Verify the facts generated by ${terms.gpt}...`}
-                      </span>
-                      {verifyFacts ? (
-                        <UnfoldLessRoundedIcon
-                          style={{
-                            transform: 'scale(1.2)',
-                          }}
-                        />
-                      ) : (
-                        <UnfoldMoreRoundedIcon
-                          style={{
-                            transform: 'scale(1.2)',
-                          }}
-                        />
-                      )}
-                    </button>
+                    {false && (
+                      <button
+                        className="model-response-warning"
+                        onClick={handleVerifyFacts}
+                      >
+                        <span>
+                          <TranslateRoundedIcon />
+                          {magicNoteInNotebook
+                            ? `Verify the facts generated by ${terms.gpt}...`
+                            : `Verify the facts generated by ${terms.gpt}...`}
+                        </span>
+                        {verifyFacts ? (
+                          <UnfoldLessRoundedIcon
+                            style={{
+                              transform: 'scale(1.2)',
+                            }}
+                          />
+                        ) : (
+                          <UnfoldMoreRoundedIcon
+                            style={{
+                              transform: 'scale(1.2)',
+                            }}
+                          />
+                        )}
+                      </button>
+                    )}
 
                     {verifyFacts &&
                       (renderedVerifyEntities.researchPapers.length > 0 ||
@@ -1065,6 +1199,7 @@ export const addMagicNode = (
       sourceComponents: sourceComponents,
       suggestedPrompts: suggestedPrompts,
       prompt: (suggestedPrompts[0] ?? 'Hi.') as string,
+      rawResponse: '',
     } as MagicNodeData,
     position: {
       x,
