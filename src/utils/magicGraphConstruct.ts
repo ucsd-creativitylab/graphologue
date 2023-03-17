@@ -20,6 +20,11 @@ const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
     .map((item: string) => {
       item = item.trim()
 
+      if (
+        (item.split(promptTerms.itemRelationshipConnector) ?? []).length !== 3
+      )
+        return []
+
       const triplet: string[] = item
         .split(promptTerms.itemRelationshipConnector)
         .map(i => i.trim())
@@ -116,7 +121,66 @@ const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
   })
 
   ////
-  return expandedRelationshipsArray
+  // * expand multiple edges
+  const expandMultipleEdgesArray: string[][] = []
+  const multipleEdgesPairs: {
+    [key: string]: {
+      count: number
+      relationships: {
+        relationship: string[]
+        hiddenId: string
+      }[]
+    }
+  } = {}
+
+  expandedRelationshipsArray.map(([object, edge, subject]: string[]) => {
+    if (edge.length) {
+      const objectSubjectArray = [object, subject].sort()
+      const key = objectSubjectArray.join(promptTerms.itemRelationshipConnector)
+      if (multipleEdgesPairs[key]) {
+        multipleEdgesPairs[key].count++
+        multipleEdgesPairs[key].relationships.push({
+          relationship: [object, edge, subject],
+          hiddenId: uuidv4(),
+        })
+      } else
+        multipleEdgesPairs[key] = {
+          count: 1,
+          relationships: [
+            {
+              relationship: [object, edge, subject],
+              hiddenId: uuidv4(),
+            },
+          ],
+        }
+    }
+
+    return [object, edge, subject]
+  })
+
+  console.log(expandedRelationshipsArray)
+
+  expandedRelationshipsArray.forEach(([object, edge, subject]: string[]) => {
+    if (edge.length === 0)
+      expandMultipleEdgesArray.push([object, edge, subject])
+    else {
+      const objectSubjectArray = [object, subject].sort()
+      const key = objectSubjectArray.join(promptTerms.itemRelationshipConnector)
+      if (multipleEdgesPairs[key].count >= 2) {
+        // ! need to expand
+        multipleEdgesPairs[key].relationships.forEach(
+          ({ relationship: [o, e, s], hiddenId }) => {
+            const expandedEdgeItem = wrapWithHiddenExpandId(e, hiddenId)
+
+            expandMultipleEdgesArray.push([o, '', expandedEdgeItem])
+            expandMultipleEdgesArray.push([expandedEdgeItem, '', s])
+          }
+        )
+      } else expandMultipleEdgesArray.push([object, edge, subject])
+    }
+  })
+
+  return expandMultipleEdgesArray
 }
 
 export const constructGraphRelationsFromResponse = async (
