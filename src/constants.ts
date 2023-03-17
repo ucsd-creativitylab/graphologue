@@ -41,7 +41,7 @@ export const styles = {
 }
 
 export const terms = {
-  gpt: 'ChatGPT',
+  gpt: 'GPT-4',
   wiki: 'Wikidata',
 }
 
