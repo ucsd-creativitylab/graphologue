@@ -109,6 +109,9 @@ const MagicNoteComponent = memo(
               nodes: [],
               edges: [],
             },
+            rawResponse: '',
+            rawLinks: [],
+            rawGraphRelationships: [],
           }}
           magicNoteInNotebook={true}
           magicNoteData={data}
