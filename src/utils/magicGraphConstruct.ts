@@ -184,7 +184,8 @@ const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
 }
 
 export const constructGraphRelationsFromResponse = async (
-  response: string
+  response: string,
+  entities: string[]
 ): Promise<string[][]> => {
   if (
     response.length === 0 ||
@@ -195,7 +196,7 @@ export const constructGraphRelationsFromResponse = async (
     return []
 
   const textRelationships = await getOpenAICompletion(
-    predefinedPrompts.textToGraph(response)
+    predefinedPrompts.textToGraph(response, entities)
   )
 
   if (textRelationships.error) {

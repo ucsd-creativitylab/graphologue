@@ -6,18 +6,18 @@
 
 // export const OpenAI = new OpenAIApi(configuration)
 
+export interface Prompt {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
 export const getCompletionOptions = (
-  prompt: string,
+  prompts: Prompt[],
   temperature: number,
   token: number
 ) => {
   return {
-    messages: [
-      {
-        role: 'user',
-        content: prompt,
-      },
-    ],
+    messages: prompts,
     ////
     model: 'gpt-4',
     temperature: temperature,
@@ -29,11 +29,11 @@ export const getCompletionOptions = (
 }
 
 export const getOpenAICompletion = async (
-  prompt: string,
+  prompts: Prompt[],
   temperature = 0.7,
   token = 512
 ) => {
-  const options = getCompletionOptions(prompt, temperature, token)
+  const options = getCompletionOptions(prompts, temperature, token)
 
   const requestOptions = {
     method: 'POST',

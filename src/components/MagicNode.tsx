@@ -87,7 +87,7 @@ import {
   hasHiddenExpandId,
   removeHiddenExpandId,
 } from '../utils/magicGraphConstruct'
-import { getNewCustomNode } from './Node'
+import { CustomNodeData, getNewCustomNode } from './Node'
 import { getNewEdge } from './Edge'
 import { getNewGroupNode } from './GroupNode'
 import { MagicTokenizedText } from './MagicToken'
@@ -117,7 +117,7 @@ export const MagicNode = memo(
   ({
     id,
     data,
-    data: { rawResponse, rawLinks, rawGraphRelationships },
+    data: { sourceComponents, rawResponse, rawLinks, rawGraphRelationships },
     magicNoteInNotebook,
     magicNoteData,
   }: MagicNodeProps) => {
@@ -333,6 +333,17 @@ export const MagicNode = memo(
       [id, setNodes]
     )
 
+    const handleGetUserEntities = useCallback(() => {
+      return sourceComponents.nodes
+        .map((nodeId: string) => {
+          const node: Node | undefined = getNode(nodeId)
+          if (node && (node.data as CustomNodeData).label.length)
+            return node.data.label
+          else return ''
+        })
+        .filter(l => l.length > 0)
+    }, [getNode, sourceComponents.nodes])
+
     const handleSetMagicResponseExtractedRelationships = useCallback(
       (relationships: string[][]) => {
         setNodes((nodes: Node[]) => {
@@ -396,13 +407,14 @@ export const MagicNode = memo(
               explanation: '',
             }
 
-            const explanationResponse = await getOpenAICompletion(
-              predefinedPrompts.explainScholar(
-                response,
-                paperToExplain.title,
-                paperToExplain.abstract || ''
-              )
-            )
+            const explanationResponse = await getOpenAICompletion([]) // TODO
+            // const explanationResponse = await getOpenAICompletion(
+            //   predefinedPrompts.explainScholar(
+            //     response,
+            //     paperToExplain.title,
+            //     paperToExplain.abstract || ''
+            //   )
+            // )
 
             if (explanationResponse.error)
               // TODO
@@ -461,7 +473,7 @@ export const MagicNode = memo(
 
       // ! 1. ask model for raw response
       const response = await getOpenAICompletion(
-        data.prompt + predefinedPrompts.simpleAnswer()
+        predefinedPrompts.getModelRawResponse(data.prompt)
       )
 
       // TODO handle error
@@ -512,7 +524,10 @@ export const MagicNode = memo(
 
       // ! 3. ask model to extract relationships
       handleSetMagicResponseExtractedRelationships(
-        await constructGraphRelationsFromResponse(parsedResponse)
+        await constructGraphRelationsFromResponse(
+          parsedResponse,
+          handleGetUserEntities()
+        )
       )
 
       // no longer needed
@@ -526,6 +541,7 @@ export const MagicNode = memo(
       //   )
     }, [
       data.prompt,
+      handleGetUserEntities,
       handleModelError,
       handleSetMagicResponseExtractedRelationships,
       handleSetModelRawResponse,
@@ -894,7 +910,8 @@ export const MagicNode = memo(
                               )
                               handleConstructGraph(
                                 await constructGraphRelationsFromResponse(
-                                  textSelection
+                                  textSelection,
+                                  handleGetUserEntities()
                                 )
                               )
                               setResolvingTextSelectionExtractedRelationships(
