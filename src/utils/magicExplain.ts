@@ -29,7 +29,7 @@ export const magicExplain = (
   const selectedNodes = nodes.filter(node => selectedNodesIds.includes(node.id))
   const selectedEdges = edges.filter(edge => selectedEdgesIds.includes(edge.id))
 
-  const { top, right } = getComponentsBounds(
+  const { top, left } = getComponentsBounds(
     selectedNodes as Node[],
     selectedEdges as Edge[],
     nodes as Node[]
@@ -44,7 +44,7 @@ export const magicExplain = (
   // ! actual add magic node
   const { adjustedX, adjustedY } = adjustNewNodePositionAvoidIntersections(
     nodes.filter(node => node.type === 'magic'),
-    right + nodeGap,
+    left - hardcodedNodeSize.magicWidth - nodeGap,
     top,
     hardcodedNodeSize.magicWidth,
     hardcodedNodeSize.magicHeight,

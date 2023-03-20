@@ -42,7 +42,6 @@ import {
   hardcodedNodeSize,
   magicNodeVerifyPaperCountDefault,
   nodeGap,
-  nodePosAdjustStep,
   styles,
   terms,
   useTokenDataTransferHandle,
@@ -89,7 +88,6 @@ import {
 } from '../utils/magicGraphConstruct'
 import { CustomNodeData, getNewCustomNode } from './Node'
 import { getNewEdge } from './Edge'
-import { getNewGroupNode } from './GroupNode'
 import { MagicTokenizedText } from './MagicToken'
 import { VerifyLink } from '../utils/verification'
 
@@ -125,8 +123,9 @@ export const MagicNode = memo(
       getNode,
       setNodes,
       getNodes,
-      getEdges,
+      // getEdge,
       setEdges,
+      getEdges,
       deleteElements,
       fitView,
       fitBounds,
@@ -666,6 +665,21 @@ export const MagicNode = memo(
         const newNodes: Node[] = []
         const newEdges: Edge[] = []
 
+        const sourceNodes: Node[] = data.sourceComponents.nodes
+          .map(nodeId => {
+            const node = getNode(nodeId)
+            if (!node) return undefined
+            return node
+          })
+          .filter(node => node) as Node[]
+        // const sourceEdges: Edge[] = data.sourceComponents.edges
+        //   .map(edgeId => {
+        //     const edge = getEdge(edgeId)
+        //     if (!edge) return undefined
+        //     return edge
+        //   })
+        //   .filter(edge => edge) as Edge[]
+
         const pseudoNodeObjects = computedNodes.map(({ label, x, y }) => {
           return {
             id: getNodeId(),
@@ -679,7 +693,29 @@ export const MagicNode = memo(
         console.log(pseudoNodeObjects) // TODO remove
 
         pseudoNodeObjects.forEach(
-          ({ id, label, x, y, sourceHandleId, targetHandleId }) => {
+          (
+            { id, label, x, y, sourceHandleId, targetHandleId },
+            ind: number
+          ) => {
+            if (sourceNodes.map(node => node.data.label).includes(label)) {
+              const sourceNode = sourceNodes.find(
+                node => node.data.label === label
+              )
+              if (!sourceNode) return
+
+              const { data: sourceNodeData } = sourceNode
+
+              pseudoNodeObjects[ind] = {
+                ...pseudoNodeObjects[ind],
+                id: sourceNode.id,
+                label: sourceNodeData.label,
+                sourceHandleId: sourceNodeData.sourceHandleId,
+                targetHandleId: sourceNodeData.targetHandleId,
+              }
+
+              return
+            }
+
             newNodes.push(
               getNewCustomNode(
                 id,
@@ -725,34 +761,43 @@ export const MagicNode = memo(
         const thisMagicNode = getNode(id)
         if (!thisMagicNode) return
 
-        const { x, y, width, height } = getGraphBounds(newNodes)
-        const groupingNode = getNewGroupNode(
-          nodeGap +
-            (thisMagicNode.position.x +
-              (thisMagicNode.width || hardcodedNodeSize.magicWidth) || 0),
-          thisMagicNode.position.y,
-          width + nodePosAdjustStep * 2,
-          height + nodePosAdjustStep * 2
-        )
+        // const { x, y, width, height } = getGraphBounds(newNodes)
+        // const groupingNode = getNewGroupNode(
+        //   nodeGap +
+        //     (thisMagicNode.position.x +
+        //       (thisMagicNode.width || hardcodedNodeSize.magicWidth) || 0),
+        //   thisMagicNode.position.y,
+        //   width + nodePosAdjustStep * 2,
+        //   height + nodePosAdjustStep * 2
+        // )
 
-        const originalNodesOffsetX = x - nodePosAdjustStep
-        const originalNodesOffsetY = y - nodePosAdjustStep
+        // const originalNodesOffsetX = x - nodePosAdjustStep
+        // const originalNodesOffsetY = y - nodePosAdjustStep
 
-        newNodes.forEach((node: Node) => {
-          node.position.x -= originalNodesOffsetX
-          node.position.y -= originalNodesOffsetY
+        // newNodes.forEach((node: Node) => {
+        //   node.position.x -= originalNodesOffsetX
+        //   node.position.y -= originalNodesOffsetY
 
-          node.extent = 'parent'
-          node.parentNode = groupingNode.id
-        })
+        //   node.extent = 'parent'
+        //   node.parentNode = groupingNode.id
+        // })
 
-        currentNodes.push(groupingNode, ...newNodes)
+        // currentNodes.push(groupingNode, ...newNodes)
+        currentNodes.push(...newNodes)
         currentEdges.push(...newEdges)
 
         setNodes(currentNodes)
         setEdges(currentEdges)
       },
-      [getEdges, getNode, getNodes, id, setEdges, setNodes]
+      [
+        data.sourceComponents.nodes,
+        getEdges,
+        getNode,
+        getNodes,
+        id,
+        setEdges,
+        setNodes,
+      ]
     )
 
     /* -------------------------------------------------------------------------- */
