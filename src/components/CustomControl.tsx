@@ -3,6 +3,8 @@ import { ControlButton, Controls, Edge, Node, useReactFlow } from 'reactflow'
 
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import GridOnRoundedIcon from '@mui/icons-material/GridOnRounded'
+import StarRoundedIcon from '@mui/icons-material/StarRounded'
+import SpeedRoundedIcon from '@mui/icons-material/SpeedRounded'
 import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 import LightbulbRoundedIcon from '@mui/icons-material/LightbulbRounded'
 import LaptopChromebookRoundedIcon from '@mui/icons-material/LaptopChromebookRounded'
@@ -72,7 +74,7 @@ export const CustomControls = memo(
       deleteElements,
       toObject,
     } = useReactFlow()
-    const { selectNodes } = useContext(FlowContext)
+    const { model, selectNodes, setModel } = useContext(FlowContext)
 
     const _returnToOrigin = useCallback(() => {
       setViewport({ x: 0, y: 0, zoom: 1 }, { duration: transitionDuration })
@@ -117,6 +119,11 @@ export const CustomControls = memo(
 
       return _returnToOrigin()
     }, [_returnToOrigin, deleteElements, getNodes])
+
+    // !
+    const handleChangeModel = useCallback(() => {
+      setModel(model === 'gpt-4' ? 'gpt-3.5-turbo' : 'gpt-4')
+    }, [model, setModel])
 
     /* -------------------------------------------------------------------------- */
 
@@ -231,6 +238,17 @@ export const CustomControls = memo(
           <span>clear</span>
         </ControlButton>
 
+        <ControlButton onClick={handleChangeModel}>
+          {model === 'gpt-4' ? <StarRoundedIcon /> : <SpeedRoundedIcon />}
+          {model === 'gpt-4' ? <span>smarter</span> : <span>faster</span>}
+
+          <ControlButtonTooltip>
+            <TooltipLine>
+              <span>using {terms[model]}</span>
+            </TooltipLine>
+          </ControlButtonTooltip>
+        </ControlButton>
+
         <ControlButton
           className={
             'explain-button' +
@@ -242,7 +260,7 @@ export const CustomControls = memo(
           <span>explain</span>
           <ControlButtonTooltip>
             <TooltipLine>
-              <span>ask {terms.gpt}</span>
+              <span>ask {terms[model]}</span>
             </TooltipLine>
           </ControlButtonTooltip>
         </ControlButton>

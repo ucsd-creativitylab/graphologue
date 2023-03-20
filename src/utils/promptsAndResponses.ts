@@ -44,7 +44,7 @@ export const predefinedPrompts = {
         },
         {
           role: 'user',
-          content: 'List 3 random words or short phrases.',
+          content: 'List 3 random common words or short phrases.',
         },
       ]
 

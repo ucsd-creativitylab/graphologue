@@ -4,7 +4,11 @@ import { v4 as uuidv4 } from 'uuid'
 import { hardcodedNodeWidthEstimation } from '../components/Node'
 import { hardcodedNodeSize } from '../constants'
 
-import { getOpenAICompletion, getTextFromModelResponse } from './openAI'
+import {
+  getOpenAICompletion,
+  getTextFromModelResponse,
+  ModelForMagic,
+} from './openAI'
 import {
   predefinedPrompts,
   predefinedResponses,
@@ -185,7 +189,8 @@ const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
 
 export const constructGraphRelationsFromResponse = async (
   response: string,
-  entities: string[]
+  entities: string[],
+  model: ModelForMagic
 ): Promise<string[][]> => {
   if (
     response.length === 0 ||
@@ -196,7 +201,8 @@ export const constructGraphRelationsFromResponse = async (
     return []
 
   const textRelationships = await getOpenAICompletion(
-    predefinedPrompts.textToGraph(response, entities)
+    predefinedPrompts.textToGraph(response, entities),
+    model
   )
 
   if (textRelationships.error) {

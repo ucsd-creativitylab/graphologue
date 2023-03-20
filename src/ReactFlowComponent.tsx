@@ -58,6 +58,7 @@ import { PromptSourceComponentsType } from './utils/magicExplain'
 import { MagicNode } from './components/MagicNode'
 import { EntityType } from './utils/socket'
 import { CustomGroupNode } from './components/GroupNode'
+import { ModelForMagic } from './utils/openAI'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -479,14 +480,18 @@ const Flow = ({
 
   // none
 
+  const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')
+
   return (
     <FlowContext.Provider
       value={{
         metaPressed,
+        model: modelForMagic,
         selectedComponents: selectedComponents,
         doSetNodesEditing,
         doSetEdgesEditing,
         selectNodes,
+        setModel: setModelForMagic,
       }}
     >
       <div id="react-flow-wrapper" ref={reactFlowWrapper}>

@@ -1,9 +1,11 @@
 import { createContext } from 'react'
 
+import { ModelForMagic } from '../utils/openAI'
 import { Note } from './Notebook'
 
 export interface FlowContextType {
   metaPressed: boolean
+  model: ModelForMagic
   selectedComponents: {
     nodes: string[]
     edges: string[]
@@ -11,6 +13,7 @@ export interface FlowContextType {
   doSetNodesEditing: (nodeIds: string[], editing: boolean) => void
   doSetEdgesEditing: (edgeIds: string[], editing: boolean) => void
   selectNodes: (nodeIds: string[]) => void
+  setModel: (model: ModelForMagic) => void
 }
 export const FlowContext = createContext<FlowContextType>({} as FlowContextType)
 

@@ -250,6 +250,7 @@ export const MagicSuggestItem = memo(
     disabled = false,
   }: MagicSuggestItemProps) => {
     const { setNodes, setEdges } = useReactFlow()
+    const { model } = useContext(FlowContext)
 
     const [modelResponse, setModelResponse] = useState<string>('')
 
@@ -298,7 +299,7 @@ export const MagicSuggestItem = memo(
 
       // !
       if (!disabled) {
-        const response = await getOpenAICompletion(prompt)
+        const response = await getOpenAICompletion(prompt, model)
 
         if (response.error) {
           // TODO like try again?
@@ -309,7 +310,7 @@ export const MagicSuggestItem = memo(
           setModelResponse(getTextFromModelResponse(response))
         else setModelResponse(predefinedResponses.noValidResponse)
       } else setModelResponse(predefinedResponses.noValidResponse)
-    }, [disabled, nodeLabelAndTags, target])
+    }, [disabled, model, nodeLabelAndTags, target])
 
     const autoSuggest = useRef(true)
     useEffect(() => {
@@ -354,7 +355,7 @@ export const MagicSuggestItem = memo(
     return (
       <MagicToolboxItem
         className="magic-suggest-item"
-        title={`${terms.gpt} suggestions`}
+        title={`${terms[model]} suggestions`}
       >
         <div className="magic-suggest-options">
           {modelResponse.length > 0 ? (
@@ -376,10 +377,10 @@ interface MagicAskItemProps {
 }
 export const MagicAskItem = ({ sourceComponents }: MagicAskItemProps) => {
   const { getNodes, getEdges, addNodes, fitView } = useReactFlow()
-  const { selectNodes } = useContext(FlowContext)
+  const { model, selectNodes } = useContext(FlowContext)
 
   return (
-    <MagicToolboxItem title={`ask ${terms.gpt}`}>
+    <MagicToolboxItem title={`ask ${terms[model]}`}>
       <MagicToolboxButton
         content={
           <>

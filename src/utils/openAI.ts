@@ -6,6 +6,8 @@
 
 // export const OpenAI = new OpenAIApi(configuration)
 
+export type ModelForMagic = 'gpt-4' | 'gpt-3.5-turbo'
+
 export interface Prompt {
   role: 'system' | 'user' | 'assistant'
   content: string
@@ -13,13 +15,14 @@ export interface Prompt {
 
 export const getCompletionOptions = (
   prompts: Prompt[],
+  model: ModelForMagic,
   temperature: number,
   token: number
 ) => {
   return {
     messages: prompts,
     ////
-    model: 'gpt-4',
+    model: model,
     temperature: temperature,
     max_tokens: token,
     top_p: 1,
@@ -30,10 +33,13 @@ export const getCompletionOptions = (
 
 export const getOpenAICompletion = async (
   prompts: Prompt[],
+  model: ModelForMagic,
   temperature = 0.7,
   token = 512
 ) => {
-  const options = getCompletionOptions(prompts, temperature, token)
+  console.log(`asking ${model}`, prompts)
+
+  const options = getCompletionOptions(prompts, model, temperature, token)
 
   const requestOptions = {
     method: 'POST',
