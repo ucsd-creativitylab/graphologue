@@ -321,6 +321,7 @@ export const getNewCustomNode = (
   y: number,
   sourceHandleId: string,
   targetHandleId: string,
+  selected: boolean,
   editing: boolean,
   styleBackground: string
 ) => {
@@ -338,7 +339,7 @@ export const getNewCustomNode = (
       styleBackground: styleBackground,
     } as CustomNodeData,
     position: { x, y },
-    selected: true,
+    selected: selected,
     width: hardcodedNodeWidthEstimation(label), // ! are you sure?
     height: nodeHeight, // ! are you sure?
   } as Node
@@ -346,6 +347,7 @@ export const getNewCustomNode = (
 
 type CustomAddNodesOptions = {
   label?: string
+  select: boolean
   editing: boolean
   styleBackground: string
   fitView: FitView | undefined
@@ -353,9 +355,17 @@ type CustomAddNodesOptions = {
 }
 export const customAddNodes = (
   addNodes: Instance.AddNodes<Node>,
+  selectNodes: (nodeIds: string[]) => void,
   x: number,
   y: number,
-  { label, editing, styleBackground, fitView, toFitView }: CustomAddNodesOptions
+  {
+    label,
+    select,
+    editing,
+    styleBackground,
+    fitView,
+    toFitView,
+  }: CustomAddNodesOptions
 ): {
   nodeId: string
   sourceHandleId: string
@@ -374,6 +384,7 @@ export const customAddNodes = (
     y,
     sourceHandleId,
     targetHandleId,
+    select,
     editing,
     styleBackground
   )
@@ -382,6 +393,9 @@ export const customAddNodes = (
 
   setTimeout(() => {
     if (toFitView && fitView) fitView(viewFittingOptions)
+    if (select) {
+      selectNodes([nodeId])
+    }
   }, 0)
 
   return {

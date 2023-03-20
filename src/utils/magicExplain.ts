@@ -1,6 +1,6 @@
 import { Node, Edge, FitView, Instance } from 'reactflow'
-import { hardcodedNodeSize, nodeGap } from '../constants'
 
+import { hardcodedNodeSize, nodeGap } from '../constants'
 import { addMagicNode, AddMagicNodeOptions } from '../components/MagicNode'
 import {
   adjustNewNodePositionAvoidIntersections,
@@ -21,6 +21,7 @@ export const magicExplain = (
   edges: Edge[],
   sourceComponents: PromptSourceComponentsType,
   addNodes: Instance.AddNodes<Node>,
+  selectNodes: (nodeIds: string[]) => void,
   fitView: FitView
 ) => {
   const { nodes: selectedNodesIds, edges: selectedEdgesIds } = sourceComponents
@@ -54,7 +55,8 @@ export const magicExplain = (
       right: true,
     }
   )
-  addMagicNode(addNodes, adjustedX, adjustedY, {
+  addMagicNode(addNodes, selectNodes, adjustedX, adjustedY, {
+    select: true,
     sourceComponents,
     suggestedPrompts,
     fitView: fitView,

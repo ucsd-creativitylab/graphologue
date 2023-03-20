@@ -4,6 +4,7 @@ import {
   MouseEvent,
   ReactElement,
   useCallback,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -23,6 +24,7 @@ import {
   predefinedResponses,
 } from '../utils/promptsAndResponses'
 import { getWikiData } from '../utils/wikiBase'
+import { FlowContext } from './Contexts'
 
 interface MagicToolboxProps {
   className?: string
@@ -374,6 +376,7 @@ interface MagicAskItemProps {
 }
 export const MagicAskItem = ({ sourceComponents }: MagicAskItemProps) => {
   const { getNodes, getEdges, addNodes, fitView } = useReactFlow()
+  const { selectNodes } = useContext(FlowContext)
 
   return (
     <MagicToolboxItem title={`ask ${terms.gpt}`}>
@@ -390,6 +393,7 @@ export const MagicAskItem = ({ sourceComponents }: MagicAskItemProps) => {
             getEdges(),
             sourceComponents,
             addNodes,
+            selectNodes,
             fitView
           )
         }}

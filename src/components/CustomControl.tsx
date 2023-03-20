@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react'
+import React, { memo, useCallback, useContext } from 'react'
 import { ControlButton, Controls, Edge, Node, useReactFlow } from 'reactflow'
 
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
@@ -8,8 +8,7 @@ import LightbulbRoundedIcon from '@mui/icons-material/LightbulbRounded'
 import LaptopChromebookRoundedIcon from '@mui/icons-material/LaptopChromebookRounded'
 import FitScreenRoundedIcon from '@mui/icons-material/FitScreenRounded'
 import SwipeRoundedIcon from '@mui/icons-material/SwipeRounded'
-import SpaceBarRoundedIcon from '@mui/icons-material/SpaceBarRounded'
-// import KeyboardOptionKeyRoundedIcon from '@mui/icons-material/KeyboardOptionKeyRounded'
+import KeyboardOptionKeyRoundedIcon from '@mui/icons-material/KeyboardOptionKeyRounded'
 // import MouseRoundedIcon from '@mui/icons-material/MouseRounded'
 import EditRoundedIcon from '@mui/icons-material/EditRounded'
 import UndoRoundedIcon from '@mui/icons-material/UndoRounded'
@@ -34,6 +33,7 @@ import {
 import { magicExplain } from '../utils/magicExplain'
 
 import defaultExample from '../examples/default.json'
+import { FlowContext } from './Contexts'
 
 type CustomControlsProps = {
   nodes: Node[]
@@ -72,6 +72,7 @@ export const CustomControls = memo(
       deleteElements,
       toObject,
     } = useReactFlow()
+    const { selectNodes } = useContext(FlowContext)
 
     const _returnToOrigin = useCallback(() => {
       setViewport({ x: 0, y: 0, zoom: 1 }, { duration: transitionDuration })
@@ -99,14 +100,15 @@ export const CustomControls = memo(
         window.innerWidth / zoom / 2 - x / zoom - width / zoom / 2,
         window.innerHeight / zoom / 2 - y / zoom - height / zoom / 2
       )
-      customAddNodes(addNodes, adjustedX, adjustedY, {
+      customAddNodes(addNodes, selectNodes, adjustedX, adjustedY, {
         label: '',
+        select: true,
         editing: false,
         styleBackground: styles.nodeColorDefaultWhite,
         fitView,
         toFitView: true,
       })
-    }, [addNodes, fitView, getNodes, getViewport])
+    }, [addNodes, fitView, getNodes, getViewport, selectNodes])
 
     // !
     const handleClearCanvas = useCallback(() => {
@@ -135,6 +137,7 @@ export const CustomControls = memo(
           ),
         },
         addNodes,
+        selectNodes,
         fitView
       )
     }, [
@@ -142,6 +145,7 @@ export const CustomControls = memo(
       edges,
       fitView,
       nodes,
+      selectNodes,
       selectedComponents.edges,
       selectedComponents.nodes,
     ])
@@ -316,10 +320,9 @@ export const CustomControls = memo(
               </span>
             </TooltipLine>
             <TooltipLine>
-              {/* <KeyboardOptionKeyRoundedIcon /> */}
-              <SpaceBarRoundedIcon />
+              <KeyboardOptionKeyRoundedIcon />
               <span>
-                press Space key to <strong>connect</strong>
+                press option (alt) key to <strong>connect</strong>
               </span>
             </TooltipLine>
             <TooltipLine>

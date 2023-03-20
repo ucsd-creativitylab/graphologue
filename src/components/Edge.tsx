@@ -225,7 +225,7 @@ export const EdgeCustomLabel = memo(
     roughZoomLevel,
   }: EdgeCustomLabelProps) => {
     const { getNodes, addNodes, setEdges, fitView } = useReactFlow()
-    const { selectedComponents } = useContext(FlowContext)
+    const { selectedComponents, selectNodes } = useContext(FlowContext)
 
     const moreThanOneComponentsSelected =
       selectedComponents.nodes.length + selectedComponents.edges.length > 1
@@ -242,10 +242,12 @@ export const EdgeCustomLabel = memo(
 
       const { nodeId, targetHandleId, sourceHandleId } = customAddNodes(
         addNodes,
+        selectNodes,
         labelX - nodeWidth / 2,
         labelY - nodeHeight / 2,
         {
           label: edgeData.label,
+          select: false,
           editing: false,
           styleBackground: styles.nodeColorDefaultGrey,
           toFitView: false,
@@ -296,6 +298,7 @@ export const EdgeCustomLabel = memo(
       fitView,
       labelX,
       labelY,
+      selectNodes,
       setEdges,
     ])
 

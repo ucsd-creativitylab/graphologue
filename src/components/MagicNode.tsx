@@ -672,6 +672,7 @@ export const MagicNode = memo(
                 y,
                 sourceHandleId,
                 targetHandleId,
+                true,
                 false,
                 hasHiddenExpandId(label)
                   ? styles.nodeColorDefaultGrey
@@ -1097,6 +1098,7 @@ const MagicNodeBar = memo(
 /* -------------------------------------------------------------------------- */
 
 export interface AddMagicNodeOptions {
+  select: boolean
   sourceComponents: PromptSourceComponentsType
   suggestedPrompts: string[]
   fitView: FitView
@@ -1104,9 +1106,11 @@ export interface AddMagicNodeOptions {
 }
 export const addMagicNode = (
   addNodes: Instance.AddNodes<Node>,
+  selectNodes: (nodeIds: string[]) => void,
   x: number,
   y: number,
   {
+    select,
     sourceComponents,
     suggestedPrompts,
     fitView,
@@ -1140,6 +1144,7 @@ export const addMagicNode = (
 
   setTimeout(() => {
     if (toFitView && fitView) fitView(viewFittingOptions)
+    if (select) selectNodes([nodeId])
   }, 0)
 
   return {

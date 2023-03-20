@@ -170,7 +170,8 @@ const Flow = ({
   }, [nodes, edges, toObject, setTime, selectedComponents])
 
   // ! keys
-  const metaPressed = useKeyPress(['Ctrl', 'Alt', 'Space'])
+  // const metaPressed = useKeyPress(['Ctrl', 'Alt', 'Space'])
+  const metaPressed = useKeyPress(['Alt'])
   // const undoPressed = useKeyPress('Meta+z')
   // const redoPressed = useKeyPress('Meta+x')
 
@@ -211,6 +212,26 @@ const Flow = ({
               },
             }
           }
+        })
+      })
+    },
+    [setNodes]
+  )
+
+  const selectNodes = useCallback(
+    (nodeIds: string[]) => {
+      setNodes((nds: Node[]) => {
+        return nds.map((nd: Node) => {
+          if (!nodeIds.includes(nd.id))
+            return {
+              ...nd,
+              selected: false,
+            }
+          else
+            return {
+              ...nd,
+              selected: true,
+            }
         })
       })
     },
@@ -271,10 +292,12 @@ const Flow = ({
       // add by drop tokens
       customAddNodes(
         addNodes,
+        selectNodes,
         position.x - hardcodedNodeSize.width / 2,
         position.y - hardcodedNodeSize.height / 2,
         {
           label: `${token.value}`,
+          select: false,
           editing: false,
           styleBackground: styles.nodeColorDefaultWhite,
           toFitView: false,
@@ -282,7 +305,7 @@ const Flow = ({
         }
       )
     },
-    [addNodes, thisReactFlowInstance]
+    [addNodes, selectNodes, thisReactFlowInstance]
   )
 
   /* -------------------------------------------------------------------------- */
@@ -315,10 +338,12 @@ const Flow = ({
         // add by drop edge
         const { nodeId, targetHandleId } = customAddNodes(
           addNodes,
+          selectNodes,
           event.clientX / zoom - left - x / zoom - nodeWidth / 2,
           event.clientY / zoom - top - y / zoom - nodeHeight / 2,
           {
             label: '',
+            select: true,
             editing: false,
             styleBackground: styles.nodeColorDefaultWhite,
             toFitView: false,
@@ -341,7 +366,7 @@ const Flow = ({
         // }, 50)
       }
     },
-    [addNodes, setEdges, getViewport, fitView]
+    [getViewport, addNodes, selectNodes, fitView, setEdges]
   )
 
   const doSetEdgesEditing = useCallback(
@@ -425,10 +450,12 @@ const Flow = ({
           // add by double click
           customAddNodes(
             addNodes,
+            selectNodes,
             e.clientX / zoom - x / zoom - nodeWidth / 2,
             e.clientY / zoom - y / zoom - nodeHeight / 2,
             {
               label: '',
+              select: true,
               editing: false,
               styleBackground: styles.nodeColorDefaultWhite,
               toFitView: false,
@@ -439,7 +466,7 @@ const Flow = ({
       }
       lastClickTime.current = performance.now()
     },
-    [addNodes, fitView, getViewport, nodes, setNodes]
+    [addNodes, fitView, getViewport, nodes, selectNodes, setNodes]
   )
 
   // const handlePaneContextMenu = useCallback((e: BaseSyntheticEvent) => {
@@ -459,6 +486,7 @@ const Flow = ({
         selectedComponents: selectedComponents,
         doSetNodesEditing,
         doSetEdgesEditing,
+        selectNodes,
       }}
     >
       <div id="react-flow-wrapper" ref={reactFlowWrapper}>
