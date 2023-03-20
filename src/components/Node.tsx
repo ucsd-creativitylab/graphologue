@@ -230,6 +230,21 @@ export const CustomNode = memo(
                 zoom={zoomLevel}
                 onUnmount={onToolboxClose}
               >
+                <MagicToolboxItem title="color">
+                  <>
+                    <MagicToolboxButton
+                      content={styleBackground}
+                      onClick={handleToggleShowColorPicker}
+                    />
+                    {showColorPicker && (
+                      <TwitterPicker
+                        color={styleBackground}
+                        onChange={handleChangeColor}
+                      />
+                    )}
+                  </>
+                </MagicToolboxItem>
+
                 {label.length !== 0 && tags.length === 0 ? (
                   <MagicNodeTaggingItem targetId={id} label={label} />
                 ) : (
@@ -246,21 +261,6 @@ export const CustomNode = memo(
                 ) : (
                   <></>
                 )}
-
-                <MagicToolboxItem title="color">
-                  <>
-                    <MagicToolboxButton
-                      content={styleBackground}
-                      onClick={handleToggleShowColorPicker}
-                    />
-                    {showColorPicker && (
-                      <TwitterPicker
-                        color={styleBackground}
-                        onChange={handleChangeColor}
-                      />
-                    )}
-                  </>
-                </MagicToolboxItem>
               </MagicToolbox>
             ) : (
               <></>
