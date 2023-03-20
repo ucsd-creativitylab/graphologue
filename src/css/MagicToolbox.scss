@@ -124,4 +124,8 @@ $magic-tag-color-hover: $grey;
   .magic-toolbox-button {
     @include magic-button;
   }
+
+  .magic-toolbox-input {
+    @include magic-input;
+  }
 }

@@ -165,6 +165,8 @@ export const MagicNodeTaggingItem = memo(
     const [noAvailable, setNoAvailable] = useState<boolean>(false)
     // const prevLabel = usePrevious(label)
 
+    const customTagTextInputRef = useRef<HTMLInputElement>(null)
+
     const handleOnClick = useCallback(
       (tag: string) => {
         setNodes((nodes: Node[]) => {
@@ -185,6 +187,26 @@ export const MagicNodeTaggingItem = memo(
       [setNodes, targetId]
     )
 
+    const handleAddCustomTag = useCallback(() => {
+      const customTag = customTagTextInputRef.current?.value
+      if (customTag) {
+        setNodes((nodes: Node[]) => {
+          return nodes.map(node => {
+            if (node.id === targetId) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  tags: [...node.data.tags, customTag],
+                },
+              }
+            }
+            return node
+          })
+        })
+      }
+    }, [setNodes, targetId])
+
     useEffect(() => {
       setNoAvailable(false)
       setAvailableTags([])
@@ -202,34 +224,56 @@ export const MagicNodeTaggingItem = memo(
     }, [label])
 
     return (
-      <MagicToolboxItem
-        className="magic-tagging-item"
-        title={`${terms.wiki} tags`}
-      >
-        <div className="magic-tagging-options">
-          {availableTags.length === 0 ? (
-            !noAvailable ? (
-              <div className="waiting-for-model-placeholder">
-                <PuffLoader size={32} color="#13a600" />
-              </div>
+      <>
+        <MagicToolboxItem
+          className="magic-tagging-item"
+          title={`${terms.wiki} tags`}
+        >
+          <div className="magic-tagging-options">
+            {availableTags.length === 0 ? (
+              !noAvailable ? (
+                <div className="waiting-for-model-placeholder">
+                  <PuffLoader size={32} color="#13a600" />
+                </div>
+              ) : (
+                <MagicTag
+                  key={predefinedResponses.noValidTags()}
+                  tag={predefinedResponses.noValidTags()}
+                  disabled={true}
+                />
+              )
             ) : (
-              <MagicTag
-                key={predefinedResponses.noValidTags()}
-                tag={predefinedResponses.noValidTags()}
-                disabled={true}
-              />
-            )
-          ) : (
-            availableTags.map((tag, ind) => (
-              <MagicTag
-                key={`${targetId}-tag-${ind}-${tag}`}
-                tag={tag}
-                onClick={handleOnClick}
-              />
-            ))
-          )}
-        </div>
-      </MagicToolboxItem>
+              availableTags.map((tag, ind) => (
+                <MagicTag
+                  key={`${targetId}-tag-${ind}-${tag}`}
+                  tag={tag}
+                  onClick={handleOnClick}
+                />
+              ))
+            )}
+          </div>
+        </MagicToolboxItem>
+
+        <MagicToolboxItem title="custom tags">
+          <>
+            <input
+              className="magic-toolbox-input"
+              ref={customTagTextInputRef}
+              type={'text'}
+            />
+            <MagicToolboxButton
+              // disabled={
+              //   customTagTextInputRef.current &&
+              //   customTagTextInputRef.current.value?.length > 0
+              //     ? false
+              //     : true
+              // }
+              content={'add'}
+              onClick={handleAddCustomTag}
+            ></MagicToolboxButton>
+          </>
+        </MagicToolboxItem>
+      </>
     )
   }
 )

@@ -252,3 +252,15 @@ $shadow-heavy: rgba($cold-grey, 0.6) 0 rem-to-px(2rem) rem-to-px(10rem)
     }
   }
 }
+
+@mixin magic-input {
+  font-size: $font-size-default !important;
+  white-space: nowrap;
+  background: $white;
+  padding: $padding-small $padding-mid;
+
+  border: none;
+  outline: rem-to-px(1rem) solid $light;
+  border-radius: $radius-small;
+  cursor: text;
+}
