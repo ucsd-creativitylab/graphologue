@@ -59,6 +59,7 @@ import {
   getMagicNodeId,
   getNodeId,
   getNoteId,
+  getPositionOffsetForGeneratedNodes,
   isEmptyTokenization,
   slowDeepCopy,
 } from '../utils/utils'
@@ -84,9 +85,14 @@ import {
   constructGraph,
   constructGraphRelationsFromResponse,
   hasHiddenExpandId,
+  PostConstructionPseudoNodeObject,
   removeHiddenExpandId,
 } from '../utils/magicGraphConstruct'
-import { CustomNodeData, getNewCustomNode } from './Node'
+import {
+  CustomNodeData,
+  getNewCustomNode,
+  hardcodedNodeWidthEstimation,
+} from './Node'
 import { getNewEdge } from './Edge'
 import { MagicTokenizedText } from './MagicToken'
 import { VerifyLink } from '../utils/verification'
@@ -684,22 +690,50 @@ export const MagicNode = memo(
           return {
             id: getNodeId(),
             label,
-            x,
-            y,
+            position: {
+              x,
+              y,
+            },
+            width: hardcodedNodeWidthEstimation(label),
+            height: hardcodedNodeSize.height,
             sourceHandleId: getHandleId(),
             targetHandleId: getHandleId(),
-          }
+          } as PostConstructionPseudoNodeObject
         })
         console.log(pseudoNodeObjects) // TODO remove
 
+        // how many matching nodes are there?
+        const matchingNodes: Node[] = []
+        pseudoNodeObjects.forEach(({ label }) => {
+          if (sourceNodes.map(node => node.data.label).includes(label)) {
+            const sourceNode = sourceNodes.find(
+              node => node.data.label === label
+            )
+            if (!sourceNode) return
+
+            matchingNodes.push(sourceNode)
+            return
+          }
+        })
+        if (matchingNodes.length === 0) matchingNodes.push(...sourceNodes)
+
+        const thisMagicNode = getNode(id)
+        if (!thisMagicNode) return
+        const positionOffsetForGeneratedNodes =
+          getPositionOffsetForGeneratedNodes(
+            pseudoNodeObjects,
+            matchingNodes,
+            thisMagicNode
+          )
+
         pseudoNodeObjects.forEach(
           (
-            { id, label, x, y, sourceHandleId, targetHandleId },
+            { id, label, position: { x, y }, sourceHandleId, targetHandleId },
             ind: number
           ) => {
             if (sourceNodes.map(node => node.data.label).includes(label)) {
               const sourceNode = sourceNodes.find(
-                node => node.data.label === label
+                (node: Node) => node.data.label === label
               )
               if (!sourceNode) return
 
@@ -720,8 +754,8 @@ export const MagicNode = memo(
               getNewCustomNode(
                 id,
                 removeHiddenExpandId(label),
-                x,
-                y,
+                x + positionOffsetForGeneratedNodes.offsetX,
+                y + positionOffsetForGeneratedNodes.offsetY,
                 sourceHandleId,
                 targetHandleId,
                 true,
@@ -758,8 +792,8 @@ export const MagicNode = memo(
         })
 
         // get bounds of new nodes
-        const thisMagicNode = getNode(id)
-        if (!thisMagicNode) return
+        // const thisMagicNode = getNode(id)
+        // if (!thisMagicNode) return
 
         // const { x, y, width, height } = getGraphBounds(newNodes)
         // const groupingNode = getNewGroupNode(

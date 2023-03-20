@@ -1,6 +1,8 @@
 import { Edge, Node, Position } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
-import { hardcodedNodeSize, nodePosAdjustStep } from '../constants'
+import { CustomNodeData } from '../components/Node'
+import { hardcodedNodeSize, nodeGap, nodePosAdjustStep } from '../constants'
+import { PostConstructionPseudoNodeObject } from './magicGraphConstruct'
 
 import { NodeLabelAndTags } from './promptsAndResponses'
 import { Tokenization } from './socket'
@@ -132,7 +134,9 @@ export const getEdgeParams = (source: Node, target: Node) => {
 /* -------------------------------------------------------------------------- */
 // get graph bounds
 
-export const getGraphBounds = (nodes: Node[]) => {
+export const getGraphBounds = (
+  nodes: Node[] | PostConstructionPseudoNodeObject[]
+) => {
   const bounds = {
     x: Infinity,
     y: Infinity,
@@ -280,6 +284,48 @@ export const adjustNewNodePositionAvoidIntersections = (
   })
 
   return { adjustedX, adjustedY }
+}
+
+export const getPositionOffsetForGeneratedNodes = (
+  pseudoGeneratedNodeObjects: PostConstructionPseudoNodeObject[],
+  anchorNodes: Node[],
+  anchorMagicNode: Node
+): { offsetX: number; offsetY: number } => {
+  // get bounds of pseudoGeneratedNodeObjects
+  const pseudoObjectsBounds = getGraphBounds(pseudoGeneratedNodeObjects)
+
+  if (anchorNodes.length === 0) {
+    // append to the right of the magic node
+    return {
+      offsetX:
+        anchorMagicNode.position.x +
+        (anchorMagicNode.width ?? hardcodedNodeSize.magicWidth) +
+        nodeGap -
+        pseudoObjectsBounds.x,
+      offsetY: anchorMagicNode.position.y - pseudoObjectsBounds.y,
+    }
+  } else {
+    let targetNode: Node
+    if (anchorNodes.length === 1) {
+      targetNode = anchorNodes[0]
+    } else {
+      targetNode = anchorNodes.reduce((acc, node) => {
+        if (node.position.x < acc.position.x) return node
+        return acc
+      })
+    }
+
+    // find the corresponding pseudo object
+    const pseudoObject = pseudoGeneratedNodeObjects.find(
+      p => p.label === (targetNode.data as CustomNodeData).label
+    )
+    if (!pseudoObject) return { offsetX: 0, offsetY: 0 }
+
+    return {
+      offsetX: targetNode.position.x - pseudoObject.position.x,
+      offsetY: targetNode.position.y - pseudoObject.position.y,
+    }
+  }
 }
 
 /* -------------------------------------------------------------------------- */

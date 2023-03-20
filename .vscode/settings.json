@@ -5,6 +5,7 @@
     "graphlib",
     "graphologue",
     "graphonote",
+    "nowheel",
     "OPENAI",
     "reactflow",
     "uuidv"

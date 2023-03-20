@@ -280,3 +280,16 @@ export const constructGraph = (relationships: string[][]) => {
 
   return nodes
 }
+
+export interface PostConstructionPseudoNodeObject {
+  id: string
+  label: string
+  position: {
+    x: number
+    y: number
+  }
+  width: number
+  height: number
+  sourceHandleId: string
+  targetHandleId: string
+}
