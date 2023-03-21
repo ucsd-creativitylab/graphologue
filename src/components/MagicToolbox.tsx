@@ -47,7 +47,7 @@ export const MagicToolbox = ({
 
   return (
     <div
-      className={`magic-toolbox${className ? ` ${className}` : ''}`}
+      className={`fade-in magic-toolbox${className ? ` ${className}` : ''}`}
       style={{
         transform: `scale(${1 / zoom})`,
       }}
