@@ -37,10 +37,14 @@ import {
   customConnectionLineStyle,
   customEdgeOptions,
   getNewEdge,
-} from './components/Edge'
-import { customAddNodes, CustomNode, CustomNodeData } from './components/Node'
-import { CustomControls } from './components/CustomControl'
-import { CustomMarkerDefs } from './components/CustomDefs'
+} from './componentsFlow/Edge'
+import {
+  customAddNodes,
+  CustomNode,
+  CustomNodeData,
+} from './componentsFlow/Node'
+import { CustomControls } from './componentsFlow/CustomControl'
+import { CustomMarkerDefs } from './componentsFlow/CustomDefs'
 import { Note, NoteBook } from './components/Notebook'
 import {
   hardcodedNodeSize,
@@ -55,9 +59,9 @@ import { getItem, storeItem } from './utils/storage'
 import { useTimeMachine } from './utils/timeMachine'
 import { roundTo, sleep } from './utils/utils'
 import { PromptSourceComponentsType } from './utils/magicExplain'
-import { MagicNode } from './components/MagicNode'
+import { MagicNode } from './componentsFlow/MagicNode'
 import { EntityType } from './utils/socket'
-import { CustomGroupNode } from './components/GroupNode'
+import { CustomGroupNode } from './componentsFlow/GroupNode'
 import { ModelForMagic } from './utils/openAI'
 
 const reactFlowWrapperStyle = {

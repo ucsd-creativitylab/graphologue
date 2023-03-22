@@ -20,7 +20,7 @@ import { ReactComponent as PlainLine } from '../media/plainLine.svg'
 import { ReactComponent as ArrowLine } from '../media/arrowLine.svg'
 
 import { hardcodedNodeSize, hideEdgeTextZoomLevel, styles } from '../constants'
-import { FlowContext } from './Contexts'
+import { FlowContext } from '../components/Contexts'
 import { getMarkerId } from './CustomDefs'
 import {
   MagicSuggestItem,

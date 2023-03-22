@@ -25,7 +25,7 @@ import {
   predefinedResponses,
 } from '../utils/promptsAndResponses'
 import { getWikiData } from '../utils/wikiBase'
-import { FlowContext } from './Contexts'
+import { FlowContext } from '../components/Contexts'
 
 interface MagicToolboxProps {
   className?: string

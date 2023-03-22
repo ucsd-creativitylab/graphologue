@@ -45,7 +45,7 @@ import {
   useTokenDataTransferHandle,
   viewFittingOptions,
 } from '../constants'
-import { FlowContext, NotebookContext } from './Contexts'
+import { FlowContext, NotebookContext } from '../components/Contexts'
 import {
   parseModelResponseText,
   PromptSourceComponentsType,
@@ -78,8 +78,8 @@ import {
   predefinedPrompts,
   predefinedResponses,
 } from '../utils/promptsAndResponses'
-import { Scholar, SemanticScholarPaperEntity } from './Scholar'
-import { MagicNote, MagicNoteData } from './Notebook'
+import { Scholar, SemanticScholarPaperEntity } from '../components/Scholar'
+import { MagicNote, MagicNoteData } from '../components/Notebook'
 import {
   constructGraph,
   constructGraphRelationsFromResponse,
@@ -1086,7 +1086,7 @@ export const MagicNode = memo(
                               </p>
                               <div className="verify-options">
                                 {renderedVerifyEntities.searchQueries.map(
-                                  (query, i) => (
+                                  (query: string, i: number) => (
                                     <a
                                       key={i}
                                       className="verify-option"

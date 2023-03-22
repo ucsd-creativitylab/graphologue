@@ -35,7 +35,7 @@ import {
 import { magicExplain } from '../utils/magicExplain'
 
 import defaultExample from '../examples/default.json'
-import { FlowContext } from './Contexts'
+import { FlowContext } from '../components/Contexts'
 
 type CustomControlsProps = {
   nodes: Node[]

@@ -1,6 +1,6 @@
 import { Edge, Node, Position } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
-import { CustomNodeData } from '../components/Node'
+import { CustomNodeData } from '../componentsFlow/Node'
 import { hardcodedNodeSize, nodeGap, nodePosAdjustStep } from '../constants'
 import { PostConstructionPseudoNodeObject } from './magicGraphConstruct'
 

@@ -1,8 +1,8 @@
 import { Edge, Node, ReactFlowJsonObject } from 'reactflow'
 
 import { useSessionStorage, useSessionStorageHandle } from '../constants'
-import { CustomEdgeData } from '../components/Edge'
-import { CustomNodeData } from '../components/Node'
+import { CustomEdgeData } from '../componentsFlow/Edge'
+import { CustomNodeData } from '../componentsFlow/Node'
 
 const standardViewport = {
   x: 0,

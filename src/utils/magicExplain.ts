@@ -1,7 +1,7 @@
 import { Node, Edge, FitView, Instance } from 'reactflow'
 
 import { hardcodedNodeSize, nodeGap } from '../constants'
-import { addMagicNode, AddMagicNodeOptions } from '../components/MagicNode'
+import { addMagicNode, AddMagicNodeOptions } from '../componentsFlow/MagicNode'
 import {
   adjustNewNodePositionAvoidIntersections,
   getComponentsBounds,

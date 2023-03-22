@@ -25,7 +25,7 @@ import {
 import { ColorResult, TwitterPicker } from 'react-color'
 
 import { hardcodedNodeSize, viewFittingOptions } from '../constants'
-import { FlowContext } from './Contexts'
+import { FlowContext } from '../components/Contexts'
 import { MagicNodeData } from './MagicNode'
 import {
   MagicNodeTaggingItem,

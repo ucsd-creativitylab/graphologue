@@ -1,7 +1,7 @@
 import dagre from 'dagre'
 import { v4 as uuidv4 } from 'uuid'
 
-import { hardcodedNodeWidthEstimation } from '../components/Node'
+import { hardcodedNodeWidthEstimation } from '../componentsFlow/Node'
 import { hardcodedNodeSize } from '../constants'
 
 import {

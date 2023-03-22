@@ -5,7 +5,7 @@ import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRound
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded'
 import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded'
 
-import { VerifyEntities, MagicNode } from './MagicNode'
+import { VerifyEntities, MagicNode } from '../componentsFlow/MagicNode'
 import { NotebookContext } from './Contexts'
 import { slowInteractionWaitTimeout } from '../constants'
 

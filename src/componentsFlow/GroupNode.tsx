@@ -19,7 +19,7 @@ import {
   MagicToolboxButton,
   MagicToolboxItem,
 } from './MagicToolbox'
-import { FlowContext } from './Contexts'
+import { FlowContext } from '../components/Contexts'
 import { viewFittingOptions } from '../constants'
 
 export interface CustomGroupNodeProps extends NodeProps {}
