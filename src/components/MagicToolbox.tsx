@@ -14,6 +14,7 @@ import isEqual from 'react-fast-compare'
 import { PuffLoader } from 'react-spinners'
 
 import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
+import KeyboardOptionKeyRoundedIcon from '@mui/icons-material/KeyboardOptionKeyRounded'
 
 import { contentEditingTimeout, terms } from '../constants'
 import { magicExplain, PromptSourceComponentsType } from '../utils/magicExplain'
@@ -38,6 +39,8 @@ export const MagicToolbox = ({
   zoom,
   onUnmount,
 }: MagicToolboxProps) => {
+  const { metaPressed } = useContext(FlowContext)
+
   // unmount
   useEffect(() => {
     return () => {
@@ -45,9 +48,13 @@ export const MagicToolbox = ({
     }
   }, [onUnmount])
 
+  const [expanded, setExpanded] = useState<boolean>(false)
+
   return (
     <div
-      className={`fade-in magic-toolbox${className ? ` ${className}` : ''}`}
+      className={`fade-in magic-toolbox${className ? ` ${className}` : ''}${
+        metaPressed || expanded ? ' expanded-toolbox' : ''
+      }`}
       style={{
         transform: `scale(${1 / zoom})`,
       }}
@@ -55,7 +62,13 @@ export const MagicToolbox = ({
         e.stopPropagation()
       }}
     >
-      {children}
+      <div className="magic-toolbox-content">{children}</div>
+      <KeyboardOptionKeyRoundedIcon
+        className="magic-toolbox-icon"
+        onClick={() => {
+          setExpanded(true)
+        }}
+      />
     </div>
   )
 }

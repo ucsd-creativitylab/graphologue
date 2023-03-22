@@ -28,6 +28,7 @@ export const getCompletionOptions = (
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
+    // stream: true,
   }
 }
 
@@ -54,6 +55,7 @@ export const getOpenAICompletion = async (
     'https://api.openai.com/v1/chat/completions',
     requestOptions
   )
+
   const data = await response.json()
 
   return data

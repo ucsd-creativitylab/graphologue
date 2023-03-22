@@ -56,6 +56,10 @@ export const sleep = async (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+export const isStringRoughEqual = (a: string, b: string) => {
+  return a.toLowerCase().trim() === b.toLowerCase().trim()
+}
+
 /* -------------------------------------------------------------------------- */
 // ! generate edge params
 

@@ -3,14 +3,11 @@ $magic-tag-color-hover: $grey;
 
 .magic-toolbox {
   display: flex;
-  flex-direction: column;
-  gap: $padding-small;
 
   position: absolute;
   top: 0%;
   left: calc(100% + $padding-small);
 
-  padding: $padding-small;
   border: none;
 
   border-radius: $radius-default !important;
@@ -27,6 +24,33 @@ $magic-tag-color-hover: $grey;
 
   z-index: 1 !important;
   transition: opacity $transition-fast;
+
+  &.expanded-toolbox {
+    .magic-toolbox-content {
+      display: flex;
+    }
+
+    .magic-toolbox-icon {
+      display: none;
+    }
+  }
+
+  .magic-toolbox-content {
+    // display: flex;
+    flex-direction: column;
+    gap: $padding-small;
+
+    padding: $padding-small;
+    display: none;
+  }
+
+  .magic-toolbox-icon {
+    width: $font-size-large;
+    height: $font-size-large;
+    padding: $padding-small;
+
+    cursor: pointer;
+  }
 
   * {
     color: $dark-grey;

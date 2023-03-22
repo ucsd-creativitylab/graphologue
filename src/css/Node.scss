@@ -39,6 +39,13 @@ $shadow-node-selected: $shadow-heavy;
       // }
     }
 
+    &.custom-node-temporary {
+      outline-style: dashed !important;
+      outline-width: rem-to-px(2rem);
+      outline-color: $grey;
+      outline-offset: rem-to-px(2rem);
+    }
+
     &.custom-node-explained {
       outline: rem-to-px(2rem) dotted rgba($purple, $opacity-mid) !important;
       outline-offset: rem-to-px(2rem);
@@ -167,6 +174,7 @@ $shadow-node-selected: $shadow-heavy;
     .custom-node-body {
       box-shadow: $shadow-node-selected;
       outline: rem-to-px(2rem) solid rgba($red, $opacity-mid);
+      outline-color: rgba($red, $opacity-mid) !important;
       outline-offset: rem-to-px(2rem);
     }
 

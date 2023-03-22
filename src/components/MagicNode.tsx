@@ -60,6 +60,7 @@ import {
   getNoteId,
   getPositionOffsetForGeneratedNodes,
   isEmptyTokenization,
+  isStringRoughEqual,
   slowDeepCopy,
 } from '../utils/utils'
 import { MagicToolboxButton } from './MagicToolbox'
@@ -477,10 +478,13 @@ export const MagicNode = memo(
       })
 
       // ! 1. ask model for raw response
+      console.log('asking model')
+
       const response = await getOpenAICompletion(
         predefinedPrompts.getModelRawResponse(data.prompt),
         model
       )
+      console.log(response)
 
       // TODO handle error
       if (response.error) return handleModelError(response.error)
@@ -709,8 +713,8 @@ export const MagicNode = memo(
         const matchingNodes: Node[] = []
         pseudoNodeObjects.forEach(({ label }) => {
           if (sourceNodes.map(node => node.data.label).includes(label)) {
-            const sourceNode = sourceNodes.find(
-              node => node.data.label === label
+            const sourceNode = sourceNodes.find(node =>
+              isStringRoughEqual(node.data.label, label)
             )
             if (!sourceNode) return
 
@@ -735,8 +739,8 @@ export const MagicNode = memo(
             ind: number
           ) => {
             if (sourceNodes.map(node => node.data.label).includes(label)) {
-              const sourceNode = sourceNodes.find(
-                (node: Node) => node.data.label === label
+              const sourceNode = sourceNodes.find((node: Node) =>
+                isStringRoughEqual(node.data.label, label)
               )
               if (!sourceNode) return
 
@@ -765,7 +769,10 @@ export const MagicNode = memo(
                 false,
                 hasHiddenExpandId(label)
                   ? styles.nodeColorDefaultGrey
-                  : styles.nodeColorDefaultWhite // expanded edge label will be grey
+                  : styles.nodeColorDefaultWhite, // expanded edge label will be grey
+                {
+                  temporary: true,
+                }
               )
             )
           }
@@ -789,6 +796,9 @@ export const MagicNode = memo(
                 label: edge,
                 customType: 'arrow',
                 editing: false,
+                generated: {
+                  temporary: true,
+                },
               }
             )
           )

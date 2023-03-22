@@ -96,7 +96,7 @@ export const predefinedPrompts = {
           'helpful',
           true,
           `Construct a knowledge graph to reflect all the relationships in the sentences in the paragraph from the user.
-Use user-provided entities when possible. Each entity (i.e. node) can be used in multiple relationships. There should be one connected graph in total. \
+Use user-provided entities (including the letter case) when possible. Each entity (i.e. node) can be used in multiple relationships. There should be one connected graph in total. \
 Response format: {subject} ${promptTerms.itemRelationshipConnector} {short label indicating the relationship between subject and object} ${promptTerms.itemRelationshipConnector} {object}${promptTerms.itemBreaker}`
         ),
       },

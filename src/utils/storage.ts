@@ -45,26 +45,38 @@ export const cleanStoredData = (
 ): ReactFlowJsonObject => {
   // make sure all editing, selected, etc. properties are false
   const nodes =
-    data.nodes?.map(node => {
-      // node.width = undefined
-      // node.height = undefined
-      node.selected = false
+    data.nodes
+      ?.map((node: Node) => {
+        // node.width = undefined
+        // node.height = undefined
+        node.selected = false
 
-      // data
-      node.data.editing = false
+        // data
+        node.data.editing = false
 
-      return node
-    }) || []
+        return node
+      })
+      .filter((node: Node) => {
+        if (node.type !== 'custom') return true
+
+        const d = node.data as CustomNodeData
+        return d.generated.temporary !== true
+      }) || []
 
   const edges =
-    data.edges?.map(edge => {
-      edge.selected = false
+    data.edges
+      ?.map((edge: Edge) => {
+        edge.selected = false
 
-      // data
-      edge.data.editing = false
+        // data
+        edge.data.editing = false
 
-      return edge
-    }) || []
+        return edge
+      })
+      .filter((edge: Edge) => {
+        const d = edge.data as CustomEdgeData
+        return d.generated.temporary !== true
+      }) || []
 
   return {
     nodes,

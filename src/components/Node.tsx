@@ -38,6 +38,10 @@ import randomPhrases from '../utils/randomPhrases'
 import { SuperTextEditor } from './SuperTextEditor'
 import { getHandleId, getNodeId, getNodeLabelAndTags } from '../utils/utils'
 
+export interface GeneratedInformation {
+  temporary: boolean
+}
+
 export interface CustomNodeData {
   label: string
   tags: string[]
@@ -47,6 +51,8 @@ export interface CustomNodeData {
   editing: boolean
   // styles
   styleBackground: string
+  // generated
+  generated: GeneratedInformation
 }
 
 interface CustomNodeProps extends NodeProps {
@@ -74,6 +80,7 @@ export const CustomNode = memo(
       sourceHandleId,
       targetHandleId,
       editing,
+      generated: { temporary },
     } = data as CustomNodeData
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
@@ -181,7 +188,7 @@ export const CustomNode = memo(
           metaPressed ? ' custom-node-meta-pressed' : ''
         }${isExplainedByMagicNode ? ' custom-node-explained' : ''}${
           styleBackground !== '#ffffff' ? ' custom-node-background-color' : ''
-        }`}
+        }${temporary ? ' custom-node-temporary' : ''}`}
       >
         <Handle
           id={targetHandleId}
@@ -323,7 +330,8 @@ export const getNewCustomNode = (
   targetHandleId: string,
   selected: boolean,
   editing: boolean,
-  styleBackground: string
+  styleBackground: string,
+  generated: GeneratedInformation
 ) => {
   const { height: nodeHeight } = hardcodedNodeSize
 
@@ -337,6 +345,7 @@ export const getNewCustomNode = (
       targetHandleId: targetHandleId,
       editing: editing,
       styleBackground: styleBackground,
+      generated: generated,
     } as CustomNodeData,
     position: { x, y },
     selected: selected,
@@ -386,7 +395,10 @@ export const customAddNodes = (
     targetHandleId,
     select,
     editing,
-    styleBackground
+    styleBackground,
+    {
+      temporary: false,
+    }
   )
 
   addNodes(newNode)

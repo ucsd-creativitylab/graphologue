@@ -30,7 +30,7 @@ import {
 } from './MagicToolbox'
 import { SuperTextEditor } from './SuperTextEditor'
 import { getEdgeId, getEdgeParams, getNodeLabelAndTags } from '../utils/utils'
-import { customAddNodes } from './Node'
+import { customAddNodes, GeneratedInformation } from './Node'
 import { MagicNodeData } from './MagicNode'
 
 /* -------------------------------------------------------------------------- */
@@ -39,6 +39,7 @@ export interface CustomEdgeData {
   label: string
   customType: 'dash' | 'plain' | 'arrow'
   editing: boolean
+  generated: GeneratedInformation
 }
 
 interface CustomEdgeProps extends EdgeProps {
@@ -172,8 +173,15 @@ export const getNewEdge = (
   params: Connection,
   dataOptions?: CustomEdgeData
 ) => {
-  const data = {
-    ...{ label: '', customType: 'plain', editing: false },
+  const data: CustomEdgeData = {
+    ...({
+      label: '',
+      customType: 'plain',
+      editing: false,
+      generated: {
+        temporary: false,
+      },
+    } as CustomEdgeData),
     ...(dataOptions || {}),
   }
   return {
@@ -272,6 +280,9 @@ export const EdgeCustomLabel = memo(
                 label: '',
                 customType: edgeData.customType,
                 editing: false,
+                generated: {
+                  temporary: false,
+                },
               }
             ),
             getNewEdge(
@@ -285,6 +296,9 @@ export const EdgeCustomLabel = memo(
                 label: '',
                 customType: edgeData.customType,
                 editing: false,
+                generated: {
+                  temporary: false,
+                },
               }
             ),
           ])
