@@ -461,6 +461,8 @@ export const MagicNode = memo(
 
     // ! actual ask
     const handleAsk = useCallback(async () => {
+      console.log(waitingForModel)
+
       if (waitingForModel) return
 
       // ! 0. ground reset
@@ -479,7 +481,6 @@ export const MagicNode = memo(
 
       // ! 1. ask model for raw response
       console.log('asking model')
-
       const response = await getOpenAICompletion(
         predefinedPrompts.getModelRawResponse(data.prompt),
         model
@@ -575,11 +576,37 @@ export const MagicNode = memo(
     // ! ask automatically on mount
     const autoAsk = useRef(true)
     useEffect(() => {
-      if (!debug && !magicNoteInNotebook && autoAsk.current) {
+      // if (!debug && !magicNoteInNotebook && autoAsk.current) {
+      if (!magicNoteInNotebook && autoAsk.current) {
         autoAsk.current = false
-        handleAsk()
+
+        if (!data.rawResponse.length) handleAsk()
+        else if (
+          data.rawResponse.length &&
+          !data.rawGraphRelationships.length
+        ) {
+          const _ = async () => {
+            handleSetMagicResponseExtractedRelationships(
+              await constructGraphRelationsFromResponse(
+                data.rawResponse,
+                handleGetUserEntities(),
+                model
+              )
+            )
+          }
+
+          _()
+        }
       }
-    }, [handleAsk, magicNoteInNotebook])
+    }, [
+      data.rawGraphRelationships.length,
+      data.rawResponse,
+      handleAsk,
+      handleGetUserEntities,
+      handleSetMagicResponseExtractedRelationships,
+      magicNoteInNotebook,
+      model,
+    ])
 
     /* -------------------------------------------------------------------------- */
 
