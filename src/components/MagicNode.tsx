@@ -38,7 +38,6 @@ import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded'
 // import LinkOffRoundedIcon from '@mui/icons-material/LinkOffRounded'
 
 import {
-  debug,
   hardcodedNodeSize,
   magicNodeVerifyPaperCountDefault,
   nodeGap,
