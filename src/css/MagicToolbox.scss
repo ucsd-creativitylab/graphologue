@@ -3,6 +3,8 @@ $magic-tag-color-hover: $grey;
 
 .magic-toolbox {
   display: flex;
+  align-items: center;
+  justify-content: center;
 
   position: absolute;
   top: 0%;

@@ -358,49 +358,53 @@ export const EdgeCustomLabel = memo(
           textareaRef={null}
         >
           {/* -------------------------------------------------------------------------- */}
-          <MagicToolbox
-            className={`edge-label-toolbox${
-              selected && !moreThanOneComponentsSelected
-                ? ' magic-toolbox-show'
-                : ''
-            }`}
-            zoom={roughZoomLevel}
-          >
-            {edgeData.label.length === 0 && selected ? (
-              <MagicSuggestItem
-                target="edge"
-                targetId={edgeId}
-                nodeLabelAndTags={getNodeLabelAndTags(
-                  getRelevantNodesForEdge(connection, getNodes())
-                )}
-                edgeLabels={[]}
-                disabled={moreThanOneComponentsSelected}
-              />
-            ) : (
-              <></>
-            )}
+          {!moreThanOneComponentsSelected && selected ? (
+            <MagicToolbox
+              className={`edge-label-toolbox${
+                !moreThanOneComponentsSelected && selected
+                  ? ' magic-toolbox-show'
+                  : ''
+              }`}
+              zoom={roughZoomLevel}
+            >
+              {edgeData.label.length === 0 && selected ? (
+                <MagicSuggestItem
+                  target="edge"
+                  targetId={edgeId}
+                  nodeLabelAndTags={getNodeLabelAndTags(
+                    getRelevantNodesForEdge(connection, getNodes())
+                  )}
+                  edgeLabels={[]}
+                  disabled={moreThanOneComponentsSelected}
+                />
+              ) : (
+                <></>
+              )}
 
-            <MagicToolboxItem title="switch type">
-              <EdgeCustomTypeSwitch
-                currentType={edgeData.customType}
-                handleChange={handleSwitchCustomEdgeType}
-              />
-            </MagicToolboxItem>
+              <MagicToolboxItem title="switch type">
+                <EdgeCustomTypeSwitch
+                  currentType={edgeData.customType}
+                  handleChange={handleSwitchCustomEdgeType}
+                />
+              </MagicToolboxItem>
 
-            <MagicToolboxItem title="make node">
-              <MagicToolboxButton
-                content={
-                  <>
-                    <LinearScaleRoundedIcon />
-                    <span>
-                      {edgeData.label.length ? 'convert to node' : 'add node'}
-                    </span>
-                  </>
-                }
-                onClick={handleAddNodeFromEdge}
-              />
-            </MagicToolboxItem>
-          </MagicToolbox>
+              <MagicToolboxItem title="make node">
+                <MagicToolboxButton
+                  content={
+                    <>
+                      <LinearScaleRoundedIcon />
+                      <span>
+                        {edgeData.label.length ? 'convert to node' : 'add node'}
+                      </span>
+                    </>
+                  }
+                  onClick={handleAddNodeFromEdge}
+                />
+              </MagicToolboxItem>
+            </MagicToolbox>
+          ) : (
+            <></>
+          )}
           {/* -------------------------------------------------------------------------- */}
         </SuperTextEditor>
       </foreignObject>
