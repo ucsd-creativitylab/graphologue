@@ -1,42 +1,9 @@
-@mixin the-bar(
-  $radius: $radius-default,
-  $bg: $white,
+@mixin bar-button(
   $button-bg: $white,
   $button-color: $black,
   $edge: $light,
   $button-edge: $light
 ) {
-  // position: absolute;
-  top: 0;
-
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: $padding-small;
-
-  border-bottom: rem-to-px(1rem) solid $edge;
-  padding: $padding-small;
-  width: 100%;
-
-  border-radius: $radius $radius 0 0;
-  overflow: hidden;
-  z-index: 100;
-
-  &:not(.in-notebook, .bar-no-need-to-blur) {
-    background-color: rgba($bg, $opacity-mid);
-    backdrop-filter: blur($blur-high);
-  }
-
-  .bar-buttons {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: row;
-    gap: $padding-small;
-    z-index: 1;
-  }
-
   .bar-button {
     display: flex;
     justify-content: center;
@@ -90,6 +57,48 @@
         background: none;
       }
     }
+  }
+}
+
+@mixin the-bar(
+  $radius: $radius-default,
+  $bg: $white,
+  $button-bg: $white,
+  $button-color: $black,
+  $edge: $light,
+  $button-edge: $light
+) {
+  // position: absolute;
+  top: 0;
+
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: $padding-small;
+
+  border-bottom: rem-to-px(1rem) solid $edge;
+  padding: $padding-small;
+  width: 100%;
+
+  border-radius: $radius $radius 0 0;
+  overflow: hidden;
+  z-index: 100;
+
+  &:not(.in-notebook, .bar-no-need-to-blur) {
+    background-color: rgba($bg, $opacity-mid);
+    backdrop-filter: blur($blur-high);
+  }
+
+  .bar-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: row;
+    gap: $padding-small;
+    z-index: 1;
+
+    @include bar-button($button-bg, $button-color, $edge, $button-edge);
   }
 }
 

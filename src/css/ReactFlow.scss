@@ -194,8 +194,12 @@ $node-selection-border-width: rem-to-px(2rem);
 
 #react-flow-wrapper {
   flex-grow: 1;
-  height: 100%;
+  height: 40rem;
   width: 100%;
   padding: 0;
   margin: 0;
+
+  overflow: hidden;
+  border-radius: $radius-default;
+  outline: 1px solid $light;
 }

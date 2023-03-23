@@ -1,7 +1,19 @@
 import { createContext } from 'react'
+import { QuestionAndAnswer } from '../App'
 
 import { ModelForMagic } from '../utils/openAI'
 import { Note } from './Notebook'
+
+export interface ChatContextType {
+  setQuestionsAndAnswers: (
+    questionsAndAnswers:
+      | QuestionAndAnswer[]
+      | ((prev: QuestionAndAnswer[]) => QuestionAndAnswer[])
+  ) => void
+}
+export const ChatContext = createContext<ChatContextType>({} as ChatContextType)
+
+/* -------------------------------------------------------------------------- */
 
 export interface FlowContextType {
   metaPressed: boolean

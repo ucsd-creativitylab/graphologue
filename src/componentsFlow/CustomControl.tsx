@@ -2,10 +2,10 @@ import React, { memo, useCallback, useContext } from 'react'
 import { ControlButton, Controls, Edge, Node, useReactFlow } from 'reactflow'
 
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
-import GridOnRoundedIcon from '@mui/icons-material/GridOnRounded'
-import StarRoundedIcon from '@mui/icons-material/StarRounded'
-import SpeedRoundedIcon from '@mui/icons-material/SpeedRounded'
-import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
+// import GridOnRoundedIcon from '@mui/icons-material/GridOnRounded'
+// import StarRoundedIcon from '@mui/icons-material/StarRounded'
+// import SpeedRoundedIcon from '@mui/icons-material/SpeedRounded'
+// import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 import LightbulbRoundedIcon from '@mui/icons-material/LightbulbRounded'
 import LaptopChromebookRoundedIcon from '@mui/icons-material/LaptopChromebookRounded'
 import FitScreenRoundedIcon from '@mui/icons-material/FitScreenRounded'
@@ -15,8 +15,8 @@ import KeyboardOptionKeyRoundedIcon from '@mui/icons-material/KeyboardOptionKeyR
 import EditRoundedIcon from '@mui/icons-material/EditRounded'
 import UndoRoundedIcon from '@mui/icons-material/UndoRounded'
 import RedoRoundedIcon from '@mui/icons-material/RedoRounded'
-import FormatListBulletedRoundedIcon from '@mui/icons-material/FormatListBulletedRounded'
-import TheatersRoundedIcon from '@mui/icons-material/TheatersRounded'
+// import FormatListBulletedRoundedIcon from '@mui/icons-material/FormatListBulletedRounded'
+// import TheatersRoundedIcon from '@mui/icons-material/TheatersRounded'
 import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded'
 
 import { customAddNodes } from './Node'
@@ -28,13 +28,11 @@ import {
 import {
   hardcodedNodeSize,
   styles,
-  terms,
   transitionDuration,
   viewFittingOptions,
 } from '../constants'
-import { magicExplain } from '../utils/magicExplain'
 
-import defaultExample from '../examples/default.json'
+// import defaultExample from '../examples/default.json'
 import { FlowContext } from '../components/Contexts'
 
 type CustomControlsProps = {
@@ -48,8 +46,8 @@ type CustomControlsProps = {
   redoTime: () => void
   canRedo: boolean
   canUndo: boolean
-  notesOpened: boolean
-  setNotesOpened: (notesOpened: boolean) => void
+  // notesOpened: boolean
+  // setNotesOpened: (notesOpened: boolean) => void
 }
 export const CustomControls = memo(
   ({
@@ -60,9 +58,9 @@ export const CustomControls = memo(
     redoTime,
     canUndo,
     canRedo,
-    notesOpened,
-    setNotesOpened,
-  }: CustomControlsProps) => {
+  }: // notesOpened,
+  // setNotesOpened,
+  CustomControlsProps) => {
     const {
       setViewport,
       fitView,
@@ -70,11 +68,12 @@ export const CustomControls = memo(
       getViewport,
       getNodes,
       addNodes,
-      addEdges,
-      deleteElements,
+      // addEdges,
+      // deleteElements,
       toObject,
     } = useReactFlow()
-    const { model, selectNodes, setModel } = useContext(FlowContext)
+    // const { model, selectNodes, setModel } = useContext(FlowContext)
+    const { selectNodes } = useContext(FlowContext)
 
     const _returnToOrigin = useCallback(() => {
       setViewport({ x: 0, y: 0, zoom: 1 }, { duration: transitionDuration })
@@ -113,57 +112,57 @@ export const CustomControls = memo(
     }, [addNodes, fitView, getNodes, getViewport, selectNodes])
 
     // !
-    const handleClearCanvas = useCallback(() => {
-      // remove all nodes
-      deleteElements({ nodes: getNodes() })
+    // const handleClearCanvas = useCallback(() => {
+    //   // remove all nodes
+    //   deleteElements({ nodes: getNodes() })
 
-      return _returnToOrigin()
-    }, [_returnToOrigin, deleteElements, getNodes])
+    //   return _returnToOrigin()
+    // }, [_returnToOrigin, deleteElements, getNodes])
 
     // !
-    const handleChangeModel = useCallback(() => {
-      setModel(model === 'gpt-4' ? 'gpt-3.5-turbo' : 'gpt-4')
-    }, [model, setModel])
+    // const handleChangeModel = useCallback(() => {
+    //   setModel(model === 'gpt-4' ? 'gpt-3.5-turbo' : 'gpt-4')
+    // }, [model, setModel])
 
     /* -------------------------------------------------------------------------- */
 
     // ! explain
 
-    const handleExplain = useCallback(() => {
-      magicExplain(
-        nodes,
-        edges,
-        {
-          edges: selectedComponents.edges,
-          nodes: selectedComponents.nodes.filter(
-            // you cannot explain a magic node
-            (nodeId: string) => {
-              const node = nodes.find(node => node.id === nodeId)
-              return node && node.type !== 'magic'
-            }
-          ),
-        },
-        addNodes,
-        selectNodes,
-        fitView
-      )
-    }, [
-      addNodes,
-      edges,
-      fitView,
-      nodes,
-      selectNodes,
-      selectedComponents.edges,
-      selectedComponents.nodes,
-    ])
+    // const handleExplain = useCallback(() => {
+    //   magicExplain(
+    //     nodes,
+    //     edges,
+    //     {
+    //       edges: selectedComponents.edges,
+    //       nodes: selectedComponents.nodes.filter(
+    //         // you cannot explain a magic node
+    //         (nodeId: string) => {
+    //           const node = nodes.find(node => node.id === nodeId)
+    //           return node && node.type !== 'magic'
+    //         }
+    //       ),
+    //     },
+    //     addNodes,
+    //     selectNodes,
+    //     fitView
+    //   )
+    // }, [
+    //   addNodes,
+    //   edges,
+    //   fitView,
+    //   nodes,
+    //   selectNodes,
+    //   selectedComponents.edges,
+    //   selectedComponents.nodes,
+    // ])
 
     /* -------------------------------------------------------------------------- */
 
     // ! notebook
 
-    const handleToggleNotebook = useCallback(() => {
-      setNotesOpened(!notesOpened)
-    }, [notesOpened, setNotesOpened])
+    // const handleToggleNotebook = useCallback(() => {
+    //   setNotesOpened(!notesOpened)
+    // }, [notesOpened, setNotesOpened])
 
     /* -------------------------------------------------------------------------- */
 
@@ -179,34 +178,34 @@ export const CustomControls = memo(
 
     // ! load example
 
-    const handleLoadExample = useCallback(async () => {
-      if (defaultExample) {
-        const { nodes, edges } = defaultExample
+    // const handleLoadExample = useCallback(async () => {
+    //   if (defaultExample) {
+    //     const { nodes, edges } = defaultExample
 
-        // TODO instead of clearing the canvas, preserve the current nodes and add example nodes on the side
-        // clear the canvas
-        handleClearCanvas()
+    //     // TODO instead of clearing the canvas, preserve the current nodes and add example nodes on the side
+    //     // clear the canvas
+    //     handleClearCanvas()
 
-        // add nodes
-        addNodes(nodes as Node[])
+    //     // add nodes
+    //     addNodes(nodes as Node[])
 
-        // add edges
-        addEdges(edges as Edge[])
+    //     // add edges
+    //     addEdges(edges as Edge[])
 
-        // fit view
-        setTimeout(() => fitView(viewFittingOptions), 0)
-      }
-    }, [addEdges, addNodes, fitView, handleClearCanvas])
+    //     // fit view
+    //     setTimeout(() => fitView(viewFittingOptions), 0)
+    //   }
+    // }, [addEdges, addNodes, fitView, handleClearCanvas])
 
     /* -------------------------------------------------------------------------- */
 
-    const isEmptyCanvas = nodes.length === 0
-    // you cannot explain a magic node
-    const anyCustomNodesOrEdgesSelected =
-      selectedComponents.nodes.some(nodeId => {
-        const node = nodes.find(node => node.id === nodeId)
-        return node && node.type !== 'magic' && node.selected
-      }) || selectedComponents.edges.length > 0
+    // const isEmptyCanvas = nodes.length === 0
+    // // you cannot explain a magic node
+    // const anyCustomNodesOrEdgesSelected =
+    //   selectedComponents.nodes.some(nodeId => {
+    //     const node = nodes.find(node => node.id === nodeId)
+    //     return node && node.type !== 'magic' && node.selected
+    //   }) || selectedComponents.edges.length > 0
 
     return (
       <Controls
@@ -230,15 +229,15 @@ export const CustomControls = memo(
           <span>add node</span>
         </ControlButton>
 
-        <ControlButton
+        {/* <ControlButton
           className={isEmptyCanvas ? 'disabled-control-button' : ''}
           onClick={handleClearCanvas}
         >
           <GridOnRoundedIcon />
           <span>clear</span>
-        </ControlButton>
+        </ControlButton> */}
 
-        <ControlButton onClick={handleChangeModel}>
+        {/* <ControlButton onClick={handleChangeModel}>
           {model === 'gpt-4' ? <StarRoundedIcon /> : <SpeedRoundedIcon />}
           {model === 'gpt-4' ? <span>smarter</span> : <span>faster</span>}
 
@@ -247,9 +246,9 @@ export const CustomControls = memo(
               <span>using {terms[model]}</span>
             </TooltipLine>
           </ControlButtonTooltip>
-        </ControlButton>
+        </ControlButton> */}
 
-        <ControlButton
+        {/* <ControlButton
           className={
             'explain-button' +
             (!anyCustomNodesOrEdgesSelected ? ' disabled-control-button' : '')
@@ -263,9 +262,9 @@ export const CustomControls = memo(
               <span>ask {terms[model]}</span>
             </TooltipLine>
           </ControlButtonTooltip>
-        </ControlButton>
+        </ControlButton> */}
 
-        <ControlButton
+        {/* <ControlButton
           onClick={handleToggleNotebook}
           className={notesOpened ? 'button-highlighted' : ''}
         >
@@ -276,7 +275,7 @@ export const CustomControls = memo(
               {notesOpened ? 'close notebook' : 'open notebook'}
             </TooltipLine>
           </ControlButtonTooltip>
-        </ControlButton>
+        </ControlButton> */}
 
         <ControlButton
           className={canUndo ? '' : ' disabled-control-button'}
@@ -312,13 +311,10 @@ export const CustomControls = memo(
           </ControlButtonTooltip> */}
         </ControlButton>
 
-        <ControlButton onClick={handleLoadExample}>
+        {/* <ControlButton onClick={handleLoadExample}>
           <TheatersRoundedIcon />
           <span>examples</span>
-          {/* <ControlButtonTooltip>
-            <TooltipLine>coming soon</TooltipLine>
-          </ControlButtonTooltip> */}
-        </ControlButton>
+        </ControlButton> */}
 
         <ControlButton className="tips-button">
           <LightbulbRoundedIcon className="control-button-tips-icon" />

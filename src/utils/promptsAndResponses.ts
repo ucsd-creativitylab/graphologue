@@ -7,6 +7,7 @@ export const promptTerms = {
   researchPapers: 'Research papers',
   itemRelationshipConnector: '-',
   itemBreaker: '%+%',
+  _chat_responseEnd: '%%%',
 }
 
 export const getSystemPrompt = (
@@ -28,6 +29,37 @@ export interface NodeLabelAndTags {
   tags: string[]
 }
 export const predefinedPrompts = {
+  _chat_initialAsk: (question: string): Prompt[] => {
+    return [
+      {
+        role: 'system',
+        content: `You are a knowledgeable and helpful assistant. Answer the user's question with simple and concise sentences. Be as detailed as possible.`,
+      },
+      {
+        role: 'user',
+        content: question,
+      },
+    ]
+  },
+  _chat_parseResponse: (
+    initialAskPrompts: Prompt[],
+    response: string
+  ): Prompt[] => {
+    return [
+      ...initialAskPrompts,
+      {
+        role: 'assistant',
+        content: response,
+      },
+      {
+        role: 'system',
+        content: `Break the response into smaller chunks for better digestibility. Organize the chunks as an array of JSON objects, where each object has the following fields:
+  - "summary": a short, one-liner summary of the chunk of the information
+  - "origin": exact original text from the response`,
+      },
+    ]
+  },
+  /* -------------------------------------------------------------------------- */
   giveNodeLabelSuggestionsFromNodes: (
     target: 'node' | 'edge',
     existingNodeLabelAndTags: NodeLabelAndTags[]
