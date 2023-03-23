@@ -30,11 +30,12 @@
 
     padding: $padding-small;
     border-radius: $radius-default;
+    background-color: $white;
     box-shadow: $shadow-grey-default;
 
     .question-textarea {
       padding: $padding-mid;
-      width: 100%;
+      width: 30rem;
 
       resize: none;
       outline: none;
@@ -77,9 +78,9 @@
       max-width: 20rem;
       height: fit-content;
 
-      font-size: $font-size-large;
+      font-size: $font-size-default;
       line-height: 150%;
-      // padding: $padding-mid $padding-small;
+      padding: $padding-mid;
       box-sizing: border-box;
 
       &.answer-item-display {
