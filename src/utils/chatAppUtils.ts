@@ -9,6 +9,7 @@ export const newQuestion = (): QuestionAndAnswer => {
     answer: '',
     answerInformationArray: [],
     modelAnswering: false,
+    modelAnsweringRawResponseComplete: false,
     modelAnsweringComplete: false,
   }
 }
@@ -24,6 +25,22 @@ export const deepCopyQuestionAndAnswer = (
       return a
     }), // TODO
     modelAnswering: qA.modelAnswering,
+    modelAnsweringRawResponseComplete: qA.modelAnsweringRawResponseComplete,
     modelAnsweringComplete: qA.modelAnsweringComplete,
   }
+}
+
+export const helpSetQuestionsAndAnswers = (
+  prevQsAndAs: QuestionAndAnswer[],
+  id: string,
+  newQAndA: Partial<QuestionAndAnswer>
+) => {
+  return prevQsAndAs.map(prevQAndA => {
+    return prevQAndA.id === id
+      ? {
+          ...prevQAndA,
+          ...newQAndA,
+        }
+      : prevQAndA
+  })
 }

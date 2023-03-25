@@ -53,7 +53,13 @@ export const predefinedPrompts = {
       },
       {
         role: 'system',
-        content: `Break the response into smaller chunks for better digestibility. Organize the chunks as an array of JSON objects, where each object has the following fields:
+        content: `For the following task, do not include anything else in your response \
+other than the array that can be directly parsed using JSON.parse() in JavaScript.`,
+      },
+      {
+        role: 'user',
+        content: `Break the response into smaller chunks for better digestibility. \
+Organize the chunks as an array of JSON objects, where each object has the following fields:
   - "summary": a short, one-liner summary of the chunk of the information
   - "origin": exact original text from the response`,
       },

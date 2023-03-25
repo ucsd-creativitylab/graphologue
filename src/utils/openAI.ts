@@ -116,7 +116,7 @@ export const streamOpenAICompletion = async (
       if (d === '[DONE]') return
 
       const dataObject = JSON.parse(d) as OpenAIChatCompletionResponseStream
-      if (dataObject.choices.length > 0 && dataObject.choices[0].delta.content)
+      if (dataObject.choices?.length > 0 && dataObject.choices[0].delta.content)
         streamFunction(dataObject)
     })
   }
@@ -158,5 +158,6 @@ export const getTextFromStreamResponse = (
 }
 
 export const quickPickModel = (): ModelForMagic => {
-  return !debug ? 'gpt-4' : 'gpt-3.5-turbo'
+  // return !debug ? 'gpt-4' : 'gpt-3.5-turbo'
+  return !debug ? 'gpt-4' : 'gpt-4'
 }

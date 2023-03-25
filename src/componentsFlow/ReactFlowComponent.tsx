@@ -50,7 +50,6 @@ import {
   viewFittingOptions,
 } from '../constants'
 import { FlowContext } from '../components/Contexts'
-import { getItem, storeItem } from '../utils/storage'
 import { useTimeMachine } from '../utils/timeMachine'
 import { roundTo } from '../utils/utils'
 import { PromptSourceComponentsType } from '../utils/magicExplain'
@@ -64,7 +63,11 @@ const reactFlowWrapperStyle = {
   height: '100%',
 } as React.CSSProperties
 
-const storedData = getItem()
+// const storedData = getItem()
+const storedData = {
+  nodes: [],
+  edges: [],
+}
 const defaultNodes = storedData.nodes as Node[]
 const defaultEdges = storedData.edges as Edge[]
 
@@ -147,7 +150,7 @@ const Flow = () => {
     if (editing) return
 
     // ! store and save in time machine
-    storeItem(toObject(), setTime)
+    // storeItem(toObject(), setTime)
 
     // ! update selected
     // TODO any more efficient way to do this?

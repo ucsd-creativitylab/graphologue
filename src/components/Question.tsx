@@ -21,6 +21,7 @@ import {
   streamOpenAICompletion,
 } from '../utils/openAI'
 import { predefinedPrompts } from '../utils/promptsAndResponses'
+import { helpSetQuestionsAndAnswers } from '../utils/chatAppUtils'
 
 export const Question = ({
   questionAndAnswer: { id, question, modelAnswering },
@@ -45,13 +46,8 @@ export const Question = ({
         const newQuestion = event.target.value
 
         setQuestionsAndAnswers(prevQsAndAs =>
-          prevQsAndAs.map(prevQAndA => {
-            return prevQAndA.id === id
-              ? {
-                  ...prevQAndA,
-                  question: newQuestion,
-                }
-              : prevQAndA
+          helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+            question: newQuestion,
           })
         )
 
@@ -78,13 +74,8 @@ export const Question = ({
       answerStorage.current += deltaContent
 
       setQuestionsAndAnswers(prevQsAndAs =>
-        prevQsAndAs.map(prevQAndA => {
-          return prevQAndA.id === id
-            ? {
-                ...prevQAndA,
-                answer: answerStorage.current,
-              }
-            : prevQAndA
+        helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+          answer: answerStorage.current,
         })
       )
     },
@@ -94,19 +85,16 @@ export const Question = ({
   const handleAsk = useCallback(async () => {
     // * ground reset
     setQuestionsAndAnswers(prevQsAndAs =>
-      prevQsAndAs.map(prevQAndA => {
-        return prevQAndA.id === id
-          ? {
-              ...prevQAndA,
-              answer: '',
-              answerInformationArray: [],
-              modelAnswering: true,
-              modelAnsweringComplete: false,
-            }
-          : prevQAndA
+      helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+        answer: '',
+        answerInformationArray: [],
+        modelAnswering: true,
+        modelAnsweringRawResponseComplete: false,
+        modelAnsweringComplete: false,
       })
     )
     answerStorage.current = ''
+    textareaRef.current?.blur()
 
     // * actual ask model
     const initialPrompts = predefinedPrompts._chat_initialAsk(question)
@@ -114,6 +102,14 @@ export const Question = ({
       initialPrompts,
       quickPickModel(),
       handleStreamRawAnswer
+    )
+    // * model done raw answering
+    console.log('model done raw answering')
+
+    setQuestionsAndAnswers(prevQsAndAs =>
+      helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+        modelAnsweringRawResponseComplete: true,
+      })
     )
 
     // * parse answer
@@ -124,21 +120,29 @@ export const Question = ({
       ),
       quickPickModel()
     )
+    if (parsedResponseData.error) {
+      console.error(parsedResponseData.error)
+
+      setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+          answerInformationArray: [],
+          modelAnswering: false,
+          modelAnsweringComplete: true,
+        })
+      )
+
+      return
+    }
+
     const parsedResponse = JSON.parse(
       getTextFromModelResponse(parsedResponseData)
     )
     // * all complete
     setQuestionsAndAnswers(prevQsAndAs =>
-      prevQsAndAs.map(prevQAndA => {
-        return prevQAndA.id === id
-          ? {
-              ...prevQAndA,
-              // answer: answerStorage.current,
-              answerInformationArray: parsedResponse,
-              modelAnswering: false,
-              modelAnsweringComplete: true,
-            }
-          : prevQAndA
+      helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+        answerInformationArray: parsedResponse,
+        modelAnswering: false,
+        modelAnsweringComplete: true,
       })
     )
   }, [handleStreamRawAnswer, id, question, setQuestionsAndAnswers])
@@ -170,7 +174,7 @@ export const Question = ({
         onClick={handleAsk}
       >
         {modelAnswering ? (
-          <HourglassTopRoundedIcon />
+          <HourglassTopRoundedIcon className="loading-icon" />
         ) : (
           <AutoFixHighRoundedIcon />
         )}

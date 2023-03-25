@@ -11,6 +11,7 @@ export interface QuestionAndAnswer {
   answer: string
   answerInformationArray: AnswerObject[]
   modelAnswering: boolean
+  modelAnsweringRawResponseComplete: boolean
   modelAnsweringComplete: boolean
 }
 
