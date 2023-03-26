@@ -5,6 +5,7 @@ import { ModelForMagic } from '../utils/openAI'
 import { Note } from './Notebook'
 
 export interface ChatContextType {
+  questionsAndAnswersCount: number
   setQuestionsAndAnswers: (
     questionsAndAnswers:
       | QuestionAndAnswer[]

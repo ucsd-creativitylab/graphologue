@@ -9,6 +9,7 @@ import React, {
 
 import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded'
+import ClearRoundedIcon from '@mui/icons-material/ClearRounded'
 
 import { QuestionAndAnswer } from '../App'
 import { ChatContext } from './Contexts'
@@ -28,7 +29,8 @@ export const Question = ({
 }: {
   questionAndAnswer: QuestionAndAnswer
 }) => {
-  const { setQuestionsAndAnswers } = useContext(ChatContext)
+  const { questionsAndAnswersCount, setQuestionsAndAnswers } =
+    useContext(ChatContext)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   /* -------------------------------------------------------------------------- */
@@ -157,6 +159,12 @@ export const Question = ({
     [handleAsk]
   )
 
+  const handleDeleteInterchange = useCallback(() => {
+    setQuestionsAndAnswers(prevQsAndAs =>
+      prevQsAndAs.filter(qAndA => qAndA.id !== id)
+    )
+  }, [id, setQuestionsAndAnswers])
+
   return (
     <div className="question-item interchange-component">
       <textarea
@@ -178,6 +186,13 @@ export const Question = ({
         ) : (
           <AutoFixHighRoundedIcon />
         )}
+      </button>
+      <button
+        disabled={questionsAndAnswersCount < 2}
+        className="bar-button"
+        onClick={handleDeleteInterchange}
+      >
+        <ClearRoundedIcon />
       </button>
     </div>
   )

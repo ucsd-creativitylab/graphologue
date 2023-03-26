@@ -36,6 +36,7 @@ export const ChatApp = () => {
   return (
     <ChatContext.Provider
       value={{
+        questionsAndAnswersCount: questionsAndAnswers.length,
         setQuestionsAndAnswers,
       }}
     >

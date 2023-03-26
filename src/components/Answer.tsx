@@ -13,6 +13,8 @@ export const Answer = ({
 }: {
   questionAndAnswer: QuestionAndAnswer
 }) => {
+  console.log(answerInformationArray)
+
   return (
     <div className="answer-wrapper">
       <div
