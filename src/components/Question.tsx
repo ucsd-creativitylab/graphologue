@@ -299,7 +299,7 @@ export const Question = ({
       >
         <ClearRoundedIcon />
       </button>
-      {!modelError && (
+      {modelError && (
         <div className="error-message">Got an error, please try again.</div>
       )}
     </div>
