@@ -165,32 +165,61 @@ export const Question = ({
     /* -------------------------------------------------------------------------- */
 
     // * break answer
-    const brokeResponseData = await parseOpenAIResponseToObjects(
+    const brokenResponseData = await parseOpenAIResponseToObjects(
       predefinedPrompts._chat_breakResponse(
         initialPrompts,
         answerStorage.current.answer
       ),
-      models.smarter
+      models.faster
     )
-    if (brokeResponseData.error) return handleResponseError(brokeResponseData)
+    if (brokenResponseData.error) return handleResponseError(brokenResponseData)
 
+    // get summary
     try {
-      answerStorage.current.answerInformation = JSON.parse(
-        getTextFromModelResponse(brokeResponseData)
-      ).map((a: any) => {
-        /* -------------------------------------------------------------------------- */
-        // ! from fetched data to AnswerObject
-        return {
-          ...a,
-          id: getAnswerObjectId(), // add id
-          origin: originTextToRanges(answerStorage.current.answer, a.origin), // from text to ranges
-          slide: {}, // pop empty slide
-          relationships: [], // pop empty relationships
-          complete: false,
-        } as AnswerObject
-      }) as AnswerObject[]
+      const brokenTextArray = getTextFromModelResponse(brokenResponseData)
+        .split('\n')
+        .map((b: string) => b.trim())
+        .filter((b: string) => b.length > 0)
+      answerStorage.current.answerInformation = await Promise.all(
+        brokenTextArray.map(async (a: string) => {
+          const textSummaryData = await parseOpenAIResponseToObjects(
+            predefinedPrompts._chat_summarizeParagraph(a),
+            models.faster
+          )
+          if (textSummaryData.error) {
+            handleResponseError(textSummaryData)
+            return {
+              id: getAnswerObjectId(),
+              origin: originTextToRanges(answerStorage.current.answer, [a]),
+              summary: '',
+              slide: {
+                title: '',
+                content: '',
+              },
+              relationships: [],
+              complete: false,
+            } as AnswerObject
+          }
+
+          const textSummary = getTextFromModelResponse(textSummaryData)
+
+          /* -------------------------------------------------------------------------- */
+          // ! from fetched data to AnswerObject
+          return {
+            id: getAnswerObjectId(), // add id
+            origin: originTextToRanges(answerStorage.current.answer, [a]), // from text to ranges
+            summary: textSummary, // add summary
+            slide: {
+              title: '',
+              content: '',
+            }, // pop empty slide
+            relationships: [], // pop empty relationships
+            complete: false,
+          } as AnswerObject
+        }) as AnswerObject[]
+      )
     } catch (error) {
-      console.error(getTextFromModelResponse(brokeResponseData))
+      console.error(getTextFromModelResponse(brokenResponseData))
 
       return setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionsAndAnswers(prevQsAndAs, id, {

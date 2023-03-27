@@ -27,7 +27,7 @@ export const getSystemPrompt = (
 export const systemBuildJSON = `For the following tasks, do not include anything else in your response \
 other than the array or object that can be directly parsed using JSON.parse() in JavaScript.`
 
-export const userResponseBreaking = `Overview and break the response into smaller chunks of information for better digestibility. \
+export const userResponseBreaking = `Break your response into smaller chunks of information for better digestibility. \
 Organize the chunks as an array of JSON objects, where each object has the following fields:
   - "origin" (array of strings): An array of the original sentences that the chunk of information is from. Make sure they are exactly the same as the original sentences.
   - "summary" (string): A short, one-line summary of the chunk of the information`
@@ -75,11 +75,21 @@ export const predefinedPrompts = {
       },
       {
         role: 'system',
-        content: systemBuildJSON,
+        content: `Break your response into smaller chunks of information for better digestibility. \
+Make sure that each chunk of text are exactly the same as the text in the original response. Divide the chunks by line breaks. \
+Do not include anything else in the response other than the chunks.`,
+      },
+    ]
+  },
+  _chat_summarizeParagraph: (paragraph: string): Prompt[] => {
+    return [
+      {
+        role: 'system',
+        content: `You are a helpful assistant. Make a short, one-line summary of the chunk of the given paragraph.`,
       },
       {
         role: 'user',
-        content: userResponseBreaking,
+        content: paragraph,
       },
     ]
   },

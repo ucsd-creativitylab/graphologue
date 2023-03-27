@@ -17,7 +17,7 @@ export const models = {
 
 const temperatures = {
   response: 0.7,
-  parsing: 0.5,
+  parsing: 0.3,
 }
 
 export interface OpenAIChatCompletionResponseStream {
