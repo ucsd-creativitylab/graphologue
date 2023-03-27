@@ -116,9 +116,29 @@
     width: 100%;
     padding: 0 $padding-mid;
 
-    .answer-item {
+    .answer-item-display {
       @include bar-button;
 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $padding-mid;
+
+      transition: transform 0.3s ease-out;
+
+      &.answer-centered {
+        transform: translateX(calc(50vw - 50%));
+      }
+
+      .answer-block-list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: $padding-mid;
+      }
+    }
+
+    .answer-item {
       // margin: 0 $padding-large;
       max-width: 20rem;
       height: fit-content;
@@ -128,17 +148,11 @@
       padding: $padding-mid;
       box-sizing: border-box;
 
-      &.answer-item-display {
-        &.answer-centered {
-          transform: translateX(calc(50vw - 50%));
-        }
-      }
-
-      &.answer-item-height {
-        visibility: hidden;
-        pointer-events: none;
-        user-select: none;
-      }
+      // &.answer-item-height {
+      //   visibility: hidden;
+      //   pointer-events: none;
+      //   user-select: none;
+      // }
     }
 
     .react-flow-loading-placeholder {

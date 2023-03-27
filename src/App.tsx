@@ -8,15 +8,20 @@ export interface AnswerSlideObject {
   content: string
 }
 
+export interface RawAnswerRange {
+  start: number
+  end: number
+}
+
 export interface AnswerRelationshipObject {
-  origin: string[]
+  origin: RawAnswerRange[]
   source: string
   target: string
   edge: string
 }
 
 export interface AnswerObject {
-  origin: string[]
+  origin: RawAnswerRange[]
   summary: string
   slide: AnswerSlideObject
   relationships: AnswerRelationshipObject[]
@@ -36,6 +41,7 @@ export interface QuestionAndAnswer {
   answer: string
   answerInformation: AnswerObject[]
   modelStatus: ModelStatus
+  highlighted: RawAnswerRange[]
 }
 
 export interface PartialQuestionAndAnswer {
@@ -44,6 +50,7 @@ export interface PartialQuestionAndAnswer {
   answer?: string
   answerInformation?: AnswerObject[]
   modelStatus?: Partial<ModelStatus>
+  highlighted?: RawAnswerRange[]
 }
 
 export const ChatApp = () => {

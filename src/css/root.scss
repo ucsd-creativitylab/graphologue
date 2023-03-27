@@ -280,3 +280,20 @@ $shadow-heavy: rgba($cold-grey, 0.6) 0 rem-to-px(2rem) rem-to-px(10rem)
   animation-duration: $transition-normal;
   // animation-delay: $transition-fast;
 }
+
+@keyframes drop-down {
+  from {
+    // opacity: 0;
+    transform: translateY(-$padding-mid);
+  }
+
+  to {
+    // opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.drop-down {
+  animation-name: drop-down;
+  animation-duration: $transition-normal;
+}

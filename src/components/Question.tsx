@@ -31,6 +31,7 @@ import {
   getAnswerObjectId,
   helpSetQuestionsAndAnswers,
   newQuestion,
+  originTextToRanges,
 } from '../utils/chatAppUtils'
 
 export const Question = ({
@@ -99,10 +100,6 @@ export const Question = ({
         helpSetQuestionsAndAnswers(prevQsAndAs, id, {
           answerInformation: [],
           modelStatus: {
-            modelAnswering: false,
-            modelAnsweringComplete: false,
-            modelParsing: false,
-            modelParsingComplete: false,
             modelError: true,
           },
         })
@@ -177,17 +174,30 @@ export const Question = ({
     )
     if (brokeResponseData.error) return handleResponseError(brokeResponseData)
 
-    answerStorage.current.answerInformation = JSON.parse(
-      getTextFromModelResponse(brokeResponseData)
-    ).map((a: any) => {
-      return {
-        ...a,
-        id: getAnswerObjectId(),
-        slide: {},
-        relationships: [],
-        complete: false,
-      } as AnswerObject
-    }) as AnswerObject[]
+    try {
+      answerStorage.current.answerInformation = JSON.parse(
+        getTextFromModelResponse(brokeResponseData)
+      ).map((a: any) => {
+        /* -------------------------------------------------------------------------- */
+        // ! from fetched data to AnswerObject
+        return {
+          ...a,
+          id: getAnswerObjectId(), // add id
+          origin: originTextToRanges(answerStorage.current.answer, a.origin), // from text to ranges
+          slide: {}, // pop empty slide
+          relationships: [], // pop empty relationships
+          complete: false,
+        } as AnswerObject
+      }) as AnswerObject[]
+    } catch (error) {
+      return setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+          modelStatus: {
+            modelError: true,
+          },
+        })
+      )
+    }
 
     console.log('model done breaking answer')
     console.log(answerStorage.current.answerInformation)
@@ -220,36 +230,63 @@ export const Question = ({
               return answerPart
             }
 
-            const parsedPart = JSON.parse(
-              getTextFromModelResponse(parsedPartResponseData)
-            ) as {
-              slide: AnswerSlideObject
-              relationships: AnswerRelationshipObject[]
-            }
+            try {
+              const parsedPartRaw = JSON.parse(
+                getTextFromModelResponse(parsedPartResponseData)
+              )
 
-            return {
-              ...answerPart,
-              ...(({ slide, relationships }) => ({ slide, relationships }))(
-                parsedPart
-              ),
-              complete: true,
-            } as AnswerObject
+              // ! from fetched data to part of AnswerObject
+              const parsedPart = {
+                slide: parsedPartRaw.slide,
+                relationships: parsedPartRaw.relationships.map((r: any) => ({
+                  ...r,
+                  origin: originTextToRanges(
+                    answerStorage.current.answer,
+                    r.origin
+                  ),
+                })),
+              } as {
+                slide: AnswerSlideObject
+                relationships: AnswerRelationshipObject[]
+              }
+
+              return {
+                ...answerPart,
+                ...(({ slide, relationships }) => ({ slide, relationships }))(
+                  parsedPart
+                ),
+                complete: true,
+              } as AnswerObject
+            } catch (error) {
+              parsingError = true
+              return answerPart
+            }
           } else return answerPart
         }
       )
     )
 
-    // * all complete
-    console.log(answerStorage.current.answerInformation)
-    setQuestionsAndAnswers(prevQsAndAs =>
-      helpSetQuestionsAndAnswers(prevQsAndAs, id, {
-        answerInformation: answerStorage.current.answerInformation,
-        modelStatus: {
-          modelAnswering: false,
-          modelAnsweringComplete: true,
-        },
-      })
-    )
+    if (!parsingError) {
+      // * all complete
+      console.log(answerStorage.current.answerInformation)
+      setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+          answerInformation: answerStorage.current.answerInformation,
+          modelStatus: {
+            modelAnswering: false,
+            modelAnsweringComplete: true,
+          },
+        })
+      )
+    } else {
+      setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+          modelStatus: {
+            modelError: true,
+          },
+        })
+      )
+    }
   }, [
     handleResponseError,
     handleStreamRawAnswer,
