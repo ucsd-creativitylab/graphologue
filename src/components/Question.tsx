@@ -170,7 +170,7 @@ export const Question = ({
         initialPrompts,
         answerStorage.current.answer
       ),
-      models.faster
+      models.smarter
     )
     if (brokenResponseData.error) return handleResponseError(brokenResponseData)
 
