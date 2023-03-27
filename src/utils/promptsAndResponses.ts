@@ -85,7 +85,8 @@ Do not include anything else in the response other than the chunks.`,
     return [
       {
         role: 'system',
-        content: `You are a helpful assistant. Make a short, one-line summary of the chunk of the given paragraph.`,
+        content: `You are a helpful assistant. Make a short, one-line summary of the chunk of the text provided by the user. \
+Do not include anything else in the response other than the summary.`,
       },
       {
         role: 'user',
