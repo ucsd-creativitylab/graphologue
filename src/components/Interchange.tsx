@@ -10,13 +10,7 @@ export interface InterchangeProps {
 
 export const Interchange = ({
   data,
-  data: {
-    question,
-    answer,
-    answerInformationArray,
-    modelAnswering,
-    modelAnsweringComplete,
-  },
+  data: { question, answer },
 }: InterchangeProps) => {
   return (
     <div className="interchange-item">

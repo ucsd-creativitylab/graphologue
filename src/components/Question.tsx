@@ -11,27 +11,44 @@ import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded'
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded'
 
-import { QuestionAndAnswer } from '../App'
+import {
+  AnswerObject,
+  AnswerRelationshipObject,
+  AnswerSlideObject,
+  QuestionAndAnswer,
+} from '../App'
 import { ChatContext } from './Contexts'
 import {
   getTextFromModelResponse,
   getTextFromStreamResponse,
+  models,
   OpenAIChatCompletionResponseStream,
   parseOpenAIResponseToObjects,
-  quickPickModel,
   streamOpenAICompletion,
 } from '../utils/openAI'
 import { predefinedPrompts } from '../utils/promptsAndResponses'
-import { helpSetQuestionsAndAnswers } from '../utils/chatAppUtils'
+import {
+  getAnswerObjectId,
+  helpSetQuestionsAndAnswers,
+  newQuestion,
+} from '../utils/chatAppUtils'
 
 export const Question = ({
-  questionAndAnswer: { id, question, modelAnswering },
+  questionAndAnswer: {
+    id,
+    question,
+    modelStatus: { modelAnswering, modelError },
+  },
 }: {
   questionAndAnswer: QuestionAndAnswer
 }) => {
   const { questionsAndAnswersCount, setQuestionsAndAnswers } =
     useContext(ChatContext)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  /* -------------------------------------------------------------------------- */
+
+  const canAsk = question.length > 0 && !modelAnswering
 
   /* -------------------------------------------------------------------------- */
 
@@ -66,18 +83,44 @@ export const Question = ({
   /* -------------------------------------------------------------------------- */
 
   // ! smart part
-  const answerStorage = useRef('')
+  const answerStorage = useRef<{
+    answer: string
+    answerInformation: AnswerObject[]
+  }>({
+    answer: '',
+    answerInformation: [],
+  })
+
+  const handleResponseError = useCallback(
+    (response: any) => {
+      console.error(response.error)
+
+      setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+          answerInformation: [],
+          modelStatus: {
+            modelAnswering: false,
+            modelAnsweringComplete: false,
+            modelParsing: false,
+            modelParsingComplete: false,
+            modelError: true,
+          },
+        })
+      )
+    },
+    [id, setQuestionsAndAnswers]
+  )
 
   const handleStreamRawAnswer = useCallback(
     (data: OpenAIChatCompletionResponseStream) => {
       const deltaContent = getTextFromStreamResponse(data)
       if (!deltaContent) return
 
-      answerStorage.current += deltaContent
+      answerStorage.current.answer += deltaContent
 
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionsAndAnswers(prevQsAndAs, id, {
-          answer: answerStorage.current,
+          answer: answerStorage.current.answer,
         })
       )
     },
@@ -87,22 +130,27 @@ export const Question = ({
   const handleAsk = useCallback(async () => {
     // * ground reset
     setQuestionsAndAnswers(prevQsAndAs =>
-      helpSetQuestionsAndAnswers(prevQsAndAs, id, {
-        answer: '',
-        answerInformationArray: [],
-        modelAnswering: true,
-        modelAnsweringRawResponseComplete: false,
-        modelAnsweringComplete: false,
-      })
+      helpSetQuestionsAndAnswers(
+        prevQsAndAs,
+        id,
+        newQuestion({
+          id,
+          question,
+          modelStatus: {
+            modelAnswering: true,
+          },
+        })
+      )
     )
-    answerStorage.current = ''
+    answerStorage.current.answer = ''
+    answerStorage.current.answerInformation = []
     textareaRef.current?.blur()
 
     // * actual ask model
     const initialPrompts = predefinedPrompts._chat_initialAsk(question)
     await streamOpenAICompletion(
       initialPrompts,
-      quickPickModel(),
+      models.faster,
       handleStreamRawAnswer
     )
     // * model done raw answering
@@ -110,53 +158,114 @@ export const Question = ({
 
     setQuestionsAndAnswers(prevQsAndAs =>
       helpSetQuestionsAndAnswers(prevQsAndAs, id, {
-        modelAnsweringRawResponseComplete: true,
-      })
-    )
-
-    // * parse answer
-    const parsedResponseData = await parseOpenAIResponseToObjects(
-      predefinedPrompts._chat_parseResponse(
-        initialPrompts,
-        answerStorage.current
-      ),
-      quickPickModel()
-    )
-    if (parsedResponseData.error) {
-      console.error(parsedResponseData.error)
-
-      setQuestionsAndAnswers(prevQsAndAs =>
-        helpSetQuestionsAndAnswers(prevQsAndAs, id, {
-          answerInformationArray: [],
+        modelStatus: {
           modelAnswering: false,
           modelAnsweringComplete: true,
-        })
-      )
-
-      return
-    }
-
-    const parsedResponse = JSON.parse(
-      getTextFromModelResponse(parsedResponseData)
-    )
-    // * all complete
-    setQuestionsAndAnswers(prevQsAndAs =>
-      helpSetQuestionsAndAnswers(prevQsAndAs, id, {
-        answerInformationArray: parsedResponse,
-        modelAnswering: false,
-        modelAnsweringComplete: true,
+          modelParsing: true,
+        },
       })
     )
-  }, [handleStreamRawAnswer, id, question, setQuestionsAndAnswers])
+    /* -------------------------------------------------------------------------- */
+
+    // * break answer
+    const brokeResponseData = await parseOpenAIResponseToObjects(
+      predefinedPrompts._chat_breakResponse(
+        initialPrompts,
+        answerStorage.current.answer
+      ),
+      models.smarter
+    )
+    if (brokeResponseData.error) return handleResponseError(brokeResponseData)
+
+    answerStorage.current.answerInformation = JSON.parse(
+      getTextFromModelResponse(brokeResponseData)
+    ).map((a: any) => {
+      return {
+        ...a,
+        id: getAnswerObjectId(),
+        slide: {},
+        relationships: [],
+        complete: false,
+      } as AnswerObject
+    }) as AnswerObject[]
+
+    console.log('model done breaking answer')
+    console.log(answerStorage.current.answerInformation)
+    setQuestionsAndAnswers(prevQsAndAs =>
+      helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+        answerInformation: answerStorage.current.answerInformation,
+      })
+    )
+
+    // * parse parts of answer
+    let parsingError = false
+    answerStorage.current.answerInformation = await Promise.all(
+      answerStorage.current.answerInformation.map(
+        async (answerPart: AnswerObject) => {
+          const { origin } = answerPart
+
+          if (!parsingError) {
+            const parsedPartResponseData = await parseOpenAIResponseToObjects(
+              predefinedPrompts._chat_parsePartResponse(
+                initialPrompts,
+                answerStorage.current.answer,
+                origin.join(' ')
+              ),
+              models.smarter
+            )
+
+            if (parsedPartResponseData.error) {
+              handleResponseError(parsedPartResponseData)
+              parsingError = true
+              return answerPart
+            }
+
+            const parsedPart = JSON.parse(
+              getTextFromModelResponse(parsedPartResponseData)
+            ) as {
+              slide: AnswerSlideObject
+              relationships: AnswerRelationshipObject[]
+            }
+
+            return {
+              ...answerPart,
+              ...(({ slide, relationships }) => ({ slide, relationships }))(
+                parsedPart
+              ),
+              complete: true,
+            } as AnswerObject
+          } else return answerPart
+        }
+      )
+    )
+
+    // * all complete
+    console.log(answerStorage.current.answerInformation)
+    setQuestionsAndAnswers(prevQsAndAs =>
+      helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+        answerInformation: answerStorage.current.answerInformation,
+        modelStatus: {
+          modelAnswering: false,
+          modelAnsweringComplete: true,
+        },
+      })
+    )
+  }, [
+    handleResponseError,
+    handleStreamRawAnswer,
+    id,
+    question,
+    setQuestionsAndAnswers,
+  ])
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       // if cmd + enter
       if (e.key === 'Enter' && e.metaKey) {
-        handleAsk()
+        if (canAsk) handleAsk()
       }
     },
-    [handleAsk]
+    [canAsk, handleAsk]
   )
 
   const handleDeleteInterchange = useCallback(() => {
@@ -176,11 +285,7 @@ export const Question = ({
         onKeyDown={handleKeyDown}
         rows={1}
       />
-      <button
-        disabled={modelAnswering || question === ''}
-        className="bar-button"
-        onClick={handleAsk}
-      >
+      <button disabled={!canAsk} className="bar-button" onClick={handleAsk}>
         {modelAnswering ? (
           <HourglassTopRoundedIcon className="loading-icon" />
         ) : (
@@ -194,6 +299,9 @@ export const Question = ({
       >
         <ClearRoundedIcon />
       </button>
+      {!modelError && (
+        <div className="error-message">Got an error, please try again.</div>
+      )}
     </div>
   )
 }

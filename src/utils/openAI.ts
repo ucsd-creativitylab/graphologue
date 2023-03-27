@@ -10,6 +10,16 @@ import { debug } from '../constants'
 
 export type ModelForMagic = 'gpt-4' | 'gpt-3.5-turbo'
 
+export const models = {
+  smarter: 'gpt-4' as ModelForMagic,
+  faster: 'gpt-3.5-turbo' as ModelForMagic,
+}
+
+const temperatures = {
+  response: 0.7,
+  parsing: 0.5,
+}
+
 export interface OpenAIChatCompletionResponseStream {
   id: string
   object: string
@@ -43,6 +53,7 @@ export const getCompletionOptions = (
     model: model,
     temperature: temperature,
     max_tokens: token,
+    n: 1,
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
@@ -64,8 +75,8 @@ const getRequestOptions = (options: any) => {
 export const getOpenAICompletion = async (
   prompts: Prompt[],
   model: ModelForMagic,
-  temperature = 0.7,
-  token = 512
+  temperature = temperatures.response,
+  token = 1024
 ) => {
   console.log(`asking ${model}`, prompts)
 
@@ -86,8 +97,8 @@ export const streamOpenAICompletion = async (
   prompts: Prompt[],
   model: ModelForMagic,
   streamFunction: (data: any) => void,
-  temperature = 0.7,
-  token = 512
+  temperature = temperatures.response,
+  token = 1024
 ) => {
   console.log(`streaming ${model}`, prompts)
 
@@ -102,6 +113,9 @@ export const streamOpenAICompletion = async (
   const reader = response.body?.getReader()
   if (!reader) return
 
+  const dataParticle = {
+    current: '',
+  }
   while (true) {
     const { done, value } = await reader.read()
 
@@ -110,14 +124,49 @@ export const streamOpenAICompletion = async (
     const data = new TextDecoder('utf-8').decode(value)
     // response format
     // data: { ... }
-    const dataObjects = data.split('data: ').filter(d => d.trim().length > 0)
+
+    const dataObjects = data
+      .split('\n')
+      .map(d => d.trim())
+      .filter(d => d.length > 0)
     dataObjects.forEach(d => {
-      d = d.trim()
+      d = d.replace(/^data: /, '').trim()
       if (d === '[DONE]') return
 
-      const dataObject = JSON.parse(d) as OpenAIChatCompletionResponseStream
-      if (dataObject.choices?.length > 0 && dataObject.choices[0].delta.content)
-        streamFunction(dataObject)
+      let parsingSuccessful = false
+      try {
+        const dataObject = JSON.parse(d) as OpenAIChatCompletionResponseStream
+
+        if (
+          dataObject.choices?.length > 0 &&
+          dataObject.choices[0].delta.content
+        )
+          streamFunction(dataObject)
+
+        parsingSuccessful = true
+        dataParticle.current = ''
+      } catch (error) {
+        parsingSuccessful = false
+        dataParticle.current += d
+        // console.error('stream error', error, data)
+      }
+
+      if (!parsingSuccessful) {
+        // try parsing dataParticle
+        try {
+          const dataObject = JSON.parse(
+            dataParticle.current
+          ) as OpenAIChatCompletionResponseStream
+
+          if (
+            dataObject.choices?.length > 0 &&
+            dataObject.choices[0].delta.content
+          )
+            streamFunction(dataObject)
+
+          dataParticle.current = ''
+        } catch (error) {}
+      }
     })
   }
 
@@ -128,11 +177,19 @@ export const streamOpenAICompletion = async (
 
 export const parseOpenAIResponseToObjects = async (
   prompts: Prompt[],
-  model: ModelForMagic
+  model: ModelForMagic,
+  temperature = temperatures.parsing,
+  token = 2048
 ) => {
   console.log(`parsing ${model}`, prompts)
 
-  const options = getCompletionOptions(prompts, model, 0.7, 512, false)
+  const options = getCompletionOptions(
+    prompts,
+    model,
+    temperature,
+    token,
+    false
+  )
   const requestOptions = getRequestOptions(options)
 
   const response = await fetch(
@@ -158,6 +215,5 @@ export const getTextFromStreamResponse = (
 }
 
 export const quickPickModel = (): ModelForMagic => {
-  // return !debug ? 'gpt-4' : 'gpt-3.5-turbo'
-  return !debug ? 'gpt-4' : 'gpt-4'
+  return !debug ? 'gpt-4' : 'gpt-3.5-turbo'
 }

@@ -24,6 +24,28 @@ export const getSystemPrompt = (
   )
 }
 
+export const systemBuildJSON = `For the following tasks, do not include anything else in your response \
+other than the array or object that can be directly parsed using JSON.parse() in JavaScript.`
+
+export const userResponseBreaking = `Overview and break the response into smaller chunks of information for better digestibility. \
+Organize the chunks as an array of JSON objects, where each object has the following fields:
+  - "origin" (array of strings): An array of the original sentences that the chunk of information is from. Make sure they are exactly the same as the original sentences.
+  - "summary" (string): A short, one-line summary of the chunk of the information`
+//  - "origin" (array of two numbers): An array of the start and end character indices of the corresponding sentence(s) in the original response. The original content should be complete sentence(s).
+
+export const systemResponseParsing = `For the following part picked by the user, parse the information into a JSON object with the following fields:
+  - "slide" (object of two fields): Structure the content so that it can be made into a slide in a presentation, with the following fields:
+    * "title" (string): The title of the slide 
+    * "content" (string): The content of the slide, in markdown style if necessary
+  - "relationships" (array of objects): Construct a knowledge graph to reflect all the relationships in the sentences in the paragraph from the user. \
+Use singular nouns and lowercase letters for node labels when possible and correct (e.g., the meaning of the label doesn't change). \
+Each node can be used in multiple relationships. There should be one connected graph in total. \
+Each relationship should be an object with the following fields:
+    * "source" (string): Label of the source node
+    * "target" (string): Label of the target node
+    * "edge" (string): Short label indicating the relationship between source and target (e.g., has, part of, similar, positive)
+    * "origin" (array of strings): The phrases or sentences in the original response that the relationship is summarized from. Make sure they are exactly the same as the text in the original response`
+
 export interface NodeLabelAndTags {
   label: string
   tags: string[]
@@ -41,7 +63,7 @@ export const predefinedPrompts = {
       },
     ]
   },
-  _chat_parseResponse: (
+  _chat_breakResponse: (
     initialAskPrompts: Prompt[],
     response: string
   ): Prompt[] => {
@@ -53,15 +75,44 @@ export const predefinedPrompts = {
       },
       {
         role: 'system',
-        content: `For the following task, do not include anything else in your response \
-other than the array that can be directly parsed using JSON.parse() in JavaScript.`,
+        content: systemBuildJSON,
       },
       {
         role: 'user',
-        content: `Break the response into smaller chunks for better digestibility. \
-Organize the chunks as an array of JSON objects, where each object has the following fields:
-  - "summary": a short, one-liner summary of the chunk of the information
-  - "origin": exact original text from the response`,
+        content: userResponseBreaking,
+      },
+    ]
+  },
+  _chat_parsePartResponse: (
+    initialAskPrompts: Prompt[],
+    response: string,
+    partResponse: string
+  ): Prompt[] => {
+    return [
+      ...initialAskPrompts,
+      {
+        role: 'assistant',
+        content: response,
+      },
+      {
+        role: 'system',
+        content: systemResponseParsing,
+      },
+      {
+        role: 'user',
+        content: partResponse,
+      },
+    ]
+  },
+  _chat_correctGrammar: (text: string): Prompt[] => {
+    return [
+      {
+        role: 'system',
+        content: `You are a knowledgeable and helpful assistant. Correct the grammar and typos of the following text.`,
+      },
+      {
+        role: 'user',
+        content: text,
       },
     ]
   },

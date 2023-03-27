@@ -41,11 +41,9 @@ import {
 import { customAddNodes, CustomNode, CustomNodeData } from './Node'
 import { CustomControls } from './CustomControl'
 import { CustomMarkerDefs } from './CustomDefs'
-import { Note } from '../components/Notebook'
 import {
   hardcodedNodeSize,
   styles,
-  useSessionStorageNotesHandle,
   useTokenDataTransferHandle,
   viewFittingOptions,
 } from '../constants'
@@ -603,6 +601,7 @@ const ReactFlowComponent = () => {
   // const notebookRef = useRef<HTMLDivElement>(null)
 
   // try to retrieve notes from session storage
+  /*
   const notesFromSessionStorage = sessionStorage.getItem(
     useSessionStorageNotesHandle
   )
@@ -614,7 +613,10 @@ const ReactFlowComponent = () => {
   const [notesOpened] = useState<boolean>(
     notesFromSessionStorageParsed?.notesOpened || false
   )
+  */
 
+  // * save notes
+  /*
   useEffect(() => {
     // save notes to session storage
     sessionStorage.setItem(
@@ -625,6 +627,7 @@ const ReactFlowComponent = () => {
       })
     )
   }, [notes, notesOpened])
+  */
 
   // const spotlightNotes = useCallback(async () => {
   //   if (notesOpened) return

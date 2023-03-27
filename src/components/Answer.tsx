@@ -7,31 +7,29 @@ import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 export const Answer = ({
   questionAndAnswer: {
     answer,
-    answerInformationArray,
-    modelAnsweringRawResponseComplete,
+    answerInformation,
+    modelStatus: { modelAnsweringComplete, modelParsingComplete },
   },
 }: {
   questionAndAnswer: QuestionAndAnswer
 }) => {
-  console.log(answerInformationArray)
-
   return (
     <div className="answer-wrapper">
       <div
         className={`answer-item-display answer-item interchange-component${
-          modelAnsweringRawResponseComplete
-            ? ' answer-side'
-            : ' answer-centered'
+          modelAnsweringComplete ? ' answer-side' : ' answer-centered'
         }`}
       >
         {answer}
       </div>
+
       {/* <div className="answer-item-height answer-item interchange-component">
         {answer}
       </div> */}
-      {answerInformationArray.length > 0 ? (
+
+      {modelAnsweringComplete && modelParsingComplete ? (
         <ReactFlowComponent />
-      ) : modelAnsweringRawResponseComplete ? (
+      ) : modelAnsweringComplete ? (
         <div className="react-flow-loading-placeholder">
           <PuffLoader size={32} color="#57068c" />
         </div>

@@ -75,6 +75,18 @@
         rgba(255, 255, 255, 0.7) 0 rem-to-px(-4rem) rem-to-px(6rem)
           rem-to-px(2rem) inset;
     }
+
+    .error-message {
+      padding: $padding-small;
+      border-radius: $padding-x-large;
+      user-select: none;
+
+      background: $error-red-x-light;
+      box-shadow: $error-red 0 0 0 rem-to-px(1rem);
+
+      color: $error-red;
+      font-size: $font-size-small;
+    }
   }
 
   .question-item {
@@ -96,7 +108,7 @@
 
   .answer-wrapper {
     display: flex;
-    align-items: flex;
+    align-items: flex-start;
 
     gap: $padding-mid;
 

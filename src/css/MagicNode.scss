@@ -12,7 +12,7 @@
     padding: $padding-small;
     border: none;
     outline: none;
-    border-radius: 50%;
+    border-radius: $padding-x-large;
     user-select: none;
 
     background: $button-bg;

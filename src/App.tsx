@@ -3,16 +3,47 @@ import { ChatContext } from './components/Contexts'
 import { Interchange } from './components/Interchange'
 import { newQuestion } from './utils/chatAppUtils'
 
-export interface AnswerObject {}
+export interface AnswerSlideObject {
+  title: string
+  content: string
+}
 
+export interface AnswerRelationshipObject {
+  origin: string[]
+  source: string
+  target: string
+  edge: string
+}
+
+export interface AnswerObject {
+  origin: string[]
+  summary: string
+  slide: AnswerSlideObject
+  relationships: AnswerRelationshipObject[]
+  complete: boolean
+}
+
+interface ModelStatus {
+  modelAnswering: boolean
+  modelParsing: boolean
+  modelAnsweringComplete: boolean
+  modelParsingComplete: boolean
+  modelError: boolean
+}
 export interface QuestionAndAnswer {
   id: string
   question: string
   answer: string
-  answerInformationArray: AnswerObject[]
-  modelAnswering: boolean
-  modelAnsweringRawResponseComplete: boolean
-  modelAnsweringComplete: boolean
+  answerInformation: AnswerObject[]
+  modelStatus: ModelStatus
+}
+
+export interface PartialQuestionAndAnswer {
+  id?: string
+  question?: string
+  answer?: string
+  answerInformation?: AnswerObject[]
+  modelStatus?: Partial<ModelStatus>
 }
 
 export const ChatApp = () => {
