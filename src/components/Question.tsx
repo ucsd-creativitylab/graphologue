@@ -190,6 +190,8 @@ export const Question = ({
         } as AnswerObject
       }) as AnswerObject[]
     } catch (error) {
+      console.error(getTextFromModelResponse(brokeResponseData))
+
       return setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionsAndAnswers(prevQsAndAs, id, {
           modelStatus: {
@@ -267,7 +269,7 @@ export const Question = ({
     )
 
     if (!parsingError) {
-      // * all complete
+      // ! all complete
       console.log(answerStorage.current.answerInformation)
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionsAndAnswers(prevQsAndAs, id, {
@@ -275,6 +277,8 @@ export const Question = ({
           modelStatus: {
             modelAnswering: false,
             modelAnsweringComplete: true,
+            modelParsing: false,
+            modelParsingComplete: true,
           },
         })
       )
