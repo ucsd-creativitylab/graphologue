@@ -91,7 +91,7 @@ const RawAnswer = ({
           </button>
           <button
             disabled={
-              !blockDisplay &&
+              !blockDisplay ||
               !answerInformation.some(a => a.summary.length > 0)
             }
             className="bar-button"
