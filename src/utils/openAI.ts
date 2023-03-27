@@ -204,14 +204,14 @@ export const parseOpenAIResponseToObjects = async (
 
 /* -------------------------------------------------------------------------- */
 
-export const getTextFromModelResponse = (response: any) => {
+export const getTextFromModelResponse = (response: any): string => {
   return response.choices[0].message.content
 }
 
 export const getTextFromStreamResponse = (
   response: OpenAIChatCompletionResponseStream
-) => {
-  return response.choices[0].delta.content
+): string => {
+  return response.choices[0].delta.content ?? ''
 }
 
 export const quickPickModel = (): ModelForMagic => {

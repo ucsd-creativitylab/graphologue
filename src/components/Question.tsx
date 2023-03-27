@@ -32,6 +32,7 @@ import {
   helpSetQuestionsAndAnswers,
   newQuestion,
   originTextToRanges,
+  rangesToOriginText,
 } from '../utils/chatAppUtils'
 
 export const Question = ({
@@ -147,7 +148,7 @@ export const Question = ({
     const initialPrompts = predefinedPrompts._chat_initialAsk(question)
     await streamOpenAICompletion(
       initialPrompts,
-      models.faster,
+      models.smarter,
       handleStreamRawAnswer
     )
     // * model done raw answering
@@ -170,53 +171,67 @@ export const Question = ({
         initialPrompts,
         answerStorage.current.answer
       ),
-      models.smarter
+      models.faster
     )
     if (brokenResponseData.error) return handleResponseError(brokenResponseData)
 
-    // get summary
+    console.log(answerStorage.current.answer)
+
+    answerStorage.current.answerInformation = getTextFromModelResponse(
+      brokenResponseData
+    )
+      .split('\n')
+      .map((b: string) => b.trim())
+      .filter((b: string) => b.length > 0)
+      .map((a: string) => {
+        // ! from fetched data to AnswerObject
+        console.log(a)
+
+        return {
+          id: getAnswerObjectId(), // add id
+          origin: originTextToRanges(answerStorage.current.answer, [a]), // from text to ranges
+          summary: '', // add summary
+          slide: {
+            title: '',
+            content: '',
+          }, // pop empty slide
+          relationships: [], // pop empty relationships
+          complete: false,
+        } as AnswerObject
+      }) as AnswerObject[]
+
+    console.log(
+      'model done breaking answer',
+      answerStorage.current.answerInformation
+    )
+    setQuestionsAndAnswers(prevQsAndAs =>
+      helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+        answerInformation: answerStorage.current.answerInformation,
+      })
+    )
+
+    // * get summary
     try {
-      const brokenTextArray = getTextFromModelResponse(brokenResponseData)
-        .split('\n')
-        .map((b: string) => b.trim())
-        .filter((b: string) => b.length > 0)
       answerStorage.current.answerInformation = await Promise.all(
-        brokenTextArray.map(async (a: string) => {
+        answerStorage.current.answerInformation.map(async (a: AnswerObject) => {
           const textSummaryData = await parseOpenAIResponseToObjects(
-            predefinedPrompts._chat_summarizeParagraph(a),
+            predefinedPrompts._chat_summarizeParagraph(
+              rangesToOriginText(answerStorage.current.answer, a.origin)
+            ),
             models.faster
           )
           if (textSummaryData.error) {
             handleResponseError(textSummaryData)
-            return {
-              id: getAnswerObjectId(),
-              origin: originTextToRanges(answerStorage.current.answer, [a]),
-              summary: '',
-              slide: {
-                title: '',
-                content: '',
-              },
-              relationships: [],
-              complete: false,
-            } as AnswerObject
+            return a
           }
 
           const textSummary = getTextFromModelResponse(textSummaryData)
 
-          /* -------------------------------------------------------------------------- */
-          // ! from fetched data to AnswerObject
           return {
-            id: getAnswerObjectId(), // add id
-            origin: originTextToRanges(answerStorage.current.answer, [a]), // from text to ranges
-            summary: textSummary, // add summary
-            slide: {
-              title: '',
-              content: '',
-            }, // pop empty slide
-            relationships: [], // pop empty relationships
-            complete: false,
-          } as AnswerObject
-        }) as AnswerObject[]
+            ...a,
+            summary: textSummary,
+          }
+        })
       )
     } catch (error) {
       console.error(getTextFromModelResponse(brokenResponseData))
@@ -230,8 +245,10 @@ export const Question = ({
       )
     }
 
-    console.log('model done breaking answer')
-    console.log(answerStorage.current.answerInformation)
+    console.log(
+      'model done summarizing answer',
+      answerStorage.current.answerInformation
+    )
     setQuestionsAndAnswers(prevQsAndAs =>
       helpSetQuestionsAndAnswers(prevQsAndAs, id, {
         answerInformation: answerStorage.current.answerInformation,

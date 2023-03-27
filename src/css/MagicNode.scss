@@ -39,7 +39,7 @@
 
     &:disabled,
     &.disabled {
-      pointer-events: all !important;
+      pointer-events: none !important;
       cursor: not-allowed !important;
       opacity: $opacity-high;
 

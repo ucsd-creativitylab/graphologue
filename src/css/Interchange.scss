@@ -130,10 +130,17 @@
         transform: translateX(calc(50vw - 50%));
       }
 
+      .block-display-switches {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: $padding-small;
+      }
+
       .answer-block-list {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
         gap: $padding-mid;
       }
     }
@@ -145,6 +152,7 @@
 
       font-size: $font-size-default;
       line-height: 150%;
+      text-align: left;
       padding: $padding-mid;
       box-sizing: border-box;
 

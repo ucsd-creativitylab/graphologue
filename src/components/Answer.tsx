@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { PuffLoader } from 'react-spinners'
 
+import VerticalSplitRoundedIcon from '@mui/icons-material/VerticalSplitRounded'
+import ShortTextRoundedIcon from '@mui/icons-material/ShortTextRounded'
 import NotesRoundedIcon from '@mui/icons-material/NotesRounded'
-import ViewAgendaRoundedIcon from '@mui/icons-material/ViewAgendaRounded'
 
 import { QuestionAndAnswer, RawAnswerRange } from '../App'
 import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
@@ -51,6 +52,7 @@ const RawAnswer = ({
   questionAndAnswer: QuestionAndAnswer
 }) => {
   const [blockDisplay, setBlockDisplay] = useState(false)
+  const [summaryDisplay, setSummaryDisplay] = useState(false)
 
   const canSwitch = modelAnsweringComplete && answerInformation.length > 0
 
@@ -65,7 +67,12 @@ const RawAnswer = ({
   /* -------------------------------------------------------------------------- */
 
   const handleSwitchBlockDisplay = useCallback(() => {
+    setSummaryDisplay(false)
     setBlockDisplay(prev => !prev)
+  }, [])
+
+  const handleSwitchSummaryDisplay = useCallback(() => {
+    setSummaryDisplay(prev => !prev)
   }, [])
 
   return (
@@ -75,28 +82,45 @@ const RawAnswer = ({
       }`}
     >
       {canSwitch && (
-        <div className="block-display-switch">
+        <div className="block-display-switches">
           <button className="bar-button" onClick={handleSwitchBlockDisplay}>
-            {blockDisplay ? <ViewAgendaRoundedIcon /> : <NotesRoundedIcon />}
+            {/* {blockDisplay ? <ViewColumnRoundedIcon style={{
+              transform: 'rotate(90deg)'
+            }} /> : <NotesRoundedIcon />} */}
+            <VerticalSplitRoundedIcon />
+          </button>
+          <button
+            disabled={
+              !blockDisplay &&
+              !answerInformation.some(a => a.summary.length > 0)
+            }
+            className="bar-button"
+            onClick={handleSwitchSummaryDisplay}
+          >
+            {summaryDisplay ? <ShortTextRoundedIcon /> : <NotesRoundedIcon />}
           </button>
         </div>
       )}
       {blockDisplay ? (
         <div className={`answer-block-list`}>
-          {answerInformation.map((answerObject, index) => (
-            <div
-              key={rangesToId(answerObject.origin)}
-              className={`answer-item interchange-component${
-                index !== 0 ? ' drop-down' : ''
-              }`}
-            >
-              {answerObject.origin
-                .map((originRange: RawAnswerRange) =>
-                  answer.slice(originRange.start, originRange.end + 1)
-                )
-                .join(' ')}
-            </div>
-          ))}
+          {answerInformation.map((answerObject, index) => {
+            return (
+              <div
+                key={rangesToId(answerObject.origin)}
+                className={`answer-item interchange-component${
+                  index !== 0 ? ' drop-down' : ''
+                }`}
+              >
+                {summaryDisplay
+                  ? answerObject.summary
+                  : answerObject.origin
+                      .map((originRange: RawAnswerRange) =>
+                        answer.slice(originRange.start, originRange.end + 1)
+                      )
+                      .join(' ')}
+              </div>
+            )
+          })}
         </div>
       ) : (
         <div className={`answer-item interchange-component`}>{answer}</div>

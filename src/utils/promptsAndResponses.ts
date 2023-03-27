@@ -75,7 +75,7 @@ export const predefinedPrompts = {
       },
       {
         role: 'system',
-        content: `Break your response into smaller chunks of information for better digestibility. \
+        content: `Break the above text into smaller chunks of information for better digestibility. \
 Make sure that each chunk of text are exactly the same as the text in the original response. Divide the chunks by line breaks. \
 Do not include anything else in the response other than the chunks.`,
       },

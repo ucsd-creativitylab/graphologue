@@ -29,6 +29,15 @@ export const originTextToRanges = (
   return ranges
 }
 
+export const rangesToOriginText = (
+  response: string,
+  ranges: RawAnswerRange[]
+) => {
+  return ranges
+    .map(range => response.substring(range.start, range.end))
+    .join(' ')
+}
+
 export const newQuestion = (
   prefill?: PartialQuestionAndAnswer
 ): QuestionAndAnswer => {
