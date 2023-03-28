@@ -11,7 +11,7 @@ import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded'
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded'
 
-import { AnswerObject, QuestionAndAnswer } from '../App'
+import { AnswerObject } from '../App'
 import { ChatContext } from './Contexts'
 import {
   getTextFromModelResponse,
@@ -30,18 +30,17 @@ import {
   rangesToOriginText,
 } from '../utils/chatAppUtils'
 import { rawRelationsToGraphRelationsChat } from '../utils/chatGraphConstruct'
+import { InterchangeContext } from './Interchange'
 
-export const Question = ({
-  questionAndAnswer: {
+export const Question = () => {
+  const { questionsAndAnswersCount, setQuestionsAndAnswers } =
+    useContext(ChatContext)
+  const {
     id,
     question,
     modelStatus: { modelAnswering, modelError },
-  },
-}: {
-  questionAndAnswer: QuestionAndAnswer
-}) => {
-  const { questionsAndAnswersCount, setQuestionsAndAnswers } =
-    useContext(ChatContext)
+  } = useContext(InterchangeContext)
+
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   /* -------------------------------------------------------------------------- */

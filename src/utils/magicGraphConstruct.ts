@@ -257,6 +257,9 @@ export const constructGraph = (relationships: string[][]) => {
     if (!addedNode.has(a)) {
       pseudoGraph.setNode(a, {
         label: a,
+        data: {
+          id: a,
+        },
         width: hardcodedNodeWidthEstimation(removeHiddenExpandId(a)),
         height: hardcodedNodeSize.height,
       })
@@ -293,6 +296,77 @@ export const constructGraph = (relationships: string[][]) => {
   })
 
   return nodes
+}
+
+export const constructGraphChat = (
+  annotatedRelationships: {
+    answerObjectId: string
+    relationships: string[][]
+  }[]
+) => {
+  // https://github.com/dagrejs/dagre/wiki#an-example-layout
+  var pseudoGraph = new dagre.graphlib.Graph()
+  pseudoGraph.setGraph({
+    rankdir: 'LR',
+    // align: 'UL',
+    ranksep: 100,
+    nodesep: 30,
+  })
+  pseudoGraph.setDefaultEdgeLabel(function () {
+    return ''
+  })
+
+  const addedNode: {
+    [key: string]: Set<string>
+  } = {}
+
+  annotatedRelationships.forEach(({ answerObjectId, relationships }) => {
+    relationships.forEach(([a, edge, b]: string[]) => {
+      if (!(a in addedNode)) {
+        pseudoGraph.setNode(a, {
+          label: a,
+          width: hardcodedNodeWidthEstimation(removeHiddenExpandId(a)),
+          height: hardcodedNodeSize.height,
+        })
+        addedNode[a] = new Set()
+      }
+      addedNode[a].add(answerObjectId)
+
+      if (!(b in addedNode)) {
+        pseudoGraph.setNode(b, {
+          label: b,
+          width: hardcodedNodeWidthEstimation(removeHiddenExpandId(b)),
+          height: hardcodedNodeSize.height,
+        })
+        addedNode[b] = new Set()
+      }
+      addedNode[b].add(answerObjectId)
+
+      pseudoGraph.setEdge(a, b, { label: edge })
+    })
+  })
+
+  // ! compute
+  dagre.layout(pseudoGraph)
+
+  // print the graph
+  const nodes: {
+    label: string
+    x: number
+    y: number
+  }[] = []
+  pseudoGraph.nodes().forEach(v => {
+    nodes.push({
+      label: pseudoGraph.node(v).label as string,
+      x: pseudoGraph.node(v).x,
+      y: pseudoGraph.node(v).y,
+    })
+  })
+
+  return {
+    nodes,
+    nodesToAnswerObjectIds: addedNode,
+  }
 }
 
 export interface PostConstructionPseudoNodeObject {

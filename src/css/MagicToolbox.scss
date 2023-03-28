@@ -50,6 +50,7 @@ $magic-tag-color-hover: $grey;
     width: $font-size-large;
     height: $font-size-large;
     padding: $padding-small;
+    box-sizing: content-box;
 
     cursor: pointer;
   }

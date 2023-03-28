@@ -1,0 +1,14 @@
+.slide-wrapper {
+  display: flex;
+
+  position: relative;
+
+  width: 30rem;
+  height: 40rem;
+
+  .slide-deck {
+    display: flex;
+    flex-direction: column;
+    gap: $padding-large;
+  }
+}

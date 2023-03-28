@@ -40,6 +40,7 @@ import { getHandleId, getNodeId, getNodeLabelAndTags } from '../utils/utils'
 
 export interface GeneratedInformation {
   temporary: boolean
+  sourceAnswerObjectIds: Set<string>
 }
 
 export interface CustomNodeData {
@@ -398,6 +399,7 @@ export const customAddNodes = (
     styleBackground,
     {
       temporary: false,
+      sourceAnswerObjectIds: new Set(),
     }
   )
 

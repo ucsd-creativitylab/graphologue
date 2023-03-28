@@ -282,6 +282,7 @@ export const EdgeCustomLabel = memo(
                 editing: false,
                 generated: {
                   temporary: false,
+                  sourceAnswerObjectIds: new Set(),
                 },
               }
             ),
@@ -298,6 +299,7 @@ export const EdgeCustomLabel = memo(
                 editing: false,
                 generated: {
                   temporary: false,
+                  sourceAnswerObjectIds: new Set(),
                 },
               }
             ),

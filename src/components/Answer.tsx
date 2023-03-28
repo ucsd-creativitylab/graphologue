@@ -1,35 +1,54 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { PuffLoader } from 'react-spinners'
 
 import VerticalSplitRoundedIcon from '@mui/icons-material/VerticalSplitRounded'
 import ShortTextRoundedIcon from '@mui/icons-material/ShortTextRounded'
 import NotesRoundedIcon from '@mui/icons-material/NotesRounded'
 
-import { QuestionAndAnswer, RawAnswerRange } from '../App'
+import { AnswerObject, QuestionAndAnswer, RawAnswerRange } from '../App'
 import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 import { rangesToId } from '../utils/chatAppUtils'
+import { InterchangeContext } from './Interchange'
 
-export const Answer = ({
-  questionAndAnswer,
-  questionAndAnswer: {
-    answer,
-    answerInformation,
+export const Answer = () => {
+  const questionAndAnswer = useContext(InterchangeContext)
+  const {
+    id,
     modelStatus: { modelAnsweringComplete, modelParsingComplete },
-    highlighted,
-  },
-}: {
-  questionAndAnswer: QuestionAndAnswer
-}) => {
+  } = questionAndAnswer
+
   return (
     <div className="answer-wrapper">
+      {/* 1 */}
       <RawAnswer questionAndAnswer={questionAndAnswer} />
 
       {/* <div className="answer-item-height answer-item interchange-component">
         {answer}
       </div> */}
 
+      {/* 2 */}
+      {/* <SlideAnswer /> */}
+
+      {/* 3 */}
       {modelAnsweringComplete && modelParsingComplete ? (
-        <ReactFlowComponent />
+        <>
+          <ReactFlowComponent
+            key={`react-flow-${id}`}
+            answerRelationships={questionAndAnswer.answerInformation.map(
+              (answerObject: AnswerObject) => ({
+                answerObjectId: answerObject.id,
+                origin: answerObject.origin,
+                relationships: answerObject.relationships,
+              })
+            )}
+          />
+        </>
       ) : modelAnsweringComplete ? (
         <div className="react-flow-loading-placeholder">
           <PuffLoader size={32} color="#57068c" />

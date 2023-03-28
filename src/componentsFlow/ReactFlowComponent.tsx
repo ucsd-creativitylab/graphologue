@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
   DragEvent,
+  memo,
 } from 'react'
 import ReactFlow, {
   useReactFlow,
@@ -38,7 +39,13 @@ import {
   customEdgeOptions,
   getNewEdge,
 } from './Edge'
-import { customAddNodes, CustomNode, CustomNodeData } from './Node'
+import {
+  customAddNodes,
+  CustomNode,
+  CustomNodeData,
+  getNewCustomNode,
+  hardcodedNodeWidthEstimation,
+} from './Node'
 import { CustomControls } from './CustomControl'
 import { CustomMarkerDefs } from './CustomDefs'
 import {
@@ -49,12 +56,19 @@ import {
 } from '../constants'
 import { FlowContext } from '../components/Contexts'
 import { useTimeMachine } from '../utils/timeMachine'
-import { roundTo } from '../utils/utils'
+import { getHandleId, getNodeId, roundTo } from '../utils/utils'
 import { PromptSourceComponentsType } from '../utils/magicExplain'
 import { MagicNode } from './MagicNode'
 import { EntityType } from '../utils/socket'
 import { CustomGroupNode } from './GroupNode'
 import { ModelForMagic } from '../utils/openAI'
+import { AnswerRelationshipObject, RawAnswerRange } from '../App'
+import {
+  constructGraphChat,
+  hasHiddenExpandId,
+  PostConstructionPseudoNodeObject,
+  removeHiddenExpandId,
+} from '../utils/magicGraphConstruct'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -79,7 +93,13 @@ const edgeTypes = {
   custom: CustomEdge,
 } as EdgeTypes
 
-const Flow = () => {
+const Flow = ({
+  nodes: nodesFromAnswerRelationships,
+  edges: edgesFromAnswerRelationships,
+}: {
+  nodes: Node[]
+  edges: Edge[]
+}) => {
   const thisReactFlowInstance = useReactFlow()
   const {
     setNodes,
@@ -93,8 +113,8 @@ const Flow = () => {
   }: ReactFlowInstance = thisReactFlowInstance
 
   // use default nodes and edges
-  const [nodes, , onNodesChange] = useNodesState(defaultNodes)
-  const [edges, , onEdgesChange] = useEdgesState(defaultEdges)
+  const [nodes, , onNodesChange] = useNodesState(nodesFromAnswerRelationships)
+  const [edges, , onEdgesChange] = useEdgesState(edgesFromAnswerRelationships)
 
   // fit to view on page load
   useEffect(() => {
@@ -595,13 +615,112 @@ const Flow = () => {
   )
 }
 
-const ReactFlowComponent = () => {
-  /* -------------------------------------------------------------------------- */
-  // ! notebook
-  // const notebookRef = useRef<HTMLDivElement>(null)
+const ReactFlowComponent = memo(
+  ({
+    answerRelationships,
+  }: {
+    answerRelationships: {
+      answerObjectId: string
+      origin: RawAnswerRange[]
+      relationships: AnswerRelationshipObject[]
+    }[]
+  }) => {
+    // build nodes and edges from relationships
+    const nodes: Node[] = []
+    const edges: Edge[] = []
 
-  // try to retrieve notes from session storage
-  /*
+    const annotatedRelationships: {
+      answerObjectId: string
+      relationships: string[][]
+    }[] = answerRelationships.map(({ answerObjectId, relationships }) => {
+      return {
+        answerObjectId,
+        relationships: relationships.map(r => [r.source, r.edge, r.target]),
+      }
+    })
+
+    const { nodes: computedNodes, nodesToAnswerObjectIds } = constructGraphChat(
+      annotatedRelationships
+    )
+    console.log('computed nodes from parsed relationships', computedNodes)
+
+    const pseudoNodeObjects = computedNodes.map(({ label, x, y }) => {
+      return {
+        id: getNodeId(),
+        label,
+        position: {
+          x,
+          y,
+        },
+        width: hardcodedNodeWidthEstimation(label),
+        height: hardcodedNodeSize.height,
+        sourceHandleId: getHandleId(),
+        targetHandleId: getHandleId(),
+      } as PostConstructionPseudoNodeObject
+    })
+
+    pseudoNodeObjects.forEach(
+      (
+        { id, label, position: { x, y }, sourceHandleId, targetHandleId },
+        ind: number
+      ) => {
+        nodes.push(
+          getNewCustomNode(
+            id,
+            removeHiddenExpandId(label),
+            x,
+            y,
+            sourceHandleId,
+            targetHandleId,
+            false,
+            false,
+            hasHiddenExpandId(label)
+              ? styles.nodeColorDefaultGrey
+              : styles.nodeColorDefaultWhite, // expanded edge label will be grey
+            {
+              temporary: false,
+              sourceAnswerObjectIds: nodesToAnswerObjectIds[label],
+            }
+          )
+        )
+      }
+    )
+
+    annotatedRelationships.forEach(({ answerObjectId, relationships }) => {
+      relationships.forEach(([source, edge, target]) => {
+        const sourceNode = pseudoNodeObjects.find(n => n.label === source)
+        const targetNode = pseudoNodeObjects.find(n => n.label === target)
+
+        if (!sourceNode || !targetNode) return
+
+        edges.push(
+          getNewEdge(
+            {
+              source: sourceNode.id,
+              target: targetNode.id,
+              sourceHandle: sourceNode.sourceHandleId,
+              targetHandle: targetNode.targetHandleId,
+            },
+            {
+              label: edge,
+              customType: 'arrow',
+              editing: false,
+              generated: {
+                temporary: false,
+                sourceAnswerObjectIds: new Set([answerObjectId]),
+              },
+            }
+          )
+        )
+      })
+    })
+
+    /* -------------------------------------------------------------------------- */
+    // ! notebook
+    // const notebookRef = useRef<HTMLDivElement>(null)
+
+    // try to retrieve notes from session storage
+    /*
   const notesFromSessionStorage = sessionStorage.getItem(
     useSessionStorageNotesHandle
   )
@@ -615,8 +734,8 @@ const ReactFlowComponent = () => {
   )
   */
 
-  // * save notes
-  /*
+    // * save notes
+    /*
   useEffect(() => {
     // save notes to session storage
     sessionStorage.setItem(
@@ -629,52 +748,52 @@ const ReactFlowComponent = () => {
   }, [notes, notesOpened])
   */
 
-  // const spotlightNotes = useCallback(async () => {
-  //   if (notesOpened) return
-  //   if (notebookRef.current) {
-  //     await sleep(5)
-  //     notebookRef.current.style.transform = 'translateX(-15rem)'
-  //     await sleep(750)
-  //     notebookRef.current.style.transform = 'translateX(0)'
-  //   }
-  // }, [notesOpened])
+    // const spotlightNotes = useCallback(async () => {
+    //   if (notesOpened) return
+    //   if (notebookRef.current) {
+    //     await sleep(5)
+    //     notebookRef.current.style.transform = 'translateX(-15rem)'
+    //     await sleep(750)
+    //     notebookRef.current.style.transform = 'translateX(0)'
+    //   }
+    // }, [notesOpened])
 
-  // const addNote = useCallback(
-  //   (note: Note) => {
-  //     if (note.type === 'magic') {
-  //       if (
-  //         notes.find(
-  //           n =>
-  //             n.data.magicNodeId === note.data.magicNodeId &&
-  //             n.data.response === note.data.response
-  //         )
-  //       )
-  //         return
+    // const addNote = useCallback(
+    //   (note: Note) => {
+    //     if (note.type === 'magic') {
+    //       if (
+    //         notes.find(
+    //           n =>
+    //             n.data.magicNodeId === note.data.magicNodeId &&
+    //             n.data.response === note.data.response
+    //         )
+    //       )
+    //         return
 
-  //       setNotes(notes.concat(note))
-  //       if (!notesOpened) spotlightNotes()
-  //     }
-  //   },
-  //   [notes, notesOpened, spotlightNotes]
-  // )
+    //       setNotes(notes.concat(note))
+    //       if (!notesOpened) spotlightNotes()
+    //     }
+    //   },
+    //   [notes, notesOpened, spotlightNotes]
+    // )
 
-  // const deleteNote = useCallback(
-  //   (noteId: string) => {
-  //     const newNotes = notes.filter(n => n.id !== noteId)
-  //     setNotes(newNotes)
+    // const deleteNote = useCallback(
+    //   (noteId: string) => {
+    //     const newNotes = notes.filter(n => n.id !== noteId)
+    //     setNotes(newNotes)
 
-  //     if (newNotes.length === 0)
-  //       setTimeout(() => setNotesOpened(false), slowInteractionWaitTimeout)
-  //   },
-  //   [notes]
-  // )
-  /* -------------------------------------------------------------------------- */
+    //     if (newNotes.length === 0)
+    //       setTimeout(() => setNotesOpened(false), slowInteractionWaitTimeout)
+    //   },
+    //   [notes]
+    // )
+    /* -------------------------------------------------------------------------- */
 
-  return (
-    <ReactFlowProvider>
-      {/* <Flow notesOpened={notesOpened} setNotesOpened={setNotesOpened} /> */}
-      <Flow />
-      {/* <NotebookContext.Provider
+    return (
+      <ReactFlowProvider>
+        {/* <Flow notesOpened={notesOpened} setNotesOpened={setNotesOpened} /> */}
+        <Flow nodes={nodes} edges={edges} />
+        {/* <NotebookContext.Provider
         value={{
           notes,
           setNotes,
@@ -686,8 +805,9 @@ const ReactFlowComponent = () => {
       >
         <NoteBook notebookRef={notebookRef} />
       </NotebookContext.Provider> */}
-    </ReactFlowProvider>
-  )
-}
+      </ReactFlowProvider>
+    )
+  }
+)
 
 export default ReactFlowComponent

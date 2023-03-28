@@ -798,6 +798,7 @@ export const MagicNode = memo(
                   : styles.nodeColorDefaultWhite, // expanded edge label will be grey
                 {
                   temporary: true,
+                  sourceAnswerObjectIds: new Set(),
                 }
               )
             )
@@ -824,6 +825,7 @@ export const MagicNode = memo(
                 editing: false,
                 generated: {
                   temporary: true,
+                  sourceAnswerObjectIds: new Set(),
                 },
               }
             )

@@ -20,6 +20,7 @@ export interface AnswerRelationshipObject {
 }
 
 export interface AnswerObject {
+  id: string
   origin: RawAnswerRange[]
   summary: string
   slide: AnswerSlideObject
