@@ -56,8 +56,11 @@ export const predefinedPrompts = {
     return [
       {
         role: 'system',
-        content: `You are a knowledgeable and helpful assistant. Answer the user's question with simple and concise sentences. \
-Be as detailed as possible.`,
+        content: `You are a helpful, knowledgeable, and clever assistant. \
+Please provide a well-structured response to the user's question in multiple paragraphs. \
+Each paragraph should discuss a different aspect or topic of the answer. \
+Try to cover the most important aspects of the answer and be concise for each of them. \
+Your response should be at most around 200 characters long.`,
       },
       {
         role: 'user',

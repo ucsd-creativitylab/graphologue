@@ -14,8 +14,10 @@ export const Interchange = ({
 }: InterchangeProps) => {
   return (
     <div className="interchange-item">
-      <Question questionAndAnswer={data} />
-      {answer.length > 0 && <Answer questionAndAnswer={data} />}
+      <Question key={`question-${data.id}`} questionAndAnswer={data} />
+      {answer.length > 0 && (
+        <Answer key={`answer-${data.id}`} questionAndAnswer={data} />
+      )}
     </div>
   )
 }

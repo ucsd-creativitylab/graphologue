@@ -162,40 +162,58 @@ export const Question = ({
     /* -------------------------------------------------------------------------- */
 
     // * break answer
-    const brokenResponseData = await parseOpenAIResponseToObjects(
-      predefinedPrompts._chat_breakResponse(
-        initialPrompts,
-        answerStorage.current.answer
-      ),
-      models.smarter
-    )
-    if (brokenResponseData.error) return handleResponseError(brokenResponseData)
-
-    answerStorage.current.answerInformation = getTextFromModelResponse(
-      brokenResponseData
-    )
+    answerStorage.current.answerInformation = answerStorage.current.answer
       .split('\n')
-      .map((b: string) => b.trim())
-      .filter((b: string) => b.length > 0)
-      .map((a: string) => {
+      .map((paragraph: string) => paragraph.trim())
+      .filter((paragraph: string) => paragraph.length > 0)
+      .map((paragraph: string) => {
         // ! from fetched data to AnswerObject
         return {
           id: getAnswerObjectId(), // add id
-          origin: originTextToRanges(answerStorage.current.answer, [a]), // from text to ranges
+          origin: originTextToRanges(answerStorage.current.answer, [paragraph]), // from text to ranges
           summary: '', // add summary
           slide: {
-            title: '',
             content: '',
           }, // pop empty slide
           relationships: [], // pop empty relationships
           complete: false,
         } as AnswerObject
-      }) as AnswerObject[]
+      })
 
-    console.log(
-      'model done breaking answer',
-      answerStorage.current.answerInformation
-    )
+    // * break answer with model (deprecated)
+    // const brokenResponseData = await parseOpenAIResponseToObjects(
+    //   predefinedPrompts._chat_breakResponse(
+    //     initialPrompts,
+    //     answerStorage.current.answer
+    //   ),
+    //   models.smarter
+    // )
+    // if (brokenResponseData.error) return handleResponseError(brokenResponseData)
+
+    // answerStorage.current.answerInformation = getTextFromModelResponse(
+    //   brokenResponseData
+    // )
+    //   .split('\n')
+    //   .map((b: string) => b.trim())
+    //   .filter((b: string) => b.length > 0)
+    //   .map((a: string) => {
+    //     // ! from fetched data to AnswerObject
+    //     return {
+    //       id: getAnswerObjectId(), // add id
+    //       origin: originTextToRanges(answerStorage.current.answer, [a]), // from text to ranges
+    //       summary: '', // add summary
+    //       slide: {
+    //         content: '',
+    //       }, // pop empty slide
+    //       relationships: [], // pop empty relationships
+    //       complete: false,
+    //     } as AnswerObject
+    //   }) as AnswerObject[]
+
+    // console.log(
+    //   'model done breaking answer',
+    //   answerStorage.current.answerInformation
+    // )
     setQuestionsAndAnswers(prevQsAndAs =>
       helpSetQuestionsAndAnswers(prevQsAndAs, id, {
         answerInformation: answerStorage.current.answerInformation,
@@ -203,31 +221,33 @@ export const Question = ({
     )
 
     // * get summary
-    try {
-      answerStorage.current.answerInformation = await Promise.all(
-        answerStorage.current.answerInformation.map(async (a: AnswerObject) => {
-          const textSummaryData = await parseOpenAIResponseToObjects(
-            predefinedPrompts._chat_summarizeParagraph(
-              rangesToOriginText(answerStorage.current.answer, a.origin)
-            ),
-            models.faster
-          )
-          if (textSummaryData.error) {
-            handleResponseError(textSummaryData)
-            return a
-          }
+    let summaryError = false
+    answerStorage.current.answerInformation = await Promise.all(
+      answerStorage.current.answerInformation.map(async (a: AnswerObject) => {
+        if (summaryError) return a
 
-          const textSummary = getTextFromModelResponse(textSummaryData)
+        const textSummaryData = await parseOpenAIResponseToObjects(
+          predefinedPrompts._chat_summarizeParagraph(
+            rangesToOriginText(answerStorage.current.answer, a.origin)
+          ),
+          models.faster
+        )
+        if (textSummaryData.error) {
+          handleResponseError(textSummaryData)
+          summaryError = true
+          return a
+        }
 
-          return {
-            ...a,
-            summary: textSummary,
-          }
-        })
-      )
-    } catch (error) {
-      console.error(getTextFromModelResponse(brokenResponseData))
+        const textSummary = getTextFromModelResponse(textSummaryData)
 
+        return {
+          ...a,
+          summary: textSummary,
+        }
+      })
+    )
+
+    if (summaryError) {
       return setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionsAndAnswers(prevQsAndAs, id, {
           modelStatus: {
@@ -236,11 +256,7 @@ export const Question = ({
         })
       )
     }
-
-    console.log(
-      'model done summarizing answer',
-      answerStorage.current.answerInformation
-    )
+    console.log('model done summarizing answer')
     setQuestionsAndAnswers(prevQsAndAs =>
       helpSetQuestionsAndAnswers(prevQsAndAs, id, {
         answerInformation: answerStorage.current.answerInformation,
@@ -361,7 +377,7 @@ export const Question = ({
   }, [id, setQuestionsAndAnswers])
 
   return (
-    <div className="question-item interchange-component">
+    <div className="question-item interchange-component drop-up">
       <textarea
         ref={textareaRef}
         className="question-textarea"

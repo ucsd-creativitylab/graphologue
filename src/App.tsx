@@ -79,7 +79,10 @@ export const ChatApp = () => {
     >
       <div className="chat-app">
         {questionsAndAnswers.map((questionAndAnswer, index) => (
-          <Interchange key={index} data={questionAndAnswer} />
+          <Interchange
+            key={`interchange-${questionAndAnswer.id}`}
+            data={questionAndAnswer}
+          />
         ))}
       </div>
     </ChatContext.Provider>

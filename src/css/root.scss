@@ -295,5 +295,20 @@ $shadow-heavy: rgba($cold-grey, 0.6) 0 rem-to-px(2rem) rem-to-px(10rem)
 
 .drop-down {
   animation-name: drop-down;
+  animation-duration: $transition-normal-slow;
+}
+
+@keyframes drop-up {
+  from {
+    transform: translateY($padding-mid);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.drop-up {
+  animation-name: drop-up;
   animation-duration: $transition-normal;
 }

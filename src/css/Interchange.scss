@@ -124,7 +124,7 @@
       align-items: center;
       gap: $padding-mid;
 
-      transition: transform 0.3s ease-out;
+      transition: transform $transition-normal-slow cubic-bezier(0, 0.3, 0.6, 1);
 
       &.answer-centered {
         transform: translateX(calc(50vw - 50%));
