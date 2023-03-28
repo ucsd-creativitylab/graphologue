@@ -300,15 +300,17 @@ export const constructGraph = (relationships: string[][]) => {
   return nodes
 }
 
-export const constructGraphChat = (
-  annotatedRelationships: {
-    answerObjectId: string
-    relationships: {
-      relationship: [string, string, string]
-      origin: RawAnswerRange
-    }[]
+/* -------------------------------------------------------------------------- */
+
+export const constructGraphChat = (annotatedRelationships: {
+  answerObjectId: string
+  relationships: {
+    relationship: [string, string, string]
+    origin: RawAnswerRange
   }[]
-) => {
+}) => {
+  const { answerObjectId, relationships } = annotatedRelationships
+
   // https://github.com/dagrejs/dagre/wiki#an-example-layout
   var pseudoGraph = new dagre.graphlib.Graph()
   pseudoGraph.setGraph({
@@ -331,34 +333,32 @@ export const constructGraphChat = (
     [key: string]: RawAnswerRange[]
   } = {}
 
-  annotatedRelationships.forEach(({ answerObjectId, relationships }) => {
-    relationships.forEach(({ relationship: [a, edge, b], origin }) => {
-      if (!(a in addedNodes)) {
-        pseudoGraph.setNode(a, {
-          label: a,
-          width: hardcodedNodeWidthEstimation(removeHiddenExpandId(a)),
-          height: hardcodedNodeSize.height,
-        })
-        addedNodes[a] = new Set()
-        nodesToOrigins[a] = []
-      }
-      addedNodes[a].add(answerObjectId)
-      nodesToOrigins[a] = addOrMergeRanges(nodesToOrigins[a], origin)
+  relationships.forEach(({ relationship: [a, edge, b], origin }) => {
+    if (!(a in addedNodes)) {
+      pseudoGraph.setNode(a, {
+        label: a,
+        width: hardcodedNodeWidthEstimation(removeHiddenExpandId(a)),
+        height: hardcodedNodeSize.height,
+      })
+      addedNodes[a] = new Set()
+      nodesToOrigins[a] = []
+    }
+    addedNodes[a].add(answerObjectId)
+    nodesToOrigins[a] = addOrMergeRanges(nodesToOrigins[a], origin)
 
-      if (!(b in addedNodes)) {
-        pseudoGraph.setNode(b, {
-          label: b,
-          width: hardcodedNodeWidthEstimation(removeHiddenExpandId(b)),
-          height: hardcodedNodeSize.height,
-        })
-        addedNodes[b] = new Set()
-        nodesToOrigins[b] = []
-      }
-      addedNodes[b].add(answerObjectId)
-      nodesToOrigins[b] = addOrMergeRanges(nodesToOrigins[b], origin)
+    if (!(b in addedNodes)) {
+      pseudoGraph.setNode(b, {
+        label: b,
+        width: hardcodedNodeWidthEstimation(removeHiddenExpandId(b)),
+        height: hardcodedNodeSize.height,
+      })
+      addedNodes[b] = new Set()
+      nodesToOrigins[b] = []
+    }
+    addedNodes[b].add(answerObjectId)
+    nodesToOrigins[b] = addOrMergeRanges(nodesToOrigins[b], origin)
 
-      pseudoGraph.setEdge(a, b, { label: edge })
-    })
+    pseudoGraph.setEdge(a, b, { label: edge })
   })
 
   // ! compute

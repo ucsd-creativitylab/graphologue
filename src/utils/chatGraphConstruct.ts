@@ -1,10 +1,25 @@
+import { Edge, Node } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
-import { AnswerRelationshipObject } from '../App'
+
+import { AnswerObject, AnswerRelationshipObject, RawAnswerRange } from '../App'
+import { getNewEdge } from '../componentsFlow/Edge'
+import {
+  getNewCustomNode,
+  hardcodedNodeWidthEstimation,
+} from '../componentsFlow/Node'
+import { hardcodedNodeSize, styles, nodePosAdjustStep } from '../constants'
 import { originTextToRange } from './chatAppUtils'
-import { processTriplet, wrapWithHiddenExpandId } from './magicGraphConstruct'
+import {
+  constructGraphChat,
+  hasHiddenExpandId,
+  PostConstructionPseudoNodeObject,
+  processTriplet,
+  removeHiddenExpandId,
+  wrapWithHiddenExpandId,
+} from './magicGraphConstruct'
 
 import { promptTerms } from './promptsAndResponses'
-import { removeQuotes } from './utils'
+import { getGraphBounds, getHandleId, getNodeId, removeQuotes } from './utils'
 
 export const rawRelationsToGraphRelationsChat = (
   rawResponse: string,
@@ -207,4 +222,138 @@ export const rawRelationsToGraphRelationsChat = (
       edge: edge,
     })
   )
+}
+
+/* -------------------------------------------------------------------------- */
+
+export const answerInformationToReactFlowObject = (
+  answerInformation: AnswerObject[]
+): {
+  nodes: Node[]
+  edges: Edge[]
+} => {
+  // build nodes and edges from relationships
+  const nodes: Node[] = []
+  const edges: Edge[] = []
+
+  let nodesVerticalOffset = 0
+
+  answerInformation.forEach(
+    ({ id: answerObjectId, relationships }: AnswerObject) => {
+      const thisNodes: Node[] = []
+
+      const annotatedRelationshipsForThisAnswerObject: {
+        answerObjectId: string
+        relationships: {
+          relationship: [string, string, string]
+          origin: RawAnswerRange
+        }[]
+      } = {
+        answerObjectId,
+        relationships: relationships.map(r => ({
+          relationship: [r.source, r.edge, r.target],
+          origin: r.origin,
+        })),
+      }
+
+      const {
+        nodes: computedNodes,
+        nodesToAnswerObjectIds,
+        nodesToOrigins,
+      } = constructGraphChat(annotatedRelationshipsForThisAnswerObject)
+
+      const pseudoNodeObjectsForThisAnswerObject = computedNodes.map(
+        ({ label, x, y }) => {
+          return {
+            id: getNodeId(label, answerObjectId),
+            label,
+            position: {
+              x,
+              y,
+            },
+            width: hardcodedNodeWidthEstimation(label),
+            height: hardcodedNodeSize.height,
+            sourceHandleId: getHandleId(),
+            targetHandleId: getHandleId(),
+          } as PostConstructionPseudoNodeObject
+        }
+      )
+
+      // nodes
+      pseudoNodeObjectsForThisAnswerObject.forEach(
+        (
+          { id, label, position: { x, y }, sourceHandleId, targetHandleId },
+          ind: number
+        ) => {
+          thisNodes.push(
+            getNewCustomNode(
+              id,
+              removeHiddenExpandId(label),
+              x,
+              y + nodesVerticalOffset,
+              sourceHandleId,
+              targetHandleId,
+              false,
+              false,
+              hasHiddenExpandId(label)
+                ? styles.nodeColorDefaultGrey
+                : styles.nodeColorDefaultWhite, // expanded edge label will be grey
+              {
+                temporary: false,
+                sourceAnswerObjectIds: nodesToAnswerObjectIds[label],
+                sourceOrigins: nodesToOrigins[label],
+              }
+            )
+          )
+        }
+      )
+
+      // get bounding box of nodes and update vertical offset
+      const boundingBox = getGraphBounds(thisNodes)
+      nodesVerticalOffset =
+        boundingBox.y + boundingBox.height + nodePosAdjustStep
+
+      nodes.push(...thisNodes)
+
+      // edges
+      annotatedRelationshipsForThisAnswerObject.relationships.forEach(
+        ({ relationship: [source, edge, target], origin }) => {
+          const sourceNode = pseudoNodeObjectsForThisAnswerObject.find(
+            n => n.label === source
+          )
+          const targetNode = pseudoNodeObjectsForThisAnswerObject.find(
+            n => n.label === target
+          )
+
+          if (!sourceNode || !targetNode) return
+
+          edges.push(
+            getNewEdge(
+              {
+                source: sourceNode.id,
+                target: targetNode.id,
+                sourceHandle: sourceNode.sourceHandleId,
+                targetHandle: targetNode.targetHandleId,
+              },
+              {
+                label: edge,
+                customType: 'arrow',
+                editing: false,
+                generated: {
+                  temporary: false,
+                  sourceAnswerObjectIds: new Set([answerObjectId]),
+                  sourceOrigins: [origin],
+                },
+              }
+            )
+          )
+        }
+      )
+    }
+  )
+
+  return {
+    nodes,
+    edges,
+  }
 }

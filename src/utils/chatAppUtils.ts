@@ -110,6 +110,10 @@ export const newQuestionAndAnswer = (
       modelParsingComplete: prefill?.modelStatus?.modelParsingComplete ?? false,
       modelError: prefill?.modelStatus?.modelError ?? false,
     },
+    reactFlow: {
+      nodes: prefill?.reactFlow?.nodes ?? [],
+      edges: prefill?.reactFlow?.edges ?? [],
+    },
     highlighted: prefill?.highlighted ?? {
       origins: [],
       answerObjectIds: new Set(),
@@ -123,7 +127,12 @@ export const deepCopyQuestionAndAnswer = (
   return {
     ...qA,
     answerInformation: qA.answerInformation.map(a => {
-      return { ...a }
+      return {
+        ...a,
+        origin: { ...a.origin },
+        slide: { ...a.slide },
+        relationships: a.relationships.map(r => ({ ...r })),
+      } as AnswerObject
     }),
     modelStatus: {
       ...qA.modelStatus,
@@ -134,7 +143,7 @@ export const deepCopyQuestionAndAnswer = (
   }
 }
 
-export const helpSetQuestionsAndAnswers = (
+export const helpSetQuestionAndAnswer = (
   prevQsAndAs: QuestionAndAnswer[],
   id: string,
   newQAndA: PartialQuestionAndAnswer

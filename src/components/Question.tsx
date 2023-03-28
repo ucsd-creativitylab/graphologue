@@ -25,12 +25,15 @@ import {
 import { predefinedPrompts } from '../utils/promptsAndResponses'
 import {
   getAnswerObjectId,
-  helpSetQuestionsAndAnswers,
+  helpSetQuestionAndAnswer,
   newQuestionAndAnswer,
   originTextToRange,
   rangesToOriginText,
 } from '../utils/chatAppUtils'
-import { rawRelationsToGraphRelationsChat } from '../utils/chatGraphConstruct'
+import {
+  answerInformationToReactFlowObject,
+  rawRelationsToGraphRelationsChat,
+} from '../utils/chatGraphConstruct'
 import { InterchangeContext } from './Interchange'
 
 export const Question = () => {
@@ -40,6 +43,7 @@ export const Question = () => {
     data: {
       id,
       question,
+      answer,
       modelStatus: { modelAnswering, modelError },
     },
   } = useContext(InterchangeContext)
@@ -48,10 +52,10 @@ export const Question = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
-    if (!activated && questionsAndAnswersCount < 2) {
+    if (!activated && (questionsAndAnswersCount < 2 || answer.length > 0)) {
       setActivated(true)
     }
-  }, [activated, questionsAndAnswersCount])
+  }, [activated, answer.length, questionsAndAnswersCount])
 
   /* -------------------------------------------------------------------------- */
 
@@ -72,7 +76,7 @@ export const Question = () => {
         const newQuestion = event.target.value
 
         setQuestionsAndAnswers(prevQsAndAs =>
-          helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+          helpSetQuestionAndAnswer(prevQsAndAs, id, {
             question: newQuestion,
           })
         )
@@ -103,7 +107,7 @@ export const Question = () => {
       console.error(response.error)
 
       setQuestionsAndAnswers(prevQsAndAs =>
-        helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
           answerInformation: [],
           modelStatus: {
             modelError: true,
@@ -122,7 +126,7 @@ export const Question = () => {
       answerStorage.current.answer += deltaContent
 
       setQuestionsAndAnswers(prevQsAndAs =>
-        helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
           answer: answerStorage.current.answer,
         })
       )
@@ -130,10 +134,11 @@ export const Question = () => {
     [id, setQuestionsAndAnswers]
   )
 
+  /*
   const handleAsk = useCallback(async () => {
     // * ground reset
     setQuestionsAndAnswers(prevQsAndAs =>
-      helpSetQuestionsAndAnswers(
+      helpSetQuestionAndAnswer(
         prevQsAndAs,
         id,
         newQuestionAndAnswer({
@@ -151,6 +156,7 @@ export const Question = () => {
 
     // * actual ask model
     const initialPrompts = predefinedPrompts._chat_initialAsk(question)
+    // ! request
     await streamOpenAICompletion(
       initialPrompts,
       models.smarter,
@@ -160,7 +166,7 @@ export const Question = () => {
     console.log('model done raw answering')
 
     setQuestionsAndAnswers(prevQsAndAs =>
-      helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+      helpSetQuestionAndAnswer(prevQsAndAs, id, {
         modelStatus: {
           modelAnswering: false,
           modelAnsweringComplete: true,
@@ -176,6 +182,7 @@ export const Question = () => {
       .filter((paragraph: string) => paragraph.length > 0)
       .map((paragraph: string) => {
         // ! from fetched data to AnswerObject
+        // ! first time construct AnswerObject
         return {
           id: getAnswerObjectId(), // add id
           origin: originTextToRange(answerStorage.current.answer, paragraph), // from text to ranges
@@ -184,6 +191,10 @@ export const Question = () => {
             content: '',
           }, // pop empty slide
           relationships: [], // pop empty relationships
+          reactFlow: {
+            nodes: [],
+            edges: [],
+          },
           complete: false,
         } as AnswerObject
       })
@@ -223,7 +234,7 @@ export const Question = () => {
     //   answerStorage.current.answerInformation
     // )
     setQuestionsAndAnswers(prevQsAndAs =>
-      helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+      helpSetQuestionAndAnswer(prevQsAndAs, id, {
         answerInformation: answerStorage.current.answerInformation,
       })
     )
@@ -234,6 +245,7 @@ export const Question = () => {
       answerStorage.current.answerInformation.map(async (a: AnswerObject) => {
         if (summaryError) return a
 
+        // ! request
         const textSummaryData = await parseOpenAIResponseToObjects(
           predefinedPrompts._chat_summarizeParagraph(
             rangesToOriginText(answerStorage.current.answer, a.origin)
@@ -257,7 +269,7 @@ export const Question = () => {
 
     if (summaryError) {
       return setQuestionsAndAnswers(prevQsAndAs =>
-        helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
           modelStatus: {
             modelError: true,
           },
@@ -266,7 +278,7 @@ export const Question = () => {
     }
     console.log('model done summarizing answer')
     setQuestionsAndAnswers(prevQsAndAs =>
-      helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+      helpSetQuestionAndAnswer(prevQsAndAs, id, {
         answerInformation: answerStorage.current.answerInformation,
       })
     )
@@ -284,6 +296,7 @@ export const Question = () => {
 
           if (!parsingError) {
             // slide
+            // ! request
             const parsedSlideData = await parseOpenAIResponseToObjects(
               predefinedPrompts._chat_parseSlide(
                 // answerStorage.current.answer,
@@ -293,6 +306,7 @@ export const Question = () => {
             )
 
             // relationships
+            // ! request
             const parsedRelationshipData = await parseOpenAIResponseToObjects(
               predefinedPrompts._chat_parseRelationships(
                 // answerStorage.current.answer,
@@ -341,7 +355,7 @@ export const Question = () => {
       // ! all complete
       console.log('all complete', answerStorage.current.answerInformation)
       setQuestionsAndAnswers(prevQsAndAs =>
-        helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
           answerInformation: answerStorage.current.answerInformation,
           modelStatus: {
             modelAnswering: false,
@@ -353,7 +367,260 @@ export const Question = () => {
       )
     } else {
       setQuestionsAndAnswers(prevQsAndAs =>
-        helpSetQuestionsAndAnswers(prevQsAndAs, id, {
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
+          modelStatus: {
+            modelError: true,
+          },
+        })
+      )
+    }
+  }, [
+    handleResponseError,
+    handleStreamRawAnswer,
+    id,
+    question,
+    setQuestionsAndAnswers,
+  ])
+  */
+
+  /* -------------------------------------------------------------------------- */
+  // ! stream graph
+
+  const handleAskStreamGraph = useCallback(async () => {
+    // * ground reset
+    setQuestionsAndAnswers(prevQsAndAs =>
+      helpSetQuestionAndAnswer(
+        prevQsAndAs,
+        id,
+        newQuestionAndAnswer({
+          id,
+          question,
+          modelStatus: {
+            modelAnswering: true,
+          },
+        })
+      )
+    )
+    answerStorage.current.answer = ''
+    answerStorage.current.answerInformation = []
+    textareaRef.current?.blur()
+
+    // * actual ask model
+    const initialPrompts = predefinedPrompts._chat_initialAsk(question)
+    // ! request
+    await streamOpenAICompletion(
+      initialPrompts,
+      models.smarter,
+      handleStreamRawAnswer
+    )
+    // * model done raw answering
+    console.log('model done raw answering')
+
+    setQuestionsAndAnswers(prevQsAndAs =>
+      helpSetQuestionAndAnswer(prevQsAndAs, id, {
+        modelStatus: {
+          modelAnswering: false,
+          modelAnsweringComplete: true,
+          modelParsing: true,
+        },
+      })
+    )
+
+    // * break answer
+    answerStorage.current.answerInformation = answerStorage.current.answer
+      .split('\n')
+      .map((paragraph: string) => paragraph.trim())
+      .filter((paragraph: string) => paragraph.length > 0)
+      .map((paragraph: string) => {
+        // ! from fetched data to AnswerObject
+        return {
+          id: getAnswerObjectId(), // add id
+          origin: originTextToRange(answerStorage.current.answer, paragraph), // from text to ranges
+          summary: '', // add summary
+          slide: {
+            content: '',
+          }, // pop empty slide
+          relationships: [], // pop empty relationships
+          reactFlow: {
+            nodes: [],
+            edges: [],
+          },
+          complete: false,
+        } as AnswerObject
+      })
+
+    // * break answer with model (deprecated)
+    // const brokenResponseData = await parseOpenAIResponseToObjects(
+    //   predefinedPrompts._chat_breakResponse(
+    //     initialPrompts,
+    //     answerStorage.current.answer
+    //   ),
+    //   models.smarter
+    // )
+    // if (brokenResponseData.error) return handleResponseError(brokenResponseData)
+
+    // answerStorage.current.answerInformation = getTextFromModelResponse(
+    //   brokenResponseData
+    // )
+    //   .split('\n')
+    //   .map((b: string) => b.trim())
+    //   .filter((b: string) => b.length > 0)
+    //   .map((a: string) => {
+    //     // ! from fetched data to AnswerObject
+    //     return {
+    //       id: getAnswerObjectId(), // add id
+    //       origin: originTextToRanges(answerStorage.current.answer, [a]), // from text to ranges
+    //       summary: '', // add summary
+    //       slide: {
+    //         content: '',
+    //       }, // pop empty slide
+    //       relationships: [], // pop empty relationships
+    //       complete: false,
+    //     } as AnswerObject
+    //   }) as AnswerObject[]
+
+    // console.log(
+    //   'model done breaking answer',
+    //   answerStorage.current.answerInformation
+    // )
+    setQuestionsAndAnswers(prevQsAndAs =>
+      helpSetQuestionAndAnswer(prevQsAndAs, id, {
+        answerInformation: answerStorage.current.answerInformation,
+      })
+    )
+
+    // * get summary
+    let summaryError = false
+    answerStorage.current.answerInformation = await Promise.all(
+      answerStorage.current.answerInformation.map(async (a: AnswerObject) => {
+        if (summaryError) return a
+
+        // ! request
+        const textSummaryData = await parseOpenAIResponseToObjects(
+          predefinedPrompts._chat_summarizeParagraph(
+            rangesToOriginText(answerStorage.current.answer, a.origin)
+          ),
+          models.faster
+        )
+        if (textSummaryData.error) {
+          handleResponseError(textSummaryData)
+          summaryError = true
+          return a
+        }
+
+        const textSummary = getTextFromModelResponse(textSummaryData)
+
+        return {
+          ...a,
+          summary: textSummary,
+        }
+      })
+    )
+
+    if (summaryError) {
+      return setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
+          modelStatus: {
+            modelError: true,
+          },
+        })
+      )
+    }
+    console.log('model done summarizing answer')
+    setQuestionsAndAnswers(prevQsAndAs =>
+      helpSetQuestionAndAnswer(prevQsAndAs, id, {
+        answerInformation: answerStorage.current.answerInformation,
+      })
+    )
+
+    // * parse parts of answer
+    let parsingError = false
+    answerStorage.current.answerInformation = await Promise.all(
+      answerStorage.current.answerInformation.map(
+        async (answerPart: AnswerObject, i) => {
+          const { origin } = answerPart
+          const partOfOriginalResponse = rangesToOriginText(
+            answerStorage.current.answer,
+            origin
+          )
+
+          if (!parsingError) {
+            // slide
+            // ! request
+            const parsedSlideData = await parseOpenAIResponseToObjects(
+              predefinedPrompts._chat_parseSlide(
+                // answerStorage.current.answer,
+                partOfOriginalResponse
+              ),
+              models.faster
+            )
+
+            // relationships
+            // ! request
+            const parsedRelationshipData = await parseOpenAIResponseToObjects(
+              predefinedPrompts._chat_parseRelationships(
+                // answerStorage.current.answer,
+                partOfOriginalResponse
+              ),
+              models.faster
+            )
+
+            if (parsedSlideData.error || parsedRelationshipData.error) {
+              if (parsedSlideData.error) handleResponseError(parsedSlideData)
+              if (parsedRelationshipData.error)
+                handleResponseError(parsedRelationshipData)
+
+              parsingError = true
+              return answerPart
+            }
+
+            try {
+              const parsedSlidePart = getTextFromModelResponse(parsedSlideData)
+              const parsedRelationshipPart = getTextFromModelResponse(
+                parsedRelationshipData
+              )
+
+              // ! from fetched data to part of AnswerObject
+              return {
+                ...answerPart,
+                slide: {
+                  content: parsedSlidePart,
+                },
+                relationships: rawRelationsToGraphRelationsChat(
+                  answerStorage.current.answer,
+                  parsedRelationshipPart
+                ),
+                complete: true,
+              } as AnswerObject
+            } catch (error) {
+              parsingError = true
+              return answerPart
+            }
+          } else return answerPart
+        }
+      )
+    )
+
+    if (!parsingError) {
+      // ! all complete
+      console.log('all complete', answerStorage.current.answerInformation)
+      setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
+          answerInformation: answerStorage.current.answerInformation,
+          modelStatus: {
+            modelAnswering: false,
+            modelAnsweringComplete: true,
+            modelParsing: false,
+            modelParsingComplete: true,
+          },
+          reactFlow: answerInformationToReactFlowObject(
+            answerStorage.current.answerInformation
+          ),
+        })
+      )
+    } else {
+      setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
           modelStatus: {
             modelError: true,
           },
@@ -372,10 +639,10 @@ export const Question = () => {
     (e: KeyboardEvent) => {
       // if cmd + enter
       if (e.key === 'Enter' && e.metaKey) {
-        if (canAsk) handleAsk()
+        if (canAsk) handleAskStreamGraph()
       }
     },
-    [canAsk, handleAsk]
+    [canAsk, handleAskStreamGraph]
   )
 
   const handleDeleteInterchange = useCallback(() => {
@@ -397,7 +664,11 @@ export const Question = () => {
             onKeyDown={handleKeyDown}
             rows={1}
           />
-          <button disabled={!canAsk} className="bar-button" onClick={handleAsk}>
+          <button
+            disabled={!canAsk}
+            className="bar-button"
+            onClick={handleAskStreamGraph}
+          >
             {modelAnswering ? (
               <HourglassTopRoundedIcon className="loading-icon" />
             ) : (

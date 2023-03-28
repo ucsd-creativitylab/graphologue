@@ -1,27 +1,34 @@
 import React, {
+  createContext,
   useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
 } from 'react'
-import { PuffLoader } from 'react-spinners'
+// import { PuffLoader } from 'react-spinners'
 
 import VerticalSplitRoundedIcon from '@mui/icons-material/VerticalSplitRounded'
 import ShortTextRoundedIcon from '@mui/icons-material/ShortTextRounded'
 import NotesRoundedIcon from '@mui/icons-material/NotesRounded'
 
-import { QuestionAndAnswer, RawAnswerRange } from '../App'
+import {
+  AnswerReactFlowObject,
+  QuestionAndAnswer,
+  RawAnswerRange,
+} from '../App'
 import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 import { rangeToId } from '../utils/chatAppUtils'
 import { InterchangeContext } from './Interchange'
 
+export const ReactFlowObjectContext = createContext<AnswerReactFlowObject>({
+  nodes: [],
+  edges: [],
+})
+
 export const Answer = () => {
   const { data: questionAndAnswer } = useContext(InterchangeContext)
-  const {
-    id,
-    modelStatus: { modelAnsweringComplete, modelParsingComplete },
-  } = questionAndAnswer
+  const { id, reactFlow } = questionAndAnswer as QuestionAndAnswer
 
   return (
     <div className="answer-wrapper">
@@ -39,17 +46,20 @@ export const Answer = () => {
       {/* <SlideAnswer /> */}
 
       {/* 3 */}
-      {modelAnsweringComplete && modelParsingComplete ? (
-        <>
-          <ReactFlowComponent key={`react-flow-${id}`} />
-        </>
+      <ReactFlowObjectContext.Provider
+        value={{ nodes: reactFlow.nodes, edges: reactFlow.edges }}
+      >
+        <ReactFlowComponent key={`react-flow-${id}`} />
+      </ReactFlowObjectContext.Provider>
+      {/* {modelAnsweringComplete && modelParsingComplete ? (
+        <></>
       ) : modelAnsweringComplete ? (
         <div className="react-flow-loading-placeholder">
           <PuffLoader size={32} color="#57068c" />
         </div>
       ) : (
         <></>
-      )}
+      )} */}
     </div>
   )
 }
@@ -91,32 +101,35 @@ const RawAnswer = ({
 
   return (
     <div
-      className={`answer-item-display${
-        modelAnsweringComplete ? ' answer-side' : ' answer-centered'
-      }`}
+      // className={`answer-item-display${
+      //   modelAnsweringComplete ? ' answer-side' : ' answer-centered'
+      // }`}
+      className={`answer-item-display`}
     >
-      {canSwitchBlockDisplay && (
-        <div className="block-display-switches">
-          <button className="bar-button" onClick={handleSwitchBlockDisplay}>
-            {/* {blockDisplay ? <ViewColumnRoundedIcon style={{
+      <div className="block-display-switches">
+        <button
+          disabled={!canSwitchBlockDisplay}
+          className="bar-button"
+          onClick={handleSwitchBlockDisplay}
+        >
+          {/* {blockDisplay ? <ViewColumnRoundedIcon style={{
               transform: 'rotate(90deg)'
             }} /> : <NotesRoundedIcon />} */}
-            <VerticalSplitRoundedIcon />
-            {blockDisplay ? <span>list</span> : <span>paragraph</span>}
-          </button>
-          <button
-            disabled={
-              !blockDisplay ||
-              !answerInformation.some(a => a.summary.length > 0)
-            }
-            className="bar-button"
-            onClick={handleSwitchSummaryDisplay}
-          >
-            {summaryDisplay ? <ShortTextRoundedIcon /> : <NotesRoundedIcon />}
-            {summaryDisplay ? <span>summary</span> : <span>original</span>}
-          </button>
-        </div>
-      )}
+          <VerticalSplitRoundedIcon />
+          {blockDisplay ? <span>list</span> : <span>paragraph</span>}
+        </button>
+        <button
+          disabled={
+            !blockDisplay || !answerInformation.some(a => a.summary.length > 0)
+          }
+          className="bar-button"
+          onClick={handleSwitchSummaryDisplay}
+        >
+          {summaryDisplay ? <ShortTextRoundedIcon /> : <NotesRoundedIcon />}
+          {summaryDisplay ? <span>summary</span> : <span>original</span>}
+        </button>
+      </div>
+
       {blockDisplay ? (
         <div className={`answer-block-list`}>
           {answerInformation.map((answerObject, index) => {

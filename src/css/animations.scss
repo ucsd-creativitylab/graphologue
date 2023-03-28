@@ -1,3 +1,74 @@
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation-name: fade-in;
+  animation-duration: $transition-normal;
+  // animation-delay: $transition-fast;
+}
+
+@keyframes drop-down {
+  from {
+    // opacity: 0;
+    transform: translateY(-$padding-mid);
+  }
+
+  to {
+    // opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.drop-down {
+  animation-name: drop-down;
+  animation-duration: $transition-normal-slow;
+}
+
+@keyframes drop-up {
+  from {
+    transform: translateY($padding-mid);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.drop-up {
+  animation-name: drop-up;
+  animation-duration: $transition-normal;
+}
+
+@keyframes half-circle-rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  40% {
+    transform: rotate(180deg);
+  }
+
+  60% {
+    transform: rotate(180deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-icon {
+  animation: half-circle-rotation 2s infinite;
+  transform-origin: center;
+}
+
 @keyframes highlighted-text-background {
   0% {
     background-color: $white;

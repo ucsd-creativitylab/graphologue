@@ -11,8 +11,6 @@ import React, {
 } from 'react'
 import ReactFlow, {
   useReactFlow,
-  useNodesState,
-  useEdgesState,
   useKeyPress,
   Background,
   SelectionMode,
@@ -39,13 +37,7 @@ import {
   customEdgeOptions,
   getNewEdge,
 } from './Edge'
-import {
-  customAddNodes,
-  CustomNode,
-  CustomNodeData,
-  getNewCustomNode,
-  hardcodedNodeWidthEstimation,
-} from './Node'
+import { customAddNodes, CustomNode, CustomNodeData } from './Node'
 import { CustomControls } from './CustomControl'
 import { CustomMarkerDefs } from './CustomDefs'
 import {
@@ -56,20 +48,15 @@ import {
 } from '../constants'
 import { FlowContext } from '../components/Contexts'
 import { useTimeMachine } from '../utils/timeMachine'
-import { getHandleId, getNodeId, roundTo } from '../utils/utils'
+import { roundTo } from '../utils/utils'
 import { PromptSourceComponentsType } from '../utils/magicExplain'
 import { MagicNode } from './MagicNode'
 import { EntityType } from '../utils/socket'
 import { CustomGroupNode } from './GroupNode'
 import { ModelForMagic } from '../utils/openAI'
-import { QuestionAndAnswerHighlighted, RawAnswerRange } from '../App'
-import {
-  constructGraphChat,
-  hasHiddenExpandId,
-  PostConstructionPseudoNodeObject,
-  removeHiddenExpandId,
-} from '../utils/magicGraphConstruct'
+import { QuestionAndAnswerHighlighted } from '../App'
 import { InterchangeContext } from '../components/Interchange'
+import { ReactFlowObjectContext } from '../components/Answer'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -94,14 +81,9 @@ const edgeTypes = {
   custom: CustomEdge,
 } as EdgeTypes
 
-const Flow = ({
-  nodes: nodesFromAnswerRelationships,
-  edges: edgesFromAnswerRelationships,
-}: {
-  nodes: Node[]
-  edges: Edge[]
-}) => {
+const Flow = () => {
   const { handleSetHighlighted } = useContext(InterchangeContext)
+  const { nodes, edges } = useContext(ReactFlowObjectContext)
 
   const thisReactFlowInstance = useReactFlow()
   const {
@@ -116,8 +98,11 @@ const Flow = ({
   }: ReactFlowInstance = thisReactFlowInstance
 
   // use default nodes and edges
-  const [nodes, , onNodesChange] = useNodesState(nodesFromAnswerRelationships)
-  const [edges, , onEdgesChange] = useEdgesState(edgesFromAnswerRelationships)
+  // const [nodes, setNodes, onNodesChange] = useNodesState(defaultNodes)
+  // const [edges, setEdges, onEdgesChange] = useEdgesState(defaultEdges)
+
+  const onNodesChange = useCallback(() => {}, [])
+  const onEdgesChange = useCallback(() => {}, [])
 
   // fit to view on page load
   useEffect(() => {
@@ -665,111 +650,6 @@ const ReactFlowComponent = memo(() =>
   //   }[]
   // }
   {
-    const {
-      data: { answerInformation },
-    } = useContext(InterchangeContext)
-
-    // build nodes and edges from relationships
-    const nodes: Node[] = []
-    const edges: Edge[] = []
-
-    const annotatedRelationships: {
-      answerObjectId: string
-      relationships: {
-        relationship: [string, string, string]
-        origin: RawAnswerRange
-      }[]
-    }[] = answerInformation.map(({ id: answerObjectId, relationships }) => {
-      return {
-        answerObjectId,
-        relationships: relationships.map(r => ({
-          relationship: [r.source, r.edge, r.target],
-          origin: r.origin,
-        })),
-      }
-    })
-
-    const {
-      nodes: computedNodes,
-      nodesToAnswerObjectIds,
-      nodesToOrigins,
-    } = constructGraphChat(annotatedRelationships)
-
-    const pseudoNodeObjects = computedNodes.map(({ label, x, y }) => {
-      return {
-        id: getNodeId(),
-        label,
-        position: {
-          x,
-          y,
-        },
-        width: hardcodedNodeWidthEstimation(label),
-        height: hardcodedNodeSize.height,
-        sourceHandleId: getHandleId(),
-        targetHandleId: getHandleId(),
-      } as PostConstructionPseudoNodeObject
-    })
-
-    pseudoNodeObjects.forEach(
-      (
-        { id, label, position: { x, y }, sourceHandleId, targetHandleId },
-        ind: number
-      ) => {
-        nodes.push(
-          getNewCustomNode(
-            id,
-            removeHiddenExpandId(label),
-            x,
-            y,
-            sourceHandleId,
-            targetHandleId,
-            false,
-            false,
-            hasHiddenExpandId(label)
-              ? styles.nodeColorDefaultGrey
-              : styles.nodeColorDefaultWhite, // expanded edge label will be grey
-            {
-              temporary: false,
-              sourceAnswerObjectIds: nodesToAnswerObjectIds[label],
-              sourceOrigins: nodesToOrigins[label],
-            }
-          )
-        )
-      }
-    )
-
-    annotatedRelationships.forEach(({ answerObjectId, relationships }) => {
-      relationships.forEach(
-        ({ relationship: [source, edge, target], origin }) => {
-          const sourceNode = pseudoNodeObjects.find(n => n.label === source)
-          const targetNode = pseudoNodeObjects.find(n => n.label === target)
-
-          if (!sourceNode || !targetNode) return
-
-          edges.push(
-            getNewEdge(
-              {
-                source: sourceNode.id,
-                target: targetNode.id,
-                sourceHandle: sourceNode.sourceHandleId,
-                targetHandle: targetNode.targetHandleId,
-              },
-              {
-                label: edge,
-                customType: 'arrow',
-                editing: false,
-                generated: {
-                  temporary: false,
-                  sourceAnswerObjectIds: new Set([answerObjectId]),
-                  sourceOrigins: [origin],
-                },
-              }
-            )
-          )
-        }
-      )
-    })
-
     /* -------------------------------------------------------------------------- */
     // ! notebook
     // const notebookRef = useRef<HTMLDivElement>(null)
@@ -847,7 +727,7 @@ const ReactFlowComponent = memo(() =>
     return (
       <ReactFlowProvider>
         {/* <Flow notesOpened={notesOpened} setNotesOpened={setNotesOpened} /> */}
-        <Flow nodes={nodes} edges={edges} />
+        <Flow />
         {/* <NotebookContext.Provider
         value={{
           notes,

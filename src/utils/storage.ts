@@ -92,6 +92,9 @@ export const deepCopyNodes = (nodes: Node[]): Node[] => {
         ...n,
         data: {
           ...n.data,
+          generated: {
+            ...n.data.generated,
+          },
         } as CustomNodeData,
       }
     }) || []
@@ -105,6 +108,9 @@ export const deepCopyEdges = (edges: Edge[]): Edge[] => {
         ...e,
         data: {
           ...e.data,
+          generated: {
+            ...e.data.generated,
+          },
         } as CustomEdgeData,
       }
     }) || []

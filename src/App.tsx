@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Edge, Node } from 'reactflow'
 import { ChatContext } from './components/Contexts'
 import { Interchange } from './components/Interchange'
 import { newQuestionAndAnswer } from './utils/chatAppUtils'
@@ -17,6 +18,11 @@ export interface AnswerRelationshipObject {
   source: string
   target: string
   edge: string
+}
+
+export interface AnswerReactFlowObject {
+  nodes: Node[]
+  edges: Edge[]
 }
 
 export interface AnswerObject {
@@ -46,6 +52,7 @@ export interface QuestionAndAnswer {
   answer: string
   answerInformation: AnswerObject[]
   modelStatus: ModelStatus
+  reactFlow: AnswerReactFlowObject
   highlighted: QuestionAndAnswerHighlighted
 }
 
@@ -55,6 +62,7 @@ export interface PartialQuestionAndAnswer {
   answer?: string
   answerInformation?: AnswerObject[]
   modelStatus?: Partial<ModelStatus>
+  reactFlow?: AnswerReactFlowObject
   highlighted?: QuestionAndAnswerHighlighted
 }
 

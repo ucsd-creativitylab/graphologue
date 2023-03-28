@@ -18,6 +18,7 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded'
 // import FormatListBulletedRoundedIcon from '@mui/icons-material/FormatListBulletedRounded'
 // import TheatersRoundedIcon from '@mui/icons-material/TheatersRounded'
 // import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded'
+import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded'
 
 import { customAddNodes } from './Node'
 import {
@@ -33,6 +34,7 @@ import {
 
 // import defaultExample from '../examples/default.json'
 import { FlowContext } from '../components/Contexts'
+import { InterchangeContext } from '../components/Interchange'
 
 type CustomControlsProps = {
   nodes: Node[]
@@ -73,6 +75,11 @@ export const CustomControls = memo(
     } = useReactFlow()
     // const { model, selectNodes, setModel } = useContext(FlowContext)
     const { selectNodes } = useContext(FlowContext)
+    const {
+      data: {
+        modelStatus: { modelAnswering, modelParsing },
+      },
+    } = useContext(InterchangeContext)
 
     const _returnToOrigin = useCallback(() => {
       setViewport({ x: 0, y: 0, zoom: 1 }, { duration: transitionDuration })
@@ -342,6 +349,14 @@ export const CustomControls = memo(
             </TooltipLine>
           </ControlButtonTooltip>
         </ControlButton>
+
+        {modelAnswering ||
+          (modelParsing && (
+            <ControlButton className="tips-button pointer-events-no">
+              <HourglassTopRoundedIcon className="control-button-tips-icon loading-icon" />
+              <span className="control-button-tips">still processing</span>
+            </ControlButton>
+          ))}
       </Controls>
     )
   }
