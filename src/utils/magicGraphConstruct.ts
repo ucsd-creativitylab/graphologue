@@ -15,6 +15,40 @@ import {
   promptTerms,
 } from './promptsAndResponses'
 
+export const processTriplet = (
+  triplet: string[],
+  linkedOriginalText?: string
+): string[] => {
+  // ! process the edge label
+  // make the edge the lower case
+  triplet[1] = triplet[1].toLowerCase()
+  // avoid underscore
+  triplet[1] = triplet[1].replace(/_/g, ' ')
+  // ? [experimental] remove is, was, are, were, etc.
+  // TODO optimize?
+  triplet[1] = triplet[1].replace(
+    /(?:^|\s)(is|was|are|were|has|have|had|does|do|did|a|an|the)(?=\s|$)/g,
+    ''
+  )
+
+  // ! process everything
+  // trim
+  triplet.forEach((t, ind) => (triplet[ind] = t.trim()))
+  // remove line breaks, and other special characters, like semi-colon
+  triplet.forEach(
+    (t, ind) => (triplet[ind] = t.replace(/[^a-zA-Z0-9 ,.!?&()]+/g, ''))
+  )
+
+  // ! process the subject
+  // remove the 's
+  triplet[0] = triplet[0].replace(/'s/g, '')
+  // remove comma from the start and end
+  triplet[0] = triplet[0].replace(/^,|,$/g, '')
+
+  if (linkedOriginalText) return [...triplet, linkedOriginalText]
+  else return triplet
+}
+
 const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
   console.log(rawRelationsText)
 
@@ -35,33 +69,7 @@ const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
 
       if (triplet.length !== 3) return []
 
-      // ! process the edge label
-      // make the edge the lower case
-      triplet[1] = triplet[1].toLowerCase()
-      // avoid underscore
-      triplet[1] = triplet[1].replace(/_/g, ' ')
-      // ? [experimental] remove is, was, are, were, etc.
-      // TODO optimize?
-      triplet[1] = triplet[1].replace(
-        /(?:^|\s)(is|was|are|were|has|have|had|does|do|did|a|an|the)(?=\s|$)/g,
-        ''
-      )
-
-      // ! process everything
-      // trim
-      triplet.forEach((t, ind) => (triplet[ind] = t.trim()))
-      // remove line breaks, and other special characters, like semi-colon
-      triplet.forEach(
-        (t, ind) => (triplet[ind] = t.replace(/[^a-zA-Z0-9 ,.!?&()]+/g, ''))
-      )
-
-      // ! process the subject
-      // remove the 's
-      triplet[0] = triplet[0].replace(/'s/g, '')
-      // remove comma from the start and end
-      triplet[0] = triplet[0].replace(/^,|,$/g, '')
-
-      return triplet
+      return processTriplet(triplet)
     })
     .filter((item: string[]) => item.length === 3)
 
@@ -217,7 +225,7 @@ export const constructGraphRelationsFromResponse = async (
 }
 
 // ? why - what if there are two 'contains' from two subjects?
-const wrapWithHiddenExpandId = (text: string, id: string) => {
+export const wrapWithHiddenExpandId = (text: string, id: string) => {
   return `${text}____${id}____`
 }
 

@@ -6,6 +6,7 @@ export const promptTerms = {
   searchQueries: 'Google search queries',
   researchPapers: 'Research papers',
   itemRelationshipConnector: '-',
+  itemOriginalTextConnector: '=',
   itemBreaker: '%+%',
   _chat_responseEnd: '%%%',
 }
@@ -55,7 +56,8 @@ export const predefinedPrompts = {
     return [
       {
         role: 'system',
-        content: `You are a knowledgeable and helpful assistant. Answer the user's question with simple and concise sentences. Be as detailed as possible.`,
+        content: `You are a knowledgeable and helpful assistant. Answer the user's question with simple and concise sentences. \
+Be as detailed as possible.`,
       },
       {
         role: 'user',
@@ -94,20 +96,43 @@ Do not include anything else in the response other than the summarized text.`,
       },
     ]
   },
-  _chat_parsePartResponse: (
-    initialAskPrompts: Prompt[],
-    response: string,
+  _chat_parseSlide: (
+    // initialAskPrompts: Prompt[]
+    // response: string,
     partResponse: string
   ): Prompt[] => {
     return [
-      ...initialAskPrompts,
-      {
-        role: 'assistant',
-        content: response,
-      },
+      // ...initialAskPrompts,
+      // {
+      //   role: 'assistant',
+      //   content: response,
+      // },
       {
         role: 'system',
-        content: systemResponseParsing,
+        content: `You are a helpful, creative, and clever assistant. Structure the following text provided by the user into a presentation slide, in markdown format. \
+Do not include anything else in the response other than the markdown text.`,
+      },
+      {
+        role: 'user',
+        content: partResponse,
+      },
+    ]
+  },
+  _chat_parseRelationships: (partResponse: string): Prompt[] => {
+    return [
+      {
+        role: 'system',
+        content: `You are a helpful, creative, and clever assistant. \
+Construct a knowledge graph to reflect all the relationships from the sentences in the paragraph provided by the user. \
+Use singular nouns and lowercase letters for node labels when possible and correct (e.g., the meaning of the label doesn't change). \
+Each node can be used in multiple relationships. There should be one connected graph in total.
+
+Response format: {subject} ${promptTerms.itemRelationshipConnector} \
+{short label indicating the relationship between subject and object} \
+${promptTerms.itemRelationshipConnector} {object} \
+${promptTerms.itemOriginalTextConnector} {quote of the sentence or phrase in the original text that the relationship is derived from, do not substitute or omit any word or rewrite}.
+
+Divide the relationships by line breaks.`,
       },
       {
         role: 'user',

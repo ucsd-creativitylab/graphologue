@@ -4,7 +4,6 @@ import { Interchange } from './components/Interchange'
 import { newQuestion } from './utils/chatAppUtils'
 
 export interface AnswerSlideObject {
-  title: string
   content: string
 }
 

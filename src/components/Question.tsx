@@ -11,12 +11,7 @@ import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded'
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded'
 
-import {
-  AnswerObject,
-  AnswerRelationshipObject,
-  AnswerSlideObject,
-  QuestionAndAnswer,
-} from '../App'
+import { AnswerObject, QuestionAndAnswer } from '../App'
 import { ChatContext } from './Contexts'
 import {
   getTextFromModelResponse,
@@ -34,6 +29,7 @@ import {
   originTextToRanges,
   rangesToOriginText,
 } from '../utils/chatAppUtils'
+import { rawRelationsToGraphRelationsChat } from '../utils/chatGraphConstruct'
 
 export const Question = ({
   questionAndAnswer: {
@@ -175,8 +171,6 @@ export const Question = ({
     )
     if (brokenResponseData.error) return handleResponseError(brokenResponseData)
 
-    console.log(answerStorage.current.answer)
-
     answerStorage.current.answerInformation = getTextFromModelResponse(
       brokenResponseData
     )
@@ -259,49 +253,56 @@ export const Question = ({
     let parsingError = false
     answerStorage.current.answerInformation = await Promise.all(
       answerStorage.current.answerInformation.map(
-        async (answerPart: AnswerObject) => {
+        async (answerPart: AnswerObject, i) => {
           const { origin } = answerPart
+          const partOfOriginalResponse = rangesToOriginText(
+            answerStorage.current.answer,
+            origin
+          )
 
           if (!parsingError) {
-            const parsedPartResponseData = await parseOpenAIResponseToObjects(
-              predefinedPrompts._chat_parsePartResponse(
-                initialPrompts,
-                answerStorage.current.answer,
-                origin.join(' ')
+            // slide
+            const parsedSlideData = await parseOpenAIResponseToObjects(
+              predefinedPrompts._chat_parseSlide(
+                // answerStorage.current.answer,
+                partOfOriginalResponse
               ),
-              models.smarter
+              models.faster
             )
 
-            if (parsedPartResponseData.error) {
-              handleResponseError(parsedPartResponseData)
+            // relationships
+            const parsedRelationshipData = await parseOpenAIResponseToObjects(
+              predefinedPrompts._chat_parseRelationships(
+                // answerStorage.current.answer,
+                partOfOriginalResponse
+              ),
+              models.faster
+            )
+
+            if (parsedSlideData.error || parsedRelationshipData.error) {
+              if (parsedSlideData.error) handleResponseError(parsedSlideData)
+              if (parsedRelationshipData.error)
+                handleResponseError(parsedRelationshipData)
+
               parsingError = true
               return answerPart
             }
 
             try {
-              const parsedPartRaw = JSON.parse(
-                getTextFromModelResponse(parsedPartResponseData)
+              const parsedSlidePart = getTextFromModelResponse(parsedSlideData)
+              const parsedRelationshipPart = getTextFromModelResponse(
+                parsedRelationshipData
               )
 
               // ! from fetched data to part of AnswerObject
-              const parsedPart = {
-                slide: parsedPartRaw.slide,
-                relationships: parsedPartRaw.relationships.map((r: any) => ({
-                  ...r,
-                  origin: originTextToRanges(
-                    answerStorage.current.answer,
-                    r.origin
-                  ),
-                })),
-              } as {
-                slide: AnswerSlideObject
-                relationships: AnswerRelationshipObject[]
-              }
-
               return {
                 ...answerPart,
-                ...(({ slide, relationships }) => ({ slide, relationships }))(
-                  parsedPart
+                slide: {
+                  content: parsedSlidePart,
+                },
+                relationships: rawRelationsToGraphRelationsChat(
+                  answerStorage.current.answer,
+                  parsedRelationshipPart
                 ),
                 complete: true,
               } as AnswerObject

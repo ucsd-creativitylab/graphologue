@@ -60,6 +60,11 @@ export const isStringRoughEqual = (a: string, b: string) => {
   return a.toLowerCase().trim() === b.toLowerCase().trim()
 }
 
+export const removeQuotes = (str: string) => {
+  // remove quotation marks at the beginning and end of the string, if any
+  return str.replace(/^"(.+(?="$))"$/, '$1')
+}
+
 /* -------------------------------------------------------------------------- */
 // ! generate edge params
 
