@@ -5,6 +5,7 @@ import React, {
   useContext,
   useEffect,
   useRef,
+  useState,
 } from 'react'
 
 import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
@@ -43,7 +44,14 @@ export const Question = () => {
     },
   } = useContext(InterchangeContext)
 
+  const [activated, setActivated] = useState(false) // show text box or not
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    if (!activated && questionsAndAnswersCount < 2) {
+      setActivated(true)
+    }
+  }, [activated, questionsAndAnswersCount])
 
   /* -------------------------------------------------------------------------- */
 
@@ -160,7 +168,6 @@ export const Question = () => {
         },
       })
     )
-    /* -------------------------------------------------------------------------- */
 
     // * break answer
     answerStorage.current.answerInformation = answerStorage.current.answer
@@ -379,29 +386,42 @@ export const Question = () => {
 
   return (
     <div className="question-item interchange-component drop-up">
-      <textarea
-        ref={textareaRef}
-        className="question-textarea"
-        value={question}
-        placeholder={'ask a question'}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        rows={1}
-      />
-      <button disabled={!canAsk} className="bar-button" onClick={handleAsk}>
-        {modelAnswering ? (
-          <HourglassTopRoundedIcon className="loading-icon" />
-        ) : (
-          <AutoFixHighRoundedIcon />
-        )}
-      </button>
-      <button
-        disabled={questionsAndAnswersCount < 2}
-        className="bar-button"
-        onClick={handleDeleteInterchange}
-      >
-        <ClearRoundedIcon />
-      </button>
+      {activated ? (
+        <>
+          <textarea
+            ref={textareaRef}
+            className="question-textarea"
+            value={question}
+            placeholder={'ask a question'}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            rows={1}
+          />
+          <button disabled={!canAsk} className="bar-button" onClick={handleAsk}>
+            {modelAnswering ? (
+              <HourglassTopRoundedIcon className="loading-icon" />
+            ) : (
+              <AutoFixHighRoundedIcon />
+            )}
+          </button>
+          <button
+            disabled={questionsAndAnswersCount < 2}
+            className="bar-button"
+            onClick={handleDeleteInterchange}
+          >
+            <ClearRoundedIcon />
+          </button>
+        </>
+      ) : (
+        <span
+          className="new-question-hint"
+          onClick={() => {
+            setActivated(true)
+          }}
+        >
+          add question
+        </span>
+      )}
       {modelError && (
         <div className="error-message">Got an error, please try again.</div>
       )}

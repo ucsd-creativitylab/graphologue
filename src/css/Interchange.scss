@@ -104,6 +104,23 @@
       animation: half-circle-rotation 2s infinite;
       transform-origin: center;
     }
+
+    .new-question-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: $padding-small;
+
+      font-size: $font-size-default;
+      color: $dark-grey;
+      padding: $padding-small $padding-large;
+
+      user-select: none;
+      cursor: pointer;
+
+      svg {
+        font-size: $font-size-large;
+      }
+    }
   }
 
   .answer-wrapper {
