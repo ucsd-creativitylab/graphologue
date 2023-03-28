@@ -799,6 +799,7 @@ export const MagicNode = memo(
                 {
                   temporary: true,
                   sourceAnswerObjectIds: new Set(),
+                  sourceOrigins: [],
                 }
               )
             )
@@ -826,6 +827,7 @@ export const MagicNode = memo(
                 generated: {
                   temporary: true,
                   sourceAnswerObjectIds: new Set(),
+                  sourceOrigins: [],
                 },
               }
             )

@@ -25,8 +25,8 @@ import { predefinedPrompts } from '../utils/promptsAndResponses'
 import {
   getAnswerObjectId,
   helpSetQuestionsAndAnswers,
-  newQuestion,
-  originTextToRanges,
+  newQuestionAndAnswer,
+  originTextToRange,
   rangesToOriginText,
 } from '../utils/chatAppUtils'
 import { rawRelationsToGraphRelationsChat } from '../utils/chatGraphConstruct'
@@ -36,9 +36,11 @@ export const Question = () => {
   const { questionsAndAnswersCount, setQuestionsAndAnswers } =
     useContext(ChatContext)
   const {
-    id,
-    question,
-    modelStatus: { modelAnswering, modelError },
+    data: {
+      id,
+      question,
+      modelStatus: { modelAnswering, modelError },
+    },
   } = useContext(InterchangeContext)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -126,7 +128,7 @@ export const Question = () => {
       helpSetQuestionsAndAnswers(
         prevQsAndAs,
         id,
-        newQuestion({
+        newQuestionAndAnswer({
           id,
           question,
           modelStatus: {
@@ -169,7 +171,7 @@ export const Question = () => {
         // ! from fetched data to AnswerObject
         return {
           id: getAnswerObjectId(), // add id
-          origin: originTextToRanges(answerStorage.current.answer, [paragraph]), // from text to ranges
+          origin: originTextToRange(answerStorage.current.answer, paragraph), // from text to ranges
           summary: '', // add summary
           slide: {
             content: '',

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { ChatContext } from './components/Contexts'
 import { Interchange } from './components/Interchange'
-import { newQuestion } from './utils/chatAppUtils'
+import { newQuestionAndAnswer } from './utils/chatAppUtils'
 
 export interface AnswerSlideObject {
   content: string
@@ -13,7 +13,7 @@ export interface RawAnswerRange {
 }
 
 export interface AnswerRelationshipObject {
-  origin: RawAnswerRange[]
+  origin: RawAnswerRange
   source: string
   target: string
   edge: string
@@ -21,7 +21,7 @@ export interface AnswerRelationshipObject {
 
 export interface AnswerObject {
   id: string
-  origin: RawAnswerRange[]
+  origin: RawAnswerRange
   summary: string
   slide: AnswerSlideObject
   relationships: AnswerRelationshipObject[]
@@ -35,13 +35,18 @@ interface ModelStatus {
   modelParsingComplete: boolean
   modelError: boolean
 }
+
+export interface QuestionAndAnswerHighlighted {
+  origins: RawAnswerRange[]
+  answerObjectIds: Set<string>
+}
 export interface QuestionAndAnswer {
   id: string
   question: string
   answer: string
   answerInformation: AnswerObject[]
   modelStatus: ModelStatus
-  highlighted: RawAnswerRange[]
+  highlighted: QuestionAndAnswerHighlighted
 }
 
 export interface PartialQuestionAndAnswer {
@@ -50,7 +55,7 @@ export interface PartialQuestionAndAnswer {
   answer?: string
   answerInformation?: AnswerObject[]
   modelStatus?: Partial<ModelStatus>
-  highlighted?: RawAnswerRange[]
+  highlighted?: QuestionAndAnswerHighlighted
 }
 
 export const ChatApp = () => {
@@ -61,13 +66,13 @@ export const ChatApp = () => {
   // componentDidMount
   useEffect(() => {
     if (questionsAndAnswers.length === 0)
-      setQuestionsAndAnswers([newQuestion()])
+      setQuestionsAndAnswers([newQuestionAndAnswer()])
     else if (
       questionsAndAnswers[questionsAndAnswers.length - 1].answer.length > 0
     )
       setQuestionsAndAnswers(prevQuestionsAndAnswers => [
         ...prevQuestionsAndAnswers,
-        newQuestion(),
+        newQuestionAndAnswer(),
       ])
   }, [questionsAndAnswers])
 

@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import { AnswerRelationshipObject } from '../App'
-import { originTextToRanges } from './chatAppUtils'
+import { originTextToRange } from './chatAppUtils'
 import { processTriplet, wrapWithHiddenExpandId } from './magicGraphConstruct'
 
 import { promptTerms } from './promptsAndResponses'
@@ -201,7 +201,7 @@ export const rawRelationsToGraphRelationsChat = (
 
   return expandMultipleEdgesArray.map(
     ([object, edge, subject, originalText]) => ({
-      origin: originTextToRanges(rawResponse, [originalText]),
+      origin: originTextToRange(rawResponse, originalText),
       source: object,
       target: subject,
       edge: edge,

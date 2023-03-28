@@ -7,6 +7,7 @@ import React, {
   useState,
   DragEvent,
   memo,
+  useContext,
 } from 'react'
 import ReactFlow, {
   useReactFlow,
@@ -61,13 +62,14 @@ import { MagicNode } from './MagicNode'
 import { EntityType } from '../utils/socket'
 import { CustomGroupNode } from './GroupNode'
 import { ModelForMagic } from '../utils/openAI'
-import { AnswerRelationshipObject, RawAnswerRange } from '../App'
+import { QuestionAndAnswerHighlighted, RawAnswerRange } from '../App'
 import {
   constructGraphChat,
   hasHiddenExpandId,
   PostConstructionPseudoNodeObject,
   removeHiddenExpandId,
 } from '../utils/magicGraphConstruct'
+import { InterchangeContext } from '../components/Interchange'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -99,6 +101,8 @@ const Flow = ({
   nodes: Node[]
   edges: Edge[]
 }) => {
+  const { handleSetHighlighted } = useContext(InterchangeContext)
+
   const thisReactFlowInstance = useReactFlow()
   const {
     setNodes,
@@ -489,9 +493,43 @@ const Flow = ({
   // }, [])
 
   /* -------------------------------------------------------------------------- */
-  // ! other rendering related
+  // ! chat
 
-  // none
+  const handleNodeMouseEnter = useCallback(
+    (e: MouseEvent, node: Node) => {
+      const { data } = node
+      const {
+        generated: { sourceAnswerObjectIds, sourceOrigins },
+      } = data as CustomNodeData
+
+      const highlighted: QuestionAndAnswerHighlighted = {
+        origins: sourceOrigins,
+        answerObjectIds: sourceAnswerObjectIds,
+      }
+
+      // sourceAnswerObjectIds.forEach((id: string) => {
+      //   const originRange = findHighlightedRangeByAnswerObjectId(
+      //     answerInformation,
+      //     id
+      //   )
+      //   if (originRange)
+      //     highlighted.origins = addOrMergeRanges(
+      //       highlighted.origins,
+      //       originRange
+      //     )
+      // })
+
+      handleSetHighlighted(highlighted)
+    },
+    [handleSetHighlighted]
+  )
+
+  const handleNodeMouseLeave = useCallback(() => {
+    handleSetHighlighted({
+      origins: [],
+      answerObjectIds: new Set(),
+    })
+  }, [handleSetHighlighted])
 
   const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')
 
@@ -544,6 +582,8 @@ const Flow = ({
           onDragOver={handleDragOver}
           onDrop={handleDrop}
           // onPaneContextMenu={handlePaneContextMenu}
+          onNodeMouseEnter={handleNodeMouseEnter}
+          onNodeMouseLeave={handleNodeMouseLeave}
         >
           <CustomMarkerDefs
             markerOptions={
@@ -614,34 +654,46 @@ const Flow = ({
   )
 }
 
-const ReactFlowComponent = memo(
-  ({
-    answerRelationships,
-  }: {
-    answerRelationships: {
-      answerObjectId: string
-      origin: RawAnswerRange[]
-      relationships: AnswerRelationshipObject[]
-    }[]
-  }) => {
+const ReactFlowComponent = memo(() =>
+  //   {
+  //   answerRelationships,
+  // }: {
+  //   answerRelationships: {
+  //     answerObjectId: string
+  //     origin: RawAnswerRange[]
+  //     relationships: AnswerRelationshipObject[]
+  //   }[]
+  // }
+  {
+    const {
+      data: { answerInformation },
+    } = useContext(InterchangeContext)
+
     // build nodes and edges from relationships
     const nodes: Node[] = []
     const edges: Edge[] = []
 
     const annotatedRelationships: {
       answerObjectId: string
-      relationships: string[][]
-    }[] = answerRelationships.map(({ answerObjectId, relationships }) => {
+      relationships: {
+        relationship: [string, string, string]
+        origin: RawAnswerRange
+      }[]
+    }[] = answerInformation.map(({ id: answerObjectId, relationships }) => {
       return {
         answerObjectId,
-        relationships: relationships.map(r => [r.source, r.edge, r.target]),
+        relationships: relationships.map(r => ({
+          relationship: [r.source, r.edge, r.target],
+          origin: r.origin,
+        })),
       }
     })
 
-    const { nodes: computedNodes, nodesToAnswerObjectIds } = constructGraphChat(
-      annotatedRelationships
-    )
-    console.log('computed nodes from parsed relationships', computedNodes)
+    const {
+      nodes: computedNodes,
+      nodesToAnswerObjectIds,
+      nodesToOrigins,
+    } = constructGraphChat(annotatedRelationships)
 
     const pseudoNodeObjects = computedNodes.map(({ label, x, y }) => {
       return {
@@ -679,6 +731,7 @@ const ReactFlowComponent = memo(
             {
               temporary: false,
               sourceAnswerObjectIds: nodesToAnswerObjectIds[label],
+              sourceOrigins: nodesToOrigins[label],
             }
           )
         )
@@ -686,32 +739,35 @@ const ReactFlowComponent = memo(
     )
 
     annotatedRelationships.forEach(({ answerObjectId, relationships }) => {
-      relationships.forEach(([source, edge, target]) => {
-        const sourceNode = pseudoNodeObjects.find(n => n.label === source)
-        const targetNode = pseudoNodeObjects.find(n => n.label === target)
+      relationships.forEach(
+        ({ relationship: [source, edge, target], origin }) => {
+          const sourceNode = pseudoNodeObjects.find(n => n.label === source)
+          const targetNode = pseudoNodeObjects.find(n => n.label === target)
 
-        if (!sourceNode || !targetNode) return
+          if (!sourceNode || !targetNode) return
 
-        edges.push(
-          getNewEdge(
-            {
-              source: sourceNode.id,
-              target: targetNode.id,
-              sourceHandle: sourceNode.sourceHandleId,
-              targetHandle: targetNode.targetHandleId,
-            },
-            {
-              label: edge,
-              customType: 'arrow',
-              editing: false,
-              generated: {
-                temporary: false,
-                sourceAnswerObjectIds: new Set([answerObjectId]),
+          edges.push(
+            getNewEdge(
+              {
+                source: sourceNode.id,
+                target: targetNode.id,
+                sourceHandle: sourceNode.sourceHandleId,
+                targetHandle: targetNode.targetHandleId,
               },
-            }
+              {
+                label: edge,
+                customType: 'arrow',
+                editing: false,
+                generated: {
+                  temporary: false,
+                  sourceAnswerObjectIds: new Set([answerObjectId]),
+                  sourceOrigins: [origin],
+                },
+              }
+            )
           )
-        )
-      })
+        }
+      )
     })
 
     /* -------------------------------------------------------------------------- */
@@ -806,7 +862,6 @@ const ReactFlowComponent = memo(
       </NotebookContext.Provider> */}
       </ReactFlowProvider>
     )
-  }
-)
+  }, isEqual)
 
 export default ReactFlowComponent

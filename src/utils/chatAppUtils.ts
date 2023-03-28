@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 
 import {
+  AnswerObject,
   PartialQuestionAndAnswer,
   QuestionAndAnswer,
   RawAnswerRange,
@@ -10,35 +11,90 @@ export const getAnswerObjectId = () => {
   return `answer-object-${uuidv4()}`
 }
 
-export const rangesToId = (ranges: RawAnswerRange[]): string => {
-  return ranges.map(range => `${range.start}-${range.end}`).join(':')
+export const rangeToId = (range: RawAnswerRange): string => {
+  return `range-${range.start}-${range.end}`
 }
 
-export const originTextToRanges = (
+export const originTextToRange = (
   response: string,
-  origin: string[]
-): RawAnswerRange[] => {
-  const ranges: RawAnswerRange[] = []
+  origin: string
+): RawAnswerRange => {
+  const start = response.indexOf(origin)
+  return {
+    start,
+    end: start + origin.length,
+  }
+}
 
-  origin.forEach(originText => {
-    const start = response.indexOf(originText)
-    const end = start + originText.length
-    ranges.push({ start, end })
+export const rangesToOriginText = (response: string, range: RawAnswerRange) => {
+  return response.substring(range.start, range.end)
+}
+
+export const findHighlightedRangeByAnswerObjectId = (
+  answerInformation: AnswerObject[],
+  answerObjectId: string
+): RawAnswerRange | undefined => {
+  return answerInformation.find(
+    answerObject => answerObject.id === answerObjectId
+  )?.origin
+}
+
+export const addOrMergeRanges = (
+  existingRanges: RawAnswerRange[],
+  newRange: RawAnswerRange
+) => {
+  let merged = false
+
+  const newRanges = existingRanges.map(existingRange => {
+    // check if newRange and existingRange overlap
+    if (
+      newRange.start <= existingRange.end &&
+      newRange.end >= existingRange.start
+    ) {
+      merged = true
+      return {
+        start: Math.min(existingRange.start, newRange.start),
+        end: Math.max(existingRange.end, newRange.end),
+      }
+    }
+
+    return existingRange
   })
 
-  return ranges
+  // sort new ranges
+  newRanges.sort((a, b) => a.start - b.start)
+
+  if (!merged) newRanges.push(newRange)
+  else {
+    // merge happened
+    // go through new ranges again and see if there's any overlap and merge
+    let i = 0
+    while (i < newRanges.length) {
+      let j = i + 1
+      while (j < newRanges.length) {
+        if (
+          newRanges[i].start <= newRanges[j].end &&
+          newRanges[i].end >= newRanges[j].start
+        ) {
+          newRanges[i] = {
+            start: Math.min(newRanges[i].start, newRanges[j].start),
+            end: Math.max(newRanges[i].end, newRanges[j].end),
+          }
+          newRanges.splice(j, 1)
+        } else {
+          j++
+        }
+      }
+      i++
+    }
+  }
+
+  return newRanges
 }
 
-export const rangesToOriginText = (
-  response: string,
-  ranges: RawAnswerRange[]
-) => {
-  return ranges
-    .map(range => response.substring(range.start, range.end))
-    .join(' ')
-}
+/* -------------------------------------------------------------------------- */
 
-export const newQuestion = (
+export const newQuestionAndAnswer = (
   prefill?: PartialQuestionAndAnswer
 ): QuestionAndAnswer => {
   return {
@@ -54,7 +110,10 @@ export const newQuestion = (
       modelParsingComplete: prefill?.modelStatus?.modelParsingComplete ?? false,
       modelError: prefill?.modelStatus?.modelError ?? false,
     },
-    highlighted: prefill?.highlighted ?? [],
+    highlighted: prefill?.highlighted ?? {
+      origins: [],
+      answerObjectIds: new Set(),
+    },
   }
 }
 
@@ -68,6 +127,9 @@ export const deepCopyQuestionAndAnswer = (
     }),
     modelStatus: {
       ...qA.modelStatus,
+    },
+    highlighted: {
+      ...qA.highlighted,
     },
   }
 }

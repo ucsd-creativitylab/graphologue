@@ -1,8 +1,10 @@
 import dagre from 'dagre'
 import { v4 as uuidv4 } from 'uuid'
+import { RawAnswerRange } from '../App'
 
 import { hardcodedNodeWidthEstimation } from '../componentsFlow/Node'
 import { hardcodedNodeSize } from '../constants'
+import { addOrMergeRanges } from './chatAppUtils'
 
 import {
   getOpenAICompletion,
@@ -301,7 +303,10 @@ export const constructGraph = (relationships: string[][]) => {
 export const constructGraphChat = (
   annotatedRelationships: {
     answerObjectId: string
-    relationships: string[][]
+    relationships: {
+      relationship: [string, string, string]
+      origin: RawAnswerRange
+    }[]
   }[]
 ) => {
   // https://github.com/dagrejs/dagre/wiki#an-example-layout
@@ -316,31 +321,41 @@ export const constructGraphChat = (
     return ''
   })
 
-  const addedNode: {
+  // addedNodes tracks which nodes have been added to the graph, and also
+  // which answer objects they are associated with
+  const addedNodes: {
     [key: string]: Set<string>
   } = {}
 
+  const nodesToOrigins: {
+    [key: string]: RawAnswerRange[]
+  } = {}
+
   annotatedRelationships.forEach(({ answerObjectId, relationships }) => {
-    relationships.forEach(([a, edge, b]: string[]) => {
-      if (!(a in addedNode)) {
+    relationships.forEach(({ relationship: [a, edge, b], origin }) => {
+      if (!(a in addedNodes)) {
         pseudoGraph.setNode(a, {
           label: a,
           width: hardcodedNodeWidthEstimation(removeHiddenExpandId(a)),
           height: hardcodedNodeSize.height,
         })
-        addedNode[a] = new Set()
+        addedNodes[a] = new Set()
+        nodesToOrigins[a] = []
       }
-      addedNode[a].add(answerObjectId)
+      addedNodes[a].add(answerObjectId)
+      nodesToOrigins[a] = addOrMergeRanges(nodesToOrigins[a], origin)
 
-      if (!(b in addedNode)) {
+      if (!(b in addedNodes)) {
         pseudoGraph.setNode(b, {
           label: b,
           width: hardcodedNodeWidthEstimation(removeHiddenExpandId(b)),
           height: hardcodedNodeSize.height,
         })
-        addedNode[b] = new Set()
+        addedNodes[b] = new Set()
+        nodesToOrigins[b] = []
       }
-      addedNode[b].add(answerObjectId)
+      addedNodes[b].add(answerObjectId)
+      nodesToOrigins[b] = addOrMergeRanges(nodesToOrigins[b], origin)
 
       pseudoGraph.setEdge(a, b, { label: edge })
     })
@@ -365,7 +380,8 @@ export const constructGraphChat = (
 
   return {
     nodes,
-    nodesToAnswerObjectIds: addedNode,
+    nodesToAnswerObjectIds: addedNodes,
+    nodesToOrigins,
   }
 }
 

@@ -37,10 +37,12 @@ import {
 import randomPhrases from '../utils/randomPhrases'
 import { SuperTextEditor } from './SuperTextEditor'
 import { getHandleId, getNodeId, getNodeLabelAndTags } from '../utils/utils'
+import { RawAnswerRange } from '../App'
 
 export interface GeneratedInformation {
   temporary: boolean
   sourceAnswerObjectIds: Set<string>
+  sourceOrigins: RawAnswerRange[]
 }
 
 export interface CustomNodeData {
@@ -400,6 +402,7 @@ export const customAddNodes = (
     {
       temporary: false,
       sourceAnswerObjectIds: new Set(),
+      sourceOrigins: [],
     }
   )
 

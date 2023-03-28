@@ -1,24 +1,61 @@
-import React, { createContext } from 'react'
+import React, { createContext, useCallback, useContext } from 'react'
 
-import { QuestionAndAnswer } from '../App'
-import { newQuestion } from '../utils/chatAppUtils'
+import { QuestionAndAnswer, QuestionAndAnswerHighlighted } from '../App'
+import {
+  deepCopyQuestionAndAnswer,
+  newQuestionAndAnswer,
+} from '../utils/chatAppUtils'
 import { Answer } from './Answer'
+import { ChatContext } from './Contexts'
 import { Question } from './Question'
 
-export const InterchangeContext = createContext<QuestionAndAnswer>(
-  newQuestion()
-)
+export interface InterchangeContextProps {
+  data: QuestionAndAnswer
+  handleSetHighlighted: (highlighted: QuestionAndAnswerHighlighted) => void
+}
+////
+export const InterchangeContext = createContext<InterchangeContextProps>({
+  data: newQuestionAndAnswer(),
+  handleSetHighlighted: () => {},
+})
+
+/* -------------------------------------------------------------------------- */
 
 export interface InterchangeProps {
   data: QuestionAndAnswer
 }
-
+////
 export const Interchange = ({
   data,
-  data: { question, answer },
+  data: { id, question, answer },
 }: InterchangeProps) => {
+  const { setQuestionsAndAnswers } = useContext(ChatContext)
+
+  const handleSetHighlighted = useCallback(
+    (highlighted: QuestionAndAnswerHighlighted) => {
+      setQuestionsAndAnswers(
+        (questionsAndAnswers: QuestionAndAnswer[]): QuestionAndAnswer[] =>
+          questionsAndAnswers.map((questionAndAnswer: QuestionAndAnswer) => {
+            if (questionAndAnswer.id === id) {
+              return {
+                ...deepCopyQuestionAndAnswer(questionAndAnswer),
+                highlighted,
+              } as QuestionAndAnswer
+            }
+            return questionAndAnswer
+          })
+      )
+    },
+    [id, setQuestionsAndAnswers]
+  )
+
   return (
-    <InterchangeContext.Provider value={data}>
+    <InterchangeContext.Provider
+      value={{
+        data,
+        handleSetHighlighted,
+      }}
+    >
       <div className="interchange-item">
         <Question key={`question-${data.id}`} />
         {answer.length > 0 && <Answer key={`answer-${data.id}`} />}

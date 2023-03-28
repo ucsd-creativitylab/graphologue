@@ -146,6 +146,8 @@
     }
 
     .answer-item {
+      display: inline;
+
       // margin: 0 $padding-large;
       max-width: 20rem;
       height: fit-content;
@@ -161,6 +163,14 @@
       //   pointer-events: none;
       //   user-select: none;
       // }
+
+      .answer-text {
+        transition: background-color $transition-normal ease;
+
+        &.highlighted-answer-text {
+          background-color: $warn-yellow-x-light;
+        }
+      }
     }
 
     .react-flow-loading-placeholder {
