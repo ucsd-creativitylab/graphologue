@@ -88,6 +88,7 @@ const RawAnswer = ({
               transform: 'rotate(90deg)'
             }} /> : <NotesRoundedIcon />} */}
             <VerticalSplitRoundedIcon />
+            {blockDisplay ? <span>list</span> : <span>paragraph</span>}
           </button>
           <button
             disabled={
@@ -98,6 +99,7 @@ const RawAnswer = ({
             onClick={handleSwitchSummaryDisplay}
           >
             {summaryDisplay ? <ShortTextRoundedIcon /> : <NotesRoundedIcon />}
+            {summaryDisplay ? <span>summary</span> : <span>original</span>}
           </button>
         </div>
       )}

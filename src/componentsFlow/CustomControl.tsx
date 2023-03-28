@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext } from 'react'
 import { ControlButton, Controls, Edge, Node, useReactFlow } from 'reactflow'
 
-import AddRoundedIcon from '@mui/icons-material/AddRounded'
+// import AddRoundedIcon from '@mui/icons-material/AddRounded'
 // import GridOnRoundedIcon from '@mui/icons-material/GridOnRounded'
 // import StarRoundedIcon from '@mui/icons-material/StarRounded'
 // import SpeedRoundedIcon from '@mui/icons-material/SpeedRounded'
@@ -13,16 +13,15 @@ import SwipeRoundedIcon from '@mui/icons-material/SwipeRounded'
 import KeyboardOptionKeyRoundedIcon from '@mui/icons-material/KeyboardOptionKeyRounded'
 // import MouseRoundedIcon from '@mui/icons-material/MouseRounded'
 import EditRoundedIcon from '@mui/icons-material/EditRounded'
-import UndoRoundedIcon from '@mui/icons-material/UndoRounded'
-import RedoRoundedIcon from '@mui/icons-material/RedoRounded'
+// import UndoRoundedIcon from '@mui/icons-material/UndoRounded'
+// import RedoRoundedIcon from '@mui/icons-material/RedoRounded'
 // import FormatListBulletedRoundedIcon from '@mui/icons-material/FormatListBulletedRounded'
 // import TheatersRoundedIcon from '@mui/icons-material/TheatersRounded'
-import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded'
+// import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded'
 
 import { customAddNodes } from './Node'
 import {
   adjustNewNodePositionAvoidIntersections,
-  downloadData,
   getGraphBounds,
 } from '../utils/utils'
 import {
@@ -70,7 +69,7 @@ export const CustomControls = memo(
       addNodes,
       // addEdges,
       // deleteElements,
-      toObject,
+      // toObject,
     } = useReactFlow()
     // const { model, selectNodes, setModel } = useContext(FlowContext)
     const { selectNodes } = useContext(FlowContext)
@@ -91,6 +90,7 @@ export const CustomControls = memo(
     }, [_returnToOrigin, fitBounds, getNodes])
 
     // !
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleAddNode = useCallback(() => {
       const { x, y, zoom } = getViewport()
       const { width, height } = hardcodedNodeSize
@@ -166,13 +166,13 @@ export const CustomControls = memo(
 
     /* -------------------------------------------------------------------------- */
 
-    const handleSaveFile = useCallback(() => {
-      downloadData(
-        toObject(),
-        // 'graphologue.json' with current time
-        `graphologue-${new Date().toJSON().slice(0, 10)}.json`
-      )
-    }, [toObject])
+    // const handleSaveFile = useCallback(() => {
+    //   downloadData(
+    //     toObject(),
+    //     // 'graphologue.json' with current time
+    //     `graphologue-${new Date().toJSON().slice(0, 10)}.json`
+    //   )
+    // }, [toObject])
 
     /* -------------------------------------------------------------------------- */
 
@@ -224,10 +224,10 @@ export const CustomControls = memo(
           </ControlButtonTooltip>
         </ControlButton>
 
-        <ControlButton onClick={handleAddNode}>
+        {/* <ControlButton onClick={handleAddNode}>
           <AddRoundedIcon />
           <span>add node</span>
-        </ControlButton>
+        </ControlButton> */}
 
         {/* <ControlButton
           className={isEmptyCanvas ? 'disabled-control-button' : ''}
@@ -277,14 +277,13 @@ export const CustomControls = memo(
           </ControlButtonTooltip>
         </ControlButton> */}
 
-        <ControlButton
+        {/* <ControlButton
           className={canUndo ? '' : ' disabled-control-button'}
           onClick={undoTime}
         >
           <UndoRoundedIcon />
           <ControlButtonTooltip>
             <TooltipLine>
-              {/* <KeyboardCommandKeyRoundedIcon /> + z */}
               undo
             </TooltipLine>
           </ControlButtonTooltip>
@@ -297,19 +296,15 @@ export const CustomControls = memo(
           <RedoRoundedIcon />
           <ControlButtonTooltip>
             <TooltipLine>
-              {/* <KeyboardCommandKeyRoundedIcon /> + x */}
               redo
             </TooltipLine>
           </ControlButtonTooltip>
-        </ControlButton>
+        </ControlButton> */}
 
-        <ControlButton onClick={handleSaveFile}>
+        {/* <ControlButton onClick={handleSaveFile}>
           <FileDownloadRoundedIcon />
           <span>save</span>
-          {/* <ControlButtonTooltip>
-            <TooltipLine>save as a file</TooltipLine>
-          </ControlButtonTooltip> */}
-        </ControlButton>
+        </ControlButton> */}
 
         {/* <ControlButton onClick={handleLoadExample}>
           <TheatersRoundedIcon />

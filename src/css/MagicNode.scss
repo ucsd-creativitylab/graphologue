@@ -8,6 +8,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: $padding-xs;
 
     padding: $padding-small;
     border: none;
@@ -25,6 +26,12 @@
     * {
       color: $button-color;
       font-size: $font-size-default;
+    }
+
+    span {
+      font-size: $font-size-small;
+      pointer-events: none;
+      user-select: none;
     }
 
     &:hover:not(:disabled, .disabled) {
