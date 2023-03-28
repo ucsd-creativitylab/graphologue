@@ -179,8 +179,6 @@ export const Question = ({
       .filter((b: string) => b.length > 0)
       .map((a: string) => {
         // ! from fetched data to AnswerObject
-        console.log(a)
-
         return {
           id: getAnswerObjectId(), // add id
           origin: originTextToRanges(answerStorage.current.answer, [a]), // from text to ranges
@@ -317,7 +315,7 @@ export const Question = ({
 
     if (!parsingError) {
       // ! all complete
-      console.log(answerStorage.current.answerInformation)
+      console.log('all complete', answerStorage.current.answerInformation)
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionsAndAnswers(prevQsAndAs, id, {
           answerInformation: answerStorage.current.answerInformation,

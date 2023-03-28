@@ -10,7 +10,7 @@ export const rawRelationsToGraphRelationsChat = (
   rawResponse: string,
   rawRelationsText: string
 ): AnswerRelationshipObject[] => {
-  console.log(rawRelationsText)
+  // console.log(rawRelationsText)
 
   // preprocess the response
   const textRelationshipsArray: string[][] = rawRelationsText
@@ -201,7 +201,7 @@ export const rawRelationsToGraphRelationsChat = (
 
   return expandMultipleEdgesArray.map(
     ([object, edge, subject, originalText]) => ({
-      origin: originTextToRanges(rawRelationsText, [originalText]),
+      origin: originTextToRanges(rawResponse, [originalText]),
       source: object,
       target: subject,
       edge: edge,
