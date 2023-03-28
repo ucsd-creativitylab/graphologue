@@ -1,0 +1,9 @@
+@keyframes highlighted-text-background {
+  0% {
+    background-color: $white;
+  }
+
+  100% {
+    background-color: $warn-yellow-x-light;
+  }
+}

@@ -126,15 +126,16 @@ Do not include anything else in the response other than the markdown text.`,
       {
         role: 'system',
         content: `You are a helpful, creative, and clever assistant. \
-Construct a knowledge graph to reflect all the relationships from the sentences in the paragraph provided by the user. \
+Break down the following text into a knowledge graph format, listing nodes, relationships, and their sources as exact quotes from the text. \
 Use singular nouns and lowercase letters for node labels when possible and correct (e.g., the meaning of the label doesn't change). \
 Each node can be used in multiple relationships. There should be one connected graph in total.
 
 Response format: {subject} ${promptTerms.itemRelationshipConnector} \
 {short label indicating the relationship between subject and object} \
 ${promptTerms.itemRelationshipConnector} {object} \
-${promptTerms.itemOriginalTextConnector} {quote of the sentence or phrase in the original text that the relationship is derived from, do not substitute or omit any word or rewrite}.
+${promptTerms.itemOriginalTextConnector} {exact quote from the original text that the relationship is derived from}.
 
+The quote should be as succinct and accurate as possible, whether it is a whole sentence or a phrase. \
 Divide the relationships by line breaks.`,
       },
       {

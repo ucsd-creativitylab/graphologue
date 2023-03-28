@@ -197,7 +197,10 @@ const AnswerText = ({
         key={`${rangeToId(range)}-highlighted`}
         className="answer-text highlighted-answer-text"
       >
-        {rawAnswer.slice(range.start, range.end + 1)}
+        {rawAnswer.slice(
+          Math.max(range.start, slicingRange.start),
+          Math.min(range.end + 1, slicingRange.end + 1)
+        )}
       </span>
     )
 

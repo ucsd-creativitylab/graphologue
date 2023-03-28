@@ -185,6 +185,7 @@
         transition: background-color $transition-normal ease;
 
         &.highlighted-answer-text {
+          animation: highlighted-text-background $transition-normal ease;
           background-color: $warn-yellow-x-light;
         }
       }
