@@ -13,7 +13,6 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   useKeyPress,
-  MiniMap,
   Background,
   SelectionMode,
   NodeTypes,
@@ -76,12 +75,12 @@ const reactFlowWrapperStyle = {
 } as React.CSSProperties
 
 // const storedData = getItem()
-const storedData = {
-  nodes: [],
-  edges: [],
-}
-const defaultNodes = storedData.nodes as Node[]
-const defaultEdges = storedData.edges as Edge[]
+// const storedData = {
+//   nodes: [],
+//   edges: [],
+// }
+// const defaultNodes = storedData.nodes as Node[]
+// const defaultEdges = storedData.edges as Edge[]
 
 const nodeTypes = {
   custom: CustomNode,
@@ -560,7 +559,7 @@ const Flow = ({
               } as EdgeMarker
             }
           />
-          <MiniMap
+          {/* <MiniMap
             position={'bottom-left'}
             pannable={true}
             // nodeStrokeColor={n => {
@@ -596,7 +595,7 @@ const Flow = ({
             //     return `${styles.edgeColorStrokeSelected}`
             //   return 'none'
             // }}
-          />
+          /> */}
           <CustomControls
             nodes={nodes}
             edges={edges}
