@@ -131,6 +131,7 @@ Do not include anything else in the response other than the markdown text.`,
         role: 'system',
         content: `You are a helpful, creative, and clever assistant. \
 Break down the following ${target} into a knowledge graph. \
+Use singular nouns and lowercase letters for node labels when possible and correct (e.g., the meaning of the label doesn't change). \
 Each node can be used in multiple relationships. There should be one connected graph in total.
 
 Response format: {subject} ${promptTerms.itemRelationshipConnector} \

@@ -48,7 +48,7 @@ export const Question = () => {
   const { questionsAndAnswersCount, setQuestionsAndAnswers } =
     useContext(ChatContext)
   const {
-    data: {
+    questionAndAnswer: {
       id,
       question,
       answer,
@@ -426,6 +426,7 @@ export const Question = () => {
           question,
           modelStatus: {
             modelAnswering: true,
+            modelParsing: true, // parsing starts the same time as answering
           },
         })
       )
@@ -508,12 +509,12 @@ export const Question = () => {
             reactFlow: answerInformationToReactFlowObject(
               answerStorage.current.answerInformation
             ),
-            modelStatus: {
-              modelAnswering: false,
-              modelAnsweringComplete: true,
-              modelParsing: false,
-              modelParsingComplete: true,
-            },
+            // modelStatus: {
+            //   modelAnswering: false,
+            //   modelAnsweringComplete: true,
+            //   modelParsing: false,
+            //   modelParsingComplete: true,
+            // },
           })
         )
       }
@@ -661,20 +662,40 @@ export const Question = () => {
     )
     // * model done raw answering
     console.log('model done raw answering')
+    setQuestionsAndAnswers(prevQsAndAs =>
+      helpSetQuestionAndAnswer(prevQsAndAs, id, {
+        modelStatus: {
+          modelAnswering: false,
+          modelAnsweringComplete: true,
+        },
+      })
+    )
+
     // try to finish the last answer object
     const lastAnswerObject =
       answerStorage.current.answerInformation[
         answerStorage.current.answerInformation.length - 1
       ]
-    if (lastAnswerObject) handleParsingCompleteAnswerObject(lastAnswerObject.id)
+    if (lastAnswerObject)
+      await handleParsingCompleteAnswerObject(lastAnswerObject.id)
 
     // * model done parsing
     console.log('model done parsing')
+    setQuestionsAndAnswers(prevQsAndAs =>
+      helpSetQuestionAndAnswer(prevQsAndAs, id, {
+        modelStatus: {
+          modelParsing: false,
+          modelParsingComplete: true,
+        },
+      })
+    )
   }, [
     _groundRest,
     handleParsingCompleteAnswerObject,
     handleStreamRawAnswer,
+    id,
     question,
+    setQuestionsAndAnswers,
   ])
 
   /* -------------------------------------------------------------------------- */

@@ -45,7 +45,6 @@ import { CustomMarkerDefs } from './CustomDefs'
 import {
   hardcodedNodeSize,
   styles,
-  transitionDuration,
   useTokenDataTransferHandle,
   viewFittingOptions,
   viewFittingPadding,
@@ -87,7 +86,11 @@ const edgeTypes = {
 
 const Flow = () => {
   const { handleSetHighlighted } = useContext(InterchangeContext)
-  const { nodes: n, edges: e } = useContext(ReactFlowObjectContext)
+  const {
+    nodes: n,
+    edges: e,
+    generatingFlow,
+  } = useContext(ReactFlowObjectContext)
 
   const thisReactFlowInstance = useReactFlow()
   const {
@@ -114,14 +117,14 @@ const Flow = () => {
       setTimeout(() => {
         fitView({
           padding: viewFittingPadding,
-          duration: transitionDuration,
+          duration: 300,
         })
 
         fitViewFinished.current = false
 
         setTimeout(() => {
           fitViewFinished.current = true
-        }, transitionDuration)
+        }, 300)
       }, 5)
   }, [n, e, setNodes, setEdges, fitView])
 
@@ -556,7 +559,9 @@ const Flow = () => {
     >
       <div id="react-flow-wrapper" ref={reactFlowWrapper}>
         <ReactFlow
-          className={metaPressed ? 'flow-meta-pressed' : ''}
+          className={`${metaPressed ? 'flow-meta-pressed' : ''}${
+            generatingFlow ? ' generating-flow' : ''
+          }`}
           // basic
           nodes={nodes}
           edges={edges}

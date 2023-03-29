@@ -10,12 +10,12 @@ import { ChatContext } from './Contexts'
 import { Question } from './Question'
 
 export interface InterchangeContextProps {
-  data: QuestionAndAnswer
+  questionAndAnswer: QuestionAndAnswer
   handleSetHighlighted: (highlighted: QuestionAndAnswerHighlighted) => void
 }
 ////
 export const InterchangeContext = createContext<InterchangeContextProps>({
-  data: newQuestionAndAnswer(),
+  questionAndAnswer: newQuestionAndAnswer(),
   handleSetHighlighted: () => {},
 })
 
@@ -52,7 +52,7 @@ export const Interchange = ({
   return (
     <InterchangeContext.Provider
       value={{
-        data,
+        questionAndAnswer: data,
         handleSetHighlighted,
       }}
     >

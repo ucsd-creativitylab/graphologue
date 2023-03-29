@@ -76,8 +76,8 @@ export const CustomControls = memo(
     // const { model, selectNodes, setModel } = useContext(FlowContext)
     const { selectNodes } = useContext(FlowContext)
     const {
-      data: {
-        modelStatus: { modelAnswering, modelParsing },
+      questionAndAnswer: {
+        modelStatus: { modelParsing },
       },
     } = useContext(InterchangeContext)
 
@@ -350,7 +350,7 @@ export const CustomControls = memo(
           </ControlButtonTooltip>
         </ControlButton>
 
-        {(modelAnswering || modelParsing) && (
+        {modelParsing && (
           <ControlButton className="tips-button pointer-events-no">
             <HourglassTopRoundedIcon className="control-button-tips-icon loading-icon" />
             <span className="control-button-tips">still processing</span>

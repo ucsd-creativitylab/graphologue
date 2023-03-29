@@ -16,14 +16,24 @@ import { rangeToId } from '../utils/chatAppUtils'
 import { InterchangeContext } from './Interchange'
 import { SlideAnswerText } from './SlideAnswer'
 
-export const ReactFlowObjectContext = createContext<AnswerReactFlowObject>({
-  nodes: [],
-  edges: [],
-})
+export interface ReactFlowObjectContextProps extends AnswerReactFlowObject {
+  generatingFlow: boolean
+}
+
+export const ReactFlowObjectContext =
+  createContext<ReactFlowObjectContextProps>({
+    nodes: [],
+    edges: [],
+    generatingFlow: false,
+  })
 
 export const Answer = () => {
-  const { data: questionAndAnswer } = useContext(InterchangeContext)
-  const { id, reactFlow } = questionAndAnswer as QuestionAndAnswer
+  const { questionAndAnswer } = useContext(InterchangeContext)
+  const {
+    id,
+    reactFlow,
+    modelStatus: { modelParsing },
+  } = questionAndAnswer as QuestionAndAnswer
 
   return (
     <div className="answer-wrapper">
@@ -39,7 +49,10 @@ export const Answer = () => {
 
       {/* 1 */}
       <ReactFlowObjectContext.Provider
-        value={{ nodes: reactFlow.nodes, edges: reactFlow.edges }}
+        value={{
+          ...reactFlow,
+          generatingFlow: modelParsing,
+        }}
       >
         <ReactFlowComponent key={`react-flow-${id}`} />
       </ReactFlowObjectContext.Provider>
