@@ -217,6 +217,7 @@ export const rawRelationsToGraphRelationsChat = (
   return expandMultipleEdgesArray.map(
     ([object, edge, subject, originalText]) => ({
       origin: originTextToRange(rawResponse, originalText),
+      originRawText: originalText,
       source: object,
       target: subject,
       edge: edge,

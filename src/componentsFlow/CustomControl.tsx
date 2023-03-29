@@ -350,13 +350,12 @@ export const CustomControls = memo(
           </ControlButtonTooltip>
         </ControlButton>
 
-        {modelAnswering ||
-          (modelParsing && (
-            <ControlButton className="tips-button pointer-events-no">
-              <HourglassTopRoundedIcon className="control-button-tips-icon loading-icon" />
-              <span className="control-button-tips">still processing</span>
-            </ControlButton>
-          ))}
+        {(modelAnswering || modelParsing) && (
+          <ControlButton className="tips-button pointer-events-no">
+            <HourglassTopRoundedIcon className="control-button-tips-icon loading-icon" />
+            <span className="control-button-tips">still processing</span>
+          </ControlButton>
+        )}
       </Controls>
     )
   }

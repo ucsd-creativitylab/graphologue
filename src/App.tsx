@@ -15,6 +15,7 @@ export interface RawAnswerRange {
 
 export interface AnswerRelationshipObject {
   origin: RawAnswerRange
+  originRawText: string
   source: string
   target: string
   edge: string
@@ -28,6 +29,7 @@ export interface AnswerReactFlowObject {
 export interface AnswerObject {
   id: string
   origin: RawAnswerRange
+  originRawText: string
   summary: string
   slide: AnswerSlideObject
   relationships: AnswerRelationshipObject[]

@@ -133,9 +133,8 @@ Each node can be used in multiple relationships. There should be one connected g
 Response format: {subject} ${promptTerms.itemRelationshipConnector} \
 {short label indicating the relationship between subject and object} \
 ${promptTerms.itemRelationshipConnector} {object} \
-${promptTerms.itemOriginalTextConnector} {exact quote from the original text that the relationship is derived from}.
+${promptTerms.itemOriginalTextConnector} {exact quote copied from the original text that the relationship is derived from, can either be a sentence or phrase}.
 
-The quote should be as succinct and accurate as possible, whether it is a whole sentence or a phrase. \
 Divide the relationships by line breaks.`,
       },
       {

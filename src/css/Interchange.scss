@@ -72,6 +72,8 @@
   .question-item {
     @include bar-button;
 
+    transition: transform $transition-normal-slow ease;
+
     .bar-button {
       padding: $padding-small;
 
@@ -94,6 +96,12 @@
 
       svg {
         font-size: $font-size-large;
+      }
+    }
+
+    &:has(.new-question-hint) {
+      &:hover {
+        transform: scale(1.1);
       }
     }
   }

@@ -20,6 +20,25 @@ export const originTextToRange = (
   origin: string
 ): RawAnswerRange => {
   const start = response.indexOf(origin)
+
+  if (start === -1) {
+    // try removing the last word of origin one by one
+    // until we find a match
+    const words = origin.split(' ')
+    let i = words.length - 1
+    while (i > 0) {
+      const newOrigin = words.slice(0, i).join(' ')
+      const newStart = response.indexOf(newOrigin)
+      if (newStart !== -1) {
+        return {
+          start: newStart,
+          end: newStart + newOrigin.length,
+        }
+      }
+      i--
+    }
+  }
+
   return {
     start,
     end: start + origin.length,

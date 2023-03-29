@@ -436,15 +436,12 @@ export const Question = () => {
         return {
           id: getAnswerObjectId(), // add id
           origin: originTextToRange(answerStorage.current.answer, paragraph), // from text to ranges
+          originRawText: paragraph, // add raw text
           summary: '', // add summary
           slide: {
             content: '',
           }, // pop empty slide
           relationships: [], // pop empty relationships
-          reactFlow: {
-            nodes: [],
-            edges: [],
-          },
           complete: false,
         } as AnswerObject
       })
