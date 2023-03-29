@@ -122,21 +122,31 @@ Do not include anything else in the response other than the markdown text.`,
       },
     ]
   },
-  _chat_parseRelationships: (partResponse: string): Prompt[] => {
+  _chat_parseRelationships: (
+    partResponse: string,
+    target: 'text' | 'sentence' = 'text'
+  ): Prompt[] => {
     return [
       {
         role: 'system',
         content: `You are a helpful, creative, and clever assistant. \
-Break down the following text into a knowledge graph format, listing nodes, relationships, and their sources as exact quotes from the text. \
-Use singular nouns and lowercase letters for node labels when possible and correct (e.g., the meaning of the label doesn't change). \
+Break down the following ${target} into a knowledge graph. \
 Each node can be used in multiple relationships. There should be one connected graph in total.
 
 Response format: {subject} ${promptTerms.itemRelationshipConnector} \
 {short label indicating the relationship between subject and object} \
 ${promptTerms.itemRelationshipConnector} {object} \
-${promptTerms.itemOriginalTextConnector} {exact quote copied from the original text that the relationship is derived from, can either be a sentence or phrase}.
+${promptTerms.itemOriginalTextConnector} {exact quote as a substring of the original ${target} that the relationship is derived from, can either be a sentence or phrase}.
 
 Divide the relationships by line breaks.`,
+        /**
+         * we tried
+         * - exact quote as a substring
+         * - exact quote copied
+         *
+         * others:
+         * Use singular nouns and lowercase letters for node labels when possible and correct (e.g., the meaning of the label doesn't change). \
+         */
       },
       {
         role: 'user',

@@ -4,6 +4,7 @@ import { PuffLoader } from 'react-spinners'
 import VerticalSplitRoundedIcon from '@mui/icons-material/VerticalSplitRounded'
 import ShortTextRoundedIcon from '@mui/icons-material/ShortTextRounded'
 import NotesRoundedIcon from '@mui/icons-material/NotesRounded'
+import CropLandscapeRoundedIcon from '@mui/icons-material/CropLandscapeRounded'
 
 import {
   AnswerReactFlowObject,
@@ -148,7 +149,7 @@ const RawAnswer = ({
             }`}
             onClick={() => handleSwitchSummaryDisplay('slide')}
           >
-            <ShortTextRoundedIcon />
+            <CropLandscapeRoundedIcon />
             <span>slide</span>
           </button>
         </div>

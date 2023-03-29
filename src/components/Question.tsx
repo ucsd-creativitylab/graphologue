@@ -12,7 +12,7 @@ import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded'
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded'
 
-import { AnswerObject } from '../App'
+import { AnswerObject, AnswerRelationshipObject } from '../App'
 import { ChatContext } from './Contexts'
 import {
   getTextFromModelResponse,
@@ -37,6 +37,7 @@ import {
   rawRelationsToGraphRelationsChat,
 } from '../utils/chatGraphConstruct'
 import { InterchangeContext } from './Interchange'
+import { SentenceParser, SentenceParsingJob } from '../utils/sentenceParser'
 
 export type FinishedAnswerObjectParsingTypes =
   | 'summary'
@@ -123,6 +124,47 @@ export const Question = () => {
       )
     },
     [id, setQuestionsAndAnswers]
+  )
+
+  const handleSentenceParsingResult = useCallback(
+    (result: SentenceParsingJob) => {
+      const { sourceAnswerObjectId, relationships } = result
+
+      const sourceAnswerObject = answerStorage.current.answerInformation.find(
+        answerObject => answerObject.id === sourceAnswerObjectId
+      )
+      if (!sourceAnswerObject || sourceAnswerObject.complete)
+        // do not touch complete answer objects
+        return
+
+      answerStorage.current.answerInformation =
+        answerStorage.current.answerInformation.map((a: AnswerObject) => {
+          if (a.id === sourceAnswerObjectId) {
+            return {
+              ...a,
+              relationships: [
+                ...a.relationships,
+                ...relationships.filter(r => r.source !== r.target), // * remove self-relationships
+              ] as AnswerRelationshipObject[],
+              complete: true,
+            }
+          } else return a
+        })
+
+      setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
+          answerInformation: answerStorage.current.answerInformation,
+          reactFlow: answerInformationToReactFlowObject(
+            answerStorage.current.answerInformation
+          ),
+        })
+      )
+    },
+    [id, setQuestionsAndAnswers]
+  )
+
+  const sentenceParser = useRef<SentenceParser>(
+    new SentenceParser(handleSentenceParsingResult, handleResponseError)
   )
 
   /*
@@ -390,6 +432,9 @@ export const Question = () => {
     )
     answerStorage.current.answer = ''
     answerStorage.current.answerInformation = []
+
+    sentenceParser.current.reset()
+
     textareaRef.current?.blur()
   }, [id, question, setQuestionsAndAnswers])
 
@@ -437,15 +482,7 @@ export const Question = () => {
         })
       )
 
-      if (parsingError) {
-        setQuestionsAndAnswers(prevQsAndAs =>
-          helpSetQuestionAndAnswer(prevQsAndAs, id, {
-            modelStatus: {
-              modelError: true,
-            },
-          })
-        )
-      } else {
+      if (!parsingError) {
         // ! complete answer object
         answerStorage.current.answerInformation =
           answerStorage.current.answerInformation.map((a: AnswerObject) => {
@@ -489,21 +526,25 @@ export const Question = () => {
       const deltaContent = trimLineBreaks(getTextFromStreamResponse(data))
       if (!deltaContent) return
 
+      const aC = answerStorage.current
+
       // this is the first response streamed
-      const isFirstAnswerObject =
-        answerStorage.current.answerInformation.length === 0
+      const isFirstAnswerObject = aC.answerInformation.length === 0
       const hasLineBreaker = deltaContent.includes('\n')
 
-      // ground truth of the response
-      answerStorage.current.answer += isFirstAnswerObject
+      // ! ground truth of the response
+      const prevAnswerStorage = aC.answer
+      let prevLastAnswerObjectId = aC.answerInformation.length
+        ? aC.answerInformation[aC.answerInformation.length - 1].id
+        : null
+
+      aC.answer += isFirstAnswerObject
         ? deltaContent.trimStart() // a clean start
         : deltaContent
+      sentenceParser.current.updateResponse(aC.answer)
 
       const _appendContentToLastAnswerObject = (content: string) => {
-        const lastObject =
-          answerStorage.current.answerInformation[
-            answerStorage.current.answerInformation.length - 1
-          ]
+        const lastObject = aC.answerInformation[aC.answerInformation.length - 1]
         lastObject.originRawText += content
         lastObject.origin.end += content.length
       }
@@ -521,7 +562,7 @@ export const Question = () => {
       // break answer into parts
       if (isFirstAnswerObject) {
         // * new answer object
-        answerStorage.current.answerInformation.push({
+        aC.answerInformation.push({
           ...preparedNewObject,
           origin: {
             start: 0,
@@ -529,6 +570,8 @@ export const Question = () => {
           }, // from text to ranges
           originRawText: deltaContent, // add raw text
         } as AnswerObject)
+
+        prevLastAnswerObjectId = preparedNewObject.id
         ////
       } else if (hasLineBreaker) {
         // add a new answer object
@@ -556,13 +599,11 @@ export const Question = () => {
         }
 
         // * new answer object
-        answerStorage.current.answerInformation.push({
+        aC.answerInformation.push({
           ...preparedNewObject,
           origin: {
-            start:
-              answerStorage.current.answer.length -
-              paragraphForNewAnswerObject.length,
-            end: answerStorage.current.answer.length,
+            start: aC.answer.length - paragraphForNewAnswerObject.length,
+            end: aC.answer.length,
           }, // from text to ranges
           originRawText: paragraphForNewAnswerObject, // add raw text
         } as AnswerObject)
@@ -571,9 +612,7 @@ export const Question = () => {
         // as the object is finished, we can start parsing it
         // adding summary, slide, relationships
         handleParsingCompleteAnswerObject(
-          answerStorage.current.answerInformation[
-            answerStorage.current.answerInformation.length - 2
-          ].id
+          aC.answerInformation[aC.answerInformation.length - 2].id
         )
         ////
       } else {
@@ -581,11 +620,26 @@ export const Question = () => {
         _appendContentToLastAnswerObject(deltaContent)
       }
 
+      // parse sentence into graph RIGHT NOW
+      if (deltaContent.includes('.')) {
+        // get the last sentence from answerStorage.current.answer
+        const dotAndBefore = deltaContent.split('.').slice(-2)[0] + '.'
+        const lastSentencePartInPrevAnswerStorage = prevAnswerStorage
+          .split('.')
+          .slice(-2)[0]
+        const lastSentence = lastSentencePartInPrevAnswerStorage + dotAndBefore
+
+        // parse it
+        if (prevLastAnswerObjectId) {
+          sentenceParser.current.addJob(lastSentence, prevLastAnswerObjectId)
+        }
+      }
+
       // finally, update the state
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
-          answer: answerStorage.current.answer,
-          answerInformation: answerStorage.current.answerInformation,
+          answer: aC.answer,
+          answerInformation: aC.answerInformation,
         })
       )
     },

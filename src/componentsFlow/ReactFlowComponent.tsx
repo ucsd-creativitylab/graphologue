@@ -45,8 +45,10 @@ import { CustomMarkerDefs } from './CustomDefs'
 import {
   hardcodedNodeSize,
   styles,
+  transitionDuration,
   useTokenDataTransferHandle,
   viewFittingOptions,
+  viewFittingPadding,
 } from '../constants'
 import { FlowContext } from '../components/Contexts'
 import { useTimeMachine } from '../utils/timeMachine'
@@ -103,10 +105,25 @@ const Flow = () => {
   const [nodes, , onNodesChange] = useNodesState(n)
   const [edges, , onEdgesChange] = useEdgesState(e)
 
+  const fitViewFinished = useRef(true)
   useEffect(() => {
     setNodes(n)
     setEdges(e)
-  }, [n, e, setNodes, setEdges])
+
+    if (fitViewFinished.current)
+      setTimeout(() => {
+        fitView({
+          padding: viewFittingPadding,
+          duration: transitionDuration,
+        })
+
+        fitViewFinished.current = false
+
+        setTimeout(() => {
+          fitViewFinished.current = true
+        }, transitionDuration)
+      }, 5)
+  }, [n, e, setNodes, setEdges, fitView])
 
   // const onNodesChange = useCallback(() => {}, [])
   // const onEdgesChange = useCallback(() => {}, [])

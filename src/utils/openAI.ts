@@ -192,14 +192,20 @@ export const parseOpenAIResponseToObjects = async (
   )
   const requestOptions = getRequestOptions(options)
 
-  const response = await fetch(
-    'https://api.openai.com/v1/chat/completions',
-    requestOptions
-  )
+  try {
+    const response = await fetch(
+      'https://api.openai.com/v1/chat/completions',
+      requestOptions
+    )
 
-  const data = await response.json()
+    const data = await response.json()
 
-  return data
+    return data
+  } catch (error) {
+    return {
+      error: error,
+    }
+  }
 }
 
 /* -------------------------------------------------------------------------- */
