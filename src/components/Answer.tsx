@@ -1,12 +1,5 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-// import { PuffLoader } from 'react-spinners'
+import React, { createContext, useCallback, useContext, useState } from 'react'
+import { PuffLoader } from 'react-spinners'
 
 import VerticalSplitRoundedIcon from '@mui/icons-material/VerticalSplitRounded'
 import ShortTextRoundedIcon from '@mui/icons-material/ShortTextRounded'
@@ -33,7 +26,7 @@ export const Answer = () => {
 
   return (
     <div className="answer-wrapper">
-      {/* 1 */}
+      {/* 0 */}
       <RawAnswer
         key={`raw-answer-${id}`}
         questionAndAnswer={questionAndAnswer}
@@ -43,10 +36,7 @@ export const Answer = () => {
         {answer}
       </div> */}
 
-      {/* 2 */}
-      {/* <SlideAnswer /> */}
-
-      {/* 3 */}
+      {/* 1 */}
       <ReactFlowObjectContext.Provider
         value={{ nodes: reactFlow.nodes, edges: reactFlow.edges }}
       >
@@ -77,21 +67,19 @@ const RawAnswer = ({
 }: {
   questionAndAnswer: QuestionAndAnswer
 }) => {
-  const [blockDisplay, setBlockDisplay] = useState(false)
+  const [blockDisplay, setBlockDisplay] = useState(true)
   const [listDisplay, setListDisplay] = useState<ListDisplayFormat>('original')
 
-  const canSwitchBlockDisplay =
-    modelAnsweringComplete && answerInformation.length > 0
-  const listDisplaySwitchDisabled =
-    !blockDisplay || !answerInformation.some(a => a.summary.length > 0)
+  // const canSwitchBlockDisplay =
+  //   modelAnsweringComplete && answerInformation.length > 0
 
-  const switchedToBlockDisplay = useRef(false)
-  useEffect(() => {
-    if (canSwitchBlockDisplay && !switchedToBlockDisplay.current) {
-      switchedToBlockDisplay.current = true
-      setBlockDisplay(true)
-    }
-  }, [canSwitchBlockDisplay])
+  // const switchedToBlockDisplay = useRef(false)
+  // useEffect(() => {
+  //   if (!switchedToBlockDisplay.current) {
+  //     switchedToBlockDisplay.current = true
+  //     setBlockDisplay(true)
+  //   }
+  // }, [])
 
   /* -------------------------------------------------------------------------- */
 
@@ -116,7 +104,7 @@ const RawAnswer = ({
     >
       <div className="block-display-switches">
         <button
-          disabled={!canSwitchBlockDisplay}
+          // disabled={!canSwitchBlockDisplay}
           className="bar-button"
           onClick={handleSwitchBlockDisplay}
         >
@@ -128,7 +116,7 @@ const RawAnswer = ({
         </button>
         <div className="list-display-switch">
           <button
-            disabled={listDisplaySwitchDisabled}
+            disabled={!blockDisplay}
             className={`bar-button${
               listDisplay === 'original' ? ' selected' : ''
             }`}
@@ -138,7 +126,10 @@ const RawAnswer = ({
             <span>original</span>
           </button>
           <button
-            disabled={listDisplaySwitchDisabled}
+            disabled={
+              !blockDisplay ||
+              !answerInformation.some(a => a.summary.length > 0)
+            }
             className={`bar-button${
               listDisplay === 'summary' ? ' selected' : ''
             }`}
@@ -148,7 +139,10 @@ const RawAnswer = ({
             <span>summary</span>
           </button>
           <button
-            disabled={listDisplaySwitchDisabled}
+            disabled={
+              !blockDisplay ||
+              !answerInformation.some(a => a.slide.content.length > 0)
+            }
             className={`bar-button${
               listDisplay === 'slide' ? ' selected' : ''
             }`}
@@ -160,27 +154,45 @@ const RawAnswer = ({
         </div>
       </div>
 
+      {/* display in block */}
       {blockDisplay ? (
         <div className={`answer-block-list`}>
           {answerInformation.map((answerObject, index) => {
+            const loadingComponent = (
+              <div className="answer-loading-placeholder">
+                <PuffLoader size={32} color="#57068c" />
+              </div>
+            )
+
+            const contentComponent =
+              listDisplay === 'summary' ? (
+                answerObject.summary.length ? (
+                  <>{answerObject.summary}</>
+                ) : (
+                  loadingComponent
+                )
+              ) : listDisplay === 'slide' ? (
+                answerObject.slide.content.length ? (
+                  <SlideAnswerText content={answerObject.slide.content} />
+                ) : (
+                  loadingComponent
+                )
+              ) : (
+                <AnswerText
+                  rawAnswer={answer}
+                  highlightedRanges={highlighted.origins}
+                  slicingRange={answerObject.origin}
+                />
+              )
+
             return (
               <div
-                key={rangeToId(answerObject.origin)}
+                key={`answer-range-${answerObject.origin.start}`}
                 className={`answer-item interchange-component${
                   index !== 0 ? ' drop-down' : ''
                 }${listDisplay === 'slide' ? ' slide-wrapper' : ''}`}
               >
-                {listDisplay === 'summary' ? (
-                  answerObject.summary
-                ) : listDisplay === 'slide' ? (
-                  <SlideAnswerText content={answerObject.slide.content} />
-                ) : (
-                  <AnswerText
-                    rawAnswer={answer}
-                    highlightedRanges={highlighted.origins}
-                    slicingRange={answerObject.origin}
-                  />
-                )}
+                {contentComponent}
               </div>
             )
           })}

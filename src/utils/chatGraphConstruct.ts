@@ -7,7 +7,7 @@ import {
   getNewCustomNode,
   hardcodedNodeWidthEstimation,
 } from '../componentsFlow/Node'
-import { hardcodedNodeSize, styles, nodePosAdjustStep } from '../constants'
+import { hardcodedNodeSize, styles } from '../constants'
 import { originTextToRange } from './chatAppUtils'
 import {
   constructGraphChat,
@@ -272,7 +272,7 @@ export const answerInformationToReactFlowObject = (
               x,
               y,
             },
-            width: hardcodedNodeWidthEstimation(label),
+            width: hardcodedNodeWidthEstimation(removeHiddenExpandId(label)),
             height: hardcodedNodeSize.height,
             sourceHandleId: getHandleId(),
             targetHandleId: getHandleId(),
@@ -310,9 +310,10 @@ export const answerInformationToReactFlowObject = (
       )
 
       // get bounding box of nodes and update vertical offset
+      if (thisNodes.length === 0) return
+
       const boundingBox = getGraphBounds(thisNodes)
-      nodesVerticalOffset =
-        boundingBox.y + boundingBox.height + nodePosAdjustStep
+      nodesVerticalOffset = boundingBox.y + boundingBox.height
 
       nodes.push(...thisNodes)
 
@@ -350,6 +351,7 @@ export const answerInformationToReactFlowObject = (
           )
         }
       )
+      ////
     }
   )
 

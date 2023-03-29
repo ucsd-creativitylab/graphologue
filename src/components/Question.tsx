@@ -22,19 +22,26 @@ import {
   parseOpenAIResponseToObjects,
   streamOpenAICompletion,
 } from '../utils/openAI'
-import { predefinedPrompts } from '../utils/promptsAndResponses'
+import {
+  predefinedPrompts,
+  predefinedPromptsForParsing,
+} from '../utils/promptsAndResponses'
 import {
   getAnswerObjectId,
   helpSetQuestionAndAnswer,
   newQuestionAndAnswer,
-  originTextToRange,
-  rangesToOriginText,
+  trimLineBreaks,
 } from '../utils/chatAppUtils'
 import {
   answerInformationToReactFlowObject,
   rawRelationsToGraphRelationsChat,
 } from '../utils/chatGraphConstruct'
 import { InterchangeContext } from './Interchange'
+
+export type FinishedAnswerObjectParsingTypes =
+  | 'summary'
+  | 'slide'
+  | 'relationships'
 
 export const Question = () => {
   const { questionsAndAnswersCount, setQuestionsAndAnswers } =
@@ -118,22 +125,6 @@ export const Question = () => {
     [id, setQuestionsAndAnswers]
   )
 
-  const handleStreamRawAnswer = useCallback(
-    (data: OpenAIChatCompletionResponseStream) => {
-      const deltaContent = getTextFromStreamResponse(data)
-      if (!deltaContent) return
-
-      answerStorage.current.answer += deltaContent
-
-      setQuestionsAndAnswers(prevQsAndAs =>
-        helpSetQuestionAndAnswer(prevQsAndAs, id, {
-          answer: answerStorage.current.answer,
-        })
-      )
-    },
-    [id, setQuestionsAndAnswers]
-  )
-
   /*
   const handleAsk = useCallback(async () => {
     // * ground reset
@@ -186,15 +177,12 @@ export const Question = () => {
         return {
           id: getAnswerObjectId(), // add id
           origin: originTextToRange(answerStorage.current.answer, paragraph), // from text to ranges
+          originRawText: paragraph, // add raw text
           summary: '', // add summary
           slide: {
             content: '',
           }, // pop empty slide
           relationships: [], // pop empty relationships
-          reactFlow: {
-            nodes: [],
-            edges: [],
-          },
           complete: false,
         } as AnswerObject
       })
@@ -386,8 +374,7 @@ export const Question = () => {
   /* -------------------------------------------------------------------------- */
   // ! stream graph
 
-  const handleAskStreamGraph = useCallback(async () => {
-    // * ground reset
+  const _groundRest = useCallback(() => {
     setQuestionsAndAnswers(prevQsAndAs =>
       helpSetQuestionAndAnswer(
         prevQsAndAs,
@@ -404,6 +391,211 @@ export const Question = () => {
     answerStorage.current.answer = ''
     answerStorage.current.answerInformation = []
     textareaRef.current?.blur()
+  }, [id, question, setQuestionsAndAnswers])
+
+  const handleParsingCompleteAnswerObject = useCallback(
+    async (answerObjectId: string) => {
+      const answerObject = answerStorage.current.answerInformation.find(
+        a => a.id === answerObjectId
+      )
+      if (!answerObject) return
+
+      const parsingResults: {
+        [key in FinishedAnswerObjectParsingTypes]: string
+      } = {
+        summary: '',
+        slide: '',
+        relationships: '',
+      }
+
+      let parsingError = false
+      await Promise.all(
+        (
+          [
+            'summary',
+            'slide',
+            'relationships',
+          ] as FinishedAnswerObjectParsingTypes[]
+        ).map(async (parsingType: FinishedAnswerObjectParsingTypes) => {
+          if (parsingError) return
+
+          // ! request
+          const parsingResult = await parseOpenAIResponseToObjects(
+            predefinedPromptsForParsing[parsingType](
+              answerObject.originRawText
+            ),
+            models.faster
+          )
+
+          if (parsingResult.error) {
+            handleResponseError(parsingResult)
+            parsingError = true
+            return
+          }
+
+          parsingResults[parsingType] = getTextFromModelResponse(parsingResult)
+        })
+      )
+
+      if (parsingError) {
+        setQuestionsAndAnswers(prevQsAndAs =>
+          helpSetQuestionAndAnswer(prevQsAndAs, id, {
+            modelStatus: {
+              modelError: true,
+            },
+          })
+        )
+      } else {
+        // ! complete answer object
+        answerStorage.current.answerInformation =
+          answerStorage.current.answerInformation.map((a: AnswerObject) => {
+            if (a.id === answerObjectId) {
+              return {
+                ...a,
+                summary: parsingResults.summary,
+                slide: {
+                  content: parsingResults.slide,
+                },
+                relationships: rawRelationsToGraphRelationsChat(
+                  answerStorage.current.answer,
+                  parsingResults.relationships
+                ),
+                complete: true,
+              }
+            } else return a
+          })
+
+        setQuestionsAndAnswers(prevQsAndAs =>
+          helpSetQuestionAndAnswer(prevQsAndAs, id, {
+            answerInformation: answerStorage.current.answerInformation,
+            reactFlow: answerInformationToReactFlowObject(
+              answerStorage.current.answerInformation
+            ),
+            modelStatus: {
+              modelAnswering: false,
+              modelAnsweringComplete: true,
+              modelParsing: false,
+              modelParsingComplete: true,
+            },
+          })
+        )
+      }
+    },
+    [handleResponseError, id, setQuestionsAndAnswers]
+  )
+
+  const handleStreamRawAnswer = useCallback(
+    (data: OpenAIChatCompletionResponseStream) => {
+      const deltaContent = trimLineBreaks(getTextFromStreamResponse(data))
+      if (!deltaContent) return
+
+      // this is the first response streamed
+      const isFirstAnswerObject =
+        answerStorage.current.answerInformation.length === 0
+      const hasLineBreaker = deltaContent.includes('\n')
+
+      // ground truth of the response
+      answerStorage.current.answer += isFirstAnswerObject
+        ? deltaContent.trimStart() // a clean start
+        : deltaContent
+
+      const _appendContentToLastAnswerObject = (content: string) => {
+        const lastObject =
+          answerStorage.current.answerInformation[
+            answerStorage.current.answerInformation.length - 1
+          ]
+        lastObject.originRawText += content
+        lastObject.origin.end += content.length
+      }
+
+      const preparedNewObject = {
+        id: getAnswerObjectId(), // add id
+        summary: '', // add summary
+        slide: {
+          content: '',
+        }, // pop empty slide
+        relationships: [], // pop empty relationships
+        complete: false,
+      }
+
+      // break answer into parts
+      if (isFirstAnswerObject) {
+        // * new answer object
+        answerStorage.current.answerInformation.push({
+          ...preparedNewObject,
+          origin: {
+            start: 0,
+            end: deltaContent.length,
+          }, // from text to ranges
+          originRawText: deltaContent, // add raw text
+        } as AnswerObject)
+        ////
+      } else if (hasLineBreaker) {
+        // add a new answer object
+        const paragraphs = deltaContent
+          .split('\n')
+          .map(c => c.trim())
+          .filter(c => c.length)
+
+        let paragraphForNewAnswerObject = ''
+
+        if (paragraphs.length === 2) {
+          paragraphForNewAnswerObject = paragraphs[1]
+          ////
+          // if (!isFirstAnswerObject)
+          _appendContentToLastAnswerObject(paragraphs[0])
+        } else if (paragraphs.length === 1) {
+          if (deltaContent.indexOf('\n') === 0)
+            paragraphForNewAnswerObject = paragraphs[0]
+          else {
+            // if (!isFirstAnswerObject)
+            _appendContentToLastAnswerObject(paragraphs[0])
+          }
+        } else {
+          // do nothing now
+        }
+
+        // * new answer object
+        answerStorage.current.answerInformation.push({
+          ...preparedNewObject,
+          origin: {
+            start:
+              answerStorage.current.answer.length -
+              paragraphForNewAnswerObject.length,
+            end: answerStorage.current.answer.length,
+          }, // from text to ranges
+          originRawText: paragraphForNewAnswerObject, // add raw text
+        } as AnswerObject)
+
+        // ! finish a previous answer object
+        // as the object is finished, we can start parsing it
+        // adding summary, slide, relationships
+        handleParsingCompleteAnswerObject(
+          answerStorage.current.answerInformation[
+            answerStorage.current.answerInformation.length - 2
+          ].id
+        )
+        ////
+      } else {
+        // append to last answer object
+        _appendContentToLastAnswerObject(deltaContent)
+      }
+
+      // finally, update the state
+      setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
+          answer: answerStorage.current.answer,
+          answerInformation: answerStorage.current.answerInformation,
+        })
+      )
+    },
+    [handleParsingCompleteAnswerObject, id, setQuestionsAndAnswers]
+  )
+
+  // ! ASK
+  const handleAskStream = useCallback(async () => {
+    // * ground reset
+    _groundRest()
 
     // * actual ask model
     const initialPrompts = predefinedPrompts._chat_initialAsk(question)
@@ -415,231 +607,32 @@ export const Question = () => {
     )
     // * model done raw answering
     console.log('model done raw answering')
+    // try to finish the last answer object
+    const lastAnswerObject =
+      answerStorage.current.answerInformation[
+        answerStorage.current.answerInformation.length - 1
+      ]
+    if (lastAnswerObject) handleParsingCompleteAnswerObject(lastAnswerObject.id)
 
-    setQuestionsAndAnswers(prevQsAndAs =>
-      helpSetQuestionAndAnswer(prevQsAndAs, id, {
-        modelStatus: {
-          modelAnswering: false,
-          modelAnsweringComplete: true,
-          modelParsing: true,
-        },
-      })
-    )
-
-    // * break answer
-    answerStorage.current.answerInformation = answerStorage.current.answer
-      .split('\n')
-      .map((paragraph: string) => paragraph.trim())
-      .filter((paragraph: string) => paragraph.length > 0)
-      .map((paragraph: string) => {
-        // ! from fetched data to AnswerObject
-        return {
-          id: getAnswerObjectId(), // add id
-          origin: originTextToRange(answerStorage.current.answer, paragraph), // from text to ranges
-          originRawText: paragraph, // add raw text
-          summary: '', // add summary
-          slide: {
-            content: '',
-          }, // pop empty slide
-          relationships: [], // pop empty relationships
-          complete: false,
-        } as AnswerObject
-      })
-
-    // * break answer with model (deprecated)
-    // const brokenResponseData = await parseOpenAIResponseToObjects(
-    //   predefinedPrompts._chat_breakResponse(
-    //     initialPrompts,
-    //     answerStorage.current.answer
-    //   ),
-    //   models.smarter
-    // )
-    // if (brokenResponseData.error) return handleResponseError(brokenResponseData)
-
-    // answerStorage.current.answerInformation = getTextFromModelResponse(
-    //   brokenResponseData
-    // )
-    //   .split('\n')
-    //   .map((b: string) => b.trim())
-    //   .filter((b: string) => b.length > 0)
-    //   .map((a: string) => {
-    //     // ! from fetched data to AnswerObject
-    //     return {
-    //       id: getAnswerObjectId(), // add id
-    //       origin: originTextToRanges(answerStorage.current.answer, [a]), // from text to ranges
-    //       summary: '', // add summary
-    //       slide: {
-    //         content: '',
-    //       }, // pop empty slide
-    //       relationships: [], // pop empty relationships
-    //       complete: false,
-    //     } as AnswerObject
-    //   }) as AnswerObject[]
-
-    // console.log(
-    //   'model done breaking answer',
-    //   answerStorage.current.answerInformation
-    // )
-    setQuestionsAndAnswers(prevQsAndAs =>
-      helpSetQuestionAndAnswer(prevQsAndAs, id, {
-        answerInformation: answerStorage.current.answerInformation,
-      })
-    )
-
-    // * get summary
-    let summaryError = false
-    answerStorage.current.answerInformation = await Promise.all(
-      answerStorage.current.answerInformation.map(async (a: AnswerObject) => {
-        if (summaryError) return a
-
-        // ! request
-        const textSummaryData = await parseOpenAIResponseToObjects(
-          predefinedPrompts._chat_summarizeParagraph(
-            rangesToOriginText(answerStorage.current.answer, a.origin)
-          ),
-          models.faster
-        )
-        if (textSummaryData.error) {
-          handleResponseError(textSummaryData)
-          summaryError = true
-          return a
-        }
-
-        const textSummary = getTextFromModelResponse(textSummaryData)
-
-        return {
-          ...a,
-          summary: textSummary,
-        }
-      })
-    )
-
-    if (summaryError) {
-      return setQuestionsAndAnswers(prevQsAndAs =>
-        helpSetQuestionAndAnswer(prevQsAndAs, id, {
-          modelStatus: {
-            modelError: true,
-          },
-        })
-      )
-    }
-    console.log('model done summarizing answer')
-    setQuestionsAndAnswers(prevQsAndAs =>
-      helpSetQuestionAndAnswer(prevQsAndAs, id, {
-        answerInformation: answerStorage.current.answerInformation,
-      })
-    )
-
-    // * parse parts of answer
-    let parsingError = false
-    answerStorage.current.answerInformation = await Promise.all(
-      answerStorage.current.answerInformation.map(
-        async (answerPart: AnswerObject, i) => {
-          const { origin } = answerPart
-          const partOfOriginalResponse = rangesToOriginText(
-            answerStorage.current.answer,
-            origin
-          )
-
-          if (!parsingError) {
-            // slide
-            // ! request
-            const parsedSlideData = await parseOpenAIResponseToObjects(
-              predefinedPrompts._chat_parseSlide(
-                // answerStorage.current.answer,
-                partOfOriginalResponse
-              ),
-              models.faster
-            )
-
-            // relationships
-            // ! request
-            const parsedRelationshipData = await parseOpenAIResponseToObjects(
-              predefinedPrompts._chat_parseRelationships(
-                // answerStorage.current.answer,
-                partOfOriginalResponse
-              ),
-              models.faster
-            )
-
-            if (parsedSlideData.error || parsedRelationshipData.error) {
-              if (parsedSlideData.error) handleResponseError(parsedSlideData)
-              if (parsedRelationshipData.error)
-                handleResponseError(parsedRelationshipData)
-
-              parsingError = true
-              return answerPart
-            }
-
-            try {
-              const parsedSlidePart = getTextFromModelResponse(parsedSlideData)
-              const parsedRelationshipPart = getTextFromModelResponse(
-                parsedRelationshipData
-              )
-
-              // ! from fetched data to part of AnswerObject
-              return {
-                ...answerPart,
-                slide: {
-                  content: parsedSlidePart,
-                },
-                relationships: rawRelationsToGraphRelationsChat(
-                  answerStorage.current.answer,
-                  parsedRelationshipPart
-                ),
-                complete: true,
-              } as AnswerObject
-            } catch (error) {
-              parsingError = true
-              return answerPart
-            }
-          } else return answerPart
-        }
-      )
-    )
-
-    if (!parsingError) {
-      // ! all complete
-      console.log('all complete', answerStorage.current.answerInformation)
-      setQuestionsAndAnswers(prevQsAndAs =>
-        helpSetQuestionAndAnswer(prevQsAndAs, id, {
-          answerInformation: answerStorage.current.answerInformation,
-          modelStatus: {
-            modelAnswering: false,
-            modelAnsweringComplete: true,
-            modelParsing: false,
-            modelParsingComplete: true,
-          },
-          reactFlow: answerInformationToReactFlowObject(
-            answerStorage.current.answerInformation
-          ),
-        })
-      )
-    } else {
-      setQuestionsAndAnswers(prevQsAndAs =>
-        helpSetQuestionAndAnswer(prevQsAndAs, id, {
-          modelStatus: {
-            modelError: true,
-          },
-        })
-      )
-    }
+    // * model done parsing
+    console.log('model done parsing')
   }, [
-    handleResponseError,
+    _groundRest,
+    handleParsingCompleteAnswerObject,
     handleStreamRawAnswer,
-    id,
     question,
-    setQuestionsAndAnswers,
   ])
+
+  /* -------------------------------------------------------------------------- */
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       // if cmd + enter
       if (e.key === 'Enter' && e.metaKey) {
-        if (canAsk) handleAskStreamGraph()
+        if (canAsk) handleAskStream()
       }
     },
-    [canAsk, handleAskStreamGraph]
+    [canAsk, handleAskStream]
   )
 
   const handleDeleteInterchange = useCallback(() => {
@@ -664,7 +657,7 @@ export const Question = () => {
           <button
             disabled={!canAsk}
             className="bar-button"
-            onClick={handleAskStreamGraph}
+            onClick={handleAskStream}
           >
             {modelAnswering ? (
               <HourglassTopRoundedIcon className="loading-icon" />

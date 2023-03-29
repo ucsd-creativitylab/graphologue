@@ -211,7 +211,7 @@ export const SuperTextEditor = memo(
             onBlur={handleBlur}
             disabled={!editing}
             style={{
-              width: content.length <= 10 ? '6rem' : 'auto',
+              width: content.length <= 10 ? '160px' : 'auto',
               color:
                 background === styles.nodeColorDefaultWhite
                   ? '#333333'

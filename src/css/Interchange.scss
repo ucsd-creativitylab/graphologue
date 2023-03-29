@@ -5,7 +5,8 @@
   justify-content: flex-start;
   gap: $padding-mid;
 
-  margin-bottom: $padding-xx-large;
+  margin: 0 auto $padding-xx-large auto;
+  max-width: 2200px;
 
   box-sizing: border-box;
   * {
@@ -163,6 +164,21 @@
         align-items: stretch;
         gap: $padding-mid;
       }
+
+      .answer-loading-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        height: 100%;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+
+        * {
+          box-sizing: border-box;
+        }
+      }
     }
 
     .answer-item {
@@ -199,7 +215,7 @@
       align-items: center;
       justify-content: center;
 
-      height: 40rem;
+      height: 50rem;
       width: 100%;
       padding: 0;
       margin: 0;

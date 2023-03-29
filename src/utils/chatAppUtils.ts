@@ -6,6 +6,7 @@ import {
   QuestionAndAnswer,
   RawAnswerRange,
 } from '../App'
+import { deepCopyEdges, deepCopyNodes } from './storage'
 
 export const getAnswerObjectId = () => {
   return `answer-object-${uuidv4()}`
@@ -17,8 +18,15 @@ export const rangeToId = (range: RawAnswerRange): string => {
 
 export const originTextToRange = (
   response: string,
-  origin: string
+  origin: string,
+  offset = 0
 ): RawAnswerRange => {
+  if (!origin.length)
+    return {
+      start: offset,
+      end: offset,
+    }
+
   const start = response.indexOf(origin)
 
   if (start === -1) {
@@ -40,7 +48,7 @@ export const originTextToRange = (
   }
 
   return {
-    start,
+    start: start,
     end: start + origin.length,
   }
 }
@@ -111,6 +119,11 @@ export const addOrMergeRanges = (
   return newRanges
 }
 
+export const trimLineBreaks = (text: string) => {
+  // replace '\n\n' or '\n\n\n' (or more) with '\n'
+  return text.replace(/(\n)*\n/g, '\n')
+}
+
 /* -------------------------------------------------------------------------- */
 
 export const newQuestionAndAnswer = (
@@ -156,6 +169,10 @@ export const deepCopyQuestionAndAnswer = (
     modelStatus: {
       ...qA.modelStatus,
     },
+    reactFlow: {
+      nodes: deepCopyNodes(qA.reactFlow.nodes),
+      edges: deepCopyEdges(qA.reactFlow.edges),
+    },
     highlighted: {
       ...qA.highlighted,
     },
@@ -180,7 +197,7 @@ export const helpSetQuestionAndAnswer = (
   return prevQsAndAs.map((prevQAndA: QuestionAndAnswer) => {
     return prevQAndA.id === id
       ? {
-          ...prevQAndA,
+          ...deepCopyQuestionAndAnswer(prevQAndA),
           ...newQAndA,
           modelStatus: {
             ...prevQAndA.modelStatus,

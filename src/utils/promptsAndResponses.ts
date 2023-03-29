@@ -1,3 +1,4 @@
+import { FinishedAnswerObjectParsingTypes } from '../components/Question'
 import { Prompt } from './openAI'
 import { tagsToString } from './utils'
 
@@ -59,7 +60,7 @@ export const predefinedPrompts = {
         content: `You are a helpful, knowledgeable, and clever assistant. \
 Please provide a well-structured response to the user's question in multiple paragraphs. \
 Each paragraph should discuss a different aspect or topic of the answer. \
-Try to cover the most important aspects of the answer and be concise for each of them. \
+Try to cover the most important aspects of the answer with concise sentences. \
 Your response should be at most around 200 characters long.`,
       },
       {
@@ -250,6 +251,14 @@ Response format: {subject} ${promptTerms.itemRelationshipConnector} {short label
   ) =>
     `Use one or two simple and concise sentences to explain how does the paper "${paperTitle}" help understand this statement:\n\n${response}\n\nDon't repeat the title.` +
     (paperAbstract.length > 0 ? `\n\n(Paper abstract: ${paperAbstract})` : ''),
+}
+
+export const predefinedPromptsForParsing: {
+  [key in FinishedAnswerObjectParsingTypes]: (text: string) => Prompt[]
+} = {
+  summary: predefinedPrompts._chat_summarizeParagraph,
+  slide: predefinedPrompts._chat_parseSlide,
+  relationships: predefinedPrompts._chat_parseRelationships,
 }
 
 export const predefinedResponses = {

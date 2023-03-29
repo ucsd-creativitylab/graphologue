@@ -27,6 +27,8 @@ import ReactFlow, {
   OnConnectEnd,
   useOnViewportChange,
   Viewport,
+  useNodesState,
+  useEdgesState,
 } from 'reactflow'
 import isEqual from 'react-fast-compare'
 
@@ -83,7 +85,7 @@ const edgeTypes = {
 
 const Flow = () => {
   const { handleSetHighlighted } = useContext(InterchangeContext)
-  const { nodes, edges } = useContext(ReactFlowObjectContext)
+  const { nodes: n, edges: e } = useContext(ReactFlowObjectContext)
 
   const thisReactFlowInstance = useReactFlow()
   const {
@@ -98,11 +100,16 @@ const Flow = () => {
   }: ReactFlowInstance = thisReactFlowInstance
 
   // use default nodes and edges
-  // const [nodes, setNodes, onNodesChange] = useNodesState(defaultNodes)
-  // const [edges, setEdges, onEdgesChange] = useEdgesState(defaultEdges)
+  const [nodes, , onNodesChange] = useNodesState(n)
+  const [edges, , onEdgesChange] = useEdgesState(e)
 
-  const onNodesChange = useCallback(() => {}, [])
-  const onEdgesChange = useCallback(() => {}, [])
+  useEffect(() => {
+    setNodes(n)
+    setEdges(e)
+  }, [n, e, setNodes, setEdges])
+
+  // const onNodesChange = useCallback(() => {}, [])
+  // const onEdgesChange = useCallback(() => {}, [])
 
   // fit to view on page load
   useEffect(() => {
