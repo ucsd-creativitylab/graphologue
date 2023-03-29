@@ -1,14 +1,51 @@
 .slide-wrapper {
-  display: flex;
+  display: block;
 
-  position: relative;
+  width: 20rem;
+  // height: 15rem !important;
+  padding: $padding-mid $padding-large !important;
 
-  width: 30rem;
-  height: 40rem;
+  overflow: scroll;
 
-  .slide-deck {
+  .slide-text-wrapper {
     display: flex;
     flex-direction: column;
-    gap: $padding-large;
+
+    position: relative;
+
+    h1,
+    h2,
+    p {
+      margin: $padding-xs 0;
+    }
+
+    h1 {
+      font-size: $font-size-large;
+      font-weight: $font-weight-bold;
+    }
+
+    h2 {
+      font-size: $font-size-default;
+      font-weight: $font-weight-default;
+    }
+
+    ul {
+      padding: 0;
+      // make it beautiful
+
+      li {
+        list-style: none;
+        font-size: $font-size-small;
+        font-weight: $font-weight-thin;
+
+        &::before {
+          content: 'ꕤ';
+          color: $light-grey;
+          display: inline-block;
+          // width: 1em;
+          margin-right: $padding-small;
+        }
+      }
+    }
   }
 }

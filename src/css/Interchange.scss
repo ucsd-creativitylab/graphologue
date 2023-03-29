@@ -126,7 +126,27 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        gap: $padding-small;
+        gap: $padding-mid;
+
+        .list-display-switch {
+          display: flex;
+          align-items: center;
+          gap: $padding-xs;
+
+          background: $white;
+          border-radius: $padding-large;
+          outline: rem-to-px(1rem) solid $light;
+          outline-offset: rem-to-px(3rem);
+
+          .bar-button {
+            box-shadow: none;
+
+            &.selected {
+              background: $white !important;
+              box-shadow: $shadow-grey-default;
+            }
+          }
+        }
       }
 
       .answer-block-list {

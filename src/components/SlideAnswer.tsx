@@ -1,9 +1,12 @@
 import React from 'react'
+import ReactMarkdown from 'react-markdown'
 
-export const SlideAnswer = () => {
+import { AnswerSlideObject } from '../App'
+
+export const SlideAnswerText = ({ content }: AnswerSlideObject) => {
   return (
-    <div className="slide-wrapper">
-      <div className="slide-deck"></div>
+    <div className="slide-text-wrapper">
+      <ReactMarkdown children={content} />
     </div>
   )
 }

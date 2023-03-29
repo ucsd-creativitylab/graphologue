@@ -20,6 +20,7 @@ import {
 import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 import { rangeToId } from '../utils/chatAppUtils'
 import { InterchangeContext } from './Interchange'
+import { SlideAnswerText } from './SlideAnswer'
 
 export const ReactFlowObjectContext = createContext<AnswerReactFlowObject>({
   nodes: [],
@@ -64,6 +65,8 @@ export const Answer = () => {
   )
 }
 
+export type ListDisplayFormat = 'original' | 'summary' | 'slide'
+
 const RawAnswer = ({
   questionAndAnswer: {
     answer,
@@ -75,10 +78,12 @@ const RawAnswer = ({
   questionAndAnswer: QuestionAndAnswer
 }) => {
   const [blockDisplay, setBlockDisplay] = useState(false)
-  const [summaryDisplay, setSummaryDisplay] = useState(false)
+  const [listDisplay, setListDisplay] = useState<ListDisplayFormat>('original')
 
   const canSwitchBlockDisplay =
     modelAnsweringComplete && answerInformation.length > 0
+  const listDisplaySwitchDisabled =
+    !blockDisplay || !answerInformation.some(a => a.summary.length > 0)
 
   const switchedToBlockDisplay = useRef(false)
   useEffect(() => {
@@ -91,13 +96,16 @@ const RawAnswer = ({
   /* -------------------------------------------------------------------------- */
 
   const handleSwitchBlockDisplay = useCallback(() => {
-    setSummaryDisplay(false)
+    // setListDisplay('original')
     setBlockDisplay(prev => !prev)
   }, [])
 
-  const handleSwitchSummaryDisplay = useCallback(() => {
-    setSummaryDisplay(prev => !prev)
-  }, [])
+  const handleSwitchSummaryDisplay = useCallback(
+    (newDisplayFormat: ListDisplayFormat) => {
+      setListDisplay(newDisplayFormat)
+    },
+    []
+  )
 
   return (
     <div
@@ -116,18 +124,40 @@ const RawAnswer = ({
               transform: 'rotate(90deg)'
             }} /> : <NotesRoundedIcon />} */}
           <VerticalSplitRoundedIcon />
-          {blockDisplay ? <span>list</span> : <span>paragraph</span>}
+          {/* {blockDisplay ? <span>list</span> : <span>paragraph</span>} */}
         </button>
-        <button
-          disabled={
-            !blockDisplay || !answerInformation.some(a => a.summary.length > 0)
-          }
-          className="bar-button"
-          onClick={handleSwitchSummaryDisplay}
-        >
-          {summaryDisplay ? <ShortTextRoundedIcon /> : <NotesRoundedIcon />}
-          {summaryDisplay ? <span>summary</span> : <span>original</span>}
-        </button>
+        <div className="list-display-switch">
+          <button
+            disabled={listDisplaySwitchDisabled}
+            className={`bar-button${
+              listDisplay === 'original' ? ' selected' : ''
+            }`}
+            onClick={() => handleSwitchSummaryDisplay('original')}
+          >
+            <NotesRoundedIcon />
+            <span>original</span>
+          </button>
+          <button
+            disabled={listDisplaySwitchDisabled}
+            className={`bar-button${
+              listDisplay === 'summary' ? ' selected' : ''
+            }`}
+            onClick={() => handleSwitchSummaryDisplay('summary')}
+          >
+            <ShortTextRoundedIcon />
+            <span>summary</span>
+          </button>
+          <button
+            disabled={listDisplaySwitchDisabled}
+            className={`bar-button${
+              listDisplay === 'slide' ? ' selected' : ''
+            }`}
+            onClick={() => handleSwitchSummaryDisplay('slide')}
+          >
+            <ShortTextRoundedIcon />
+            <span>slide</span>
+          </button>
+        </div>
       </div>
 
       {blockDisplay ? (
@@ -138,10 +168,12 @@ const RawAnswer = ({
                 key={rangeToId(answerObject.origin)}
                 className={`answer-item interchange-component${
                   index !== 0 ? ' drop-down' : ''
-                }`}
+                }${listDisplay === 'slide' ? ' slide-wrapper' : ''}`}
               >
-                {summaryDisplay ? (
+                {listDisplay === 'summary' ? (
                   answerObject.summary
+                ) : listDisplay === 'slide' ? (
+                  <SlideAnswerText content={answerObject.slide.content} />
                 ) : (
                   <AnswerText
                     rawAnswer={answer}
