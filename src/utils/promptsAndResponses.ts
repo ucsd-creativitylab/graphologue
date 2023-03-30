@@ -96,7 +96,7 @@ Please provide a well-structured response to the user's question in multiple par
 The paragraphs should cover the most important aspects of the answer, with each discussing a different aspect or topic. \
 The relationships in the sentences should be labeled with [node 1 ($N1)] [relationship 1 ($N1, $N2)] [node 2 ($N2)]. The node identifier should have numbers only. \
 For example:
-[Artificial Intelligence (AI) ($N1)] [is a ($N1, $N2)] [field of computer science ($N2)] that [focuses on creating ($N1, $N3)] [intelligent machines ($N3)]. \
+[Artificial Intelligence (AI) ($N1)] [is a ($N1, $N2)] [field of computer science ($N2)] that [creates ($N1, $N3)] [intelligent machines ($N3)]. \
 [These machines ($N3)] [possess ($N3, $N4)] [capabilities ($N4)] [such as ($N4, $N5; $N4, $N6; $N4, $N7; $N4, $N8)] \
 [learning ($N5)], \
 [reasoning ($N6)], \

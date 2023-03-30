@@ -246,9 +246,10 @@ const AnswerText = ({
   highlightedRanges: OriginAnswerRange[]
   slicingRange: OriginAnswerRange
 }) => {
-  const displayText = removeAnnotations(
-    rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
-  )
+  // const displayText = removeAnnotations(
+  //   rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
+  // )
+  const displayText = rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
 
   highlightedRanges.sort((a, b) => a.start - b.start)
 
