@@ -35,7 +35,6 @@ import {
   MagicToolboxItem,
 } from './MagicToolbox'
 import randomPhrases from '../utils/randomPhrases'
-import { SuperTextEditor } from './SuperTextEditor'
 import { getHandleId, getNodeId, getNodeLabelAndTags } from '../utils/utils'
 import { OriginAnswerRange } from '../App'
 
@@ -81,7 +80,7 @@ export const CustomNode = memo(
       styleBackground,
       sourceHandleId,
       targetHandleId,
-      editing,
+      // editing,
       // generated: { originRanges, originTexts },
     } = data as CustomNodeData
 
@@ -221,7 +220,7 @@ export const CustomNode = memo(
             backgroundColor: styleBackground,
           }}
         >
-          <SuperTextEditor
+          {/* <SuperTextEditor
             target="node"
             targetId={id}
             content={label}
@@ -229,7 +228,9 @@ export const CustomNode = memo(
             background={styleBackground}
             selected={selected}
             textareaRef={textAreaRef}
-          >
+          > */}
+          <div className="super-wrapper super-wrapper-static-text">
+            <span className="node-label">{label}</span>
             {!moreThanOneComponentsSelected && selected ? (
               <MagicToolbox
                 className={`edge-label-toolbox${
@@ -275,7 +276,7 @@ export const CustomNode = memo(
             ) : (
               <></>
             )}
-          </SuperTextEditor>
+          </div>
 
           {/* {tags.length > 0 && (
           <div className="custom-node-tags">
@@ -424,6 +425,16 @@ export const customAddNodes = (
 /* -------------------------------------------------------------------------- */
 
 export const hardcodedNodeWidthEstimation = (content: string) => {
-  if (content.length <= 10) return hardcodedNodeSize.width
-  return Math.max(210, 64 + content.length * 8) // TODO better ways?
+  // make a pseudo node to estimate width
+  const pseudoNode = document.createElement('span')
+  pseudoNode.className = 'width-measuring-span'
+  pseudoNode.innerText = content
+  document.body.appendChild(pseudoNode)
+  const width = pseudoNode.offsetWidth
+  document.body.removeChild(pseudoNode)
+
+  return Math.max(160, width)
+
+  // if (content.length < 16) return hardcodedNodeSize.width
+  // return Math.max(210, 64 + content.length * 8) // TODO better ways?
 }

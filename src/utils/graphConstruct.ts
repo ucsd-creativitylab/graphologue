@@ -275,8 +275,6 @@ export const constructGraph = (
   // ! compute
   dagre.layout(pseudoGraph)
 
-  console.log(nodeEntities, edgeEntities)
-
   // print the graph
   const nodes: {
     id: string
@@ -284,9 +282,6 @@ export const constructGraph = (
     y: number
   }[] = []
   pseudoGraph.nodes().forEach(v => {
-    console.log(v)
-    console.log(pseudoGraph.node(v).label)
-
     nodes.push({
       id: pseudoGraph.node(v).label as string,
       x: pseudoGraph.node(v).x,

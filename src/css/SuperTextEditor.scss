@@ -9,6 +9,21 @@
   overflow: visible;
   z-index: 1;
 
+  &.super-wrapper-static-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: auto;
+    min-width: 10rem;
+
+    .node-label {
+      display: inline-flex;
+      padding: $padding-mid $padding-xx-large;
+      text-align: center;
+    }
+  }
+
   textarea {
     background: transparent !important;
   }
@@ -50,6 +65,15 @@
 
     transition: opacity $transition-normal;
   }
+}
+
+.width-measuring-span {
+  display: inline-flex;
+  padding: $padding-mid $padding-xx-large;
+
+  font-family: inherit;
+  font-size: $font-size-default;
+  font-weight: $font-weight-thin;
 }
 
 .super-wrapper-node {

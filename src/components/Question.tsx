@@ -461,15 +461,15 @@ export const Question = () => {
       await handleParsingCompleteAnswerObject(lastAnswerObject.id)
 
     // * model done parsing
-    // console.log('model done parsing')
-    // setQuestionsAndAnswers(prevQsAndAs =>
-    //   helpSetQuestionAndAnswer(prevQsAndAs, id, {
-    //     modelStatus: {
-    //       modelParsing: false,
-    //       modelParsingComplete: true,
-    //     },
-    //   })
-    // )
+    console.log('model done parsing')
+    setQuestionsAndAnswers(prevQsAndAs =>
+      helpSetQuestionAndAnswer(prevQsAndAs, id, {
+        modelStatus: {
+          modelParsing: false,
+          modelParsingComplete: true,
+        },
+      })
+    )
   }, [
     _groundRest,
     handleParsingCompleteAnswerObject,

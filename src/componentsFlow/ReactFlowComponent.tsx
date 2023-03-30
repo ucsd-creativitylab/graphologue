@@ -281,12 +281,11 @@ const Flow = () => {
 
   const handleNodeDoubleClick = useCallback(
     (e: BaseSyntheticEvent, node: Node) => {
-      e.preventDefault()
-      e.stopPropagation()
-
-      if (node.type === 'custom') doSetNodesEditing([node.id], true)
+      // e.preventDefault()
+      // e.stopPropagation()
+      // if (node.type === 'custom') doSetNodesEditing([node.id], true)
     },
-    [doSetNodesEditing]
+    []
   )
 
   const handleNodeDragStart = useCallback(() => {
@@ -426,25 +425,24 @@ const Flow = () => {
 
   const handleEdgeDoubleClick = useCallback(
     (e: BaseSyntheticEvent, edge: Edge) => {
-      e.preventDefault()
-      e.stopPropagation()
-
-      setEdges((nds: Edge[]) => {
-        return nds.map((nd: Edge) => {
-          if (edge.id !== nd.id) return nd
-          else {
-            return {
-              ...nd,
-              data: {
-                ...nd.data,
-                editing: true,
-              },
-            }
-          }
-        })
-      })
+      // e.preventDefault()
+      // e.stopPropagation()
+      // setEdges((nds: Edge[]) => {
+      //   return nds.map((nd: Edge) => {
+      //     if (edge.id !== nd.id) return nd
+      //     else {
+      //       return {
+      //         ...nd,
+      //         data: {
+      //           ...nd.data,
+      //           editing: true,
+      //         },
+      //       }
+      //     }
+      //   })
+      // })
     },
-    [setEdges]
+    []
   )
 
   /* -------------------------------------------------------------------------- */
