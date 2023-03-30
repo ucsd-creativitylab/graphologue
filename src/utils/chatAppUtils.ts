@@ -4,15 +4,18 @@ import {
   AnswerObject,
   PartialQuestionAndAnswer,
   QuestionAndAnswer,
-  RawAnswerRange,
+  OriginAnswerRange,
+  NodeEntity,
+  NodeEntityIndividual,
+  EdgeEntity,
 } from '../App'
-import { deepCopyEdges, deepCopyNodes } from './storage'
+import { EdgePair } from './responseProcessing'
 
 export const getAnswerObjectId = () => {
   return `answer-object-${uuidv4()}`
 }
 
-export const rangeToId = (range: RawAnswerRange): string => {
+export const rangeToId = (range: OriginAnswerRange): string => {
   return `range-${range.start}-${range.end}`
 }
 
@@ -20,7 +23,7 @@ export const originTextToRange = (
   response: string,
   origin: string,
   offset = 0
-): RawAnswerRange => {
+): OriginAnswerRange => {
   if (!origin.length)
     return {
       start: offset,
@@ -53,22 +56,24 @@ export const originTextToRange = (
   }
 }
 
-export const rangesToOriginText = (response: string, range: RawAnswerRange) => {
+export const rangesToOriginText = (
+  response: string,
+  range: OriginAnswerRange
+) => {
   return response.substring(range.start, range.end)
 }
 
 export const findHighlightedRangeByAnswerObjectId = (
-  answerInformation: AnswerObject[],
+  answerObjects: AnswerObject[],
   answerObjectId: string
-): RawAnswerRange | undefined => {
-  return answerInformation.find(
-    answerObject => answerObject.id === answerObjectId
-  )?.origin
+): OriginAnswerRange | undefined => {
+  return answerObjects.find(answerObject => answerObject.id === answerObjectId)
+    ?.originRange
 }
 
 export const addOrMergeRanges = (
-  existingRanges: RawAnswerRange[],
-  newRange: RawAnswerRange
+  existingRanges: OriginAnswerRange[],
+  newRange: OriginAnswerRange
 ) => {
   let merged = false
 
@@ -133,7 +138,7 @@ export const newQuestionAndAnswer = (
     id: prefill?.id ?? `question-and-answer-${uuidv4()}`,
     question: prefill?.question ?? '',
     answer: prefill?.answer ?? '',
-    answerInformation: prefill?.answerInformation ?? [],
+    answerObjects: prefill?.answerObjects ?? [],
     modelStatus: {
       modelAnswering: prefill?.modelStatus?.modelAnswering ?? false,
       modelParsing: prefill?.modelStatus?.modelParsing ?? false,
@@ -142,14 +147,33 @@ export const newQuestionAndAnswer = (
       modelParsingComplete: prefill?.modelStatus?.modelParsingComplete ?? false,
       modelError: prefill?.modelStatus?.modelError ?? false,
     },
-    reactFlow: {
-      nodes: prefill?.reactFlow?.nodes ?? [],
-      edges: prefill?.reactFlow?.edges ?? [],
-    },
     highlighted: prefill?.highlighted ?? {
-      origins: [],
-      answerObjectIds: new Set(),
+      originRanges: [],
     },
+  }
+}
+
+export const deepCopyAnswerObject = (a: AnswerObject): AnswerObject => {
+  return {
+    ...a,
+    originRange: { ...a.originRange },
+    slide: { ...a.slide },
+    nodeEntities: a.nodeEntities.map((e: NodeEntity) => ({
+      ...e,
+      individuals: e.individuals.map((i: NodeEntityIndividual) => ({
+        ...i,
+        originRange: {
+          ...i.originRange,
+        },
+      })),
+    })),
+    edgeEntities: a.edgeEntities.map((e: EdgeEntity) => ({
+      ...e,
+      edgePairs: e.edgePairs.map((p: EdgePair) => ({ ...p })),
+      originRange: {
+        ...e.originRange,
+      },
+    })),
   }
 }
 
@@ -158,20 +182,9 @@ export const deepCopyQuestionAndAnswer = (
 ): QuestionAndAnswer => {
   return {
     ...qA,
-    answerInformation: qA.answerInformation.map(a => {
-      return {
-        ...a,
-        origin: { ...a.origin },
-        slide: { ...a.slide },
-        relationships: a.relationships.map(r => ({ ...r })),
-      } as AnswerObject
-    }),
+    answerObjects: qA.answerObjects.map(a => deepCopyAnswerObject(a)),
     modelStatus: {
       ...qA.modelStatus,
-    },
-    reactFlow: {
-      nodes: deepCopyNodes(qA.reactFlow.nodes),
-      edges: deepCopyEdges(qA.reactFlow.edges),
     },
     highlighted: {
       ...qA.highlighted,

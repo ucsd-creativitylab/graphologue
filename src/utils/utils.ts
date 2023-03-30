@@ -2,16 +2,18 @@ import { Edge, Node, Position } from 'reactflow'
 import { v4 as uuidv4, v5 as uuidv5 } from 'uuid'
 import { CustomNodeData } from '../componentsFlow/Node'
 import { hardcodedNodeSize, nodeGap, nodePosAdjustStep } from '../constants'
-import { PostConstructionPseudoNodeObject } from './magicGraphConstruct'
+import { PostConstructionPseudoNodeObject } from './graphConstruct'
 
 import { NodeLabelAndTags } from './promptsAndResponses'
 import { Tokenization } from './socket'
 
+export const getSimpleNodeId = (baseId: string) => `node-${baseId}`
 export const getNodeId = (nodeLabel?: string, extraId?: string) =>
   (nodeLabel ? `node-${uuidv5(nodeLabel, uuidv5.URL)}` : `node-${uuidv4()}`) +
   (extraId ? `-${extraId}` : '')
 export const getMagicNodeId = () => `magic-node-${uuidv4()}`
 export const getGroupNodeId = () => `group-node-${uuidv4()}`
+
 export const getHandleId = () => `handle-${uuidv4()}`
 export const getEdgeId = (sourceId: string, targetId: string) =>
   `edge-${sourceId}---${targetId}---${uuidv4()}`

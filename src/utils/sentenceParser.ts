@@ -1,7 +1,7 @@
-import { AnswerRelationshipObject } from '../App'
-import { rawRelationsToGraphRelationsChat } from './chatGraphConstruct'
+// import { AnswerRelationshipObject } from '../App'
+// import { rawRelationsToGraphRelationsChat } from './graphToFlowObject'
 import {
-  getTextFromModelResponse,
+  // getTextFromModelResponse,
   models,
   parseOpenAIResponseToObjects,
 } from './openAI'
@@ -9,7 +9,7 @@ import { predefinedPrompts } from './promptsAndResponses'
 
 export interface SentenceParsingJob {
   sourceAnswerObjectId: string
-  relationships: AnswerRelationshipObject[]
+  relationships: any[] // * the whole SentenceParser thing is to be removed
   started: boolean
   finished: boolean
 }
@@ -67,10 +67,10 @@ export class SentenceParser {
           this.hasError = true
           return false
         } else {
-          job.relationships = rawRelationsToGraphRelationsChat(
-            this.response,
-            getTextFromModelResponse(parsingResult)
-          )
+          // job.relationships = rawRelationsToGraphRelationsChat(
+          //   this.response,
+          //   getTextFromModelResponse(parsingResult)
+          // )
           job.finished = true
 
           this.resultHandler(job)

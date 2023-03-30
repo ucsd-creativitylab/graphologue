@@ -7,23 +7,27 @@ import NotesRoundedIcon from '@mui/icons-material/NotesRounded'
 import CropLandscapeRoundedIcon from '@mui/icons-material/CropLandscapeRounded'
 
 import {
-  AnswerReactFlowObject,
   QuestionAndAnswer,
-  RawAnswerRange,
+  OriginAnswerRange,
+  NodeEntity,
+  EdgeEntity,
 } from '../App'
 import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 import { rangeToId } from '../utils/chatAppUtils'
 import { InterchangeContext } from './Interchange'
 import { SlideAnswerText } from './SlideAnswer'
+import { removeAnnotations } from '../utils/responseProcessing'
 
-export interface ReactFlowObjectContextProps extends AnswerReactFlowObject {
+export interface ReactFlowObjectContextProps {
+  nodeEntities: NodeEntity[]
+  edgeEntities: EdgeEntity[]
   generatingFlow: boolean
 }
 
 export const ReactFlowObjectContext =
   createContext<ReactFlowObjectContextProps>({
-    nodes: [],
-    edges: [],
+    nodeEntities: [],
+    edgeEntities: [],
     generatingFlow: false,
   })
 
@@ -31,7 +35,7 @@ export const Answer = () => {
   const { questionAndAnswer } = useContext(InterchangeContext)
   const {
     id,
-    reactFlow,
+    answerObjects,
     modelStatus: { modelParsing },
   } = questionAndAnswer as QuestionAndAnswer
 
@@ -50,11 +54,18 @@ export const Answer = () => {
       {/* 1 */}
       <ReactFlowObjectContext.Provider
         value={{
-          ...reactFlow,
+          nodeEntities: answerObjects.reduce(
+            (acc, { nodeEntities }) => [...acc, ...nodeEntities],
+            [] as NodeEntity[]
+          ),
+          edgeEntities: answerObjects.reduce(
+            (acc, { edgeEntities }) => [...acc, ...edgeEntities],
+            [] as EdgeEntity[]
+          ),
           generatingFlow: modelParsing,
         }}
       >
-        <ReactFlowComponent key={`react-flow-${id}`} />
+        <ReactFlowComponent key={`react-flow-${id}`} id={id} />
       </ReactFlowObjectContext.Provider>
       {/* {modelAnsweringComplete && modelParsingComplete ? (
         <></>
@@ -74,7 +85,7 @@ export type ListDisplayFormat = 'original' | 'summary' | 'slide'
 const RawAnswer = ({
   questionAndAnswer: {
     answer,
-    answerInformation,
+    answerObjects,
     highlighted,
     modelStatus: { modelAnsweringComplete },
   },
@@ -85,7 +96,7 @@ const RawAnswer = ({
   const [listDisplay, setListDisplay] = useState<ListDisplayFormat>('original')
 
   // const canSwitchBlockDisplay =
-  //   modelAnsweringComplete && answerInformation.length > 0
+  //   modelAnsweringComplete && answerObjects.length > 0
 
   // const switchedToBlockDisplay = useRef(false)
   // useEffect(() => {
@@ -141,8 +152,7 @@ const RawAnswer = ({
           </button>
           <button
             disabled={
-              !blockDisplay ||
-              !answerInformation.some(a => a.summary.length > 0)
+              !blockDisplay || !answerObjects.some(a => a.summary.length > 0)
             }
             className={`bar-button${
               listDisplay === 'summary' ? ' selected' : ''
@@ -155,7 +165,7 @@ const RawAnswer = ({
           <button
             disabled={
               !blockDisplay ||
-              !answerInformation.some(a => a.slide.content.length > 0)
+              !answerObjects.some(a => a.slide.content.length > 0)
             }
             className={`bar-button${
               listDisplay === 'slide' ? ' selected' : ''
@@ -171,7 +181,7 @@ const RawAnswer = ({
       {/* display in block */}
       {blockDisplay ? (
         <div className={`answer-block-list`}>
-          {answerInformation.map((answerObject, index) => {
+          {answerObjects.map((answerObject, index) => {
             const loadingComponent = (
               <div className="answer-loading-placeholder">
                 <PuffLoader size={32} color="#57068c" />
@@ -194,14 +204,14 @@ const RawAnswer = ({
               ) : (
                 <AnswerText
                   rawAnswer={answer}
-                  highlightedRanges={highlighted.origins}
-                  slicingRange={answerObject.origin}
+                  highlightedRanges={highlighted.originRanges}
+                  slicingRange={answerObject.originRange}
                 />
               )
 
             return (
               <div
-                key={`answer-range-${answerObject.origin.start}`}
+                key={`answer-range-${answerObject.originRange.start}`}
                 className={`answer-item interchange-component${
                   index !== 0 ? ' drop-down' : ''
                 }${listDisplay === 'slide' ? ' slide-wrapper' : ''}`}
@@ -215,7 +225,7 @@ const RawAnswer = ({
         <div className={`answer-item interchange-component`}>
           <AnswerText
             rawAnswer={answer}
-            highlightedRanges={highlighted.origins}
+            highlightedRanges={highlighted.originRanges}
             slicingRange={{
               start: 0,
               end: answer.length - 1,
@@ -233,10 +243,12 @@ const AnswerText = ({
   slicingRange,
 }: {
   rawAnswer: string
-  highlightedRanges: RawAnswerRange[]
-  slicingRange: RawAnswerRange
+  highlightedRanges: OriginAnswerRange[]
+  slicingRange: OriginAnswerRange
 }) => {
-  const displayText = rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
+  const displayText = removeAnnotations(
+    rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
+  )
 
   highlightedRanges.sort((a, b) => a.start - b.start)
 

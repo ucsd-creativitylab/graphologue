@@ -1,38 +1,51 @@
 import React, { useEffect, useState } from 'react'
-import { Edge, Node } from 'reactflow'
+
 import { ChatContext } from './components/Contexts'
 import { Interchange } from './components/Interchange'
 import { newQuestionAndAnswer } from './utils/chatAppUtils'
+import { EdgeInformation, NodeInformation } from './utils/responseProcessing'
+
+// import the package.json file
+import packageJson from '../package.json'
+
+export interface OriginAnswerRange {
+  start: number
+  end: number
+}
+
+export interface NodeEntityIndividual extends NodeInformation {
+  // nodeLabel & id
+  originRange: OriginAnswerRange
+  originText: string
+}
+
+export interface NodeEntity {
+  id: string
+  displayNodeLabel: string
+  pseudo: boolean
+  individuals: NodeEntityIndividual[]
+}
+
+export interface EdgeEntity extends EdgeInformation {
+  // edgeLabel & edgePairs
+  // id: string
+  originRange: OriginAnswerRange
+  originText: string
+}
 
 export interface AnswerSlideObject {
   content: string
 }
 
-export interface RawAnswerRange {
-  start: number
-  end: number
-}
-
-export interface AnswerRelationshipObject {
-  origin: RawAnswerRange
-  originRawText: string
-  source: string
-  target: string
-  edge: string
-}
-
-export interface AnswerReactFlowObject {
-  nodes: Node[]
-  edges: Edge[]
-}
-
+// ! AnswerObject
 export interface AnswerObject {
   id: string
-  origin: RawAnswerRange
-  originRawText: string
+  originRange: OriginAnswerRange
+  originText: string
   summary: string
   slide: AnswerSlideObject
-  relationships: AnswerRelationshipObject[]
+  nodeEntities: NodeEntity[]
+  edgeEntities: EdgeEntity[]
   complete: boolean
 }
 
@@ -45,16 +58,18 @@ interface ModelStatus {
 }
 
 export interface QuestionAndAnswerHighlighted {
-  origins: RawAnswerRange[]
-  answerObjectIds: Set<string>
+  originRanges: OriginAnswerRange[]
 }
+
+/* -------------------------------------------------------------------------- */
+
+// ! QuestionAndAnswer
 export interface QuestionAndAnswer {
   id: string
   question: string
   answer: string
-  answerInformation: AnswerObject[]
+  answerObjects: AnswerObject[]
   modelStatus: ModelStatus
-  reactFlow: AnswerReactFlowObject
   highlighted: QuestionAndAnswerHighlighted
 }
 
@@ -62,9 +77,8 @@ export interface PartialQuestionAndAnswer {
   id?: string
   question?: string
   answer?: string
-  answerInformation?: AnswerObject[]
+  answerObjects?: AnswerObject[]
   modelStatus?: Partial<ModelStatus>
-  reactFlow?: AnswerReactFlowObject
   highlighted?: QuestionAndAnswerHighlighted
 }
 
@@ -94,6 +108,15 @@ export const ChatApp = () => {
       }}
     >
       <div className="chat-app">
+        {/* // TODO */}
+        <span
+          className="version-stamp"
+          style={{
+            display: 'none',
+          }}
+        >
+          version {packageJson.version}-graph
+        </span>
         {questionsAndAnswers.map((questionAndAnswer, index) => (
           <Interchange
             key={`interchange-${questionAndAnswer.id}`}

@@ -57,9 +57,8 @@ import { MagicNode } from './MagicNode'
 import { EntityType } from '../utils/socket'
 import { CustomGroupNode } from './GroupNode'
 import { ModelForMagic } from '../utils/openAI'
-import { QuestionAndAnswerHighlighted } from '../App'
-import { InterchangeContext } from '../components/Interchange'
 import { ReactFlowObjectContext } from '../components/Answer'
+import { answerObjectsToReactFlowObject } from '../utils/graphToFlowObject'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -74,6 +73,9 @@ const reactFlowWrapperStyle = {
 // const defaultNodes = storedData.nodes as Node[]
 // const defaultEdges = storedData.edges as Edge[]
 
+const defaultNodes: Node[] = []
+const defaultEdges: Edge[] = []
+
 const nodeTypes = {
   custom: CustomNode,
   magic: MagicNode,
@@ -85,12 +87,10 @@ const edgeTypes = {
 } as EdgeTypes
 
 const Flow = () => {
-  const { handleSetHighlighted } = useContext(InterchangeContext)
-  const {
-    nodes: n,
-    edges: e,
-    generatingFlow,
-  } = useContext(ReactFlowObjectContext)
+  // const { handleSetHighlighted } = useContext(InterchangeContext)
+  const { nodeEntities, edgeEntities, generatingFlow } = useContext(
+    ReactFlowObjectContext
+  )
 
   const thisReactFlowInstance = useReactFlow()
   const {
@@ -105,13 +105,18 @@ const Flow = () => {
   }: ReactFlowInstance = thisReactFlowInstance
 
   // use default nodes and edges
-  const [nodes, , onNodesChange] = useNodesState(n)
-  const [edges, , onEdgesChange] = useEdgesState(e)
+  const [nodes, , onNodesChange] = useNodesState(defaultNodes)
+  const [edges, , onEdgesChange] = useEdgesState(defaultEdges)
 
   const fitViewFinished = useRef(true)
   useEffect(() => {
-    setNodes(n)
-    setEdges(e)
+    const { nodes: newNodes, edges: newEdges } = answerObjectsToReactFlowObject(
+      nodeEntities,
+      edgeEntities
+    )
+
+    setNodes(newNodes)
+    setEdges(newEdges)
 
     if (fitViewFinished.current)
       setTimeout(() => {
@@ -126,7 +131,7 @@ const Flow = () => {
           fitViewFinished.current = true
         }, 300)
       }, 5)
-  }, [n, e, setNodes, setEdges, fitView])
+  }, [setNodes, setEdges, fitView, nodeEntities, edgeEntities])
 
   // const onNodesChange = useCallback(() => {}, [])
   // const onEdgesChange = useCallback(() => {}, [])
@@ -507,41 +512,24 @@ const Flow = () => {
   /* -------------------------------------------------------------------------- */
   // ! chat
 
-  const handleNodeMouseEnter = useCallback(
-    (e: MouseEvent, node: Node) => {
-      const { data } = node
-      const {
-        generated: { sourceAnswerObjectIds, sourceOrigins },
-      } = data as CustomNodeData
-
-      const highlighted: QuestionAndAnswerHighlighted = {
-        origins: sourceOrigins,
-        answerObjectIds: sourceAnswerObjectIds,
-      }
-
-      // sourceAnswerObjectIds.forEach((id: string) => {
-      //   const originRange = findHighlightedRangeByAnswerObjectId(
-      //     answerInformation,
-      //     id
-      //   )
-      //   if (originRange)
-      //     highlighted.origins = addOrMergeRanges(
-      //       highlighted.origins,
-      //       originRange
-      //     )
-      // })
-
-      handleSetHighlighted(highlighted)
-    },
-    [handleSetHighlighted]
-  )
+  const handleNodeMouseEnter = useCallback((e: MouseEvent, node: Node) => {
+    // const { data } = node
+    // const {
+    //   generated: { sourceAnswerObjectIds, sourceOrigins },
+    // } = data as CustomNodeData
+    // const highlighted: QuestionAndAnswerHighlighted = {
+    //   origins: sourceOrigins,
+    //   answerObjectIds: sourceAnswerObjectIds,
+    // }
+    // handleSetHighlighted(highlighted)
+  }, [])
 
   const handleNodeMouseLeave = useCallback(() => {
-    handleSetHighlighted({
-      origins: [],
-      answerObjectIds: new Set(),
-    })
-  }, [handleSetHighlighted])
+    // handleSetHighlighted({
+    //   origins: [],
+    //   answerObjectIds: new Set(),
+    // })
+  }, [])
 
   const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')
 
@@ -668,13 +656,13 @@ const Flow = () => {
   )
 }
 
-const ReactFlowComponent = memo(() =>
+const ReactFlowComponent = memo(({ id }: { id: string }) =>
   //   {
   //   answerRelationships,
   // }: {
   //   answerRelationships: {
   //     answerObjectId: string
-  //     origin: RawAnswerRange[]
+  //     origin: OriginAnswerRange[]
   //     relationships: AnswerRelationshipObject[]
   //   }[]
   // }
@@ -756,7 +744,7 @@ const ReactFlowComponent = memo(() =>
     return (
       <ReactFlowProvider>
         {/* <Flow notesOpened={notesOpened} setNotesOpened={setNotesOpened} /> */}
-        <Flow />
+        <Flow key={`flow-${id}`} />
         {/* <NotebookContext.Provider
         value={{
           notes,

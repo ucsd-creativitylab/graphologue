@@ -59,8 +59,9 @@ export const cleanStoredData = (
       .filter((node: Node) => {
         if (node.type !== 'custom') return true
 
-        const d = node.data as CustomNodeData
-        return d.generated.temporary !== true
+        // const d = node.data as CustomNodeData
+        // return d.generated.temporary !== true
+        return true
       }) || []
 
   const edges =
@@ -74,8 +75,9 @@ export const cleanStoredData = (
         return edge
       })
       .filter((edge: Edge) => {
-        const d = edge.data as CustomEdgeData
-        return d.generated.temporary !== true
+        // const d = edge.data as CustomEdgeData
+        // return d.generated.temporary !== true
+        return true
       }) || []
 
   return {

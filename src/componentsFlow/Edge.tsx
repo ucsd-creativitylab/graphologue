@@ -179,7 +179,8 @@ export const getNewEdge = (
       customType: 'plain',
       editing: false,
       generated: {
-        temporary: false,
+        originRanges: [],
+        originTexts: [],
       },
     } as CustomEdgeData),
     ...(dataOptions || {}),
@@ -281,9 +282,8 @@ export const EdgeCustomLabel = memo(
                 customType: edgeData.customType,
                 editing: false,
                 generated: {
-                  temporary: false,
-                  sourceAnswerObjectIds: new Set(),
-                  sourceOrigins: [],
+                  originRanges: [],
+                  originTexts: [],
                 },
               }
             ),
@@ -299,9 +299,8 @@ export const EdgeCustomLabel = memo(
                 customType: edgeData.customType,
                 editing: false,
                 generated: {
-                  temporary: false,
-                  sourceAnswerObjectIds: new Set(),
-                  sourceOrigins: [],
+                  originRanges: [],
+                  originTexts: [],
                 },
               }
             ),

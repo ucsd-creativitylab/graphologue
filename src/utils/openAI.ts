@@ -98,7 +98,7 @@ export const streamOpenAICompletion = async (
   model: ModelForMagic,
   streamFunction: (data: any) => void,
   temperature = temperatures.response,
-  token = 512
+  token = 1024
 ) => {
   console.log(`streaming ${model}`, prompts)
 

@@ -87,6 +87,30 @@ Do not include anything else in the response other than the chunks.`,
       },
     ]
   },
+  _graph_initialAsk: (question: string): Prompt[] => {
+    return [
+      {
+        role: 'system',
+        content: `You are a helpful, knowledgeable, and clever assistant. \
+Please provide a well-structured response to the user's question in multiple paragraphs. \
+The paragraphs should cover the most important aspects of the answer, with each discussing a different aspect or topic. \
+The relationships in the sentences should be labeled with [node 1 ($N1)] [relationship 1 ($N1, $N2)] [node 2 ($N2)]. The node identifier should have numbers only. \
+For example:
+[Artificial Intelligence (AI) ($N1)] [is a ($N1, $N2)] [field of computer science ($N2)] that [focuses on creating ($N1, $N3)] [intelligent machines ($N3)]. \
+[These machines ($N3)] [possess ($N3, $N4)] [capabilities ($N4)] [such as ($N4, $N5; $N4, $N6; $N4, $N7; $N4, $N8)] \
+[learning ($N5)], \
+[reasoning ($N6)], \
+[perception ($N7)], \
+and [problem-solving ($N8)]. \
+[AI systems ($N1)] can be [divided into ($N1, $N9; $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
+[Narrow AI ($N9)] [is designed for ($N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($N10, $N12)] [mimic human intelligence ($N12)].`,
+      },
+      {
+        role: 'user',
+        content: question,
+      },
+    ]
+  },
   _chat_summarizeParagraph: (paragraph: string): Prompt[] => {
     return [
       {

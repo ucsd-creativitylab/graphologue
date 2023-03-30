@@ -1,6 +1,6 @@
 import dagre from 'dagre'
 import { v4 as uuidv4 } from 'uuid'
-import { RawAnswerRange } from '../App'
+import { EdgeEntity, NodeEntity, OriginAnswerRange } from '../App'
 
 import { hardcodedNodeWidthEstimation } from '../componentsFlow/Node'
 import { hardcodedNodeSize } from '../constants'
@@ -241,7 +241,10 @@ export const hasHiddenExpandId = (text: string) => {
 
 /* -------------------------------------------------------------------------- */
 
-export const constructGraph = (relationships: string[][]) => {
+export const constructGraph = (
+  nodeEntities: NodeEntity[],
+  edgeEntities: EdgeEntity[]
+) => {
   // https://github.com/dagrejs/dagre/wiki#an-example-layout
   var pseudoGraph = new dagre.graphlib.Graph()
   pseudoGraph.setGraph({
@@ -254,44 +257,38 @@ export const constructGraph = (relationships: string[][]) => {
     return ''
   })
 
-  const addedNode = new Set()
-  relationships.forEach(([a, edge, b]: string[]) => {
-    if (!addedNode.has(a)) {
-      pseudoGraph.setNode(a, {
-        label: a,
-        data: {
-          id: a,
-        },
-        width: hardcodedNodeWidthEstimation(removeHiddenExpandId(a)),
-        height: hardcodedNodeSize.height,
-      })
-      addedNode.add(a)
-    }
+  nodeEntities.forEach(nodeE => {
+    pseudoGraph.setNode(nodeE.id, {
+      label: nodeE.id,
+      width: hardcodedNodeWidthEstimation(nodeE.displayNodeLabel),
+      height: hardcodedNodeSize.height,
+    })
+  })
 
-    if (!addedNode.has(b)) {
-      pseudoGraph.setNode(b, {
-        label: b,
-        width: hardcodedNodeWidthEstimation(removeHiddenExpandId(b)),
-        height: hardcodedNodeSize.height,
-      })
-      addedNode.add(b)
-    }
-
-    pseudoGraph.setEdge(a, b, { label: edge })
+  edgeEntities.forEach(edgeE => {
+    const edgePair = edgeE.edgePairs[0]
+    pseudoGraph.setEdge(edgePair.sourceId, edgePair.targetId, {
+      label: edgeE.edgeLabel,
+    })
   })
 
   // ! compute
   dagre.layout(pseudoGraph)
 
+  console.log(nodeEntities, edgeEntities)
+
   // print the graph
   const nodes: {
-    label: string
+    id: string
     x: number
     y: number
   }[] = []
   pseudoGraph.nodes().forEach(v => {
+    console.log(v)
+    console.log(pseudoGraph.node(v).label)
+
     nodes.push({
-      label: pseudoGraph.node(v).label as string,
+      id: pseudoGraph.node(v).label as string,
       x: pseudoGraph.node(v).x,
       y: pseudoGraph.node(v).y,
     })
@@ -306,7 +303,7 @@ export const constructGraphChat = (annotatedRelationships: {
   answerObjectId: string
   relationships: {
     relationship: [string, string, string]
-    origin: RawAnswerRange
+    origin: OriginAnswerRange
   }[]
 }) => {
   const { answerObjectId, relationships } = annotatedRelationships
@@ -330,7 +327,7 @@ export const constructGraphChat = (annotatedRelationships: {
   } = {}
 
   const nodesToOrigins: {
-    [key: string]: RawAnswerRange[]
+    [key: string]: OriginAnswerRange[]
   } = {}
 
   relationships.forEach(({ relationship: [a, edge, b], origin }) => {

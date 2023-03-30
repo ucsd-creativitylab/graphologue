@@ -37,12 +37,11 @@ import {
 import randomPhrases from '../utils/randomPhrases'
 import { SuperTextEditor } from './SuperTextEditor'
 import { getHandleId, getNodeId, getNodeLabelAndTags } from '../utils/utils'
-import { RawAnswerRange } from '../App'
+import { OriginAnswerRange } from '../App'
 
 export interface GeneratedInformation {
-  temporary: boolean
-  sourceAnswerObjectIds: Set<string>
-  sourceOrigins: RawAnswerRange[]
+  originRanges: OriginAnswerRange[]
+  originTexts: string[]
 }
 
 export interface CustomNodeData {
@@ -83,7 +82,7 @@ export const CustomNode = memo(
       sourceHandleId,
       targetHandleId,
       editing,
-      generated: { temporary },
+      // generated: { originRanges, originTexts },
     } = data as CustomNodeData
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
@@ -191,7 +190,8 @@ export const CustomNode = memo(
           metaPressed ? ' custom-node-meta-pressed' : ''
         }${isExplainedByMagicNode ? ' custom-node-explained' : ''}${
           styleBackground !== '#ffffff' ? ' custom-node-background-color' : ''
-        }${temporary ? ' custom-node-temporary' : ''}`}
+        }`}
+        // }${temporary ? ' custom-node-temporary' : ''}`}
       >
         <Handle
           id={targetHandleId}
@@ -400,9 +400,8 @@ export const customAddNodes = (
     editing,
     styleBackground,
     {
-      temporary: false,
-      sourceAnswerObjectIds: new Set(),
-      sourceOrigins: [],
+      originRanges: [],
+      originTexts: [],
     }
   )
 

@@ -67,3 +67,11 @@ code {
   overflow-y: auto;
   box-sizing: border-box;
 }
+
+.version-stamp {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  white-space: nowrap;
+  font-size: $font-size-small;
+}
