@@ -16,7 +16,6 @@ import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 import { rangeToId } from '../utils/chatAppUtils'
 import { InterchangeContext } from './Interchange'
 import { SlideAnswerText } from './SlideAnswer'
-import { removeAnnotations } from '../utils/responseProcessing'
 
 export interface ReactFlowObjectContextProps {
   nodeEntities: NodeEntity[]
