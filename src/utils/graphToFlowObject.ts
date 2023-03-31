@@ -44,6 +44,7 @@ const _addMentionedNode = (
 }
 
 export const answerObjectsToReactFlowObject = (
+  graph: dagre.graphlib.Graph<{}>,
   rawNodeEntities: NodeEntity[],
   rawEdgeEntities: EdgeEntity[]
 ): {
@@ -183,6 +184,7 @@ export const answerObjectsToReactFlowObject = (
 
   // construct positioned graph
   const computedNodes = constructGraph(
+    graph,
     filteredNodeEntities,
     filteredEdgeEntities
   )

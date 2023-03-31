@@ -240,26 +240,28 @@ export const hasHiddenExpandId = (text: string) => {
 }
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 export const constructGraph = (
+  graph: dagre.graphlib.Graph<{}>,
   nodeEntities: NodeEntity[],
   edgeEntities: EdgeEntity[]
 ) => {
   // https://github.com/dagrejs/dagre/wiki#an-example-layout
-  var pseudoGraph = new dagre.graphlib.Graph()
-  pseudoGraph.setGraph({
+  graph.setGraph({
     rankdir: 'LR',
     // align: 'UL',
     ranksep: 100,
     nodesep: 30,
     // ranker: 'longest-path',
   })
-  pseudoGraph.setDefaultEdgeLabel(function () {
+  graph.setDefaultEdgeLabel(function () {
     return ''
   })
 
   nodeEntities.forEach(nodeE => {
-    pseudoGraph.setNode(nodeE.id, {
+    graph.setNode(nodeE.id, {
       label: nodeE.id,
       width: hardcodedNodeWidthEstimation(nodeE.displayNodeLabel),
       height: hardcodedNodeSize.height,
@@ -268,13 +270,13 @@ export const constructGraph = (
 
   edgeEntities.forEach(edgeE => {
     const edgePair = edgeE.edgePairs[0]
-    pseudoGraph.setEdge(edgePair.sourceId, edgePair.targetId, {
+    graph.setEdge(edgePair.sourceId, edgePair.targetId, {
       label: edgeE.edgeLabel,
     })
   })
 
   // ! compute
-  dagre.layout(pseudoGraph)
+  dagre.layout(graph)
 
   // print the graph
   const nodes: {
@@ -282,11 +284,11 @@ export const constructGraph = (
     x: number
     y: number
   }[] = []
-  pseudoGraph.nodes().forEach(v => {
+  graph.nodes().forEach(v => {
     nodes.push({
-      id: pseudoGraph.node(v).label as string,
-      x: pseudoGraph.node(v).x,
-      y: pseudoGraph.node(v).y,
+      id: graph.node(v).label as string,
+      x: graph.node(v).x,
+      y: graph.node(v).y,
     })
   })
 

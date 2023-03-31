@@ -1,4 +1,11 @@
-import React, { createContext, useCallback, useContext, useState } from 'react'
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from 'react'
+import dagre from 'dagre'
 import { PuffLoader } from 'react-spinners'
 
 import VerticalSplitRoundedIcon from '@mui/icons-material/VerticalSplitRounded'
@@ -43,6 +50,8 @@ export const Answer = () => {
 
   const { setNodes, setEdges } = useReactFlow()
 
+  const stableDagreGraph = useRef(new dagre.graphlib.Graph())
+
   const nodeEntities = answerObjects.reduce(
     (acc, { nodeEntities }) => [...acc, ...nodeEntities],
     [] as NodeEntity[]
@@ -55,6 +64,7 @@ export const Answer = () => {
 
   useEffectEqual(() => {
     const { nodes: newNodes, edges: newEdges } = answerObjectsToReactFlowObject(
+      stableDagreGraph.current,
       nodeEntities,
       edgeEntities
     )
