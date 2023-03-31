@@ -57,20 +57,26 @@ export const predefinedPrompts = {
     return [
       {
         role: 'system',
-        content: `You are a helpful, knowledgeable, and clever assistant. \
+        content: `You are a knowledgeable and clever assistant and a comprehensive sentence parser. \
 Please provide a well-structured response to the user's question in multiple paragraphs. \
 The paragraphs should cover the most important aspects of the answer, with each discussing a different aspect or topic. \
-The relationships in the sentences should be labeled with [node 1 ($N1)] [relationship 1 ($N1, $N2)] [node 2 ($N2)]. The node identifier should have numbers only.
+\
+Annotate each sentence in the response inline with the entities and relationships. \
+Entities should be annotated with [entity ($N1)]. For example, [Artificial Intelligence ($N1)]. \
+Relationships should be annotated with the associated entities and saliency of a relationship as high ($H), medium ($M), or low ($L), \
+in the format of [relationship ($H, $N1, $N2)]. For example, [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
+Relationships of high saliency are often reported in summaries. Relationships of low saliency are often omitted in summaries. \
+Every entity should be annotated with at least one relationship, and relationships should only connect entities that appear in the response.
 
-Example:
-[Artificial Intelligence (AI) ($N1)] [is a ($N1, $N2)] [field of computer science ($N2)] that [creates ($N1, $N3)] [intelligent machines ($N3)]. \
-[These machines ($N3)] [possess ($N3, $N4)] [capabilities ($N4)] [such as ($N4, $N5; $N4, $N6; $N4, $N7; $N4, $N8)] \
+A complete example:
+[Artificial Intelligence (AI) ($N1)] [is a ($H, $N1, $N2)] [field of computer science ($N2)] that [creates ($H, $N1, $N3)] [intelligent machines ($N3)]. \
+[These machines ($N3)] [possess ($H, $N3, $N4)] [capabilities ($N4)] [such as ($M, $N4, $N5; $M, $N4, $N6; $M, $N4, $N7; $M, $N4, $N8)] \
 [learning ($N5)], \
 [reasoning ($N6)], \
 [perception ($N7)], \
 and [problem-solving ($N8)]. \
-[AI systems ($N1)] can be [divided into ($N1, $N9; $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
-[Narrow AI ($N9)] [is designed for ($N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($N10, $N12)] [mimic human intelligence ($N12)].`,
+[AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
+[Narrow AI ($N9)] [is designed for ($M, $N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($M, $N10, $N12)] [mimic human intelligence ($N12)].`,
       },
       {
         role: 'user',
@@ -78,32 +84,17 @@ and [problem-solving ($N8)]. \
       },
     ]
   },
-  _graph_sentenceCorrection: (
+  _graph_sentenceCorrectionMissingRelationship: (
     prevConversation: Prompt[],
-    question: string
+    nodeMissingRelationship: string,
+    nodeOriginalSentence: string
   ): Prompt[] => {
     return [
       ...prevConversation,
       {
-        role: 'system',
-        content: `You are a helpful, knowledgeable, and clever assistant. \
-Please provide a well-structured response to the user's question in multiple paragraphs. \
-The paragraphs should cover the most important aspects of the answer, with each discussing a different aspect or topic. \
-The relationships in the sentences should be labeled with [node 1 ($N1)] [relationship 1 ($N1, $N2)] [node 2 ($N2)]. The node identifier should have numbers only.
-
-Example:
-[Artificial Intelligence (AI) ($N1)] [is a ($N1, $N2)] [field of computer science ($N2)] that [creates ($N1, $N3)] [intelligent machines ($N3)]. \
-[These machines ($N3)] [possess ($N3, $N4)] [capabilities ($N4)] [such as ($N4, $N5; $N4, $N6; $N4, $N7; $N4, $N8)] \
-[learning ($N5)], \
-[reasoning ($N6)], \
-[perception ($N7)], \
-and [problem-solving ($N8)]. \
-[AI systems ($N1)] can be [divided into ($N1, $N9; $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
-[Narrow AI ($N9)] [is designed for ($N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($N10, $N12)] [mimic human intelligence ($N12)].`,
-      },
-      {
         role: 'user',
-        content: question,
+        content: `In the sentence "${nodeOriginalSentence}", the entity ${nodeMissingRelationship} was mentioned but not connected by any relationship. \
+Can you rewrite this sentence to correctly annotate the entities and relationships?`,
       },
     ]
   },

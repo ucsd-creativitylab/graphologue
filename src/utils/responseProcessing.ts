@@ -8,7 +8,7 @@ import {
 export const nodeAnnotationRegex =
   /\[([^[\]()]+(?:\([^)]*\))*)\s\((\$N\d+)\)\]/g
 export const edgeAnnotationRegex =
-  /\[([^[\]()]+?)\s\(((?:\$N\d+(?:,\s\$N\d+)+;?\s?)+)\)\]/g
+  /\[((?:(?!\[).)+) \((\$[HML], \$N\d+, \$N\d+(?:; ?\$[HML], \$N\d+, \$N\d+)*)\)\]/g
 export const AnnotationRemovalRegex =
   /\[([^[\]]+?)\s\((?:\$N\d+(?:,\s\$N\d+)*(?:;\s?)?)+\)\]/g
 
@@ -52,7 +52,20 @@ export const removeAnnotations = (text: string) => {
 
 export type AnnotationType = 'node' | 'edge' | 'none'
 
+export type RelationshipSaliency = 'high' | 'medium' | 'low'
+
+export const Saliency: {
+  H: RelationshipSaliency
+  M: RelationshipSaliency
+  L: RelationshipSaliency
+} = {
+  H: 'high',
+  M: 'medium',
+  L: 'low',
+}
+
 export interface EdgePair {
+  saliency: RelationshipSaliency
   sourceId: string
   targetId: string
 }
@@ -100,13 +113,20 @@ export const parseEdges = (
   const matches = [...annotatedRelationshipString.matchAll(edgeAnnotationRegex)]
   return matches.map(match => {
     const edgeLabel = match[1]
-    const edgePairs = match[2].split(';').map(pair => {
-      const nodes = pair.split(',').map(node => node.trim())
-      return {
-        sourceId: nodes[0],
-        targetId: nodes[1],
-      }
-    })
+    const edgePairs = match[2]
+      .split(';')
+      .map(pair => {
+        const nodes = pair.split(',').map(node => node.trim())
+
+        if (nodes.length !== 3) return null
+
+        return {
+          saliency: parseSaliency(nodes[0]),
+          sourceId: nodes[1],
+          targetId: nodes[2],
+        }
+      })
+      .filter(pair => pair !== null) as EdgePair[]
     return {
       edgeLabel,
       edgePairs,
@@ -117,6 +137,13 @@ export const parseEdges = (
       originText: match[0],
     }
   })
+}
+
+export const parseSaliency = (saliency: string): RelationshipSaliency => {
+  if (saliency === '$H') return 'high'
+  if (saliency === '$M') return 'medium'
+  if (saliency === '$L') return 'low'
+  return 'medium' // ?
 }
 
 export const nodeIndividualsToNodeEntities = (

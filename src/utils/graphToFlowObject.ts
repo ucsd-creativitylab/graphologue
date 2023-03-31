@@ -85,7 +85,7 @@ export const answerObjectsToReactFlowObject = (
       const pseudoNodeId = `${nodeLabelling}-${originRange.start}-${originRange.end}`
       const addedPairs: EdgePair[] = []
 
-      edgePairs.forEach(({ sourceId, targetId }, index) => {
+      edgePairs.forEach(({ saliency, sourceId, targetId }, index) => {
         // add one pseudo node
         // const pseudoNodeId = `${nodeLabelling}-${sourceId}-${targetId}`
 
@@ -107,6 +107,7 @@ export const answerObjectsToReactFlowObject = (
 
         // extended edge 1 - source to pseudo node
         const sourceToPseudoPair = {
+          saliency,
           sourceId,
           targetId: pseudoNodeId,
         }
@@ -122,6 +123,7 @@ export const answerObjectsToReactFlowObject = (
 
         // extended edge 2 - pseudo node to target
         const pseudoToTargetPair = {
+          saliency,
           sourceId: pseudoNodeId,
           targetId,
         }
