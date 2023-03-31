@@ -14,6 +14,7 @@ import {
   nodeLabelling,
 } from './responseProcessing'
 import { getHandleId } from './utils'
+// import { smartLayout } from './smartLayout'
 
 /* -------------------------------------------------------------------------- */
 
@@ -168,8 +169,34 @@ export const answerObjectsToReactFlowObject = (
     return sourceId !== targetId
   })
 
+  const filteredNodeEntities = nodeEntities.filter(nodeEntity => {
+    // eliminate orphan nodes
+    const { id } = nodeEntity
+    return (
+      filteredEdgeEntities.find(
+        edgeEntity =>
+          edgeEntity.edgePairs[0].sourceId === id ||
+          edgeEntity.edgePairs[0].targetId === id
+      ) !== undefined
+    )
+  })
+
   // construct positioned graph
-  const computedNodes = constructGraph(nodeEntities, filteredEdgeEntities)
+  const computedNodes = constructGraph(
+    filteredNodeEntities,
+    filteredEdgeEntities
+  )
+  // const computedNodes = await smartLayout(
+  //   filteredNodeEntities.map(nodeEntity => ({
+  //     id: nodeEntity.id,
+  //     width: hardcodedNodeWidthEstimation(nodeEntity.displayNodeLabel),
+  //     height: hardcodedNodeSize.height,
+  //   })),
+  //   filteredEdgeEntities.map(edgeEntity => [
+  //     edgeEntity.edgePairs[0].sourceId,
+  //     edgeEntity.edgePairs[0].targetId,
+  //   ])
+  // )
 
   const newNodesTracker: {
     [nodeId: string]: {

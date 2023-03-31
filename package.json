@@ -7,8 +7,8 @@
     "@emotion/styled": "^11.10.6",
     "@mui/icons-material": "^5.11.11",
     "@mui/material": "^5.11.15",
-    "@react-buddy/ide-toolbox": "^2.3.1",
-    "@react-buddy/palette-mui": "^5.0.1",
+    "cytoscape": "^3.23.0",
+    "d3-hierarchy": "^3.1.2",
     "dagre": "^0.8.5",
     "openai": "^3.2.1",
     "react": "^18.2.0",
@@ -51,9 +51,7 @@
     ]
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/user-event": "^14.4.3",
+    "@types/cytoscape": "^3.19.9",
     "@types/dagre": "^0.7.48",
     "@types/jest": "^29.5.0",
     "@types/node": "^18.15.11",

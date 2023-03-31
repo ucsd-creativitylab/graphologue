@@ -16,17 +16,20 @@ import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 import { rangeToId } from '../utils/chatAppUtils'
 import { InterchangeContext } from './Interchange'
 import { SlideAnswerText } from './SlideAnswer'
+import { useReactFlow } from 'reactflow'
+import { useEffectEqual } from '../utils/useEffectEqual'
+import { answerObjectsToReactFlowObject } from '../utils/graphToFlowObject'
 
 export interface ReactFlowObjectContextProps {
-  nodeEntities: NodeEntity[]
-  edgeEntities: EdgeEntity[]
+  // nodeEntities: NodeEntity[]
+  // edgeEntities: EdgeEntity[]
   generatingFlow: boolean
 }
 
 export const ReactFlowObjectContext =
   createContext<ReactFlowObjectContextProps>({
-    nodeEntities: [],
-    edgeEntities: [],
+    // nodeEntities: [],
+    // edgeEntities: [],
     generatingFlow: false,
   })
 
@@ -37,6 +40,28 @@ export const Answer = () => {
     answerObjects,
     modelStatus: { modelParsing },
   } = questionAndAnswer as QuestionAndAnswer
+
+  const { setNodes, setEdges } = useReactFlow()
+
+  const nodeEntities = answerObjects.reduce(
+    (acc, { nodeEntities }) => [...acc, ...nodeEntities],
+    [] as NodeEntity[]
+  )
+
+  const edgeEntities = answerObjects.reduce(
+    (acc, { edgeEntities }) => [...acc, ...edgeEntities],
+    [] as EdgeEntity[]
+  )
+
+  useEffectEqual(() => {
+    const { nodes: newNodes, edges: newEdges } = answerObjectsToReactFlowObject(
+      nodeEntities,
+      edgeEntities
+    )
+
+    setNodes(newNodes)
+    setEdges(newEdges)
+  }, [nodeEntities, edgeEntities])
 
   return (
     <div className="answer-wrapper">
@@ -53,14 +78,14 @@ export const Answer = () => {
       {/* 1 */}
       <ReactFlowObjectContext.Provider
         value={{
-          nodeEntities: answerObjects.reduce(
-            (acc, { nodeEntities }) => [...acc, ...nodeEntities],
-            [] as NodeEntity[]
-          ),
-          edgeEntities: answerObjects.reduce(
-            (acc, { edgeEntities }) => [...acc, ...edgeEntities],
-            [] as EdgeEntity[]
-          ),
+          // nodeEntities: answerObjects.reduce(
+          //   (acc, { nodeEntities }) => [...acc, ...nodeEntities],
+          //   [] as NodeEntity[]
+          // ),
+          // edgeEntities: answerObjects.reduce(
+          //   (acc, { edgeEntities }) => [...acc, ...edgeEntities],
+          //   [] as EdgeEntity[]
+          // ),
           generatingFlow: modelParsing,
         }}
       >

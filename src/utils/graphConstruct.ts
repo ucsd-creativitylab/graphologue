@@ -252,7 +252,7 @@ export const constructGraph = (
     // align: 'UL',
     ranksep: 100,
     nodesep: 30,
-    ranker: 'tight-tree',
+    // ranker: 'longest-path',
   })
   pseudoGraph.setDefaultEdgeLabel(function () {
     return ''

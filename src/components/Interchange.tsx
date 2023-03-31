@@ -8,6 +8,7 @@ import {
 import { Answer } from './Answer'
 import { ChatContext } from './Contexts'
 import { Question } from './Question'
+import { ReactFlowProvider } from 'reactflow'
 
 export interface InterchangeContextProps {
   questionAndAnswer: QuestionAndAnswer
@@ -59,8 +60,10 @@ export const Interchange = ({
       }}
     >
       <div className="interchange-item">
-        <Question key={`question-${data.id}`} />
-        {answer.length > 0 && <Answer key={`answer-${data.id}`} />}
+        <ReactFlowProvider>
+          <Question key={`question-${data.id}`} />
+          {answer.length > 0 && <Answer key={`answer-${data.id}`} />}
+        </ReactFlowProvider>
       </div>
     </InterchangeContext.Provider>
   )

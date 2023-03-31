@@ -17,7 +17,6 @@ import ReactFlow, {
   NodeTypes,
   EdgeTypes,
   ReactFlowInstance,
-  ReactFlowProvider,
   Node,
   Edge,
   Connection,
@@ -47,7 +46,6 @@ import {
   styles,
   useTokenDataTransferHandle,
   viewFittingOptions,
-  viewFittingPadding,
 } from '../constants'
 import { FlowContext } from '../components/Contexts'
 import { useTimeMachine } from '../utils/timeMachine'
@@ -58,7 +56,7 @@ import { EntityType } from '../utils/socket'
 import { CustomGroupNode } from './GroupNode'
 import { ModelForMagic } from '../utils/openAI'
 import { ReactFlowObjectContext } from '../components/Answer'
-import { answerObjectsToReactFlowObject } from '../utils/graphToFlowObject'
+// import { useLayout } from '../utils/useLayout'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -88,9 +86,7 @@ const edgeTypes = {
 
 const Flow = () => {
   // const { handleSetHighlighted } = useContext(InterchangeContext)
-  const { nodeEntities, edgeEntities, generatingFlow } = useContext(
-    ReactFlowObjectContext
-  )
+  const { generatingFlow } = useContext(ReactFlowObjectContext)
 
   const thisReactFlowInstance = useReactFlow()
   const {
@@ -104,34 +100,13 @@ const Flow = () => {
     getViewport,
   }: ReactFlowInstance = thisReactFlowInstance
 
+  // useLayout({
+  //   direction: 'LR',
+  // })
+
   // use default nodes and edges
   const [nodes, , onNodesChange] = useNodesState(defaultNodes)
   const [edges, , onEdgesChange] = useEdgesState(defaultEdges)
-
-  const fitViewFinished = useRef(true)
-  useEffect(() => {
-    const { nodes: newNodes, edges: newEdges } = answerObjectsToReactFlowObject(
-      nodeEntities,
-      edgeEntities
-    )
-
-    setNodes(newNodes)
-    setEdges(newEdges)
-
-    if (fitViewFinished.current)
-      setTimeout(() => {
-        fitView({
-          padding: viewFittingPadding,
-          duration: 300,
-        })
-
-        fitViewFinished.current = false
-
-        setTimeout(() => {
-          fitViewFinished.current = true
-        }, 300)
-      }, 5)
-  }, [setNodes, setEdges, fitView, nodeEntities, edgeEntities])
 
   // const onNodesChange = useCallback(() => {}, [])
   // const onEdgesChange = useCallback(() => {}, [])
@@ -740,7 +715,7 @@ const ReactFlowComponent = memo(({ id }: { id: string }) =>
     /* -------------------------------------------------------------------------- */
 
     return (
-      <ReactFlowProvider>
+      <>
         {/* <Flow notesOpened={notesOpened} setNotesOpened={setNotesOpened} /> */}
         <Flow key={`flow-${id}`} />
         {/* <NotebookContext.Provider
@@ -755,7 +730,7 @@ const ReactFlowComponent = memo(({ id }: { id: string }) =>
       >
         <NoteBook notebookRef={notebookRef} />
       </NotebookContext.Provider> */}
-      </ReactFlowProvider>
+      </>
     )
   }, isEqual)
 
