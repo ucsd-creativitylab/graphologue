@@ -31,6 +31,8 @@ export const Interchange = ({
 }: InterchangeProps) => {
   const { setQuestionsAndAnswers } = useContext(ChatContext)
 
+  // const answerItemRef = createRef<HTMLDivElement>()
+
   const handleSetHighlighted = useCallback(
     (highlighted: QuestionAndAnswerHighlighted) => {
       setQuestionsAndAnswers(

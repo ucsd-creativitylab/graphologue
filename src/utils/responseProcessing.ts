@@ -142,7 +142,6 @@ export const nodeIndividualsToNodeEntities = (
   })
 
   console.log(nodeEntities)
-
   return nodeEntities
 }
 

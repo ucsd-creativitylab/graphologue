@@ -60,6 +60,7 @@ export const Question = () => {
   } = useContext(InterchangeContext)
 
   const [activated, setActivated] = useState(false) // show text box or not
+  const questionItemRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
@@ -187,6 +188,15 @@ export const Question = () => {
     sentenceParser.current.reset() // ? still needed?
 
     textareaRef.current?.blur()
+
+    // scroll to the question item (questionItemRef)
+    setTimeout(() => {
+      if (questionItemRef.current) {
+        questionItemRef.current.scrollIntoView({
+          behavior: 'smooth',
+        })
+      }
+    }, 1000)
   }, [id, question, setQuestionsAndAnswers])
 
   const handleParsingCompleteAnswerObject = useCallback(
@@ -498,7 +508,10 @@ export const Question = () => {
   }, [id, setQuestionsAndAnswers])
 
   return (
-    <div className="question-item interchange-component drop-up">
+    <div
+      ref={questionItemRef}
+      className="question-item interchange-component drop-up"
+    >
       {activated ? (
         <>
           <textarea

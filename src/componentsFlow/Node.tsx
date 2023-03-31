@@ -23,8 +23,9 @@ import {
   useReactFlow,
 } from 'reactflow'
 import { ColorResult, TwitterPicker } from 'react-color'
+import tinycolor from 'tinycolor2'
 
-import { hardcodedNodeSize, viewFittingOptions } from '../constants'
+import { hardcodedNodeSize, styles, viewFittingOptions } from '../constants'
 import { FlowContext } from '../components/Contexts'
 import { MagicNodeData } from './MagicNode'
 import {
@@ -229,7 +230,19 @@ export const CustomNode = memo(
             textareaRef={textAreaRef}
           > */}
           <div className="super-wrapper super-wrapper-static-text">
-            <span className="node-label">{label}</span>
+            <span
+              className="node-label"
+              style={{
+                color:
+                  styleBackground === styles.nodeColorDefaultWhite
+                    ? '#333333'
+                    : tinycolor(styleBackground).isDark()
+                    ? 'white'
+                    : tinycolor(styleBackground).darken(45).toHexString(),
+              }}
+            >
+              {label}
+            </span>
             {!moreThanOneComponentsSelected && selected ? (
               <MagicToolbox
                 className={`edge-label-toolbox${
