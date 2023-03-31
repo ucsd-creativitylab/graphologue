@@ -75,11 +75,20 @@ export const answerObjectsToReactFlowObject = (
     const { edgeLabel, edgePairs, originRange, originText } = rawEdgeEntity
 
     if (edgePairs.length === 1) {
-      edgeEntities.push(rawEdgeEntity)
+      edgePairs.forEach((edgePair, index) => {
+        edgeEntities.push({
+          edgeLabel,
+          edgePairs: [edgePair],
+          originRange,
+          originText,
+        })
 
-      const { sourceId, targetId } = edgePairs[0]
-      _addMentionedNode(nodeIdsMentionedByEdges, sourceId, rawEdgeEntity)
-      _addMentionedNode(nodeIdsMentionedByEdges, targetId, rawEdgeEntity)
+        // edgeEntities.push(rawEdgeEntity)
+
+        const { sourceId, targetId } = edgePair
+        _addMentionedNode(nodeIdsMentionedByEdges, sourceId, rawEdgeEntity)
+        _addMentionedNode(nodeIdsMentionedByEdges, targetId, rawEdgeEntity)
+      })
     } else {
       // split the edge
       const pseudoNodeId = `${nodeLabelling}-${originRange.start}-${originRange.end}`

@@ -1,12 +1,17 @@
 import React, { memo } from 'react'
-import { EdgeProps, getBezierPath } from 'reactflow'
-import { CustomEdgeData } from './Edge'
+import { EdgeProps, getSmoothStepPath } from 'reactflow'
+import { CustomEdgeData, EdgeCustomLabel } from './Edge'
 import { styles } from '../constants'
 import { getMarkerId } from './CustomDefs'
+import { hardcodedEdgeLabelWidthEstimation } from './Node'
 
 export const SimpleEdge = memo(
   ({
     id,
+    source,
+    target,
+    sourceHandleId,
+    targetHandleId,
     sourceX,
     sourceY,
     targetX,
@@ -20,7 +25,7 @@ export const SimpleEdge = memo(
   }: EdgeProps) => {
     const { customType } = data as CustomEdgeData
 
-    const [edgePath] = getBezierPath({
+    const [edgePath] = getSmoothStepPath({
       sourceX,
       sourceY,
       sourcePosition,
@@ -64,7 +69,7 @@ export const SimpleEdge = memo(
           }
           markerEnd={customMarkerEnd}
         />
-        <text>
+        {/* <text>
           <textPath
             href={`#${id}`}
             style={{ fontSize: 12 }}
@@ -73,8 +78,43 @@ export const SimpleEdge = memo(
           >
             {data.label}
           </textPath>
-        </text>
+        </text> */}
+        <EdgeCustomLabel
+          edgeId={id}
+          edgeData={data as CustomEdgeData}
+          labelX={getEdgeLabelXPosition(
+            data.label,
+            sourceX,
+            sourceY,
+            targetX,
+            targetY
+          )}
+          labelY={targetY}
+          connection={{
+            source,
+            target,
+            sourceHandle: sourceHandleId || null,
+            targetHandle: targetHandleId || null,
+          }}
+          selected={selected || false}
+        />
       </>
     )
   }
 )
+
+const getEdgeLabelXPosition = (
+  content: string,
+  sourceX: number,
+  sourceY: number,
+  targetX: number,
+  targetY: number
+) => {
+  if (sourceY === targetY) return (sourceX + targetX) / 2
+  else
+    return (
+      targetX -
+      (targetX - sourceX) / 2 -
+      (hardcodedEdgeLabelWidthEstimation(content) / 2 + 10) /* gap */
+    )
+}

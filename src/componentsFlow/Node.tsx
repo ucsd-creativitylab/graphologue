@@ -462,3 +462,18 @@ export const hardcodedNodeWidthEstimation = (content: string) => {
   // if (content.length < 16) return hardcodedNodeSize.width
   // return Math.max(210, 64 + content.length * 8) // TODO better ways?
 }
+
+export const hardcodedEdgeLabelWidthEstimation = (content: string) => {
+  // make a pseudo node to estimate width
+  const pseudoNode = document.createElement('span')
+  pseudoNode.className = 'edge-label-width-measuring-span'
+  pseudoNode.innerText = content
+  document.body.appendChild(pseudoNode)
+  const width = pseudoNode.offsetWidth
+  document.body.removeChild(pseudoNode)
+
+  return width
+
+  // if (content.length < 16) return hardcodedNodeSize.width
+  // return Math.max(210, 64 + content.length * 8) // TODO better ways?
+}

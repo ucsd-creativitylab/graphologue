@@ -33,7 +33,12 @@ import {
   hardcodedNodeWidthEstimation,
 } from '../componentsFlow/Node'
 import { getGraphBounds } from '../utils/utils'
-import { hardcodedNodeSize, viewFittingOptions } from '../constants'
+import {
+  hardcodedNodeSize,
+  transitionDuration,
+  viewFittingOptions,
+} from '../constants'
+import { removeAnnotations } from '../utils/responseProcessing'
 
 export interface ReactFlowObjectContextProps {
   // nodeEntities: NodeEntity[]
@@ -139,7 +144,7 @@ export const Answer = () => {
 
         fitView({
           ...viewFittingOptions,
-          duration: 900, // TODO best?
+          duration: transitionDuration, // TODO best?
           minZoom: 1,
           maxZoom: 1,
           nodes: changedNodeSnippets.map(n => ({ id: n.id })),
@@ -374,10 +379,10 @@ const AnswerText = ({
   highlightedRanges: OriginAnswerRange[]
   slicingRange: OriginAnswerRange
 }) => {
-  // const displayText = removeAnnotations(
-  //   rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
-  // )
-  const displayText = rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
+  const displayText = removeAnnotations(
+    rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
+  )
+  // const displayText = rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
 
   highlightedRanges.sort((a, b) => a.start - b.start)
 

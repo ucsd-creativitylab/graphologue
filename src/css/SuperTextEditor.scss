@@ -76,6 +76,15 @@
   font-weight: $font-weight-thin;
 }
 
+.edge-label-width-measuring-span {
+  display: inline-flex;
+  padding: $padding-xs $padding-xs;
+
+  font-family: inherit;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-default;
+}
+
 .super-wrapper-node {
   // https://css-tricks.com/auto-growing-inputs-textareas/
   display: inline-grid;

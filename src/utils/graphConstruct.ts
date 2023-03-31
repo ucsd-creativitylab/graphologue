@@ -252,8 +252,8 @@ export const constructGraph = (
   graph.setGraph({
     rankdir: 'LR',
     // align: 'UL',
-    ranksep: 100,
-    nodesep: 30,
+    ranksep: 120, // !
+    nodesep: 30, // !
     // ranker: 'longest-path',
   })
   graph.setDefaultEdgeLabel(function () {
