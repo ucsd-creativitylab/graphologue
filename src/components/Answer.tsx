@@ -5,7 +5,9 @@ import React, {
   useRef,
   useState,
 } from 'react'
+import { useReactFlow } from 'reactflow'
 import dagre from 'dagre'
+import isEqual from 'react-fast-compare'
 import { PuffLoader } from 'react-spinners'
 
 import VerticalSplitRoundedIcon from '@mui/icons-material/VerticalSplitRounded'
@@ -23,9 +25,15 @@ import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 import { rangeToId } from '../utils/chatAppUtils'
 import { InterchangeContext } from './Interchange'
 import { SlideAnswerText } from './SlideAnswer'
-import { useReactFlow } from 'reactflow'
 import { useEffectEqual } from '../utils/useEffectEqual'
 import { answerObjectsToReactFlowObject } from '../utils/graphToFlowObject'
+import {
+  CustomNodeData,
+  NodeSnippet,
+  hardcodedNodeWidthEstimation,
+} from '../componentsFlow/Node'
+import { getGraphBounds } from '../utils/utils'
+import { hardcodedNodeSize, viewFittingOptions } from '../constants'
 
 export interface ReactFlowObjectContextProps {
   // nodeEntities: NodeEntity[]
@@ -48,12 +56,12 @@ export const Answer = () => {
     modelStatus: { modelParsing },
   } = questionAndAnswer as QuestionAndAnswer
 
-  const { setNodes, setEdges } = useReactFlow()
+  const { setNodes, setEdges, fitView } = useReactFlow()
 
   const stableDagreGraph = useRef(new dagre.graphlib.Graph())
 
-  // const prevNodes = useRef<NodeEntity[]>([])
-  // const prevEdges = useRef<EdgeEntity[]>([])
+  const prevNodeSnippets = useRef<NodeSnippet[]>([])
+  // const prevEdges = useRef<Edge[]>([])
 
   const nodeEntities = answerObjects.reduce(
     (acc, { nodeEntities }) => [...acc, ...nodeEntities],
@@ -75,8 +83,67 @@ export const Answer = () => {
     setNodes(newNodes)
     setEdges(newEdges)
 
-    // prevNodeEntities.current = nodeEntities
-    // prevEdgeEntities.current = edgeEntities
+    const newNodeSnippets: NodeSnippet[] = newNodes.map(n => ({
+      id: n.id,
+      label: (n.data as CustomNodeData).label,
+      position: {
+        x: n.position.x,
+        y: n.position.y,
+      },
+      width: n.width ?? hardcodedNodeWidthEstimation(n.data.label),
+      height: n.height ?? hardcodedNodeSize.height,
+    }))
+
+    const changedNodeSnippets = [
+      ...newNodeSnippets.filter(n => {
+        const foundPrevNode = prevNodeSnippets.current.find(
+          pN => pN.id === n.id
+        )
+        return !foundPrevNode || !isEqual(foundPrevNode, n)
+      }),
+      ...prevNodeSnippets.current.filter(
+        pN => !newNodeSnippets.find(n => n.id === pN.id || n.label !== pN.label)
+      ),
+    ]
+
+    // view tracker
+    setTimeout(() => {
+      // get bounding
+      const bounding = getGraphBounds(newNodes)
+
+      const reactFlowWrapperElement = document.querySelector(
+        '.react-flow-wrapper'
+      ) as HTMLElement // they are all the same size
+
+      // get the width and height of the react flow wrapper
+      const { width, height } = reactFlowWrapperElement.getBoundingClientRect()
+
+      if (bounding.width < width && bounding.height < height) {
+        fitView(viewFittingOptions)
+      } else {
+        // find changed nodes and edges
+
+        // get bounding of changed nodes
+        if (changedNodeSnippets.length === 0) return
+
+        fitView({
+          ...viewFittingOptions,
+          duration: 900, // TODO best?
+          minZoom: 1,
+          maxZoom: 1,
+          nodes: changedNodeSnippets.map(n => ({ id: n.id })),
+        })
+
+        // setViewport(
+        //   { x, y, zoom: 1 },
+        //   {
+        //     duration: viewFittingOptions.duration,
+        //   }
+        // )
+      }
+    }, 50) // wait for react flow to update
+
+    prevNodeSnippets.current = newNodeSnippets
   }, [
     // we don't care about individuals
     nodeEntities.map(nE =>

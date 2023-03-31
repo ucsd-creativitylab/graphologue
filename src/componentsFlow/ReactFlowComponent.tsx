@@ -518,7 +518,7 @@ const Flow = () => {
         setModel: setModelForMagic,
       }}
     >
-      <div id="react-flow-wrapper" ref={reactFlowWrapper}>
+      <div className="react-flow-wrapper" ref={reactFlowWrapper}>
         <ReactFlow
           className={`${metaPressed ? 'flow-meta-pressed' : ''}${
             generatingFlow ? ' generating-flow' : ''

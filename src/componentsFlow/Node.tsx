@@ -44,6 +44,17 @@ export interface GeneratedInformation {
   originTexts: string[]
 }
 
+export interface NodeSnippet {
+  id: string
+  label: string
+  position: {
+    x: number
+    y: number
+  }
+  width: number
+  height: number
+}
+
 export interface CustomNodeData {
   label: string
   tags: string[]

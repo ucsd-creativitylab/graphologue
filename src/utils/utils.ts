@@ -1,6 +1,6 @@
 import { Edge, Node, Position } from 'reactflow'
 import { v4 as uuidv4, v5 as uuidv5 } from 'uuid'
-import { CustomNodeData } from '../componentsFlow/Node'
+import { CustomNodeData, NodeSnippet } from '../componentsFlow/Node'
 import { hardcodedNodeSize, nodeGap, nodePosAdjustStep } from '../constants'
 import { PostConstructionPseudoNodeObject } from './graphConstruct'
 
@@ -148,7 +148,7 @@ export const getEdgeParams = (source: Node, target: Node) => {
 // get graph bounds
 
 export const getGraphBounds = (
-  nodes: Node[] | PostConstructionPseudoNodeObject[]
+  nodes: Node[] | NodeSnippet[] | PostConstructionPseudoNodeObject[]
 ) => {
   const bounds = {
     x: Infinity,
