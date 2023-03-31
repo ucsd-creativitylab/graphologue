@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-import ReactFlowComponent from './ReactFlowComponent'
+import { ChatApp } from './App'
 
 // ! the only css imports in ts/x files
 import './css/index.scss'
@@ -12,7 +12,7 @@ const root = ReactDOM.createRoot(document.getElementById('root')!)
 if (process.env.REACT_APP_DEV_IDE === 'code')
   root.render(
     <React.StrictMode>
-      <ReactFlowComponent />
+      <ChatApp />
     </React.StrictMode>
   )
 // root.render(<ReactFlowComponent />)

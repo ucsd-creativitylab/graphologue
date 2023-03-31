@@ -7,7 +7,7 @@ export const useTokenDataTransferHandle = '__reactFlowGraphologueToken__'
 export const useSessionStorageNotesHandle = '__reactFlowGraphologueNotes__'
 
 export const viewFittingPadding = 0.1
-export const transitionDuration = 600
+export const transitionDuration = 700
 export const viewFittingOptions = {
   padding: viewFittingPadding,
   duration: transitionDuration,

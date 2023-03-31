@@ -1,8 +1,8 @@
 import { Edge, Node, ReactFlowJsonObject } from 'reactflow'
 
 import { useSessionStorage, useSessionStorageHandle } from '../constants'
-import { CustomEdgeData } from '../components/Edge'
-import { CustomNodeData } from '../components/Node'
+import { CustomEdgeData } from '../componentsFlow/Edge'
+import { CustomNodeData } from '../componentsFlow/Node'
 
 const standardViewport = {
   x: 0,
@@ -59,8 +59,9 @@ export const cleanStoredData = (
       .filter((node: Node) => {
         if (node.type !== 'custom') return true
 
-        const d = node.data as CustomNodeData
-        return d.generated.temporary !== true
+        // const d = node.data as CustomNodeData
+        // return d.generated.temporary !== true
+        return true
       }) || []
 
   const edges =
@@ -74,8 +75,9 @@ export const cleanStoredData = (
         return edge
       })
       .filter((edge: Edge) => {
-        const d = edge.data as CustomEdgeData
-        return d.generated.temporary !== true
+        // const d = edge.data as CustomEdgeData
+        // return d.generated.temporary !== true
+        return true
       }) || []
 
   return {
@@ -92,6 +94,9 @@ export const deepCopyNodes = (nodes: Node[]): Node[] => {
         ...n,
         data: {
           ...n.data,
+          generated: {
+            ...n.data.generated,
+          },
         } as CustomNodeData,
       }
     }) || []
@@ -105,6 +110,9 @@ export const deepCopyEdges = (edges: Edge[]): Edge[] => {
         ...e,
         data: {
           ...e.data,
+          generated: {
+            ...e.data.generated,
+          },
         } as CustomEdgeData,
       }
     }) || []

@@ -8,8 +8,8 @@ import {
 } from 'reactflow'
 import isEqual from 'react-fast-compare'
 
-import { CustomNodeData } from '../components/Node'
-import { CustomEdgeData } from '../components/Edge'
+import { CustomNodeData } from '../componentsFlow/Node'
+import { CustomEdgeData } from '../componentsFlow/Edge'
 import {
   deepCopyEdges,
   deepCopyNodes,

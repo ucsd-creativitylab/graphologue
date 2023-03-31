@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { Edge, Node, useReactFlow } from 'reactflow'
+import { Edge, Node, useReactFlow, useStore } from 'reactflow'
 import isEqual from 'react-fast-compare'
 import { PuffLoader } from 'react-spinners'
 
@@ -25,18 +25,18 @@ import {
   predefinedResponses,
 } from '../utils/promptsAndResponses'
 import { getWikiData } from '../utils/wikiBase'
-import { FlowContext } from './Contexts'
+import { FlowContext } from '../components/Contexts'
 
 interface MagicToolboxProps {
   className?: string
   children: ReactElement | ReactElement[]
-  zoom: number
+  // zoom: number
   onUnmount?: () => void
 }
 export const MagicToolbox = ({
   className,
   children,
-  zoom,
+  // zoom,
   onUnmount,
 }: MagicToolboxProps) => {
   // unmount
@@ -47,6 +47,7 @@ export const MagicToolbox = ({
   }, [onUnmount])
 
   const [expanded, setExpanded] = useState<boolean>(false)
+  const zoom = useStore(useCallback(store => store.transform[2], []))
 
   return (
     <div

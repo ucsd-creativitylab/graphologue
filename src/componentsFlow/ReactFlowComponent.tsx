@@ -37,11 +37,11 @@ import {
   customConnectionLineStyle,
   customEdgeOptions,
   getNewEdge,
-} from './components/Edge'
-import { customAddNodes, CustomNode, CustomNodeData } from './components/Node'
-import { CustomControls } from './components/CustomControl'
-import { CustomMarkerDefs } from './components/CustomDefs'
-import { Note, NoteBook } from './components/Notebook'
+} from './Edge'
+import { customAddNodes, CustomNode, CustomNodeData } from './Node'
+import { CustomControls } from './CustomControl'
+import { CustomMarkerDefs } from './CustomDefs'
+import { Note, NoteBook } from '../components/Notebook'
 import {
   hardcodedNodeSize,
   slowInteractionWaitTimeout,
@@ -49,17 +49,16 @@ import {
   useSessionStorageNotesHandle,
   useTokenDataTransferHandle,
   viewFittingOptions,
-} from './constants'
-import { FlowContext, NotebookContext } from './components/Contexts'
-import { getItem, storeItem } from './utils/storage'
-import { useTimeMachine } from './utils/timeMachine'
-import { roundTo, sleep } from './utils/utils'
-import { PromptSourceComponentsType } from './utils/magicExplain'
-import { MagicNode } from './components/MagicNode'
-import { EntityType } from './utils/socket'
-import { CustomGroupNode } from './components/GroupNode'
-import { ModelForMagic } from './utils/openAI'
-import { SimpleEdge } from './SimpleEdge'
+} from '../constants'
+import { FlowContext, NotebookContext } from '../components/Contexts'
+import { getItem, storeItem } from '../utils/storage'
+import { useTimeMachine } from '../utils/timeMachine'
+import { roundTo, sleep } from '../utils/utils'
+import { PromptSourceComponentsType } from '../utils/magicExplain'
+import { MagicNode } from './MagicNode'
+import { EntityType } from '../utils/socket'
+import { CustomGroupNode } from './GroupNode'
+import { ModelForMagic } from '../utils/openAI'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -78,7 +77,6 @@ const nodeTypes = {
 
 const edgeTypes = {
   custom: CustomEdge,
-  simple: SimpleEdge,
 } as EdgeTypes
 
 const Flow = ({
@@ -593,8 +591,6 @@ const Flow = ({
             redoTime={redoTime}
             canUndo={canUndo}
             canRedo={canRedo}
-            notesOpened={notesOpened}
-            setNotesOpened={setNotesOpened}
           />
           <Background color="#008ddf" />
         </ReactFlow>

@@ -1,3 +1,72 @@
+@mixin bar-button(
+  $button-bg: $white,
+  $button-color: $black,
+  $edge: $light,
+  $button-edge: $light
+) {
+  .bar-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: $padding-xs;
+
+    padding: $padding-small;
+    border: none;
+    outline: none;
+    border-radius: $padding-x-large;
+    user-select: none;
+
+    background: $button-bg;
+    box-shadow: $button-edge 0 0 0 rem-to-px(1rem);
+
+    z-index: 1;
+
+    cursor: pointer;
+
+    * {
+      color: $button-color;
+      font-size: $font-size-default;
+    }
+
+    span {
+      font-size: $font-size-small;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    &:hover:not(:disabled, .disabled) {
+      background: $button-edge;
+    }
+
+    &.bar-de-highlighted {
+      * {
+        color: $grey !important;
+      }
+    }
+
+    &:disabled,
+    &.disabled {
+      pointer-events: none !important;
+      cursor: not-allowed !important;
+      opacity: $opacity-high;
+
+      z-index: 1;
+    }
+
+    &.bar-un-clickable {
+      border: none;
+      outline: none;
+      color: $grey;
+      background: none;
+      pointer-events: none;
+
+      &:hover {
+        background: none;
+      }
+    }
+  }
+}
+
 @mixin the-bar(
   $radius: $radius-default,
   $bg: $white,
@@ -35,61 +104,8 @@
     flex-direction: row;
     gap: $padding-small;
     z-index: 1;
-  }
 
-  .bar-button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    padding: $padding-small;
-    border: none;
-    outline: none;
-    border-radius: 50%;
-    user-select: none;
-
-    background: $button-bg;
-    box-shadow: $button-edge 0 0 0 rem-to-px(1rem);
-
-    z-index: 1;
-
-    cursor: pointer;
-
-    * {
-      color: $button-color;
-      font-size: $font-size-default;
-    }
-
-    &:hover:not(:disabled, .disabled) {
-      background: $button-edge;
-    }
-
-    &.bar-de-highlighted {
-      * {
-        color: $grey !important;
-      }
-    }
-
-    &:disabled,
-    &.disabled {
-      pointer-events: all !important;
-      cursor: not-allowed !important;
-      opacity: $opacity-high;
-
-      z-index: 1;
-    }
-
-    &.bar-un-clickable {
-      border: none;
-      outline: none;
-      color: $grey;
-      background: none;
-      pointer-events: none;
-
-      &:hover {
-        background: none;
-      }
-    }
+    @include bar-button($button-bg, $button-color, $edge, $button-edge);
   }
 }
 

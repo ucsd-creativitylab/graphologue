@@ -9,14 +9,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import {
-  Edge,
-  FitView,
-  Instance,
-  Node,
-  NodeProps,
-  useReactFlow,
-} from 'reactflow'
+import { FitView, Instance, Node, NodeProps, useReactFlow } from 'reactflow'
 import isEqual from 'react-fast-compare'
 import { PuffLoader } from 'react-spinners'
 
@@ -41,11 +34,10 @@ import {
   hardcodedNodeSize,
   magicNodeVerifyPaperCountDefault,
   nodeGap,
-  styles,
   useTokenDataTransferHandle,
   viewFittingOptions,
 } from '../constants'
-import { FlowContext, NotebookContext } from './Contexts'
+import { FlowContext, NotebookContext } from '../components/Contexts'
 import {
   parseModelResponseText,
   PromptSourceComponentsType,
@@ -53,13 +45,9 @@ import {
 import {
   getCurrentTextSelection,
   getGraphBounds,
-  getHandleId,
   getMagicNodeId,
-  getNodeId,
   getNoteId,
-  getPositionOffsetForGeneratedNodes,
   isEmptyTokenization,
-  isStringRoughEqual,
   slowDeepCopy,
 } from '../utils/utils'
 import { MagicToolboxButton } from './MagicToolbox'
@@ -72,27 +60,16 @@ import {
   // WebSocketMessageType,
   WebSocketResponseType,
 } from '../utils/socket'
-import { deepCopyNodes, deepCopyEdges } from '../utils/storage'
+import { deepCopyNodes } from '../utils/storage'
 import {
   isValidResponse,
   predefinedPrompts,
   predefinedResponses,
 } from '../utils/promptsAndResponses'
-import { Scholar, SemanticScholarPaperEntity } from './Scholar'
-import { MagicNote, MagicNoteData } from './Notebook'
-import {
-  constructGraph,
-  constructGraphRelationsFromResponse,
-  hasHiddenExpandId,
-  PostConstructionPseudoNodeObject,
-  removeHiddenExpandId,
-} from '../utils/magicGraphConstruct'
-import {
-  CustomNodeData,
-  getNewCustomNode,
-  hardcodedNodeWidthEstimation,
-} from './Node'
-import { getNewEdge } from './Edge'
+import { Scholar, SemanticScholarPaperEntity } from '../components/Scholar'
+import { MagicNote, MagicNoteData } from '../components/Notebook'
+import { constructGraphRelationsFromResponse } from '../utils/graphConstruct'
+import { CustomNodeData } from './Node'
 import { MagicTokenizedText } from './MagicToken'
 import { VerifyLink } from '../utils/verification'
 
@@ -128,10 +105,10 @@ export const MagicNode = memo(
     const {
       getNode,
       setNodes,
-      getNodes,
-      // getEdge,
-      setEdges,
-      getEdges,
+      // getNodes,
+      // getEdge, ////
+      // setEdges,
+      // getEdges,
       deleteElements,
       fitView,
       fitBounds,
@@ -694,7 +671,7 @@ export const MagicNode = memo(
     /* -------------------------------------------------------------------------- */
 
     // ! text to graph
-
+    /*
     const handleConstructGraph = useCallback(
       (relationships: string[][]) => {
         const computedNodes = constructGraph(relationships)
@@ -798,6 +775,8 @@ export const MagicNode = memo(
                   : styles.nodeColorDefaultWhite, // expanded edge label will be grey
                 {
                   temporary: true,
+                  sourceAnswerObjectIds: new Set(),
+                  sourceOrigins: [],
                 }
               )
             )
@@ -824,6 +803,8 @@ export const MagicNode = memo(
                 editing: false,
                 generated: {
                   temporary: true,
+                  sourceAnswerObjectIds: new Set(),
+                  sourceOrigins: [],
                 },
               }
             )
@@ -872,6 +853,7 @@ export const MagicNode = memo(
         setNodes,
       ]
     )
+    */
 
     /* -------------------------------------------------------------------------- */
     /* -------------------------------------------------------------------------- */
@@ -1021,24 +1003,24 @@ export const MagicNode = memo(
                             </>
                           }
                           onClick={async () => {
-                            const textSelection = getCurrentTextSelection()
-                            if (textSelection) {
-                              setResolvingTextSelectionExtractedRelationships(
-                                true
-                              )
-                              handleConstructGraph(
-                                await constructGraphRelationsFromResponse(
-                                  textSelection,
-                                  handleGetUserEntities(),
-                                  model
-                                )
-                              )
-                              setResolvingTextSelectionExtractedRelationships(
-                                false
-                              )
-                            } else {
-                              handleConstructGraph(rawGraphRelationships)
-                            }
+                            // const textSelection = getCurrentTextSelection()
+                            // if (textSelection) {
+                            //   setResolvingTextSelectionExtractedRelationships(
+                            //     true
+                            //   )
+                            //   handleConstructGraph(
+                            //     await constructGraphRelationsFromResponse(
+                            //       textSelection,
+                            //       handleGetUserEntities(),
+                            //       model
+                            //     )
+                            //   )
+                            //   setResolvingTextSelectionExtractedRelationships(
+                            //     false
+                            //   )
+                            // } else {
+                            //   handleConstructGraph(rawGraphRelationships)
+                            // }
                           }}
                           disabled={
                             resolvingTextSelectionExtractedRelationships ||
@@ -1086,7 +1068,7 @@ export const MagicNode = memo(
                               </p>
                               <div className="verify-options">
                                 {renderedVerifyEntities.searchQueries.map(
-                                  (query, i) => (
+                                  (query: string, i: number) => (
                                     <a
                                       key={i}
                                       className="verify-option"

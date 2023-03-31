@@ -1,18 +1,22 @@
 import { Edge, Node, Position } from 'reactflow'
-import { v4 as uuidv4 } from 'uuid'
-import { CustomNodeData } from '../components/Node'
+import { v4 as uuidv4, v5 as uuidv5 } from 'uuid'
+import { CustomNodeData, NodeSnippet } from '../componentsFlow/Node'
 import { hardcodedNodeSize, nodeGap, nodePosAdjustStep } from '../constants'
-import { PostConstructionPseudoNodeObject } from './magicGraphConstruct'
+import { PostConstructionPseudoNodeObject } from './graphConstruct'
 
 import { NodeLabelAndTags } from './promptsAndResponses'
 import { Tokenization } from './socket'
 
-export const getNodeId = () => `node-${uuidv4()}`
+export const getSimpleNodeId = (baseId: string) => `node-${baseId}`
+export const getNodeId = (nodeLabel?: string, extraId?: string) =>
+  (nodeLabel ? `node-${uuidv5(nodeLabel, uuidv5.URL)}` : `node-${uuidv4()}`) +
+  (extraId ? `-${extraId}` : '')
 export const getMagicNodeId = () => `magic-node-${uuidv4()}`
 export const getGroupNodeId = () => `group-node-${uuidv4()}`
+
 export const getHandleId = () => `handle-${uuidv4()}`
 export const getEdgeId = (sourceId: string, targetId: string) =>
-  `edge-${sourceId}---${targetId}-${uuidv4()}`
+  `edge-${sourceId}---${targetId}---${uuidv4()}`
 export const getNoteId = () => `note-${uuidv4()}`
 
 export const getNodeLabelAndTags = (nodes: Node[]): NodeLabelAndTags[] => {
@@ -58,6 +62,11 @@ export const sleep = async (ms: number) => {
 
 export const isStringRoughEqual = (a: string, b: string) => {
   return a.toLowerCase().trim() === b.toLowerCase().trim()
+}
+
+export const removeQuotes = (str: string) => {
+  // remove quotation marks at the beginning and end of the string, if any
+  return str.replace(/^"(.+(?="$))"$/, '$1')
 }
 
 /* -------------------------------------------------------------------------- */
@@ -139,7 +148,7 @@ export const getEdgeParams = (source: Node, target: Node) => {
 // get graph bounds
 
 export const getGraphBounds = (
-  nodes: Node[] | PostConstructionPseudoNodeObject[]
+  nodes: Node[] | NodeSnippet[] | PostConstructionPseudoNodeObject[]
 ) => {
   const bounds = {
     x: Infinity,

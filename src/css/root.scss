@@ -67,7 +67,7 @@ $font-size-xxs: 0.375rem;
 $font-size-xs: 0.5rem;
 $font-size-small: 0.675rem;
 $font-size-default: 0.75rem;
-$font-size-large: 1rem;
+$font-size-large: 0.9rem;
 $font-size-x-large: 1.25rem;
 $font-size-xx-large: 1.5rem;
 
@@ -79,6 +79,7 @@ $transition-fast: 100ms;
 $transition-normal: 300ms;
 $transition-normal-slow: 500ms;
 $transition-slow: 700ms;
+$transition-slow-x: 1200ms;
 $transition-highlight: 3000ms;
 
 $outline-light: 1px solid $light-grey;
@@ -263,20 +264,4 @@ $shadow-heavy: rgba($cold-grey, 0.6) 0 rem-to-px(2rem) rem-to-px(10rem)
   outline: rem-to-px(1rem) solid $light;
   border-radius: $radius-small;
   cursor: text;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-.fade-in {
-  animation-name: fade-in;
-  animation-duration: $transition-normal;
-  // animation-delay: $transition-fast;
 }

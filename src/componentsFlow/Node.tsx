@@ -23,9 +23,10 @@ import {
   useReactFlow,
 } from 'reactflow'
 import { ColorResult, TwitterPicker } from 'react-color'
+import tinycolor from 'tinycolor2'
 
-import { hardcodedNodeSize, viewFittingOptions } from '../constants'
-import { FlowContext } from './Contexts'
+import { hardcodedNodeSize, styles, viewFittingOptions } from '../constants'
+import { FlowContext } from '../components/Contexts'
 import { MagicNodeData } from './MagicNode'
 import {
   MagicNodeTaggingItem,
@@ -35,11 +36,23 @@ import {
   MagicToolboxItem,
 } from './MagicToolbox'
 import randomPhrases from '../utils/randomPhrases'
-import { SuperTextEditor } from './SuperTextEditor'
 import { getHandleId, getNodeId, getNodeLabelAndTags } from '../utils/utils'
+import { OriginAnswerRange } from '../App'
 
 export interface GeneratedInformation {
-  temporary: boolean
+  originRanges: OriginAnswerRange[]
+  originTexts: string[]
+}
+
+export interface NodeSnippet {
+  id: string
+  label: string
+  position: {
+    x: number
+    y: number
+  }
+  width: number
+  height: number
 }
 
 export interface CustomNodeData {
@@ -67,7 +80,6 @@ const connectionNodeIdSelector = (state: ReactFlowState) =>
 export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
     const { getNodes, setNodes } = useReactFlow()
-    const zoomLevel = useStore(useCallback(store => store.transform[2], []))
     const { metaPressed, selectedComponents } = useContext(FlowContext)
 
     const moreThanOneComponentsSelected =
@@ -79,8 +91,8 @@ export const CustomNode = memo(
       styleBackground,
       sourceHandleId,
       targetHandleId,
-      editing,
-      generated: { temporary },
+      // editing,
+      // generated: { originRanges, originTexts },
     } = data as CustomNodeData
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
@@ -188,7 +200,8 @@ export const CustomNode = memo(
           metaPressed ? ' custom-node-meta-pressed' : ''
         }${isExplainedByMagicNode ? ' custom-node-explained' : ''}${
           styleBackground !== '#ffffff' ? ' custom-node-background-color' : ''
-        }${temporary ? ' custom-node-temporary' : ''}`}
+        }`}
+        // }${temporary ? ' custom-node-temporary' : ''}`}
       >
         <Handle
           id={targetHandleId}
@@ -218,7 +231,7 @@ export const CustomNode = memo(
             backgroundColor: styleBackground,
           }}
         >
-          <SuperTextEditor
+          {/* <SuperTextEditor
             target="node"
             targetId={id}
             content={label}
@@ -226,7 +239,21 @@ export const CustomNode = memo(
             background={styleBackground}
             selected={selected}
             textareaRef={textAreaRef}
-          >
+          > */}
+          <div className="super-wrapper super-wrapper-static-text">
+            <span
+              className="node-label"
+              style={{
+                color:
+                  styleBackground === styles.nodeColorDefaultWhite
+                    ? '#333333'
+                    : tinycolor(styleBackground).isDark()
+                    ? 'white'
+                    : tinycolor(styleBackground).darken(45).toHexString(),
+              }}
+            >
+              {label}
+            </span>
             {!moreThanOneComponentsSelected && selected ? (
               <MagicToolbox
                 className={`edge-label-toolbox${
@@ -234,7 +261,6 @@ export const CustomNode = memo(
                     ? ' magic-toolbox-show'
                     : ''
                 }`}
-                zoom={zoomLevel}
                 onUnmount={onToolboxClose}
               >
                 <MagicToolboxItem title="color">
@@ -272,7 +298,7 @@ export const CustomNode = memo(
             ) : (
               <></>
             )}
-          </SuperTextEditor>
+          </div>
 
           {/* {tags.length > 0 && (
           <div className="custom-node-tags">
@@ -399,7 +425,8 @@ export const customAddNodes = (
     editing,
     styleBackground,
     {
-      temporary: false,
+      originRanges: [],
+      originTexts: [],
     }
   )
 
@@ -422,6 +449,16 @@ export const customAddNodes = (
 /* -------------------------------------------------------------------------- */
 
 export const hardcodedNodeWidthEstimation = (content: string) => {
-  if (content.length <= 10) return hardcodedNodeSize.width
-  return Math.max(210, 64 + content.length * 8) // TODO better ways?
+  // make a pseudo node to estimate width
+  const pseudoNode = document.createElement('span')
+  pseudoNode.className = 'width-measuring-span'
+  pseudoNode.innerText = content
+  document.body.appendChild(pseudoNode)
+  const width = pseudoNode.offsetWidth
+  document.body.removeChild(pseudoNode)
+
+  return Math.max(160, width)
+
+  // if (content.length < 16) return hardcodedNodeSize.width
+  // return Math.max(210, 64 + content.length * 8) // TODO better ways?
 }

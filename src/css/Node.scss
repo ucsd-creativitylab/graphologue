@@ -1,5 +1,11 @@
 $shadow-node-selected: $shadow-heavy;
 
+.generating-flow {
+  .react-flow__node {
+    transition: transform $transition-normal-slow ease;
+  }
+}
+
 .react-flow__node {
   user-select: none;
   border: none;
