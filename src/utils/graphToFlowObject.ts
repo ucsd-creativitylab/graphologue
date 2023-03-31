@@ -165,9 +165,12 @@ export const answerObjectsToReactFlowObject = (
     }
   })
 
+  // ! filter
+
   const filteredEdgeEntities = edgeEntities.filter(edgeEntity => {
     const { sourceId, targetId } = edgeEntity.edgePairs[0]
-    return sourceId !== targetId
+
+    return sourceId !== targetId && targetId !== '$N1' // ? disable edge to the first node // TODO any better way?
   })
 
   const filteredNodeEntities = nodeEntities.filter(nodeEntity => {

@@ -295,6 +295,89 @@ export const constructGraph = (
   return nodes
 }
 
+export const nodeWithMostChildren = (
+  nodeEntities: NodeEntity[],
+  edgeEntities: EdgeEntity[]
+): string | null => {
+  // find the node with the most children (including children's children)
+
+  const nodeChildrenCount: {
+    [key: string]: {
+      count: number
+      accumulatedCount: number
+      childrenNodeIds: string[]
+    }
+  } = {}
+
+  nodeEntities.forEach(nodeE => {
+    nodeChildrenCount[nodeE.id] = {
+      count: 0,
+      accumulatedCount: 0,
+      childrenNodeIds: [],
+    }
+  })
+
+  edgeEntities.forEach(edgeE => {
+    edgeE.edgePairs.forEach(edgePair => {
+      nodeChildrenCount[edgePair.sourceId].count++
+      nodeChildrenCount[edgePair.sourceId].childrenNodeIds.push(
+        edgePair.targetId
+      )
+    })
+  })
+
+  // recursively accumulate children's children
+  const accumulateChildrenNodesCount = (
+    acc: number,
+    visitedNodeIds: Set<string>,
+    nodeId: string
+  ) => {
+    visitedNodeIds.add(nodeId)
+
+    const childrenNodeIds = nodeChildrenCount[nodeId].childrenNodeIds
+    if (childrenNodeIds.length === 0) return acc
+
+    childrenNodeIds.forEach(childNodeId => {
+      const childNode = nodeChildrenCount[childNodeId]
+
+      if (childNode.childrenNodeIds.length === 0) {
+        // no children
+      } else {
+        // has children
+        if (visitedNodeIds.has(childNodeId)) return acc
+
+        acc += accumulateChildrenNodesCount(
+          childNode.count,
+          visitedNodeIds,
+          childNodeId
+        )
+      }
+    })
+
+    return acc
+  }
+
+  nodeEntities.forEach(nodeE => {
+    nodeChildrenCount[nodeE.id].accumulatedCount = accumulateChildrenNodesCount(
+      nodeChildrenCount[nodeE.id].count,
+      new Set(),
+      nodeE.id
+    )
+  })
+
+  let nodeWithMostChildren: string | null = null
+  let maxCount = 0
+  Object.keys(nodeChildrenCount).forEach(nodeId => {
+    const count = nodeChildrenCount[nodeId].accumulatedCount
+    if (count > maxCount) {
+      maxCount = count
+      nodeWithMostChildren = nodeId
+    }
+  })
+
+  return nodeWithMostChildren
+}
+
 /* -------------------------------------------------------------------------- */
 
 export const constructGraphChat = (annotatedRelationships: {
