@@ -6,19 +6,17 @@ import React, {
   useRef,
   useState,
   DragEvent,
+  memo,
+  useContext,
 } from 'react'
 import ReactFlow, {
   useReactFlow,
-  useNodesState,
-  useEdgesState,
   useKeyPress,
-  MiniMap,
   Background,
   SelectionMode,
   NodeTypes,
   EdgeTypes,
   ReactFlowInstance,
-  ReactFlowProvider,
   Node,
   Edge,
   Connection,
@@ -28,6 +26,8 @@ import ReactFlow, {
   OnConnectEnd,
   useOnViewportChange,
   Viewport,
+  useNodesState,
+  useEdgesState,
 } from 'reactflow'
 import isEqual from 'react-fast-compare'
 
@@ -41,33 +41,37 @@ import {
 import { customAddNodes, CustomNode, CustomNodeData } from './Node'
 import { CustomControls } from './CustomControl'
 import { CustomMarkerDefs } from './CustomDefs'
-import { Note, NoteBook } from '../components/Notebook'
 import {
   hardcodedNodeSize,
-  slowInteractionWaitTimeout,
   styles,
-  useSessionStorageNotesHandle,
   useTokenDataTransferHandle,
   viewFittingOptions,
 } from '../constants'
-import { FlowContext, NotebookContext } from '../components/Contexts'
-import { getItem, storeItem } from '../utils/storage'
+import { FlowContext } from '../components/Contexts'
 import { useTimeMachine } from '../utils/timeMachine'
-import { roundTo, sleep } from '../utils/utils'
+import { roundTo } from '../utils/utils'
 import { PromptSourceComponentsType } from '../utils/magicExplain'
 import { MagicNode } from './MagicNode'
 import { EntityType } from '../utils/socket'
 import { CustomGroupNode } from './GroupNode'
 import { ModelForMagic } from '../utils/openAI'
+import { ReactFlowObjectContext } from '../components/Answer'
 
 const reactFlowWrapperStyle = {
   width: '100%',
   height: '100%',
 } as React.CSSProperties
 
-const storedData = getItem()
-const defaultNodes = storedData.nodes as Node[]
-const defaultEdges = storedData.edges as Edge[]
+// const storedData = getItem()
+// const storedData = {
+//   nodes: [],
+//   edges: [],
+// }
+// const defaultNodes = storedData.nodes as Node[]
+// const defaultEdges = storedData.edges as Edge[]
+
+const defaultNodes: Node[] = []
+const defaultEdges: Edge[] = []
 
 const nodeTypes = {
   custom: CustomNode,
@@ -79,13 +83,10 @@ const edgeTypes = {
   custom: CustomEdge,
 } as EdgeTypes
 
-const Flow = ({
-  notesOpened,
-  setNotesOpened,
-}: {
-  notesOpened: boolean
-  setNotesOpened: (notesOpened: boolean) => void
-}) => {
+const Flow = () => {
+  // const { handleSetHighlighted } = useContext(InterchangeContext)
+  const { generatingFlow } = useContext(ReactFlowObjectContext)
+
   const thisReactFlowInstance = useReactFlow()
   const {
     setNodes,
@@ -98,9 +99,16 @@ const Flow = ({
     getViewport,
   }: ReactFlowInstance = thisReactFlowInstance
 
+  // useLayout({
+  //   direction: 'LR',
+  // })
+
   // use default nodes and edges
   const [nodes, , onNodesChange] = useNodesState(defaultNodes)
   const [edges, , onEdgesChange] = useEdgesState(defaultEdges)
+
+  // const onNodesChange = useCallback(() => {}, [])
+  // const onEdgesChange = useCallback(() => {}, [])
 
   // fit to view on page load
   useEffect(() => {
@@ -154,7 +162,7 @@ const Flow = ({
     if (editing) return
 
     // ! store and save in time machine
-    storeItem(toObject(), setTime)
+    // storeItem(toObject(), setTime)
 
     // ! update selected
     // TODO any more efficient way to do this?
@@ -247,12 +255,11 @@ const Flow = ({
 
   const handleNodeDoubleClick = useCallback(
     (e: BaseSyntheticEvent, node: Node) => {
-      e.preventDefault()
-      e.stopPropagation()
-
-      if (node.type === 'custom') doSetNodesEditing([node.id], true)
+      // e.preventDefault()
+      // e.stopPropagation()
+      // if (node.type === 'custom') doSetNodesEditing([node.id], true)
     },
-    [doSetNodesEditing]
+    []
   )
 
   const handleNodeDragStart = useCallback(() => {
@@ -392,25 +399,24 @@ const Flow = ({
 
   const handleEdgeDoubleClick = useCallback(
     (e: BaseSyntheticEvent, edge: Edge) => {
-      e.preventDefault()
-      e.stopPropagation()
-
-      setEdges((nds: Edge[]) => {
-        return nds.map((nd: Edge) => {
-          if (edge.id !== nd.id) return nd
-          else {
-            return {
-              ...nd,
-              data: {
-                ...nd.data,
-                editing: true,
-              },
-            }
-          }
-        })
-      })
+      // e.preventDefault()
+      // e.stopPropagation()
+      // setEdges((nds: Edge[]) => {
+      //   return nds.map((nd: Edge) => {
+      //     if (edge.id !== nd.id) return nd
+      //     else {
+      //       return {
+      //         ...nd,
+      //         data: {
+      //           ...nd.data,
+      //           editing: true,
+      //         },
+      //       }
+      //     }
+      //   })
+      // })
     },
-    [setEdges]
+    []
   )
 
   /* -------------------------------------------------------------------------- */
@@ -476,9 +482,26 @@ const Flow = ({
   // }, [])
 
   /* -------------------------------------------------------------------------- */
-  // ! other rendering related
+  // ! chat
 
-  // none
+  const handleNodeMouseEnter = useCallback((e: MouseEvent, node: Node) => {
+    // const { data } = node
+    // const {
+    //   generated: { sourceAnswerObjectIds, sourceOrigins },
+    // } = data as CustomNodeData
+    // const highlighted: QuestionAndAnswerHighlighted = {
+    //   origins: sourceOrigins,
+    //   answerObjectIds: sourceAnswerObjectIds,
+    // }
+    // handleSetHighlighted(highlighted)
+  }, [])
+
+  const handleNodeMouseLeave = useCallback(() => {
+    // handleSetHighlighted({
+    //   origins: [],
+    //   answerObjectIds: new Set(),
+    // })
+  }, [])
 
   const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')
 
@@ -494,9 +517,11 @@ const Flow = ({
         setModel: setModelForMagic,
       }}
     >
-      <div id="react-flow-wrapper" ref={reactFlowWrapper}>
+      <div className="react-flow-wrapper" ref={reactFlowWrapper}>
         <ReactFlow
-          className={metaPressed ? 'flow-meta-pressed' : ''}
+          className={`${metaPressed ? 'flow-meta-pressed' : ''}${
+            generatingFlow ? ' generating-flow' : ''
+          }`}
           // basic
           nodes={nodes}
           edges={edges}
@@ -531,6 +556,8 @@ const Flow = ({
           onDragOver={handleDragOver}
           onDrop={handleDrop}
           // onPaneContextMenu={handlePaneContextMenu}
+          onNodeMouseEnter={handleNodeMouseEnter}
+          onNodeMouseLeave={handleNodeMouseLeave}
         >
           <CustomMarkerDefs
             markerOptions={
@@ -546,7 +573,7 @@ const Flow = ({
               } as EdgeMarker
             }
           />
-          <MiniMap
+          {/* <MiniMap
             position={'bottom-left'}
             pannable={true}
             // nodeStrokeColor={n => {
@@ -582,7 +609,7 @@ const Flow = ({
             //     return `${styles.edgeColorStrokeSelected}`
             //   return 'none'
             // }}
-          />
+          /> */}
           <CustomControls
             nodes={nodes}
             edges={edges}
@@ -591,6 +618,8 @@ const Flow = ({
             redoTime={redoTime}
             canUndo={canUndo}
             canRedo={canRedo}
+            // notesOpened={notesOpened}
+            // setNotesOpened={setNotesOpened}
           />
           <Background color="#008ddf" />
         </ReactFlow>
@@ -599,11 +628,23 @@ const Flow = ({
   )
 }
 
-const ReactFlowComponent = () => {
-  /* -------------------------------------------------------------------------- */
-  // ! notebook
-  const notebookRef = useRef<HTMLDivElement>(null)
-  // try to retrieve notes from session storage
+const ReactFlowComponent = memo(({ id }: { id: string }) =>
+  //   {
+  //   answerRelationships,
+  // }: {
+  //   answerRelationships: {
+  //     answerObjectId: string
+  //     origin: OriginAnswerRange[]
+  //     relationships: AnswerRelationshipObject[]
+  //   }[]
+  // }
+  {
+    /* -------------------------------------------------------------------------- */
+    // ! notebook
+    // const notebookRef = useRef<HTMLDivElement>(null)
+
+    // try to retrieve notes from session storage
+    /*
   const notesFromSessionStorage = sessionStorage.getItem(
     useSessionStorageNotesHandle
   )
@@ -611,13 +652,14 @@ const ReactFlowComponent = () => {
     ? JSON.parse(notesFromSessionStorage)
     : null
 
-  const [notes, setNotes] = useState<Note[]>(
-    notesFromSessionStorageParsed?.notes || []
-  )
-  const [notesOpened, setNotesOpened] = useState<boolean>(
+  const [notes] = useState<Note[]>(notesFromSessionStorageParsed?.notes || [])
+  const [notesOpened] = useState<boolean>(
     notesFromSessionStorageParsed?.notesOpened || false
   )
+  */
 
+    // * save notes
+    /*
   useEffect(() => {
     // save notes to session storage
     sessionStorage.setItem(
@@ -628,51 +670,54 @@ const ReactFlowComponent = () => {
       })
     )
   }, [notes, notesOpened])
+  */
 
-  const spotlightNotes = useCallback(async () => {
-    if (notesOpened) return
-    if (notebookRef.current) {
-      await sleep(5)
-      notebookRef.current.style.transform = 'translateX(-15rem)'
-      await sleep(750)
-      notebookRef.current.style.transform = 'translateX(0)'
-    }
-  }, [notesOpened])
+    // const spotlightNotes = useCallback(async () => {
+    //   if (notesOpened) return
+    //   if (notebookRef.current) {
+    //     await sleep(5)
+    //     notebookRef.current.style.transform = 'translateX(-15rem)'
+    //     await sleep(750)
+    //     notebookRef.current.style.transform = 'translateX(0)'
+    //   }
+    // }, [notesOpened])
 
-  const addNote = useCallback(
-    (note: Note) => {
-      if (note.type === 'magic') {
-        if (
-          notes.find(
-            n =>
-              n.data.magicNodeId === note.data.magicNodeId &&
-              n.data.response === note.data.response
-          )
-        )
-          return
+    // const addNote = useCallback(
+    //   (note: Note) => {
+    //     if (note.type === 'magic') {
+    //       if (
+    //         notes.find(
+    //           n =>
+    //             n.data.magicNodeId === note.data.magicNodeId &&
+    //             n.data.response === note.data.response
+    //         )
+    //       )
+    //         return
 
-        setNotes(notes.concat(note))
-        if (!notesOpened) spotlightNotes()
-      }
-    },
-    [notes, notesOpened, spotlightNotes]
-  )
+    //       setNotes(notes.concat(note))
+    //       if (!notesOpened) spotlightNotes()
+    //     }
+    //   },
+    //   [notes, notesOpened, spotlightNotes]
+    // )
 
-  const deleteNote = useCallback(
-    (noteId: string) => {
-      const newNotes = notes.filter(n => n.id !== noteId)
-      setNotes(newNotes)
+    // const deleteNote = useCallback(
+    //   (noteId: string) => {
+    //     const newNotes = notes.filter(n => n.id !== noteId)
+    //     setNotes(newNotes)
 
-      if (newNotes.length === 0)
-        setTimeout(() => setNotesOpened(false), slowInteractionWaitTimeout)
-    },
-    [notes]
-  )
-  /* -------------------------------------------------------------------------- */
+    //     if (newNotes.length === 0)
+    //       setTimeout(() => setNotesOpened(false), slowInteractionWaitTimeout)
+    //   },
+    //   [notes]
+    // )
+    /* -------------------------------------------------------------------------- */
 
-  return (
-    <ReactFlowProvider>
-      <NotebookContext.Provider
+    return (
+      <>
+        {/* <Flow notesOpened={notesOpened} setNotesOpened={setNotesOpened} /> */}
+        <Flow key={`flow-${id}`} />
+        {/* <NotebookContext.Provider
         value={{
           notes,
           setNotes,
@@ -682,11 +727,10 @@ const ReactFlowComponent = () => {
           deleteNote,
         }}
       >
-        <Flow notesOpened={notesOpened} setNotesOpened={setNotesOpened} />
         <NoteBook notebookRef={notebookRef} />
-      </NotebookContext.Provider>
-    </ReactFlowProvider>
-  )
-}
+      </NotebookContext.Provider> */}
+      </>
+    )
+  }, isEqual)
 
 export default ReactFlowComponent
