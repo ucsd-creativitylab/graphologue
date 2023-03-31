@@ -52,6 +52,9 @@ export const Answer = () => {
 
   const stableDagreGraph = useRef(new dagre.graphlib.Graph())
 
+  // const prevNodes = useRef<NodeEntity[]>([])
+  // const prevEdges = useRef<EdgeEntity[]>([])
+
   const nodeEntities = answerObjects.reduce(
     (acc, { nodeEntities }) => [...acc, ...nodeEntities],
     [] as NodeEntity[]
@@ -71,7 +74,20 @@ export const Answer = () => {
 
     setNodes(newNodes)
     setEdges(newEdges)
-  }, [nodeEntities, edgeEntities])
+
+    // prevNodeEntities.current = nodeEntities
+    // prevEdgeEntities.current = edgeEntities
+  }, [
+    // we don't care about individuals
+    nodeEntities.map(nE =>
+      (({ id, displayNodeLabel, pseudo }) => ({
+        id,
+        displayNodeLabel,
+        pseudo,
+      }))(nE)
+    ),
+    edgeEntities,
+  ])
 
   return (
     <div className="answer-wrapper">
