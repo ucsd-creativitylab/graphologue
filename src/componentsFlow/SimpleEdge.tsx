@@ -1,8 +1,8 @@
 import React, { memo } from 'react'
 import { EdgeProps, getBezierPath } from 'reactflow'
-import { CustomEdgeData } from './components/Edge'
-import { styles } from './constants'
-import { getMarkerId } from './components/CustomDefs'
+import { CustomEdgeData } from './Edge'
+import { styles } from '../constants'
+import { getMarkerId } from './CustomDefs'
 
 export const SimpleEdge = memo(
   ({
