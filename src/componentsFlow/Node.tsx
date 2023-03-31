@@ -206,20 +206,20 @@ export const CustomNode = memo(
         <Handle
           id={targetHandleId}
           className="custom-handle target-handle"
-          position={Position.Right}
+          position={Position.Left}
           type="target"
-          style={{
-            zIndex: isTarget ? 3 : 1,
-          }}
+          // style={{
+          //   zIndex: isTarget ? 3 : 1,
+          // }}
         />
         <Handle
           id={sourceHandleId}
           className="custom-handle source-handle"
-          position={Position.Left}
+          position={Position.Right}
           type="source"
-          style={{
-            zIndex: 2,
-          }}
+          // style={{
+          //   zIndex: 2,
+          // }}
         />
 
         <div
@@ -364,6 +364,8 @@ export const getNewCustomNode = (
   return {
     id: nodeId,
     type: 'custom', // ! use custom node
+    // sourcePosition: Position.Right,
+    // targetPosition: Position.Left,
     data: {
       label: label,
       tags: [],

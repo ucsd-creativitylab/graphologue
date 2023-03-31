@@ -56,7 +56,7 @@ import { EntityType } from '../utils/socket'
 import { CustomGroupNode } from './GroupNode'
 import { ModelForMagic } from '../utils/openAI'
 import { ReactFlowObjectContext } from '../components/Answer'
-// import { useLayout } from '../utils/useLayout'
+import { SimpleEdge } from './SimpleEdge'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -82,6 +82,7 @@ const nodeTypes = {
 
 const edgeTypes = {
   custom: CustomEdge,
+  simple: SimpleEdge,
 } as EdgeTypes
 
 const Flow = () => {
