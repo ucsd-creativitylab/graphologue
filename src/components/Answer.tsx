@@ -94,12 +94,23 @@ export const Answer = () => {
       height: n.height ?? hardcodedNodeSize.height,
     }))
 
+    const nodeSnippetExtraction = (n: NodeSnippet) => ({
+      id: n.id,
+      label: n.label,
+    })
+
     const changedNodeSnippets = [
       ...newNodeSnippets.filter(n => {
         const foundPrevNode = prevNodeSnippets.current.find(
           pN => pN.id === n.id
         )
-        return !foundPrevNode || !isEqual(foundPrevNode, n)
+        return (
+          !foundPrevNode ||
+          !isEqual(
+            nodeSnippetExtraction(foundPrevNode),
+            nodeSnippetExtraction(n)
+          )
+        )
       }),
       ...prevNodeSnippets.current.filter(
         pN => !newNodeSnippets.find(n => n.id === pN.id || n.label !== pN.label)
