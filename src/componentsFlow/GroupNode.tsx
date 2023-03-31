@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useRef } from 'react'
+import { memo, useContext, useEffect, useRef } from 'react'
 import {
   Node,
   NodeProps,
@@ -31,7 +31,6 @@ export const CustomGroupNode = memo(
     const detachNodes = useDetachNodes()
     const { deleteElements, fitBounds } = useReactFlow()
 
-    const zoomLevel = useStore(useCallback(store => store.transform[2], []))
     const { selectedComponents } = useContext(FlowContext)
 
     const moreThanOneComponentsSelected =
@@ -79,7 +78,6 @@ export const CustomGroupNode = memo(
               ? ' magic-toolbox-show'
               : ''
           }`}
-          zoom={zoomLevel}
         >
           <MagicToolboxItem title="delete">
             <MagicToolboxButton

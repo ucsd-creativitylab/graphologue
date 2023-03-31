@@ -5,7 +5,8 @@ import {
   OriginAnswerRange,
 } from '../App'
 
-export const nodeAnnotationRegex = /\[([^[\]()]+?)\s\((\$N\d+)\)\]/g
+export const nodeAnnotationRegex =
+  /\[([^[\]()]+(?:\([^)]*\))*)\s\((\$N\d+)\)\]/g
 export const edgeAnnotationRegex =
   /\[([^[\]()]+?)\s\(((?:\$N\d+(?:,\s\$N\d+)+;?\s?)+)\)\]/g
 export const AnnotationRemovalRegex =
@@ -139,6 +140,8 @@ export const nodeIndividualsToNodeEntities = (
       })
     }
   })
+
+  console.log(nodeEntities)
 
   return nodeEntities
 }

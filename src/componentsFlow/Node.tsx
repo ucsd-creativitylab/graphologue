@@ -68,7 +68,6 @@ const connectionNodeIdSelector = (state: ReactFlowState) =>
 export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
     const { getNodes, setNodes } = useReactFlow()
-    const zoomLevel = useStore(useCallback(store => store.transform[2], []))
     const { metaPressed, selectedComponents } = useContext(FlowContext)
 
     const moreThanOneComponentsSelected =
@@ -238,7 +237,6 @@ export const CustomNode = memo(
                     ? ' magic-toolbox-show'
                     : ''
                 }`}
-                zoom={zoomLevel}
                 onUnmount={onToolboxClose}
               >
                 <MagicToolboxItem title="color">

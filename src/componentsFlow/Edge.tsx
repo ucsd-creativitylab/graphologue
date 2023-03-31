@@ -19,7 +19,7 @@ import { ReactComponent as DashLine } from '../media/dashLine.svg'
 import { ReactComponent as PlainLine } from '../media/plainLine.svg'
 import { ReactComponent as ArrowLine } from '../media/arrowLine.svg'
 
-import { hardcodedNodeSize, hideEdgeTextZoomLevel, styles } from '../constants'
+import { hardcodedNodeSize, styles } from '../constants'
 import { FlowContext } from '../components/Contexts'
 import { getMarkerId } from './CustomDefs'
 import {
@@ -63,7 +63,7 @@ export const CustomEdge = memo(
     const targetNode = useStore(
       useCallback(store => store.nodeInternals.get(target), [target])
     )
-    const zoomLevel = useStore(useCallback(store => store.transform[2], []))
+    // const zoomLevel = useStore(useCallback(store => store.transform[2], []))
 
     const { selectedComponents } = useContext(FlowContext)
     const { getNodes, getEdges } = useReactFlow()
@@ -152,7 +152,6 @@ export const CustomEdge = memo(
             targetHandle: targetHandleId || null,
           }}
           selected={selected || false}
-          roughZoomLevel={zoomLevel}
         />
         {/* <text>
           <textPath
@@ -221,7 +220,7 @@ type EdgeCustomLabelProps = {
   labelY: number
   connection: Connection
   selected: boolean
-  roughZoomLevel: number
+  // roughZoomLevel: number
 }
 export const EdgeCustomLabel = memo(
   ({
@@ -231,8 +230,8 @@ export const EdgeCustomLabel = memo(
     labelY,
     connection,
     selected,
-    roughZoomLevel,
-  }: EdgeCustomLabelProps) => {
+  }: // roughZoomLevel,
+  EdgeCustomLabelProps) => {
     const { getNodes, addNodes, setEdges, fitView } = useReactFlow()
     const { selectedComponents, selectNodes } = useContext(FlowContext)
 
@@ -342,11 +341,12 @@ export const EdgeCustomLabel = memo(
 
     return (
       <foreignObject
-        className={`edge-label-wrapper${
-          roughZoomLevel < hideEdgeTextZoomLevel
-            ? ' hidden-edge-label-wrapper'
-            : ''
-        }`}
+        className={`edge-label-wrapper`}
+        // className={`edge-label-wrapper${
+        //   roughZoomLevel < hideEdgeTextZoomLevel
+        //     ? ' hidden-edge-label-wrapper'
+        //     : ''
+        // }`}
         x={labelX}
         y={labelY - 4} // ! why
         requiredExtensions="http://www.w3.org/1999/xhtml"
@@ -368,7 +368,6 @@ export const EdgeCustomLabel = memo(
                   ? ' magic-toolbox-show'
                   : ''
               }`}
-              zoom={roughZoomLevel}
             >
               {edgeData.label.length === 0 && selected ? (
                 <MagicSuggestItem
