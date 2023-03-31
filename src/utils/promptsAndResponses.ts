@@ -57,8 +57,8 @@ export const predefinedPrompts = {
     return [
       {
         role: 'system',
-        content: `Annotate the key entities and relationships inline for each sentence in the response. \
-The entities and relationships will be used to construct a concept map. \
+        content: `The user’s goal is to construct a concept map to visually explain your response. \
+To achieve this, annotate the key entities and relationships inline for each sentence in the response. \
 Entities are noun phrases and should be annotated with [entity ($N1)]. For example, [Artificial Intelligence ($N1)]. \
 A relationship is often a word or a phrase that consists of verbs, adjectives, propositions, or adverbs. \
 Relationships should be annotated with the relevant entities and saliency of the relationship as high ($H), medium ($M), or low ($L), \
