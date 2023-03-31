@@ -457,7 +457,7 @@ export const customConnectionLineStyle = {
 }
 
 export const customEdgeOptions = {
-  type: 'custom',
+  type: 'simple',
   animated: false, // ? do we want any animation here?
   markerEnd: {
     type: MarkerType.ArrowClosed,

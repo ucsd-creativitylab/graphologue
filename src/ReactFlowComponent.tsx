@@ -59,6 +59,7 @@ import { MagicNode } from './components/MagicNode'
 import { EntityType } from './utils/socket'
 import { CustomGroupNode } from './components/GroupNode'
 import { ModelForMagic } from './utils/openAI'
+import { SimpleEdge } from './SimpleEdge'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -77,6 +78,7 @@ const nodeTypes = {
 
 const edgeTypes = {
   custom: CustomEdge,
+  simple: SimpleEdge,
 } as EdgeTypes
 
 const Flow = ({

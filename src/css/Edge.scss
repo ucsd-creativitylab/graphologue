@@ -18,6 +18,7 @@ $edge-stroke-width: 2px;
   }
 
   .react-flow__edge-path-background {
+    fill: none;
     stroke: $white;
     // opacity: $opacity-default;
     stroke-width: 3 * $edge-stroke-width;
