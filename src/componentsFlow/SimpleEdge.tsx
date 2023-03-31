@@ -57,6 +57,7 @@ export const SimpleEdge = memo(
         />
 
         <path
+          key={`${id}-${customType}${selected ? '-selected' : ''}`}
           id={id}
           style={style}
           className={`react-flow__edge-path react-flow__edge-path-${customType}${

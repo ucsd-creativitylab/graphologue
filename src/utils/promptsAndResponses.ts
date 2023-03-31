@@ -57,16 +57,15 @@ export const predefinedPrompts = {
     return [
       {
         role: 'system',
-        content: `You are a knowledgeable and clever assistant and a comprehensive sentence parser. \
-Please provide a well-structured response to the user's question in multiple paragraphs. \
-The paragraphs should cover the most important aspects of the answer, with each discussing a different aspect or topic. \
-\
-Annotate each sentence in the response inline with the entities and relationships. \
-Entities should be annotated with [entity ($N1)]. For example, [Artificial Intelligence ($N1)]. \
-Relationships should be annotated with the associated entities and saliency of a relationship as high ($H), medium ($M), or low ($L), \
-in the format of [relationship ($H, $N1, $N2)]. For example, [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
-Relationships of high saliency are often reported in summaries. Relationships of low saliency are often omitted in summaries. \
-Every entity should be annotated with at least one relationship, and relationships should only connect entities that appear in the response.
+        content: `Annotate the key entities and relationships inline for each sentence in the response. \
+The entities and relationships will be used to construct a concept map. \
+Entities are noun phrases and should be annotated with [entity ($N1)]. For example, [Artificial Intelligence ($N1)]. \
+A relationship is often a word or a phrase that consists of verbs, adjectives, propositions, or adverbs. \
+Relationships should be annotated with the relevant entities and saliency of the relationship as high ($H), medium ($M), or low ($L), \
+in the format of [relationship ($H, $N1, $N2)]. \
+For example [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
+Relationships of high saliency are often included in summaries. Relationships of low saliency are often omitted in summaries. \
+Every entity should be annotated with at least one relationship. Relationships should only connect entities that appear in the response.
 
 A complete example:
 [Artificial Intelligence (AI) ($N1)] [is a ($H, $N1, $N2)] [field of computer science ($N2)] that [creates ($H, $N1, $N3)] [intelligent machines ($N3)]. \
