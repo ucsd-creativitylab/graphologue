@@ -258,6 +258,39 @@ const Flow = () => {
     e.stopPropagation()
   }, [])
 
+  const handleNodeClick = useCallback(
+    (e: BaseSyntheticEvent, node: Node) => {
+      // select the node and all its edges
+      setNodes((nds: Node[]) => {
+        return nds.map((nd: Node) => {
+          if (nd.id === node.id)
+            return {
+              ...nd,
+              selected: true,
+            }
+          else if (nd.id !== node.id && nd.type === 'custom')
+            return {
+              ...nd,
+              selected: false,
+            }
+          else return nd
+        })
+      })
+
+      setEdges((eds: Edge[]) => {
+        return eds.map((ed: Edge) => {
+          if (ed.source === node.id || ed.target === node.id)
+            return {
+              ...ed,
+              selected: true,
+            }
+          else return ed
+        })
+      })
+    },
+    [setEdges, setNodes]
+  )
+
   const handleNodeDoubleClick = useCallback(
     (e: BaseSyntheticEvent, node: Node) => {
       // e.preventDefault()
@@ -557,6 +590,7 @@ const Flow = () => {
           panOnDrag={[1, 2]}
           selectionMode={SelectionMode.Full}
           // ! actions
+          onNodeClick={handleNodeClick}
           onNodeDoubleClick={handleNodeDoubleClick}
           onNodeContextMenu={handleNodeContextMenu}
           onNodeDragStart={handleNodeDragStart}
