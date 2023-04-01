@@ -57,8 +57,9 @@ interface ModelStatus {
   modelError: boolean
 }
 
-export interface QuestionAndAnswerHighlighted {
+export interface QuestionAndAnswerSynced {
   originRanges: OriginAnswerRange[]
+  highlightedAnswerObjectIds: string[]
 }
 
 /* -------------------------------------------------------------------------- */
@@ -70,7 +71,7 @@ export interface QuestionAndAnswer {
   answer: string
   answerObjects: AnswerObject[]
   modelStatus: ModelStatus
-  highlighted: QuestionAndAnswerHighlighted
+  synced: QuestionAndAnswerSynced
 }
 
 export interface PartialQuestionAndAnswer {
@@ -79,7 +80,7 @@ export interface PartialQuestionAndAnswer {
   answer?: string
   answerObjects?: AnswerObject[]
   modelStatus?: Partial<ModelStatus>
-  highlighted?: QuestionAndAnswerHighlighted
+  synced?: QuestionAndAnswerSynced
 }
 
 export const ChatApp = () => {

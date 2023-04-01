@@ -147,8 +147,9 @@ export const newQuestionAndAnswer = (
       modelParsingComplete: prefill?.modelStatus?.modelParsingComplete ?? false,
       modelError: prefill?.modelStatus?.modelError ?? false,
     },
-    highlighted: prefill?.highlighted ?? {
+    synced: prefill?.synced ?? {
       originRanges: [],
+      highlightedAnswerObjectIds: [],
     },
   }
 }
@@ -186,8 +187,8 @@ export const deepCopyQuestionAndAnswer = (
     modelStatus: {
       ...qA.modelStatus,
     },
-    highlighted: {
-      ...qA.highlighted,
+    synced: {
+      ...qA.synced,
     },
   }
 }

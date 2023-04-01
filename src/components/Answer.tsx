@@ -15,7 +15,7 @@ import ShortTextRoundedIcon from '@mui/icons-material/ShortTextRounded'
 import NotesRoundedIcon from '@mui/icons-material/NotesRounded'
 import CropLandscapeRoundedIcon from '@mui/icons-material/CropLandscapeRounded'
 
-import { QuestionAndAnswer, OriginAnswerRange, EdgeEntity } from '../App'
+import { QuestionAndAnswer, OriginAnswerRange } from '../App'
 import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 import { InterchangeContext } from './Interchange'
 import { SlideAnswerText } from './SlideAnswer'
@@ -30,10 +30,10 @@ import {
 import { hardcodedNodeSize, viewFittingOptions } from '../constants'
 import { ViewFittingJob } from '../componentsFlow/ViewFitter'
 import {
+  mergeEdgeEntities,
   mergeNodeEntities,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   removeAnnotations,
-  removeLastBracket,
   splitAnnotatedSentences,
 } from '../utils/responseProcessing'
 import { getGraphBounds } from '../utils/utils'
@@ -61,6 +61,7 @@ export const Answer = () => {
     id,
     answerObjects,
     modelStatus: { modelParsing },
+    synced: { highlightedAnswerObjectIds },
   } = questionAndAnswer as QuestionAndAnswer
 
   const { setNodes, setEdges, fitView, getViewport, setViewport } =
@@ -74,11 +75,14 @@ export const Answer = () => {
   // const prevEdges = useRef<Edge[]>([])
 
   // ! put all node and edge entities together
-  const nodeEntities = mergeNodeEntities(answerObjects)
+  const nodeEntities = mergeNodeEntities(
+    answerObjects,
+    highlightedAnswerObjectIds
+  )
 
-  const edgeEntities = answerObjects.reduce(
-    (acc, { edgeEntities }) => [...acc, ...edgeEntities],
-    [] as EdgeEntity[]
+  const edgeEntities = mergeEdgeEntities(
+    answerObjects,
+    highlightedAnswerObjectIds
   )
 
   const runViewFittingJobs = useCallback(() => {
@@ -96,6 +100,8 @@ export const Answer = () => {
       const reactFlowWrapperElement = document.querySelector(
         '.react-flow-wrapper'
       ) as HTMLElement // they are all the same size
+      if (!reactFlowWrapperElement) return // ! hard return
+
       const viewBounding = reactFlowWrapperElement.getBoundingClientRect()
 
       if (
@@ -167,8 +173,6 @@ export const Answer = () => {
   }, [fitView, getViewport, setViewport])
 
   useEffectEqual(() => {
-    console.log(nodeEntities)
-
     const { nodes: newNodes, edges: newEdges } = answerObjectsToReactFlowObject(
       stableDagreGraph.current,
       nodeEntities,
@@ -284,12 +288,17 @@ const RawAnswer = ({
   questionAndAnswer: {
     answer,
     answerObjects,
-    highlighted,
+    synced,
     modelStatus: { modelAnsweringComplete },
   },
 }: {
   questionAndAnswer: QuestionAndAnswer
 }) => {
+  const {
+    handleSetSyncedHighlightedAnswerObjectIds,
+    handleRemoveAnswerObject,
+  } = useContext(InterchangeContext)
+
   const [blockDisplay, setBlockDisplay] = useState(true)
   const [listDisplay, setListDisplay] = useState<ListDisplayFormat>('original')
 
@@ -316,6 +325,26 @@ const RawAnswer = ({
       setListDisplay(newDisplayFormat)
     },
     []
+  )
+
+  const handleHighlightAnswerObject = useCallback(
+    (answerObjectId: string) => {
+      const currentIds = synced.highlightedAnswerObjectIds
+
+      if (currentIds.includes(answerObjectId)) {
+        handleSetSyncedHighlightedAnswerObjectIds(
+          currentIds.filter(id => id !== answerObjectId)
+        )
+      } else
+        handleSetSyncedHighlightedAnswerObjectIds([
+          ...currentIds,
+          answerObjectId,
+        ])
+    },
+    [
+      handleSetSyncedHighlightedAnswerObjectIds,
+      synced.highlightedAnswerObjectIds,
+    ]
   )
 
   return (
@@ -380,6 +409,11 @@ const RawAnswer = ({
       {blockDisplay ? (
         <div className={`answer-block-list`}>
           {answerObjects.map((answerObject, index) => {
+            const answerObjectComplete = answerObject.complete
+
+            const answerObjectHighlighted =
+              synced.highlightedAnswerObjectIds.includes(answerObject.id)
+
             const loadingComponent = (
               <div className="answer-loading-placeholder">
                 <PuffLoader size={32} color="#57068c" />
@@ -402,7 +436,7 @@ const RawAnswer = ({
               ) : (
                 <AnswerText
                   rawAnswer={answer}
-                  highlightedRanges={highlighted.originRanges}
+                  highlightedRanges={synced.originRanges}
                   slicingRange={answerObject.originRange}
                 />
               )
@@ -410,25 +444,49 @@ const RawAnswer = ({
             return (
               <div
                 key={`answer-range-${answerObject.originRange.start}`}
-                className={`answer-item interchange-component${
+                className={`answer-item answer-item-block interchange-component${
                   index !== 0 ? ' drop-down' : ''
                 }${listDisplay === 'slide' ? ' slide-wrapper' : ''}`}
               >
-                {contentComponent}
+                <div className="answer-item-text">{contentComponent}</div>
+                {answerObjectComplete && (
+                  <div className="answer-block-menu">
+                    <span
+                      className={`answer-block-menu-item${
+                        answerObjectHighlighted ? ' highlighted' : ''
+                      }`}
+                      onClick={() => {
+                        handleHighlightAnswerObject(answerObject.id)
+                      }}
+                    >
+                      highlight
+                    </span>
+                    <span
+                      className={`answer-block-menu-item`}
+                      onClick={() => {
+                        handleRemoveAnswerObject(answerObject.id)
+                      }}
+                    >
+                      remove
+                    </span>
+                  </div>
+                )}
               </div>
             )
           })}
         </div>
       ) : (
         <div className={`answer-item interchange-component`}>
-          <AnswerText
-            rawAnswer={answer}
-            highlightedRanges={highlighted.originRanges}
-            slicingRange={{
-              start: 0,
-              end: answer.length - 1,
-            }}
-          />
+          <div className="answer-item-text">
+            <AnswerText
+              rawAnswer={answer}
+              highlightedRanges={synced.originRanges}
+              slicingRange={{
+                start: 0,
+                end: answer.length - 1,
+              }}
+            />
+          </div>
         </div>
       )}
     </div>

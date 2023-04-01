@@ -379,7 +379,7 @@ export const nodeWithMostChildren = (
 }
 
 /* -------------------------------------------------------------------------- */
-
+// not using!
 export const constructGraphChat = (annotatedRelationships: {
   answerObjectId: string
   relationships: {

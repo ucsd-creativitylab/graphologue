@@ -57,8 +57,9 @@ export const predefinedPrompts = {
     return [
       {
         role: 'system',
-        content: `Please provide a well-structured, multiple-paragraph, response to the user's question. \
-The paragraphs should cover the most important aspects of the answer, with each discussing a different aspect or topic. \
+        content: `Please provide a well-structured response to the user's question in multiple paragraphs. \
+The paragraphs should cover the most important aspects of the answer, with each of them discussing a different aspect or topic. \
+Your response should not have more than 5 paragraphs. \
 The user’s goal is to construct a concept map to visually explain your response. \
 To achieve this, annotate the key entities and relationships inline for each sentence in the response. \
 \

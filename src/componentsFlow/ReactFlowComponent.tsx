@@ -58,7 +58,7 @@ import { ModelForMagic } from '../utils/openAI'
 import { ReactFlowObjectContext } from '../components/Answer'
 import { SimpleEdge } from './SimpleEdge'
 import { InterchangeContext } from '../components/Interchange'
-import { QuestionAndAnswerHighlighted } from '../App'
+import { OriginAnswerRange } from '../App'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -88,7 +88,7 @@ const edgeTypes = {
 } as EdgeTypes
 
 const Flow = () => {
-  const { handleSetHighlighted } = useContext(InterchangeContext)
+  const { handleSetSyncedOriginRanges } = useContext(InterchangeContext)
   const { generatingFlow } = useContext(ReactFlowObjectContext)
 
   const thisReactFlowInstance = useReactFlow()
@@ -494,20 +494,14 @@ const Flow = () => {
       const {
         generated: { originRanges },
       } = data as CustomNodeData
-      const highlighted: QuestionAndAnswerHighlighted = {
-        originRanges,
-      }
-
-      handleSetHighlighted(highlighted)
+      handleSetSyncedOriginRanges(originRanges)
     },
-    [handleSetHighlighted]
+    [handleSetSyncedOriginRanges]
   )
 
   const handleNodeMouseLeave = useCallback(() => {
-    handleSetHighlighted({
-      originRanges: [],
-    })
-  }, [handleSetHighlighted])
+    handleSetSyncedOriginRanges([] as OriginAnswerRange[])
+  }, [handleSetSyncedOriginRanges])
 
   const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')
 

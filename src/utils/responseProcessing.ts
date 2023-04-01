@@ -246,10 +246,19 @@ export const splitAnnotatedSentences = (text: string): string[] => {
   return sentences
 }
 
-export const mergeNodeEntities = (answerObjects: AnswerObject[]) => {
+export const mergeNodeEntities = (
+  answerObjects: AnswerObject[],
+  highlightedAnswerObjectIds: string[]
+) => {
   const nodeEntities: NodeEntity[] = []
 
   answerObjects.forEach(answerObject => {
+    if (
+      highlightedAnswerObjectIds.length &&
+      !highlightedAnswerObjectIds.includes(answerObject.id)
+    )
+      return
+
     answerObject.nodeEntities.forEach(nodeEntity => {
       const existingNode = nodeEntities.find(n => n.id === nodeEntity.id)
 
@@ -262,4 +271,25 @@ export const mergeNodeEntities = (answerObjects: AnswerObject[]) => {
   })
 
   return nodeEntities
+}
+
+export const mergeEdgeEntities = (
+  answerObjects: AnswerObject[],
+  highlightedAnswerObjectIds: string[]
+) => {
+  const edgeEntities: EdgeEntity[] = []
+
+  answerObjects.forEach(answerObject => {
+    if (
+      highlightedAnswerObjectIds.length &&
+      !highlightedAnswerObjectIds.includes(answerObject.id)
+    )
+      return
+
+    answerObject.edgeEntities.forEach(edgeEntity => {
+      edgeEntities.push(edgeEntity)
+    })
+  })
+
+  return edgeEntities
 }

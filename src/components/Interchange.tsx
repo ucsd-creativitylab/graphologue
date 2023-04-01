@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext } from 'react'
 
-import { QuestionAndAnswer, QuestionAndAnswerHighlighted } from '../App'
+import { AnswerObject, OriginAnswerRange, QuestionAndAnswer } from '../App'
 import {
   deepCopyQuestionAndAnswer,
   newQuestionAndAnswer,
@@ -12,12 +12,16 @@ import { ReactFlowProvider } from 'reactflow'
 
 export interface InterchangeContextProps {
   questionAndAnswer: QuestionAndAnswer
-  handleSetHighlighted: (highlighted: QuestionAndAnswerHighlighted) => void
+  handleSetSyncedOriginRanges: (originRanges: OriginAnswerRange[]) => void
+  handleSetSyncedHighlightedAnswerObjectIds: (ids: string[]) => void
+  handleRemoveAnswerObject: (id: string) => void
 }
 ////
 export const InterchangeContext = createContext<InterchangeContextProps>({
   questionAndAnswer: newQuestionAndAnswer(),
-  handleSetHighlighted: () => {},
+  handleSetSyncedOriginRanges: () => {},
+  handleSetSyncedHighlightedAnswerObjectIds: () => {},
+  handleRemoveAnswerObject: () => {},
 })
 
 /* -------------------------------------------------------------------------- */
@@ -34,19 +38,70 @@ export const Interchange = ({
 
   // const answerItemRef = createRef<HTMLDivElement>()
 
-  const handleSetHighlighted = useCallback(
-    (highlighted: QuestionAndAnswerHighlighted) => {
+  const handleSetSyncedOriginRanges = useCallback(
+    (originRanges: OriginAnswerRange[]) => {
       setQuestionsAndAnswers(
         (questionsAndAnswers: QuestionAndAnswer[]): QuestionAndAnswer[] =>
-          questionsAndAnswers.map((questionAndAnswer: QuestionAndAnswer) => {
-            if (questionAndAnswer.id === id) {
-              return {
-                ...deepCopyQuestionAndAnswer(questionAndAnswer),
-                highlighted,
-              } as QuestionAndAnswer
+          questionsAndAnswers.map(
+            (questionAndAnswer: QuestionAndAnswer): QuestionAndAnswer => {
+              if (questionAndAnswer.id === id) {
+                return {
+                  ...deepCopyQuestionAndAnswer(questionAndAnswer),
+                  synced: {
+                    ...questionAndAnswer.synced,
+                    originRanges,
+                  },
+                }
+              }
+              return questionAndAnswer
             }
-            return questionAndAnswer
-          })
+          )
+      )
+    },
+    [id, setQuestionsAndAnswers]
+  )
+
+  const handleSetSyncedHighlightedAnswerObjectIds = useCallback(
+    (ids: string[]) => {
+      setQuestionsAndAnswers(
+        (questionsAndAnswers: QuestionAndAnswer[]): QuestionAndAnswer[] =>
+          questionsAndAnswers.map(
+            (questionAndAnswer: QuestionAndAnswer): QuestionAndAnswer => {
+              if (questionAndAnswer.id === id) {
+                return {
+                  ...deepCopyQuestionAndAnswer(questionAndAnswer),
+                  synced: {
+                    ...questionAndAnswer.synced,
+                    highlightedAnswerObjectIds: ids,
+                  },
+                }
+              }
+              return questionAndAnswer
+            }
+          )
+      )
+    },
+    [id, setQuestionsAndAnswers]
+  )
+
+  const handleRemoveAnswerObject = useCallback(
+    (answerObjectId: string) => {
+      setQuestionsAndAnswers(
+        (questionsAndAnswers: QuestionAndAnswer[]): QuestionAndAnswer[] =>
+          questionsAndAnswers.map(
+            (questionAndAnswer: QuestionAndAnswer): QuestionAndAnswer => {
+              if (questionAndAnswer.id === id) {
+                return {
+                  ...deepCopyQuestionAndAnswer(questionAndAnswer),
+                  answerObjects: questionAndAnswer.answerObjects.filter(
+                    (answerObject: AnswerObject) =>
+                      answerObject.id !== answerObjectId
+                  ),
+                }
+              }
+              return questionAndAnswer
+            }
+          )
       )
     },
     [id, setQuestionsAndAnswers]
@@ -56,7 +111,9 @@ export const Interchange = ({
     <InterchangeContext.Provider
       value={{
         questionAndAnswer: data,
-        handleSetHighlighted,
+        handleSetSyncedOriginRanges,
+        handleSetSyncedHighlightedAnswerObjectIds,
+        handleRemoveAnswerObject,
       }}
     >
       <div className="interchange-item">
