@@ -18,10 +18,8 @@ import ExpandCircleDownRoundedIcon from '@mui/icons-material/ExpandCircleDownRou
 
 import { contentEditingTimeout, terms } from '../constants'
 import { magicExplain, PromptSourceComponentsType } from '../utils/magicExplain'
-import { getOpenAICompletion, getTextFromModelResponse } from '../utils/openAI'
 import {
   NodeLabelAndTags,
-  predefinedPrompts,
   predefinedResponses,
 } from '../utils/promptsAndResponses'
 import { getWikiData } from '../utils/wikiBase'
@@ -306,7 +304,7 @@ export const MagicSuggestItem = memo(
     const { setNodes, setEdges } = useReactFlow()
     const { model } = useContext(FlowContext)
 
-    const [modelResponse, setModelResponse] = useState<string>('')
+    const [modelResponse] = useState<string>('')
 
     const handleSetSuggestion = useCallback(
       (suggestion: string) => {
@@ -345,6 +343,7 @@ export const MagicSuggestItem = memo(
       [setEdges, setNodes, target, targetId]
     )
 
+    /*
     const handleSuggest = useCallback(async () => {
       const prompt = predefinedPrompts.giveNodeLabelSuggestionsFromNodes(
         target,
@@ -374,6 +373,7 @@ export const MagicSuggestItem = memo(
         handleSuggest()
       }
     }, [disabled, handleSuggest])
+    */
 
     const responseButtons: ReactElement[] = modelResponse
       .split(', ')

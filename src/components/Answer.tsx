@@ -296,7 +296,7 @@ const RawAnswer = ({
 }) => {
   const {
     handleSetSyncedHighlightedAnswerObjectIds,
-    handleRemoveAnswerObject,
+    handleAnswerObjectRemove,
   } = useContext(InterchangeContext)
 
   const [blockDisplay, setBlockDisplay] = useState(true)
@@ -436,7 +436,7 @@ const RawAnswer = ({
               ) : (
                 <AnswerText
                   rawAnswer={answer}
-                  highlightedRanges={synced.originRanges}
+                  highlightedRanges={synced.highlightedOriginRanges}
                   slicingRange={answerObject.originRange}
                 />
               )
@@ -472,7 +472,7 @@ const RawAnswer = ({
                     <span
                       className={`answer-block-menu-item`}
                       onClick={() => {
-                        handleRemoveAnswerObject(answerObject.id)
+                        handleAnswerObjectRemove(answerObject.id)
                       }}
                     >
                       remove
@@ -488,7 +488,7 @@ const RawAnswer = ({
           <div className="answer-item-text">
             <AnswerText
               rawAnswer={answer}
-              highlightedRanges={synced.originRanges}
+              highlightedRanges={synced.highlightedOriginRanges}
               slicingRange={{
                 start: 0,
                 end: answer.length - 1,

@@ -42,10 +42,7 @@ import {
   removeLastBracket,
 } from '../utils/responseProcessing'
 
-export type FinishedAnswerObjectParsingTypes =
-  | 'summary'
-  | 'slide'
-  | 'relationships'
+export type FinishedAnswerObjectParsingTypes = 'summary' | 'slide'
 
 export const Question = () => {
   const { questionsAndAnswersCount, setQuestionsAndAnswers } =
@@ -211,7 +208,6 @@ export const Question = () => {
       } = {
         summary: '',
         slide: '',
-        relationships: '',
       }
 
       let parsingError = false
@@ -404,7 +400,7 @@ export const Question = () => {
         _appendContentToLastAnswerObject(deltaContent)
       }
 
-      // parse relationships right now
+      // ! parse relationships right now
       const lastParagraph = aC.answer.split('\n').slice(-1)[0]
       if (targetLastAnswerObjectId)
         handleUpdateRelationshipEntities(
@@ -482,6 +478,13 @@ export const Question = () => {
         modelStatus: {
           modelParsing: false,
           modelParsingComplete: true,
+          modelInitialPrompts: [
+            ...initialPrompts.map(p => ({ ...p })),
+            {
+              role: 'assistant',
+              content: answerStorage.current.answer,
+            },
+          ],
         },
       })
     )

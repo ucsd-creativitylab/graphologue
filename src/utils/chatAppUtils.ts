@@ -146,9 +146,10 @@ export const newQuestionAndAnswer = (
         prefill?.modelStatus?.modelAnsweringComplete ?? false,
       modelParsingComplete: prefill?.modelStatus?.modelParsingComplete ?? false,
       modelError: prefill?.modelStatus?.modelError ?? false,
+      modelInitialPrompts: prefill?.modelStatus?.modelInitialPrompts ?? [],
     },
     synced: prefill?.synced ?? {
-      originRanges: [],
+      highlightedOriginRanges: [],
       highlightedAnswerObjectIds: [],
     },
   }

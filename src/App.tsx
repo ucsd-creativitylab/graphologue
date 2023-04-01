@@ -7,6 +7,7 @@ import { EdgeInformation, NodeInformation } from './utils/responseProcessing'
 
 // import the package.json file
 import packageJson from '../package.json'
+import { Prompt } from './utils/openAI'
 
 export interface OriginAnswerRange {
   start: number
@@ -55,10 +56,11 @@ interface ModelStatus {
   modelAnsweringComplete: boolean
   modelParsingComplete: boolean
   modelError: boolean
+  modelInitialPrompts: Prompt[]
 }
 
 export interface QuestionAndAnswerSynced {
-  originRanges: OriginAnswerRange[]
+  highlightedOriginRanges: OriginAnswerRange[]
   highlightedAnswerObjectIds: string[]
 }
 

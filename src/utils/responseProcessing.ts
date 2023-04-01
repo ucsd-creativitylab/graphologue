@@ -293,3 +293,24 @@ export const mergeEdgeEntities = (
 
   return edgeEntities
 }
+
+export const findEntitySentence = (
+  originRange: OriginAnswerRange,
+  answer: string
+) => {
+  const sentenceStart = answer.lastIndexOf('.', originRange.start) + 1
+  const sentenceEnd = answer.indexOf('.', originRange.end)
+  const sentence = answer.slice(sentenceStart, sentenceEnd + 1)
+  return sentence
+}
+
+export const findEntityFromAnswerObjects = (
+  answerObjects: AnswerObject[],
+  entityId: string
+) => {
+  const entity = answerObjects
+    .map(answerObject => answerObject.nodeEntities)
+    .flat()
+    .find(entity => entity.id === entityId)
+  return entity
+}

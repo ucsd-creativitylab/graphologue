@@ -25,19 +25,23 @@ import {
 import { ColorResult, TwitterPicker } from 'react-color'
 import tinycolor from 'tinycolor2'
 
+import ManageSearchRoundedIcon from '@mui/icons-material/ManageSearchRounded'
+import TextIncreaseRoundedIcon from '@mui/icons-material/TextIncreaseRounded'
+import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded'
+import NotInterestedRoundedIcon from '@mui/icons-material/NotInterestedRounded'
+
 import { hardcodedNodeSize, styles, viewFittingOptions } from '../constants'
 import { FlowContext } from '../components/Contexts'
 import { MagicNodeData } from './MagicNode'
 import {
-  MagicNodeTaggingItem,
-  MagicSuggestItem,
   MagicToolbox,
   MagicToolboxButton,
   MagicToolboxItem,
 } from './MagicToolbox'
 import randomPhrases from '../utils/randomPhrases'
-import { getHandleId, getNodeId, getNodeLabelAndTags } from '../utils/utils'
+import { getHandleId, getNodeId } from '../utils/utils'
 import { OriginAnswerRange } from '../App'
+import { InterchangeContext } from '../components/Interchange'
 
 export interface GeneratedInformation {
   originRanges: OriginAnswerRange[]
@@ -92,9 +96,14 @@ export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
     const { getNodes, setNodes } = useReactFlow()
     const { metaPressed, selectedComponents } = useContext(FlowContext)
+    const {
+      handleAnswerObjectNodeExpand,
+      handleAnswerObjectNodeCollapse,
+      handleAnswerObjectNodeRemove,
+    } = useContext(InterchangeContext)
 
-    const moreThanOneComponentsSelected =
-      selectedComponents.nodes.length + selectedComponents.edges.length > 1
+    // const moreThanOneComponentsSelected =
+    //   selectedComponents.nodes.length + selectedComponents.edges.length > 1
 
     const {
       label,
@@ -103,7 +112,7 @@ export const CustomNode = memo(
       sourceHandleId,
       targetHandleId,
       // editing,
-      // generated: { originRanges, originTexts },
+      generated: { originRanges },
     } = data as CustomNodeData
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
@@ -265,12 +274,11 @@ export const CustomNode = memo(
             >
               {label}
             </span>
-            {!moreThanOneComponentsSelected && selected ? (
+            {/* {!moreThanOneComponentsSelected && selected ? ( */}
+            {selected ? (
               <MagicToolbox
                 className={`edge-label-toolbox${
-                  selected && !moreThanOneComponentsSelected
-                    ? ' magic-toolbox-show'
-                    : ''
+                  selected ? ' magic-toolbox-show' : ''
                 }`}
                 onUnmount={onToolboxClose}
               >
@@ -289,12 +297,75 @@ export const CustomNode = memo(
                   </>
                 </MagicToolboxItem>
 
-                {label.length !== 0 && tags.length === 0 ? (
+                <MagicToolboxItem title="more">
+                  <>
+                    <MagicToolboxButton
+                      content={
+                        <>
+                          <ManageSearchRoundedIcon />
+                          <span>explain</span>
+                        </>
+                      }
+                      onClick={() => {
+                        handleAnswerObjectNodeExpand(
+                          id,
+                          originRanges,
+                          'explain'
+                        )
+                      }}
+                    />
+                    <MagicToolboxButton
+                      content={
+                        <>
+                          <TextIncreaseRoundedIcon />
+                          <span>examples</span>
+                        </>
+                      }
+                      onClick={() => {
+                        handleAnswerObjectNodeExpand(
+                          id,
+                          originRanges,
+                          'examples'
+                        )
+                      }}
+                    />
+                  </>
+                </MagicToolboxItem>
+
+                <MagicToolboxItem title="less">
+                  <>
+                    <MagicToolboxButton
+                      content={
+                        <>
+                          <UnfoldLessRoundedIcon />
+                          <span>collapse</span>
+                        </>
+                      }
+                      onClick={() => {
+                        handleAnswerObjectNodeCollapse(id)
+                      }}
+                    />
+                    <MagicToolboxButton
+                      content={
+                        <>
+                          <NotInterestedRoundedIcon />
+                          <span>remove</span>
+                        </>
+                      }
+                      onClick={() => {
+                        handleAnswerObjectNodeRemove(id)
+                      }}
+                    />
+                  </>
+                </MagicToolboxItem>
+
+                {/* {label.length !== 0 && tags.length === 0 ? (
                   <MagicNodeTaggingItem targetId={id} label={label} />
                 ) : (
                   <></>
-                )}
-                {label.length === 0 ? (
+                )} */}
+
+                {/* {label.length === 0 ? (
                   <MagicSuggestItem
                     target="node"
                     targetId={id}
@@ -304,7 +375,7 @@ export const CustomNode = memo(
                   />
                 ) : (
                   <></>
-                )}
+                )} */}
               </MagicToolbox>
             ) : (
               <></>

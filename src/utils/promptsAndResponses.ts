@@ -72,7 +72,7 @@ Relationships of high saliency are often included in summaries. Relationships of
 \
 Every entity should be annotated with at least one relationship. Relationships should only connect entities that appear in the response.
 
-Paragraph example 1:
+Example:
 [Artificial Intelligence (AI) ($N1)] [is a ($H, $N1, $N2)] [field of computer science ($N2)] that [creates ($H, $N1, $N3)] [intelligent machines ($N3)]. \
 [These machines ($N3)] [possess ($H, $N3, $N4)] [capabilities ($N4)] [such as ($M, $N4, $N5; $M, $N4, $N6; $M, $N4, $N7; $M, $N4, $N8)] \
 [learning ($N5)], \
@@ -80,17 +80,38 @@ Paragraph example 1:
 [perception ($N7)], \
 and [problem-solving ($N8)]. \
 [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
-[Narrow AI ($N9)] [is designed for ($M, $N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($M, $N10, $N12)] [mimic human intelligence ($N12)].
-
-Paragraph example 2:
+[Narrow AI ($N9)] [is designed for ($M, $N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($M, $N10, $N12)] [mimic human intelligence ($N12)].`,
+        /**
+Example:
 [Apple Inc. ($N1)] [is a ($H, $N1, $N2)] [technology company ($N2)] [based in ($H, $N1, $N3)] [Cupertino, California ($N3)]. \
 [It ($N1)] [was ($H, $N1, $N4)] [founded ($N4)] [by ($H, $N4, $N5; $H, $N4, $N6; $H, $N4, $N7)] [Steve Jobs ($N5)], [Steve Wozniak ($N6)], and [Ronald Wayne ($N7)] [in ($M, $N4, $N8)] [1976 ($N8)]. \
 [Apple ($N1)] [is known for ($H, $N1, $N9)] [its innovative products ($N9)], [such as ($M, $N9, $N10; $M, $N9, $N11; $M, $N9, $N12)] [iPhones ($N10)], [iPads ($N11)], and [Mac computers ($N12)]. \
-[The company ($N1)] also [offers ($M, $N1, $N13; $M, $N1, $N14; $M, $N1, $N15)] [software ($N13)], [services ($N14)], and [accessories ($N15)].`,
+[The company ($N1)] also [offers ($M, $N1, $N13; $M, $N1, $N14; $M, $N1, $N15)] [software ($N13)], [services ($N14)], and [accessories ($N15)].*/
       },
       {
         role: 'user',
         content: question,
+      },
+    ]
+  },
+  _graph_nodeExpand: (
+    prevConversation: Prompt[],
+    originalSentence: string,
+    nodeLabel: string
+  ): Prompt[] => {
+    return [
+      ...prevConversation,
+      {
+        role: 'user',
+        content: `In the sentence "${originalSentence}", you mentioned the entity "${nodeLabel}". \
+Can you explain this entity in 1 to 2 sentences? \
+Please refer to the original response as the context of your explanation. \
+Your explanation should be concise, one paragraph, and follow the same annotation format as the original response.
+
+For example, for "[general AI ($N10)]" in the sentence \
+"[AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)].":
+[General AI ($N10)] refers to a [type of artificial intelligence ($N1)] that \
+[has the ability to ($M, $N10, $N13)] [understand ($N14)], [learn ($N5)], and [apply knowledge across a wide range of tasks ($N15)].`,
       },
     ]
   },
@@ -324,7 +345,7 @@ export const predefinedPromptsForParsing: {
 } = {
   summary: predefinedPrompts._chat_summarizeParagraph,
   slide: predefinedPrompts._chat_parseSlide,
-  relationships: predefinedPrompts._chat_parseRelationships,
+  // relationships: predefinedPrompts._chat_parseRelationships,
 }
 
 export const predefinedResponses = {

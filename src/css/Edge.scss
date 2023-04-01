@@ -1,8 +1,10 @@
 $edge-color-stroke: #aaa;
 $edge-stroke-width: 2px;
 
-.react-flow__edges:has(.react-flow__edge.selected) {
-  z-index: 999999 !important;
+.react-flow:not(:has(.react-flow__node.selected)) {
+  .react-flow__edges:has(.react-flow__edge.selected) {
+    z-index: 999999 !important;
+  }
 }
 
 .react-flow__edge {

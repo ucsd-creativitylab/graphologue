@@ -548,9 +548,28 @@ const Flow = () => {
 
   const handleNodeMouseLeave = useCallback(
     (e: MouseEvent, node: Node) => {
-      if (!node.selected) handleSetSyncedOriginRanges([] as OriginAnswerRange[])
+      handleSetSyncedOriginRanges(
+        selectedComponents.nodes
+          .map(nodeId => {
+            const node = nodes.find(nd => nd.id === nodeId)
+            if (!node) return null
+
+            const { data } = node
+            const {
+              generated: { originRanges },
+            } = data as CustomNodeData
+
+            return originRanges
+          })
+          .filter(
+            (
+              originRanges: OriginAnswerRange[] | null
+            ): originRanges is OriginAnswerRange[] => originRanges !== null
+          )
+          .flat(1) as OriginAnswerRange[]
+      )
     },
-    [handleSetSyncedOriginRanges]
+    [handleSetSyncedOriginRanges, nodes, selectedComponents.nodes]
   )
 
   const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')
