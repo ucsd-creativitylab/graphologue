@@ -28,7 +28,6 @@ import {
   MagicToolboxButton,
   MagicToolboxItem,
 } from './MagicToolbox'
-import { SuperTextEditor } from './SuperTextEditor'
 import { getEdgeId, getEdgeParams, getNodeLabelAndTags } from '../utils/utils'
 import { customAddNodes, GeneratedInformation } from './Node'
 import { MagicNodeData } from './MagicNode'
@@ -351,7 +350,7 @@ export const EdgeCustomLabel = memo(
         y={labelY - 4} // ! why
         requiredExtensions="http://www.w3.org/1999/xhtml"
       >
-        <SuperTextEditor
+        {/* <SuperTextEditor
           target="edge"
           targetId={edgeId}
           content={edgeData.label}
@@ -359,7 +358,9 @@ export const EdgeCustomLabel = memo(
           background={'white'}
           selected={selected}
           textareaRef={null}
-        >
+        > */}
+        <div className="super-wrapper super-wrapper-edge super-wrapper-static-text super-wrapper-static-text-edge">
+          <span className="edge-label">{edgeData.label}</span>
           {/* -------------------------------------------------------------------------- */}
           {!moreThanOneComponentsSelected && selected ? (
             <MagicToolbox
@@ -408,7 +409,7 @@ export const EdgeCustomLabel = memo(
             <></>
           )}
           {/* -------------------------------------------------------------------------- */}
-        </SuperTextEditor>
+        </div>
       </foreignObject>
     )
   }

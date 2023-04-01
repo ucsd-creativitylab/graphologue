@@ -240,7 +240,7 @@ export const CustomNode = memo(
             selected={selected}
             textareaRef={textAreaRef}
           > */}
-          <div className="super-wrapper super-wrapper-static-text">
+          <div className="super-wrapper super-wrapper-static-text super-wrapper-static-text-node">
             <span
               className="node-label"
               style={{

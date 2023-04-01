@@ -3,7 +3,6 @@ import { EdgeProps, getSmoothStepPath } from 'reactflow'
 import { CustomEdgeData, EdgeCustomLabel } from './Edge'
 import { styles } from '../constants'
 import { getMarkerId } from './CustomDefs'
-import { hardcodedEdgeLabelWidthEstimation } from './Node'
 
 export const SimpleEdge = memo(
   ({
@@ -90,7 +89,7 @@ export const SimpleEdge = memo(
             targetX,
             targetY
           )}
-          labelY={targetY}
+          labelY={targetY - 8} // gap
           connection={{
             source,
             target,
@@ -111,11 +110,10 @@ const getEdgeLabelXPosition = (
   targetX: number,
   targetY: number
 ) => {
-  if (sourceY === targetY) return (sourceX + targetX) / 2
+  if (Math.abs(sourceY - targetY) < 2) return (sourceX + targetX) / 2
   else
     return (
-      targetX -
-      (targetX - sourceX) / 2 -
-      (hardcodedEdgeLabelWidthEstimation(content) / 2 + 10) /* gap */
+      0.75 * targetX + 0.25 * sourceX
+      // hardcodedEdgeLabelWidthEstimation(content) / 2
     )
 }

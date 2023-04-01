@@ -57,17 +57,21 @@ export const predefinedPrompts = {
     return [
       {
         role: 'system',
-        content: `The user’s goal is to construct a concept map to visually explain your response. \
+        content: `Please provide a well-structured, multiple-paragraph, response to the user's question. \
+The paragraphs should cover the most important aspects of the answer, with each discussing a different aspect or topic. \
+The user’s goal is to construct a concept map to visually explain your response. \
 To achieve this, annotate the key entities and relationships inline for each sentence in the response. \
-Entities are noun phrases and should be annotated with [entity ($N1)]. For example, [Artificial Intelligence ($N1)]. \
-A relationship is often a word or a phrase that consists of verbs, adjectives, propositions, or adverbs. \
-Relationships should be annotated with the relevant entities and saliency of the relationship as high ($H), medium ($M), or low ($L), \
-in the format of [relationship ($H, $N1, $N2)]. \
-For example [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
+\
+Entities are often noun phrases and should be annotated with [entity ($N1)], for example, [Artificial Intelligence ($N1)]. \
+\
+A relationship is often a word or a phrase that consists of verbs, adjectives, adverbs, or propositions. \
+Relationships should be annotated with the relevant entities and saliency of the relationship as high ($H), medium ($M), or low ($L), in the format of [relationship ($H, $N1, $N2)], \
+for example, [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
 Relationships of high saliency are often included in summaries. Relationships of low saliency are often omitted in summaries. \
+\
 Every entity should be annotated with at least one relationship. Relationships should only connect entities that appear in the response.
 
-A complete example:
+Paragraph example 1:
 [Artificial Intelligence (AI) ($N1)] [is a ($H, $N1, $N2)] [field of computer science ($N2)] that [creates ($H, $N1, $N3)] [intelligent machines ($N3)]. \
 [These machines ($N3)] [possess ($H, $N3, $N4)] [capabilities ($N4)] [such as ($M, $N4, $N5; $M, $N4, $N6; $M, $N4, $N7; $M, $N4, $N8)] \
 [learning ($N5)], \
@@ -75,7 +79,13 @@ A complete example:
 [perception ($N7)], \
 and [problem-solving ($N8)]. \
 [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
-[Narrow AI ($N9)] [is designed for ($M, $N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($M, $N10, $N12)] [mimic human intelligence ($N12)].`,
+[Narrow AI ($N9)] [is designed for ($M, $N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($M, $N10, $N12)] [mimic human intelligence ($N12)].
+
+Paragraph example 2:
+[Apple Inc. ($N1)] [is a ($H, $N1, $N2)] [technology company ($N2)] [based in ($H, $N1, $N3)] [Cupertino, California ($N3)]. \
+[It ($N1)] [was ($H, $N1, $N4)] [founded ($N4)] [by ($H, $N4, $N5; $H, $N4, $N6; $H, $N4, $N7)] [Steve Jobs ($N5)], [Steve Wozniak ($N6)], and [Ronald Wayne ($N7)] [in ($M, $N4, $N8)] [1976 ($N8)]. \
+[Apple ($N1)] [is known for ($H, $N1, $N9)] [its innovative products ($N9)], [such as ($M, $N9, $N10; $M, $N9, $N11; $M, $N9, $N12)] [iPhones ($N10)], [iPads ($N11)], and [Mac computers ($N12)]. \
+[The company ($N1)] also [offers ($M, $N1, $N13; $M, $N1, $N14; $M, $N1, $N15)] [software ($N13)], [services ($N14)], and [accessories ($N15)].`,
       },
       {
         role: 'user',
@@ -135,7 +145,7 @@ Do not include anything else in the response other than the chunks.`,
     return [
       {
         role: 'system',
-        content: `You are a helpful assistant. Make a short, one-line summary of the chunk of the text provided by the user. \
+        content: `You are a professional writer specialized in text summarization. Make a short, one-line summary of the chunk of the text provided by the user. \
 Do not include anything else in the response other than the summarized text.`,
       },
       {
@@ -157,7 +167,7 @@ Do not include anything else in the response other than the summarized text.`,
       // },
       {
         role: 'system',
-        content: `You are a helpful, creative, and clever assistant. Structure the following text provided by the user into a presentation slide, in markdown format. \
+        content: `You are a professional presentation slide builder. Structure the following text provided by the user into a presentation slide, in markdown format. \
 Do not include anything else in the response other than the markdown text.`,
       },
       {

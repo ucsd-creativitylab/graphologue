@@ -15,12 +15,36 @@
     justify-content: center;
 
     width: auto;
-    min-width: 10rem;
 
-    .node-label {
+    &.super-wrapper-static-text-node {
+      min-width: 10rem;
+
+      .node-label {
+        display: inline-flex;
+        padding: $padding-mid $padding-xx-large;
+        text-align: center;
+
+        font-size: $font-size-default;
+        font-weight: $font-weight-thin;
+      }
+    }
+  }
+
+  &.super-wrapper-static-text-edge {
+    position: relative;
+    width: fit-content;
+
+    .edge-label {
       display: inline-flex;
-      padding: $padding-mid $padding-xx-large;
+      padding: $padding-xs $padding-xs;
       text-align: center;
+
+      font-size: $font-size-xs;
+      font-weight: $font-weight-default;
+
+      width: max-content;
+      max-width: 12rem;
+      white-space: pre;
     }
   }
 
@@ -30,7 +54,6 @@
 
   .super-text-editor {
     width: auto;
-    // max-width: 12rem;
     height: auto;
     min-width: 1rem; // ?
     font-family: inherit;
@@ -112,7 +135,8 @@
   display: inline-flex;
   align-items: center;
 
-  .super-text-editor {
+  .super-text-editor,
+  .edge-label {
     flex: 1;
     padding: $padding-xs $padding-xs;
     border-radius: $padding-x-large;
@@ -155,7 +179,9 @@
       background: $white;
       outline: rem-to-px(1rem) solid rgba($red, $opacity-mid);
     }
+  }
 
+  .super-text-editor {
     // when editing
     &:not(.disabled-text-editor) {
       color: $red;

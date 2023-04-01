@@ -32,7 +32,7 @@ export const removeLastBracket = (text: string, eliminateAfter = false) => {
       (eliminateAfter
         ? ''
         : cleanStreamedAnnotationsRealtime(afterBracket).replace(
-            /[$,;\s]+/g,
+            /[$HML,;\s]+/g,
             ' ' // TODO polish
           ))
     )
@@ -43,7 +43,8 @@ export const removeLastBracket = (text: string, eliminateAfter = false) => {
 
 export const removeAnnotations = (text: string) => {
   let cleanedText = text.replace(
-    /\[([^[\]]+?)\s\((?:\$N\d+(?:,\s\$N\d+)*(?:;\s?)?)+\)\]/g,
+    /\[([^[\]()]+(?:\([^)]*\))*)\s\(((?:\$[HML],\s)?\$N\d+(?:,\s\$N\d+)*(?:;\s?(?:\$[HML],\s)?\$N\d+(?:,\s\$N\d+)*)*)\)\]/g,
+    // /\[([^[\]]+?)\s\((?:\$N\d+(?:,\s\$N\d+)*(?:;\s?)?)+\)\]/g,
     (match, label) => label
   )
 
