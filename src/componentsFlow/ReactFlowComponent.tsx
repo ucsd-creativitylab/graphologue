@@ -19,15 +19,14 @@ import ReactFlow, {
   ReactFlowInstance,
   Node,
   Edge,
-  Connection,
   EdgeMarker,
   OnConnectStartParams,
-  OnConnectStart,
-  OnConnectEnd,
   useOnViewportChange,
   Viewport,
   useNodesState,
   useEdgesState,
+  OnConnectStart,
+  OnConnectEnd,
 } from 'reactflow'
 import isEqual from 'react-fast-compare'
 
@@ -36,7 +35,6 @@ import {
   CustomEdge,
   customConnectionLineStyle,
   customEdgeOptions,
-  getNewEdge,
 } from './Edge'
 import { customAddNodes, CustomNode, CustomNodeData } from './Node'
 import { CustomControls } from './CustomControl'
@@ -97,7 +95,7 @@ const Flow = () => {
     setEdges,
     setViewport,
     addNodes,
-    addEdges,
+    // addEdges,
     toObject,
     fitView,
     getViewport,
@@ -128,10 +126,10 @@ const Flow = () => {
     edges: [],
   } as PromptSourceComponentsType)
 
-  const currentConnectingNode = useRef({
-    id: '',
-    sourceHandleId: '',
-  })
+  // const currentConnectingNode = useRef({
+  //   id: '',
+  //   sourceHandleId: '',
+  // })
 
   // const anyNodeDragging = useRef(false)
   const { setTime, undoTime, redoTime, canUndo, canRedo } = useTimeMachine(
@@ -197,6 +195,7 @@ const Flow = () => {
   // }, [redoPressed, canRedo, redoTime])
 
   // ! on connect
+  /*
   const onConnect = useCallback(
     (params: Connection) => {
       addEdges(
@@ -206,6 +205,8 @@ const Flow = () => {
     },
     [addEdges]
   )
+  */
+  const onConnect = useCallback(() => {}, [])
 
   /* -------------------------------------------------------------------------- */
   // ! node
@@ -324,6 +325,7 @@ const Flow = () => {
   // ! edge
 
   // build new nodes on drag out
+  /*
   const onConnectStart = useCallback(
     (_: MouseEvent, { nodeId, handleId }: OnConnectStartParams) => {
       currentConnectingNode.current.id = nodeId || ''
@@ -331,7 +333,13 @@ const Flow = () => {
     },
     []
   )
+  */
+  const onConnectStart = useCallback(
+    (_: MouseEvent, { nodeId, handleId }: OnConnectStartParams) => {},
+    []
+  )
 
+  /*
   const onConnectEnd = useCallback(
     (event: any) => {
       const targetIsPane = (event.target as HTMLElement).classList.contains(
@@ -380,6 +388,8 @@ const Flow = () => {
     },
     [getViewport, addNodes, selectNodes, fitView, setEdges]
   )
+  */
+  const onConnectEnd = useCallback((event: any) => {}, [])
 
   const doSetEdgesEditing = useCallback(
     (edgeIds: string[], editing: boolean) => {

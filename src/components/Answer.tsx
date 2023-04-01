@@ -289,7 +289,7 @@ const RawAnswer = ({
     answer,
     answerObjects,
     synced,
-    modelStatus: { modelAnsweringComplete },
+    modelStatus: { modelParsingComplete },
   },
 }: {
   questionAndAnswer: QuestionAndAnswer
@@ -451,6 +451,14 @@ const RawAnswer = ({
                 <div className="answer-item-text">{contentComponent}</div>
                 {answerObjectComplete && (
                   <div className="answer-block-menu">
+                    <span
+                      className={`answer-block-menu-item${
+                        !modelParsingComplete ? ' disabled' : ''
+                      }`}
+                      onClick={() => {}}
+                    >
+                      tell me more
+                    </span>
                     <span
                       className={`answer-block-menu-item${
                         answerObjectHighlighted ? ' highlighted' : ''

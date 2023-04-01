@@ -143,6 +143,12 @@
           background-color: $elegant-yellow;
           color: $white;
         }
+
+        &.disabled {
+          pointer-events: none;
+          cursor: not-allowed;
+          opacity: 0.5;
+        }
       }
     }
   }
