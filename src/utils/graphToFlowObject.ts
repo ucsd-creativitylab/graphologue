@@ -176,12 +176,38 @@ export const answerObjectsToReactFlowObject = (
     }
   })
 
-  // ! filter
+  /* -------------------------------------------------------------------------- */
+
+  // ! filter node and edge entities
 
   const filteredEdgeEntities = edgeEntities.filter(edgeEntity => {
     const { sourceId, targetId } = edgeEntity.edgePairs[0]
 
-    return sourceId !== targetId && targetId !== '$N1' // ? disable edge to the first node // TODO any better way?
+    if (sourceId === targetId || targetId === '$N1') {
+      // ? disable edge to the first node // TODO any better way?
+      return false
+    }
+
+    // if the edge doesn't have a label, and there are other edges between the same nodes,
+    // then eliminate this edge
+    if (
+      edgeEntity.edgeLabel === '' &&
+      edgeEntities.filter(
+        _e =>
+          _e.edgePairs[0].sourceId === sourceId &&
+          _e.edgePairs[0].targetId === targetId
+      ).length > 1 &&
+      // this is not the first edge entity appearance among the same edges in the list
+      edgeEntities.findIndex(
+        _e =>
+          _e.edgePairs[0].sourceId === sourceId &&
+          _e.edgePairs[0].targetId === targetId
+      ) !== edgeEntities.indexOf(edgeEntity)
+    ) {
+      return false
+    }
+
+    return true
   })
 
   const filteredNodeEntities = nodeEntities.filter(nodeEntity => {

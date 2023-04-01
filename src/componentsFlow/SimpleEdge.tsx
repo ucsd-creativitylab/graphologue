@@ -110,7 +110,8 @@ const getEdgeLabelXPosition = (
   targetX: number,
   targetY: number
 ) => {
-  if (Math.abs(sourceY - targetY) < 2) return (sourceX + targetX) / 2
+  if (content.length > 0 && Math.abs(sourceY - targetY) < 2)
+    return (sourceX + targetX) / 2
   else
     return (
       0.75 * targetX + 0.25 * sourceX

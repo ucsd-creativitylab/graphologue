@@ -74,6 +74,7 @@ export const Answer = () => {
   const prevNodeSnippets = useRef<NodeSnippet[]>([])
   // const prevEdges = useRef<Edge[]>([])
 
+  // ! put all node and edge entities together
   const nodeEntities = answerObjects.reduce(
     (acc, { nodeEntities }) => [...acc, ...nodeEntities],
     [] as NodeEntity[]
