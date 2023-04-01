@@ -190,10 +190,10 @@ export const Answer = () => {
       height: n.height ?? hardcodedNodeSize.height,
     }))
 
-    const nodeSnippetExtraction = (n: NodeSnippet) => ({
-      id: n.id,
-      label: n.label,
-    })
+    // const nodeSnippetExtraction = (n: NodeSnippet) => ({
+    //   id: n.id,
+    //   label: n.label,
+    // })
 
     const changedNodeSnippets = [
       ...newNodeSnippets.filter(n => {
