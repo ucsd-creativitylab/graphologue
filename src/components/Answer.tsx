@@ -233,6 +233,8 @@ export const Answer = () => {
       }))(nE)
     ),
     edgeEntities,
+    setNodes,
+    setEdges,
     runViewFittingJobs,
   ])
 
