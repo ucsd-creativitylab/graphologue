@@ -97,6 +97,13 @@ export const Interchange = ({
                     (answerObject: AnswerObject) =>
                       answerObject.id !== answerObjectId
                   ),
+                  synced: {
+                    ...questionAndAnswer.synced,
+                    highlightedAnswerObjectIds:
+                      questionAndAnswer.synced.highlightedAnswerObjectIds.filter(
+                        (id: string) => id !== answerObjectId
+                      ),
+                  },
                 }
               }
               return questionAndAnswer
