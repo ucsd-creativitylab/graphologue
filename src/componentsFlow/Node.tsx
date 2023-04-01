@@ -72,6 +72,17 @@ interface CustomNodeProps extends NodeProps {
   data: CustomNodeData
 }
 
+export const copyNodeSnippets = (nodes: NodeSnippet[]) => {
+  return nodes.map(node => {
+    return {
+      ...node,
+      position: {
+        ...node.position,
+      },
+    }
+  })
+}
+
 /* -------------------------------------------------------------------------- */
 
 const connectionNodeIdSelector = (state: ReactFlowState) =>

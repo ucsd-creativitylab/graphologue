@@ -30,16 +30,18 @@ import { answerObjectsToReactFlowObject } from '../utils/graphToFlowObject'
 import {
   CustomNodeData,
   NodeSnippet,
+  copyNodeSnippets,
   hardcodedNodeWidthEstimation,
 } from '../componentsFlow/Node'
-import { getGraphBounds } from '../utils/utils'
-import {
-  hardcodedNodeSize,
-  transitionDuration,
-  viewFittingOptions,
-} from '../constants'
+import { hardcodedNodeSize, viewFittingOptions } from '../constants'
+import { ViewFittingJob } from '../componentsFlow/ViewFitter'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { removeAnnotations } from '../utils/responseProcessing'
+import { getGraphBounds } from '../utils/utils'
+import {
+  BoundingAInBoundingB,
+  minMoveBringBoundingAIntoB,
+} from '../utils/viewGeometry'
 
 export interface ReactFlowObjectContextProps {
   // nodeEntities: NodeEntity[]
@@ -62,9 +64,12 @@ export const Answer = () => {
     modelStatus: { modelParsing },
   } = questionAndAnswer as QuestionAndAnswer
 
-  const { setNodes, setEdges, fitView } = useReactFlow()
+  const { setNodes, setEdges, fitView, getViewport, setViewport } =
+    useReactFlow()
 
   const stableDagreGraph = useRef(new dagre.graphlib.Graph())
+  const viewFittingJobs = useRef<ViewFittingJob[]>([])
+  const viewFittingJobRunning = useRef(false)
 
   const prevNodeSnippets = useRef<NodeSnippet[]>([])
   // const prevEdges = useRef<Edge[]>([])
@@ -78,6 +83,91 @@ export const Answer = () => {
     (acc, { edgeEntities }) => [...acc, ...edgeEntities],
     [] as EdgeEntity[]
   )
+
+  const runViewFittingJobs = useCallback(() => {
+    if (viewFittingJobRunning.current || viewFittingJobs.current.length === 0)
+      return
+
+    const job = viewFittingJobs.current.shift()
+    if (!job) return
+
+    viewFittingJobRunning.current = true
+
+    setTimeout(() => {
+      const nodesBounding = getGraphBounds(job.nodes)
+      ////
+      const reactFlowWrapperElement = document.querySelector(
+        '.react-flow-wrapper'
+      ) as HTMLElement // they are all the same size
+      const viewBounding = reactFlowWrapperElement.getBoundingClientRect()
+
+      if (
+        nodesBounding.width < viewBounding.width &&
+        nodesBounding.height < viewBounding.height
+      ) {
+        fitView(viewFittingOptions)
+      } else {
+        // find changed nodes
+
+        if (job.changedNodes.length === 0) {
+          viewFittingJobRunning.current = false
+          runViewFittingJobs()
+          return
+        }
+
+        // * old
+        // fitView({
+        //   ...viewFittingOptions,
+        //   duration: viewFittingOptions.duration, // TODO best?
+        //   minZoom: 1,
+        //   maxZoom: 1,
+        //   nodes: job.changedNodes.map(n => ({ id: n.id })),
+        // })
+
+        const viewport = getViewport()
+        const viewportRect = {
+          x: -viewport.x,
+          y: -viewport.y,
+          width: viewBounding.width,
+          height: viewBounding.height, // assume the zoom is 1
+        }
+
+        // get bounding of changed nodes
+        const changedNodesBounding = getGraphBounds(job.changedNodes)
+
+        // check if the viewport rect includes the target nodes rect
+        if (BoundingAInBoundingB(changedNodesBounding, viewportRect)) {
+          viewFittingJobRunning.current = false
+          runViewFittingJobs()
+
+          return // TODO do anything? move a little?
+        }
+
+        const minMove = minMoveBringBoundingAIntoB(
+          changedNodesBounding,
+          viewportRect,
+          viewBounding.x * 0.1,
+          viewBounding.y * 0.1
+        )
+
+        setViewport(
+          {
+            x: viewport.x + minMove.x,
+            y: viewport.y + minMove.y,
+            zoom: 1,
+          },
+          {
+            duration: viewFittingOptions.duration,
+          }
+        )
+      }
+
+      setTimeout(() => {
+        viewFittingJobRunning.current = false
+        runViewFittingJobs()
+      }, viewFittingOptions.duration)
+    }, 10)
+  }, [fitView, getViewport, setViewport])
 
   useEffectEqual(() => {
     const { nodes: newNodes, edges: newEdges } = answerObjectsToReactFlowObject(
@@ -112,10 +202,11 @@ export const Answer = () => {
         )
         return (
           !foundPrevNode ||
-          !isEqual(
-            nodeSnippetExtraction(foundPrevNode),
-            nodeSnippetExtraction(n)
-          )
+          // !isEqual(
+          //   nodeSnippetExtraction(foundPrevNode),
+          //   nodeSnippetExtraction(n)
+          // )
+          !isEqual(foundPrevNode, n)
         )
       }),
       ...prevNodeSnippets.current.filter(
@@ -124,41 +215,12 @@ export const Answer = () => {
     ]
 
     // view tracker
-    setTimeout(() => {
-      // get bounding
-      const bounding = getGraphBounds(newNodes)
-
-      const reactFlowWrapperElement = document.querySelector(
-        '.react-flow-wrapper'
-      ) as HTMLElement // they are all the same size
-
-      // get the width and height of the react flow wrapper
-      const { width, height } = reactFlowWrapperElement.getBoundingClientRect()
-
-      if (bounding.width < width && bounding.height < height) {
-        fitView(viewFittingOptions)
-      } else {
-        // find changed nodes and edges
-
-        // get bounding of changed nodes
-        if (changedNodeSnippets.length === 0) return
-
-        fitView({
-          ...viewFittingOptions,
-          duration: transitionDuration, // TODO best?
-          minZoom: 1,
-          maxZoom: 1,
-          nodes: changedNodeSnippets.map(n => ({ id: n.id })),
-        })
-
-        // setViewport(
-        //   { x, y, zoom: 1 },
-        //   {
-        //     duration: viewFittingOptions.duration,
-        //   }
-        // )
-      }
-    }, 50) // wait for react flow to update
+    viewFittingJobs.current.push({
+      nodes: copyNodeSnippets(newNodeSnippets),
+      changedNodes: copyNodeSnippets(changedNodeSnippets),
+    })
+    if (viewFittingJobs.current.length > 1) viewFittingJobs.current.shift()
+    runViewFittingJobs()
 
     prevNodeSnippets.current = newNodeSnippets
   }, [
@@ -171,6 +233,7 @@ export const Answer = () => {
       }))(nE)
     ),
     edgeEntities,
+    runViewFittingJobs,
   ])
 
   return (
