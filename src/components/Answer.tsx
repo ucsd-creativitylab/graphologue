@@ -22,7 +22,6 @@ import {
   EdgeEntity,
 } from '../App'
 import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
-import { rangeToId } from '../utils/chatAppUtils'
 import { InterchangeContext } from './Interchange'
 import { SlideAnswerText } from './SlideAnswer'
 import { useEffectEqual } from '../utils/useEffectEqual'
@@ -35,8 +34,11 @@ import {
 } from '../componentsFlow/Node'
 import { hardcodedNodeSize, viewFittingOptions } from '../constants'
 import { ViewFittingJob } from '../componentsFlow/ViewFitter'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { removeAnnotations } from '../utils/responseProcessing'
+import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  removeAnnotations,
+  splitAnnotatedSentences,
+} from '../utils/responseProcessing'
 import { getGraphBounds } from '../utils/utils'
 import {
   BoundingAInBoundingB,
@@ -449,8 +451,44 @@ const AnswerText = ({
   // const displayText = removeAnnotations(
   //   rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
   // )
-  const displayText = rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
+  const text = rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
 
+  const sentences = splitAnnotatedSentences(text)
+
+  console.log(sentences)
+
+  let globalStart = slicingRange.start
+  return (
+    <>
+      {sentences.map((sentence, sentenceIndex) => (
+        <span key={sentenceIndex} className="sentence-segment">
+          {sentence.split(/(\[[^\]]+\])/).map((part, partIndex) => {
+            const isAnnotated = part.startsWith('[') && part.endsWith(']')
+            const start = globalStart
+            globalStart += part.length
+
+            return (
+              <span
+                key={`${sentenceIndex}-${partIndex}`}
+                className={
+                  'text-segment' +
+                  (isAnnotated ? ' annotated' : '') +
+                  (highlightedRanges.some(range => range.start === start)
+                    ? ' highlighted-answer-text'
+                    : '')
+                }
+                data-start={start}
+              >
+                {isAnnotated ? removeAnnotations(part) : part}
+              </span>
+            )
+          })}
+        </span>
+      ))}
+    </>
+  )
+
+  /*
   highlightedRanges.sort((a, b) => a.start - b.start)
 
   // remove the highlighted ranges that are not in the slicing range
@@ -504,4 +542,5 @@ const AnswerText = ({
   })
 
   return <>{textComponents}</>
+  */
 }

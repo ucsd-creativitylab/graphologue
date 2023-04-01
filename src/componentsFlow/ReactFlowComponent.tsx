@@ -57,6 +57,8 @@ import { CustomGroupNode } from './GroupNode'
 import { ModelForMagic } from '../utils/openAI'
 import { ReactFlowObjectContext } from '../components/Answer'
 import { SimpleEdge } from './SimpleEdge'
+import { InterchangeContext } from '../components/Interchange'
+import { QuestionAndAnswerHighlighted } from '../App'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -86,7 +88,7 @@ const edgeTypes = {
 } as EdgeTypes
 
 const Flow = () => {
-  // const { handleSetHighlighted } = useContext(InterchangeContext)
+  const { handleSetHighlighted } = useContext(InterchangeContext)
   const { generatingFlow } = useContext(ReactFlowObjectContext)
 
   const thisReactFlowInstance = useReactFlow()
@@ -486,24 +488,25 @@ const Flow = () => {
   /* -------------------------------------------------------------------------- */
   // ! chat
 
-  const handleNodeMouseEnter = useCallback((e: MouseEvent, node: Node) => {
-    // const { data } = node
-    // const {
-    //   generated: { sourceAnswerObjectIds, sourceOrigins },
-    // } = data as CustomNodeData
-    // const highlighted: QuestionAndAnswerHighlighted = {
-    //   origins: sourceOrigins,
-    //   answerObjectIds: sourceAnswerObjectIds,
-    // }
-    // handleSetHighlighted(highlighted)
-  }, [])
+  const handleNodeMouseEnter = useCallback(
+    (e: MouseEvent, node: Node) => {
+      const { data } = node
+      const {
+        generated: { originRanges },
+      } = data as CustomNodeData
+      const highlighted: QuestionAndAnswerHighlighted = {
+        originRanges,
+      }
+      handleSetHighlighted(highlighted)
+    },
+    [handleSetHighlighted]
+  )
 
   const handleNodeMouseLeave = useCallback(() => {
-    // handleSetHighlighted({
-    //   origins: [],
-    //   answerObjectIds: new Set(),
-    // })
-  }, [])
+    handleSetHighlighted({
+      originRanges: [],
+    })
+  }, [handleSetHighlighted])
 
   const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')
 

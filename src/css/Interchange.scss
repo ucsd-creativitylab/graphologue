@@ -189,7 +189,7 @@
       height: fit-content;
 
       font-size: $font-size-default;
-      line-height: 150%;
+      line-height: 160%; // !
       text-align: left;
       padding: $padding-mid;
       box-sizing: border-box;
@@ -199,6 +199,23 @@
       //   pointer-events: none;
       //   user-select: none;
       // }
+
+      .sentence-segment {
+        border-bottom: rem-to-px(1.5rem) solid transparent;
+
+        transition: border-bottom-color $transition-normal ease;
+
+        &:has(.highlighted-answer-text) {
+          border-bottom-color: $elegant-yellow;
+        }
+      }
+
+      .text-segment {
+        transition: background-color $transition-normal ease;
+        &.highlighted-answer-text {
+          background-color: $warn-yellow-x-light;
+        }
+      }
 
       .answer-text {
         transition: background-color $transition-normal ease;
