@@ -314,3 +314,12 @@ export const findEntityFromAnswerObjects = (
     .find(entity => entity.id === entityId)
   return entity
 }
+
+export const saliencyAHigherThanB = (
+  sA: RelationshipSaliency,
+  sB: RelationshipSaliency
+) => {
+  if (sA === 'high' && sB !== 'high') return true
+  if (sA === 'medium' && sB === 'low') return true
+  return false
+}

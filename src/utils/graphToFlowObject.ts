@@ -12,6 +12,7 @@ import {
   getNodeEntityFromNodeEntityId,
   havePair,
   nodeLabelling,
+  saliencyAHigherThanB,
 } from './responseProcessing'
 import { getHandleId } from './utils'
 // import { smartLayout } from './smartLayout'
@@ -181,7 +182,7 @@ export const answerObjectsToReactFlowObject = (
   // ! filter node and edge entities
 
   const filteredEdgeEntities = edgeEntities.filter(edgeEntity => {
-    const { sourceId, targetId } = edgeEntity.edgePairs[0]
+    const { sourceId, targetId, saliency } = edgeEntity.edgePairs[0]
 
     if (sourceId === targetId || targetId === '$N1') {
       // ? disable edge to the first node // TODO any better way?
@@ -190,21 +191,52 @@ export const answerObjectsToReactFlowObject = (
 
     // if the edge doesn't have a label, and there are other edges between the same nodes,
     // then eliminate this edge
-    if (
-      edgeEntity.edgeLabel === '' &&
-      edgeEntities.filter(
-        _e =>
-          _e.edgePairs[0].sourceId === sourceId &&
-          _e.edgePairs[0].targetId === targetId
-      ).length > 1 &&
-      // this is not the first edge entity appearance among the same edges in the list
+    const edgesBetweenSourceTarget = edgeEntities.filter(
+      _e =>
+        _e.edgePairs[0].sourceId === sourceId &&
+        _e.edgePairs[0].targetId === targetId
+    )
+
+    const edgeIsTheFirstOneBetweenSourceTarget =
       edgeEntities.findIndex(
         _e =>
           _e.edgePairs[0].sourceId === sourceId &&
           _e.edgePairs[0].targetId === targetId
-      ) !== edgeEntities.indexOf(edgeEntity)
-    ) {
-      return false
+      ) === edgeEntities.indexOf(edgeEntity)
+
+    if (edgesBetweenSourceTarget.length > 1) {
+      // if there are more than one edges between the same nodes
+
+      // remove all the edges that don't have a label except the first one
+      if (
+        edgeEntity.edgeLabel === '' &&
+        !edgeIsTheFirstOneBetweenSourceTarget
+      ) {
+        return false
+      }
+
+      // remove the edge if there are edges with higher saliency
+      const edgesWithHigherSaliency = edgesBetweenSourceTarget.filter(_e =>
+        saliencyAHigherThanB(_e.edgePairs[0].saliency, saliency)
+      )
+      if (edgesWithHigherSaliency.length > 0) {
+        return false
+      }
+
+      // remove the edge if there are edges with the same saliency and this is not the first one
+      const edgesWithSameSaliency = edgesBetweenSourceTarget.filter(
+        _e => _e.edgePairs[0].saliency === saliency
+      )
+      if (
+        edgesWithSameSaliency.length > 1 &&
+        edgesWithSameSaliency.findIndex(
+          _e =>
+            _e.edgePairs[0].sourceId === sourceId &&
+            _e.edgePairs[0].targetId === targetId
+        ) !== edgesWithSameSaliency.indexOf(edgeEntity)
+      ) {
+        return false
+      }
     }
 
     return true

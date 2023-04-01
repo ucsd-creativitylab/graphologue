@@ -59,13 +59,13 @@ export const predefinedPrompts = {
         role: 'system',
         content: `Please provide a well-structured response to the user's question in multiple paragraphs. \
 The paragraphs should cover the most important aspects of the answer, with each of them discussing a different aspect or topic. \
-Your response should not have more than 5 paragraphs. \
+Your response should not have more than 3 paragraphs, and each paragraph should not have more than 3 sentences. \
 The user’s goal is to construct a concept map to visually explain your response. \
 To achieve this, annotate the key entities and relationships inline for each sentence in the response. \
 \
-Entities are often noun phrases and should be annotated with [entity ($N1)], for example, [Artificial Intelligence ($N1)]. \
+Entities are usually noun phrases and should be annotated with [entity ($N1)], for example, [Artificial Intelligence ($N1)]. \
 \
-A relationship is often a word or a phrase that consists of verbs, adjectives, adverbs, or propositions. \
+A relationship is usually a word or a phrase that consists of verbs, adjectives, adverbs, or propositions. \
 Relationships should be annotated with the relevant entities and saliency of the relationship as high ($H), medium ($M), or low ($L), in the format of [relationship ($H, $N1, $N2)], \
 for example, [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
 Relationships of high saliency are often included in summaries. Relationships of low saliency are often omitted in summaries. \

@@ -258,9 +258,8 @@ const Flow = () => {
     e.stopPropagation()
   }, [])
 
-  const handleNodeClick = useCallback(
-    (e: BaseSyntheticEvent, node: Node) => {
-      // select the node and all its edges
+  const selectNodeAndEdges = useCallback(
+    (node: Node) => {
       setNodes((nds: Node[]) => {
         return nds.map((nd: Node) => {
           if (nd.id === node.id)
@@ -291,6 +290,14 @@ const Flow = () => {
     [setEdges, setNodes]
   )
 
+  const handleNodeClick = useCallback(
+    (e: BaseSyntheticEvent, node: Node) => {
+      // select the node and all its edges
+      selectNodeAndEdges(node)
+    },
+    [selectNodeAndEdges]
+  )
+
   const handleNodeDoubleClick = useCallback(
     (e: BaseSyntheticEvent, node: Node) => {
       // e.preventDefault()
@@ -300,12 +307,17 @@ const Flow = () => {
     []
   )
 
-  const handleNodeDragStart = useCallback(() => {
-    // anyNodeDragging.current = true
-  }, [])
+  const handleNodeDragStart = useCallback(
+    (e: MouseEvent, node: Node) => {
+      // anyNodeDragging.current = true
+      selectNodeAndEdges(node)
+    },
+    [selectNodeAndEdges]
+  )
 
-  const handleNodeDragStop = useCallback(() => {
+  const handleNodeDragStop = useCallback((e: MouseEvent, node: Node) => {
     // anyNodeDragging.current = false
+    // selectNodeAndEdges(node)
   }, [])
 
   /* -------------------------------------------------------------------------- */
@@ -628,6 +640,8 @@ const Flow = () => {
           // onPaneContextMenu={handlePaneContextMenu}
           onNodeMouseEnter={handleNodeMouseEnter}
           onNodeMouseLeave={handleNodeMouseLeave}
+          // onEdgeMouseEnter={handleEdgeMouseEnter}
+          // onEdgeMouseLeave={handleEdgeMouseLeave}
         >
           <CustomMarkerDefs
             markerOptions={

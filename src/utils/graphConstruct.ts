@@ -251,9 +251,9 @@ export const constructGraph = (
   // https://github.com/dagrejs/dagre/wiki#an-example-layout
   graph.setGraph({
     rankdir: 'LR',
-    // align: 'UL',
+    align: 'UL',
     ranksep: 120, // !
-    nodesep: 30, // !
+    nodesep: 20, // !
     // ranker: 'longest-path',
   })
   graph.setDefaultEdgeLabel(function () {

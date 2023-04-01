@@ -149,8 +149,10 @@ export const Answer = () => {
         const minMove = minMoveBringBoundingAIntoB(
           changedNodesBounding,
           viewportRect,
-          viewBounding.x * 0.1,
-          viewBounding.y * 0.1
+          40,
+          40
+          // viewBounding.x * 0.1,
+          // viewBounding.y * 0.1
         )
 
         setViewport(
@@ -544,7 +546,7 @@ const AnswerText = ({
                 }
                 data-start={start}
               >
-                {removeAnnotations(part)}
+                {part}
               </span>
             )
           })}

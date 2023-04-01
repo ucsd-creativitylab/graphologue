@@ -20,8 +20,8 @@ export const BoundingAInBoundingB = (
 export const minMoveBringBoundingAIntoB = (
   boundingA: BoundingRect,
   boundingB: BoundingRect,
-  paddingX: number = 0,
-  paddingY: number = 0
+  paddingX: number,
+  paddingY: number
 ): {
   x: number
   y: number
@@ -32,10 +32,11 @@ export const minMoveBringBoundingAIntoB = (
   let { x: bX, y: bY, width: bWidth, height: bHeight } = boundingB
 
   if (aX < bX) move.x = bX - aX + paddingX
-  if (aX + aWidth > bX + bWidth) move.x = bX + bWidth - aX - aWidth - paddingX
+  else if (aX + aWidth > bX + bWidth)
+    move.x = bX + bWidth - aX - aWidth - paddingX
 
   if (aY < bY) move.y = bY - aY + paddingY
-  if (aY + aHeight > bY + bHeight)
+  else if (aY + aHeight > bY + bHeight)
     move.y = bY + bHeight - aY - aHeight - paddingY
 
   // give up when boundingA is already in B
