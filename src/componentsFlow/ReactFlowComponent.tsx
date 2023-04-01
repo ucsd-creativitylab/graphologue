@@ -497,6 +497,7 @@ const Flow = () => {
       const highlighted: QuestionAndAnswerHighlighted = {
         originRanges,
       }
+
       handleSetHighlighted(highlighted)
     },
     [handleSetHighlighted]

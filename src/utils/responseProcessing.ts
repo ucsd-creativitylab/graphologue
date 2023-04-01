@@ -1,4 +1,5 @@
 import {
+  AnswerObject,
   EdgeEntity,
   NodeEntity,
   NodeEntityIndividual,
@@ -243,4 +244,22 @@ export const splitAnnotatedSentences = (text: string): string[] => {
   }
 
   return sentences
+}
+
+export const mergeNodeEntities = (answerObjects: AnswerObject[]) => {
+  const nodeEntities: NodeEntity[] = []
+
+  answerObjects.forEach(answerObject => {
+    answerObject.nodeEntities.forEach(nodeEntity => {
+      const existingNode = nodeEntities.find(n => n.id === nodeEntity.id)
+
+      if (existingNode) {
+        existingNode.individuals.push(...nodeEntity.individuals)
+      } else {
+        nodeEntities.push(nodeEntity)
+      }
+    })
+  })
+
+  return nodeEntities
 }

@@ -15,12 +15,7 @@ import ShortTextRoundedIcon from '@mui/icons-material/ShortTextRounded'
 import NotesRoundedIcon from '@mui/icons-material/NotesRounded'
 import CropLandscapeRoundedIcon from '@mui/icons-material/CropLandscapeRounded'
 
-import {
-  QuestionAndAnswer,
-  OriginAnswerRange,
-  NodeEntity,
-  EdgeEntity,
-} from '../App'
+import { QuestionAndAnswer, OriginAnswerRange, EdgeEntity } from '../App'
 import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 import { InterchangeContext } from './Interchange'
 import { SlideAnswerText } from './SlideAnswer'
@@ -35,8 +30,10 @@ import {
 import { hardcodedNodeSize, viewFittingOptions } from '../constants'
 import { ViewFittingJob } from '../componentsFlow/ViewFitter'
 import {
+  mergeNodeEntities,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   removeAnnotations,
+  removeLastBracket,
   splitAnnotatedSentences,
 } from '../utils/responseProcessing'
 import { getGraphBounds } from '../utils/utils'
@@ -77,10 +74,7 @@ export const Answer = () => {
   // const prevEdges = useRef<Edge[]>([])
 
   // ! put all node and edge entities together
-  const nodeEntities = answerObjects.reduce(
-    (acc, { nodeEntities }) => [...acc, ...nodeEntities],
-    [] as NodeEntity[]
-  )
+  const nodeEntities = mergeNodeEntities(answerObjects)
 
   const edgeEntities = answerObjects.reduce(
     (acc, { edgeEntities }) => [...acc, ...edgeEntities],
@@ -173,6 +167,8 @@ export const Answer = () => {
   }, [fitView, getViewport, setViewport])
 
   useEffectEqual(() => {
+    console.log(nodeEntities)
+
     const { nodes: newNodes, edges: newEdges } = answerObjectsToReactFlowObject(
       stableDagreGraph.current,
       nodeEntities,
@@ -455,8 +451,6 @@ const AnswerText = ({
 
   const sentences = splitAnnotatedSentences(text)
 
-  console.log(sentences)
-
   let globalStart = slicingRange.start
   return (
     <>
@@ -466,6 +460,11 @@ const AnswerText = ({
             const isAnnotated = part.startsWith('[') && part.endsWith(']')
             const start = globalStart
             globalStart += part.length
+
+            // if (part === '\n') {
+            //   globalStart += 1
+            //   return <></>
+            // }
 
             return (
               <span
@@ -479,7 +478,7 @@ const AnswerText = ({
                 }
                 data-start={start}
               >
-                {isAnnotated ? removeAnnotations(part) : part}
+                {removeAnnotations(part)}
               </span>
             )
           })}

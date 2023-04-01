@@ -276,9 +276,14 @@ export const Question = () => {
 
   const handleUpdateRelationshipEntities = useCallback(
     (content: string, answerObjectId: string) => {
+      const answerObject = answerStorage.current.answerObjects.find(
+        a => a.id === answerObjectId
+      )
+      if (!answerObject) return
+
       const cleanedContent = removeLastBracket(content, true)
-      const nodes = parseNodes(cleanedContent)
-      const edges = parseEdges(cleanedContent)
+      const nodes = parseNodes(cleanedContent, answerObject.originRange.start)
+      const edges = parseEdges(cleanedContent, answerObject.originRange.start)
 
       answerStorage.current.answerObjects =
         answerStorage.current.answerObjects.map((a: AnswerObject) => {
