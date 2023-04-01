@@ -469,7 +469,7 @@ const Flow = () => {
   /* -------------------------------------------------------------------------- */
   // ! pane
 
-  const lastClickTime = useRef<number | null>(null)
+  // const lastClickTime = useRef<number | null>(null)
   const handlePaneClick = useCallback(
     (e: MouseEvent) => {
       // if any node is editing
@@ -487,7 +487,10 @@ const Flow = () => {
           })
         })
 
+      handleSetSyncedOriginRanges([] as OriginAnswerRange[])
+
       // check if it's a double click
+      /*
       if (lastClickTime.current) {
         const now = performance.now()
         const delta = now - lastClickTime.current
@@ -519,8 +522,9 @@ const Flow = () => {
         }
       }
       lastClickTime.current = performance.now()
+      */
     },
-    [addNodes, fitView, getViewport, nodes, selectNodes, setNodes]
+    [handleSetSyncedOriginRanges, nodes, setNodes]
   )
 
   // const handlePaneContextMenu = useCallback((e: BaseSyntheticEvent) => {
@@ -542,9 +546,12 @@ const Flow = () => {
     [handleSetSyncedOriginRanges]
   )
 
-  const handleNodeMouseLeave = useCallback(() => {
-    handleSetSyncedOriginRanges([] as OriginAnswerRange[])
-  }, [handleSetSyncedOriginRanges])
+  const handleNodeMouseLeave = useCallback(
+    (e: MouseEvent, node: Node) => {
+      if (!node.selected) handleSetSyncedOriginRanges([] as OriginAnswerRange[])
+    },
+    [handleSetSyncedOriginRanges]
+  )
 
   const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')
 
@@ -586,8 +593,8 @@ const Flow = () => {
           connectionLineStyle={customConnectionLineStyle}
           // viewport control
           panOnScroll={true}
-          selectionOnDrag={true}
-          panOnDrag={[1, 2]}
+          selectionOnDrag={false}
+          panOnDrag={[0, 1, 2]}
           selectionMode={SelectionMode.Full}
           // ! actions
           onNodeClick={handleNodeClick}
