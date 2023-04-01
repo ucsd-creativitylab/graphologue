@@ -38,7 +38,6 @@ export class ViewFitter {
     }
 
     const job = this.jobs.shift()
-    console.log(job)
 
     if (!job) return
 
