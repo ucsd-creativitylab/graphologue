@@ -48,6 +48,11 @@ Each relationship should be an object with the following fields:
     * "edge" (string): Short label indicating the relationship between source and target (e.g., has, part of, similar, positive)
     * "origin" (array of strings): The phrases or sentences in the original response that the relationship is summarized from. Make sure they are exactly the same as the text in the original response`
 
+export const _graph_handleFollowupQuestionsIdMatching = `When annotating a new entity that was not mentioned in previous response, \
+please make sure that they are annotated with a new entity id (e.g., $N1, $N2, etc.), while \
+if the same concept have indeed been mentioned, please match their id. \
+You don't need to further explain the examples you give.`
+
 export interface NodeLabelAndTags {
   label: string
   tags: string[]
@@ -116,7 +121,8 @@ Example:
 Can you explain this entity in 1 to 2 sentences? \
 Please refer to the original response as the context of your explanation. \
 Your explanation should be concise, one paragraph, and follow the same annotation format as the original response. \
-You should try to annotate at least one relationship for each entity. Relationships should only connect entities that appear in the response.
+You should try to annotate at least one relationship for each entity. Relationships should only connect entities that appear in the response. \
+${_graph_handleFollowupQuestionsIdMatching}
 
 For example, for "[general AI ($N10)]" in the sentence \
 "[AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)].":
@@ -137,9 +143,7 @@ For example, for "[general AI ($N10)]" in the sentence \
         content: `In the sentence "${originalSentence}", you mentioned the entity "${nodeLabel}". \
 Can you give a few examples for it? \
 Your response should follow the same annotation format as the original response, as shown in the following example. \
-When annotating a new entity that was not mentioned in the original response, \
-please make sure they are not annotated with a used entity id (e.g., $N1, $N2, etc.). \
-You don't need to further explain the examples you give.
+${_graph_handleFollowupQuestionsIdMatching}
 
 For example, for "[Fruits ($N1)]" in the sentence \
 "[Fruits ($N1)] can [help with ($H, $N1, $N2)] [health ($N2)].", your response could be: \
