@@ -338,7 +338,7 @@ const RawAnswer = ({
   const {
     handleSetSyncedAnswerObjectIdsHighlighted,
     handleSetSyncedAnswerObjectIdsHidden,
-    handleAnswerObjectTellMore,
+    handleAnswerObjectTellLessOrMore,
     handleAnswerObjectRemove,
   } = useContext(InterchangeContext)
 
@@ -507,7 +507,9 @@ const RawAnswer = ({
                 key={`answer-range-${answerObject.id}`}
                 className={`answer-item answer-item-block interchange-component${
                   index !== 0 ? ' drop-down' : ''
-                }${listDisplay === 'slide' ? ' slide-wrapper' : ''}`}
+                }${listDisplay === 'slide' ? ' slide-wrapper' : ''}${
+                  answerObjectHighlighted ? ' highlighted-item' : ''
+                }`}
               >
                 <div className="answer-item-text">{contentComponent}</div>
                 {answerObjectComplete && (
@@ -517,10 +519,26 @@ const RawAnswer = ({
                         !modelParsingComplete ? ' disabled' : ''
                       }`}
                       onClick={() => {
-                        handleAnswerObjectTellMore(answerObject.id)
+                        handleAnswerObjectTellLessOrMore(
+                          answerObject.id,
+                          'less'
+                        )
                       }}
                     >
-                      tell me more
+                      less
+                    </span>
+                    <span
+                      className={`answer-block-menu-item${
+                        !modelParsingComplete ? ' disabled' : ''
+                      }`}
+                      onClick={() => {
+                        handleAnswerObjectTellLessOrMore(
+                          answerObject.id,
+                          'more'
+                        )
+                      }}
+                    >
+                      more
                     </span>
                     <span
                       className={`answer-block-menu-item${

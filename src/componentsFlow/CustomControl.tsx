@@ -10,16 +10,16 @@ import LightbulbRoundedIcon from '@mui/icons-material/LightbulbRounded'
 import LaptopChromebookRoundedIcon from '@mui/icons-material/LaptopChromebookRounded'
 import FitScreenRoundedIcon from '@mui/icons-material/FitScreenRounded'
 import SwipeRoundedIcon from '@mui/icons-material/SwipeRounded'
-import KeyboardOptionKeyRoundedIcon from '@mui/icons-material/KeyboardOptionKeyRounded'
+// import KeyboardOptionKeyRoundedIcon from '@mui/icons-material/KeyboardOptionKeyRounded'
 // import MouseRoundedIcon from '@mui/icons-material/MouseRounded'
-import EditRoundedIcon from '@mui/icons-material/EditRounded'
+// import EditRoundedIcon from '@mui/icons-material/EditRounded'
 // import UndoRoundedIcon from '@mui/icons-material/UndoRounded'
 // import RedoRoundedIcon from '@mui/icons-material/RedoRounded'
 // import FormatListBulletedRoundedIcon from '@mui/icons-material/FormatListBulletedRounded'
 // import TheatersRoundedIcon from '@mui/icons-material/TheatersRounded'
 // import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded'
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded'
-import AccountTreeRoundedIcon from '@mui/icons-material/AccountTreeRounded'
+import AlignHorizontalLeftRoundedIcon from '@mui/icons-material/AlignHorizontalLeftRounded'
 ////
 import SignalWifi1BarRoundedIcon from '@mui/icons-material/SignalWifi1BarRounded'
 // import SignalWifi3BarRoundedIcon from '@mui/icons-material/SignalWifi3BarRounded'
@@ -288,8 +288,8 @@ export const CustomControls = memo(
         </ControlButton>
 
         <ControlButton onClick={handleOrganizeNodes}>
-          <AccountTreeRoundedIcon />
-          <span>organize</span>
+          <AlignHorizontalLeftRoundedIcon />
+          <span>align nodes</span>
         </ControlButton>
 
         <ControlButton onClick={handleSaliency}>
@@ -407,7 +407,7 @@ export const CustomControls = memo(
                 scroll to <strong>pan around</strong>
               </span>
             </TooltipLine>
-            <TooltipLine>
+            {/* <TooltipLine>
               <KeyboardOptionKeyRoundedIcon />
               <span>
                 press option (alt) key to <strong>connect</strong>
@@ -418,7 +418,7 @@ export const CustomControls = memo(
               <span>
                 double click to <strong>edit text</strong>
               </span>
-            </TooltipLine>
+            </TooltipLine> */}
           </ControlButtonTooltip>
         </ControlButton>
 

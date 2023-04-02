@@ -268,6 +268,7 @@ export const answerObjectsToReactFlowObject = (
     const { id } = nodeEntity
 
     return (
+      // that's all edges
       filteredEdgeEntities.find(
         edgeEntity =>
           edgeEntity.edgePairs[0].sourceId === id ||

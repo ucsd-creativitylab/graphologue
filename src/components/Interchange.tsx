@@ -1,6 +1,13 @@
 import React, { createContext, useCallback, useContext, useRef } from 'react'
 
-import { AnswerObject, OriginRange, QuestionAndAnswer } from '../App'
+import {
+  AnswerObject,
+  EdgeEntity,
+  NodeEntity,
+  NodeEntityIndividual,
+  OriginRange,
+  QuestionAndAnswer,
+} from '../App'
 import {
   deepCopyAnswerObject,
   deepCopyQuestionAndAnswer,
@@ -20,15 +27,21 @@ import {
 import {
   findEntityFromAnswerObjects,
   findEntitySentence,
+  findNowhereEdgeEntities,
+  findOrphanNodeEntities,
+  mergeEdgeEntities,
+  mergeNodeEntities,
   nodeIndividualsToNodeEntities,
   parseEdges,
   parseNodes,
   removeAnnotations,
   removeLastBracket,
+  splitAnnotatedSentences,
 } from '../utils/responseProcessing'
 import {
   OpenAIChatCompletionResponseStream,
   Prompt,
+  getOpenAICompletion,
   getTextFromModelResponse,
   getTextFromStreamResponse,
   models,
@@ -40,11 +53,15 @@ export type NodeConceptExpansionType = 'explain' | 'examples'
 
 export interface InterchangeContextProps {
   questionAndAnswer: QuestionAndAnswer
+  handleSelfCorrection: (answerObjects: AnswerObject[]) => Promise<void>
   handleSetSyncedAnswerObjectIdsHighlighted: (ids: string[]) => void
   handleSetSyncedAnswerObjectIdsHidden: (ids: string[]) => void
   handleSetSyncedOriginRanges: (highlightedOriginRanges: OriginRange[]) => void
   handleAnswerObjectRemove: (id: string) => void
-  handleAnswerObjectTellMore: (id: string) => void
+  handleAnswerObjectTellLessOrMore: (
+    id: string,
+    request: 'less' | 'more'
+  ) => void
   handleAnswerObjectNodeExpand: (
     nodeEntityId: string,
     nodeEntityOriginRanges: OriginRange[],
@@ -58,11 +75,12 @@ export interface InterchangeContextProps {
 ////
 export const InterchangeContext = createContext<InterchangeContextProps>({
   questionAndAnswer: newQuestionAndAnswer(),
+  handleSelfCorrection: async () => {},
   handleSetSyncedAnswerObjectIdsHighlighted: () => {},
   handleSetSyncedAnswerObjectIdsHidden: () => {},
   handleSetSyncedOriginRanges: () => {},
   handleAnswerObjectRemove: () => {},
-  handleAnswerObjectTellMore: () => {},
+  handleAnswerObjectTellLessOrMore: () => {},
   handleAnswerObjectNodeExpand: () => {},
   handleAnswerObjectNodeRemove: () => {},
   handleAnswerObjectNodeCollapse: () => {},
@@ -90,6 +108,85 @@ export const Interchange = ({
   const { setQuestionsAndAnswers } = useContext(ChatContext)
 
   // const answerItemRef = createRef<HTMLDivElement>()
+
+  const handleSelfCorrection = useCallback(
+    async (answerObjects: AnswerObject[]) => {
+      const nodeEntitiesAll = mergeNodeEntities(answerObjects, [])
+      const edgeEntitiesAll = mergeEdgeEntities(answerObjects, [])
+
+      await Promise.all(
+        answerObjects.map(async (answerObject: AnswerObject) => {
+          const { originText, nodeEntities, edgeEntities } = answerObject
+
+          const sentences = splitAnnotatedSentences(originText)
+
+          const orphanEntities: NodeEntity[] = findOrphanNodeEntities(
+            nodeEntities,
+            edgeEntitiesAll
+          )
+          const edgesFromOrToNowhere: EdgeEntity[] = findNowhereEdgeEntities(
+            nodeEntitiesAll,
+            edgeEntities
+          )
+
+          for (let sentence of sentences) {
+            // get start and end index of the sentence
+            const start = originText.indexOf(sentence)
+            const end = start + sentence.length
+            // find all problematic entities in the sentence
+            const n: string[] = [],
+              e: string[] = []
+            orphanEntities.forEach((entity: NodeEntity) => {
+              entity.individuals.forEach((individual: NodeEntityIndividual) => {
+                if (
+                  individual.originRange.start >= start &&
+                  individual.originRange.end <= end
+                ) {
+                  n.push(individual.originText)
+                }
+              })
+            })
+
+            edgesFromOrToNowhere.forEach((entity: EdgeEntity) => {
+              if (
+                entity.originRange.start >= start &&
+                entity.originRange.end <= end
+              ) {
+                e.push(entity.originText)
+              }
+            })
+
+            // if there are any problematic entities, ask the user to fix them
+            if (n.length > 0 || e.length > 0) {
+              // const handleRealtimeSentenceCorrection = (response: OpenAIChatCompletionResponseStream) => {}
+
+              const correctionResponse = await getOpenAICompletion(
+                predefinedPrompts._graph_sentenceCorrection(
+                  [
+                    ...modelInitialPrompts,
+                    {
+                      role: 'assistant',
+                      content: answer,
+                    },
+                  ] as Prompt[],
+                  sentence,
+                  n,
+                  e
+                ),
+                models.smarter
+              )
+
+              const correctionText =
+                getTextFromModelResponse(correctionResponse)
+
+              console.log(correctionText)
+            }
+          }
+        })
+      )
+    },
+    [answer, modelInitialPrompts]
+  )
 
   const handleSetSyncedOriginRanges = useCallback(
     (highlightedOriginRanges: OriginRange[]) => {
@@ -389,8 +486,8 @@ export const Interchange = ({
 
   /* -------------------------------------------------------------------------- */
 
-  const handleAnswerObjectTellMore = useCallback(
-    async (answerObjectId: string) => {
+  const handleAnswerObjectTellLessOrMore = useCallback(
+    async (answerObjectId: string, request: 'less' | 'more') => {
       if (!modelParsingComplete || modelError) return
 
       const answerObject = answerObjects.find(a => a.id === answerObjectId)
@@ -537,11 +634,12 @@ export const Interchange = ({
     <InterchangeContext.Provider
       value={{
         questionAndAnswer: data,
+        handleSelfCorrection,
         handleSetSyncedAnswerObjectIdsHighlighted,
         handleSetSyncedAnswerObjectIdsHidden,
         handleSetSyncedOriginRanges,
         handleAnswerObjectRemove,
-        handleAnswerObjectTellMore,
+        handleAnswerObjectTellLessOrMore,
         handleAnswerObjectNodeExpand,
         handleAnswerObjectNodeRemove,
         handleAnswerObjectNodeCollapse,

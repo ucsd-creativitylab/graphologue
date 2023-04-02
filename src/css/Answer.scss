@@ -62,6 +62,7 @@
       align-items: stretch;
       gap: $padding-mid;
 
+      height: 100%;
       background-color: $white;
       border-radius: $radius-default;
       outline: 1px solid $light-grey;
@@ -106,6 +107,10 @@
     padding: $padding-mid;
     box-sizing: border-box;
 
+    &.highlighted-item {
+      outline: 2px solid $purple;
+    }
+
     .answer-item-text {
       display: inline;
     }
@@ -141,6 +146,7 @@
       flex-direction: row;
       align-items: center;
       justify-content: center;
+      gap: $padding-xs;
 
       line-height: 100%;
 

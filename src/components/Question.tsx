@@ -54,6 +54,8 @@ export const Question = () => {
       answer,
       modelStatus: { modelAnswering, modelError },
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    handleSelfCorrection,
   } = useContext(InterchangeContext)
 
   const [activated, setActivated] = useState(false) // show text box or not
@@ -493,6 +495,11 @@ export const Question = () => {
 
     // * model done parsing
     console.log('model done parsing')
+
+    // * start self correction
+    // console.log('model start self correction')
+    // await handleSelfCorrection(answerStorage.current.answerObjects)
+
     setQuestionsAndAnswers(prevQsAndAs =>
       helpSetQuestionAndAnswer(prevQsAndAs, id, {
         modelStatus: {

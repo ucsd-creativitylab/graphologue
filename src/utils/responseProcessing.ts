@@ -316,3 +316,37 @@ export const saliencyAHigherThanB = (
   if (sA === 'low' && sB === 'low') return false
   return false
 }
+
+export const findOrphanNodeEntities = (
+  nodeEntities: NodeEntity[],
+  edgeEntities: EdgeEntity[]
+) => {
+  return nodeEntities.filter(nodeEntity => {
+    return (
+      edgeEntities.find(edgeEntity =>
+        edgeEntity.edgePairs.some(
+          edgePair =>
+            edgePair.sourceId === nodeEntity.id ||
+            edgePair.targetId === nodeEntity.id
+        )
+      ) === undefined
+    )
+  })
+}
+
+export const findNowhereEdgeEntities = (
+  nodeEntities: NodeEntity[],
+  edgeEntities: EdgeEntity[]
+) => {
+  return edgeEntities.filter(edgeEntity => {
+    // at least one in edgeEntity.edgePairs has a source or target that is not in nodeEntities
+    return edgeEntity.edgePairs.some(edgePair => {
+      return (
+        nodeEntities.find(nodeEntity => nodeEntity.id === edgePair.sourceId) ===
+          undefined ||
+        nodeEntities.find(nodeEntity => nodeEntity.id === edgePair.targetId) ===
+          undefined
+      )
+    })
+  })
+}

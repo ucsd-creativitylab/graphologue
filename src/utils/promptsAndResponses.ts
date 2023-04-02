@@ -51,8 +51,7 @@ Each relationship should be an object with the following fields:
 export const _graph_handleFollowupQuestionsIdMatching = `When annotating a new entity that was not mentioned in previous response, \
 please make sure that they are annotated with a new entity id \
 (for example, if the previous annotation has reached id "$N102", then the new annotation id should start at "$N103"). \
-However, if the same entity have indeed been mentioned, please match their id. \
-You don't need to further explain the examples you give.`
+However, if the same entity have appeared in the original response, please match their id.`
 
 export interface NodeLabelAndTags {
   label: string
@@ -79,7 +78,9 @@ Relationships of high saliency are often included in summaries. Relationships of
 It's important to choose relationships that accurately reflect the nature of the connection between the concepts in text, \
 and to use consistent labeling conventions throughout the paragraphs. \
 \
-You should try to annotate at least one relationship for each entity. Relationships should only connect entities that appear in the response.
+You should try to annotate at least one relationship for each entity. Relationships should only connect entities that appear in the response. \
+You can arrange the sentences in a way that facilitates the annotation of entities and relationships, \
+but the arrangement should not alter their meaning and they should still flow naturally in language.
 
 Example paragraph A:
 [Artificial Intelligence (AI) ($N1)] [is a ($H, $N1, $N2)] [field of computer science ($N2)] that [creates ($H, $N1, $N3)] [intelligent machines ($N3)]. \
@@ -150,7 +151,8 @@ and [apply knowledge across a wide range of tasks ($N15)].`,
         content: `In the sentence "${originalSentence}", you mentioned the entity "${nodeLabel}". \
 Can you give a few examples for it? \
 Your response should follow the same annotation format as the original response, as shown in the following example. \
-${_graph_handleFollowupQuestionsIdMatching}
+${_graph_handleFollowupQuestionsIdMatching} \
+You don't need to further explain the examples you give.
 
 For example, for "[Fruits ($N1)]" in the sentence \
 "[Fruits ($N1)] can [help with ($H, $N1, $N2)] [health ($N2)].", your response could be: \
@@ -159,17 +161,46 @@ For example, for "[Fruits ($N1)]" in the sentence \
       },
     ]
   },
-  _graph_sentenceCorrectionMissingRelationship: (
+  _graph_sentenceCorrection: (
     prevConversation: Prompt[],
-    nodeMissingRelationship: string,
-    nodeOriginalSentence: string
+    originalSentence: string,
+    orphanNodes: string[],
+    noWhereEdges: string[]
   ): Prompt[] => {
+    const hasOrphan = orphanNodes.length > 0
+    const hasNoWhere = noWhereEdges.length > 0
+
     return [
       ...prevConversation,
       {
+        role: 'system',
+        content: `In the following sentence of the original response, there are some issues that need to be fixed. \
+${
+  hasOrphan
+    ? `The entities "${orphanNodes.join(
+        ', '
+      )}" were mentioned but not connected by any relationships.`
+    : ''
+} \
+${
+  hasOrphan && hasNoWhere
+    ? ` One or more relationships annotated by relationship annotations "${noWhereEdges.join(
+        ', '
+      )}" \
+were trying to connect entities with ids that are not mentioned in the response.`
+    : ''
+} \
+Please try to fix these issues in your response by annotating the same sentence again. \
+You may arrange the sentences in a way that facilitates the annotation of entities and relationships, \
+but the arrangement should not alter their meaning and they should still flow naturally in language. \
+\
+${_graph_handleFollowupQuestionsIdMatching} \
+\
+Please only include the re-annotated sentence in your response.`,
+      },
+      {
         role: 'user',
-        content: `In the sentence "${nodeOriginalSentence}", the entity ${nodeMissingRelationship} was mentioned but not connected by any relationship. \
-Can you rewrite this sentence to correctly annotate the entities and relationships?`,
+        content: `Please re-annotate this sentence: ${originalSentence}`,
       },
     ]
   },
