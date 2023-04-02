@@ -324,6 +324,17 @@ export const Interchange = ({
             : nodeWorkStorage.current.answerObjectsBefore,
         })
       )
+
+      // smoothly scroll .answer-text with data-id === answerObjectId into view
+      const answerObjectElement = document.querySelector(
+        `.answer-text[data-id="${nodeWorkStorage.current.answerObjectNew?.id}"]`
+      )
+      if (answerObjectElement) {
+        answerObjectElement.scrollIntoView({
+          // behavior: 'smooth',
+          block: 'nearest',
+        })
+      }
     },
     [_handleUpdateRelationshipEntities, id, setQuestionsAndAnswers]
   )

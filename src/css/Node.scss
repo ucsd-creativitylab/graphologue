@@ -3,7 +3,7 @@ $shadow-node-selected: $shadow-heavy;
 .generating-flow,
 .changing-flow {
   .react-flow__node {
-    transition: transform $transition-normal-slow ease;
+    transition: transform $transition-slow ease;
   }
 }
 

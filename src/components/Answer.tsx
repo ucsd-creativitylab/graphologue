@@ -332,6 +332,7 @@ export type ListDisplayFormat = 'original' | 'summary' | 'slide'
 
 const RawAnswer = ({
   questionAndAnswer: {
+    id,
     answer,
     answerObjects,
     synced,
@@ -453,7 +454,7 @@ const RawAnswer = ({
 
       {/* display in block */}
       {blockDisplay ? (
-        <div className={`answer-block-list`}>
+        <div className={`answer-block-list`} data-id={id}>
           {answerObjects.map((answerObject, index) => {
             const answerObjectComplete = answerObject.complete
 
@@ -568,7 +569,7 @@ const AnswerText = ({
 
   let globalStart = 0
   return (
-    <>
+    <div className="answer-text" data-id={answerObjectId}>
       {sentences.map((sentence, sentenceIndex) => (
         <span key={sentenceIndex} className="sentence-segment">
           {sentence.split(/(\[[^\]]+\])/).map((part, partIndex) => {
@@ -604,7 +605,7 @@ const AnswerText = ({
           })}
         </span>
       ))}
-    </>
+    </div>
   )
 
   /*

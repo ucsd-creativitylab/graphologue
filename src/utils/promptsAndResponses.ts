@@ -77,7 +77,7 @@ Relationships of high saliency are often included in summaries. Relationships of
 \
 You should try to annotate at least one relationship for each entity. Relationships should only connect entities that appear in the response.
 
-Example paragraph A (your response should be multiple paragraphs):
+Example paragraph A:
 [Artificial Intelligence (AI) ($N1)] [is a ($H, $N1, $N2)] [field of computer science ($N2)] that [creates ($H, $N1, $N3)] [intelligent machines ($N3)]. \
 [These machines ($N3)] [possess ($H, $N3, $N4)] [capabilities ($N4)] [such as ($M, $N4, $N5; $M, $N4, $N6; $M, $N4, $N7; $M, $N4, $N8)] \
 [learning ($N5)], \
@@ -87,14 +87,16 @@ and [problem-solving ($N8)]. \
 [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
 [Narrow AI ($N9)] [is designed for ($M, $N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($M, $N10, $N12)] [mimic human intelligence ($N12)].
 
-Example paragraph B (your response should be multiple paragraphs):
+Example paragraph B:
 [Human-Computer Interaction ($N1)] [is a ($H, $N1, $N2)] [multidisciplinary field ($N2)] that [focuses on ($H, $N1, $N3)] [the design and use of computer technology ($N3)], \
 [centered around ($H, $N1, $N4)] [the interfaces ($N4)] [between ($H, $N4, $N5; $H, $N4, $N6)] [people (users) ($N5)] and [computers ($N6)]. \
 [Researchers ($N7)] [working on $($L, $N1, $N7)] [HCI ($N1)] [study ($H, $N7, $N8)] [issues ($N8)] \
 [related to ($M, $N8, $N9; $M, $N8, $N10; $M, $N8, $N11)] \
 [usability ($N9)], \
 [accessibility ($N10)], \
-and [user experience ($N11)] [in ($L, $N9, $N3; $L, $N10, $N3; $L, $N11, $N3)] [technology design ($N3)].`,
+and [user experience ($N11)] [in ($L, $N9, $N3; $L, $N10, $N3; $L, $N11, $N3)] [technology design ($N3)].
+
+Your response should have multiple paragraphs.`,
         /**
 Example:
 [Apple Inc. ($N1)] [is a ($H, $N1, $N2)] [technology company ($N2)] [based in ($H, $N1, $N3)] [Cupertino, California ($N3)]. \

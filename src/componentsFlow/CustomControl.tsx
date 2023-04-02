@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext } from 'react'
+import React, { memo, useCallback, useContext, useRef } from 'react'
 import { ControlButton, Controls, Edge, Node, useReactFlow } from 'reactflow'
 
 // import AddRoundedIcon from '@mui/icons-material/AddRounded'
@@ -91,6 +91,8 @@ export const CustomControls = memo(
     } = useContext(InterchangeContext)
     const { handleOrganizeNodes } = useContext(AnswerContext)
 
+    const flowChangingTimer = useRef<NodeJS.Timer | null>(null)
+
     const _returnToOrigin = useCallback(() => {
       setViewport({ x: 0, y: 0, zoom: 1 }, { duration: transitionDuration })
     }, [setViewport])
@@ -127,6 +129,27 @@ export const CustomControls = memo(
         toFitView: true,
       })
     }, [addNodes, fitView, getNodes, getViewport, selectNodes])
+
+    const handleSaliency = useCallback(() => {
+      // using timeout, set the className of flowWrapperRef to .changing-flow
+      // and remove it after 700ms
+
+      if (flowChangingTimer.current) {
+        clearTimeout(flowChangingTimer.current)
+      }
+
+      flowChangingTimer.current = setTimeout(() => {
+        if (flowWrapperRef.current) {
+          flowWrapperRef.current.classList.remove('changing-flow')
+        }
+      }, 700)
+
+      if (flowWrapperRef.current) {
+        flowWrapperRef.current.classList.add('changing-flow')
+      }
+
+      handleSwitchSaliency()
+    }, [flowWrapperRef, handleSwitchSaliency])
 
     // !
     // const handleClearCanvas = useCallback(() => {
@@ -273,7 +296,7 @@ export const CustomControls = memo(
           <span>organize</span>
         </ControlButton>
 
-        <ControlButton onClick={handleSwitchSaliency}>
+        <ControlButton onClick={handleSaliency}>
           {saliencyComponent}
           <span>saliency</span>
 
