@@ -69,7 +69,7 @@ The user’s goal is to construct a concept map to visually explain your respons
 To achieve this, annotate the key entities and relationships inline for each sentence in the paragraphs. \
 \
 Entities are usually noun phrases and should be annotated with [entity ($N1)], for example, [Artificial Intelligence ($N1)]. \
-Do not annotate conjunctive adverbs, such as "since then" or "therefore," as entities in the map. Use the same label for entities that refer to the same thing, even if the wording is slightly different. For example, use [latte ($N1)] for both "latte" and "a latte". \
+Do not annotate conjunctive adverbs, such as "since then" or "therefore," as entities in the map. Use the same label for entities that refer to the same thing, even if the wording is slightly different. For example, use [latte ($N1)] for both "latte", "a latte", "types of latte", "new latte" and "old latte" \
 \
 A relationship is usually a word or a phrase that consists of verbs, adjectives, adverbs, or propositions. \
 Relationships should be annotated with the relevant entities and saliency of the relationship, as high ($H) or low ($L), in the format of [relationship ($H, $N1, $N2)], \
