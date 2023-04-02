@@ -2,11 +2,12 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 
 import { ChatApp } from './App'
+import { getPasswordNow } from './utils/timeBasedPassword'
+import { debug } from './constants'
 
 // ! the only css imports in ts/x files
 import './css/index.scss'
 import 'reactflow/dist/style.css'
-import { getPasswordNow } from './utils/timeBasedPassword'
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)
 
@@ -14,7 +15,7 @@ const root = ReactDOM.createRoot(document.getElementById('root')!)
 const urlParams = new URLSearchParams(window.location.search)
 const pwd = urlParams.get('pwd')
 
-if (pwd === getPasswordNow())
+if (debug || pwd === getPasswordNow())
   if (process.env.REACT_APP_DEV_IDE === 'code')
     root.render(
       <React.StrictMode>

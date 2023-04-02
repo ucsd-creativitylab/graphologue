@@ -69,14 +69,14 @@ The user’s goal is to construct a concept map to visually explain your respons
 To achieve this, annotate the key entities and relationships inline for each sentence in the paragraphs. \
 \
 Entities are usually noun phrases and should be annotated with [entity ($N1)], for example, [Artificial Intelligence ($N1)]. \
-Do not annotate conjunctive adverbs, such as "since then" or "therefore," as entities in the map. Use the same label for entities that refer to the same thing, even if the wording is slightly different. For example, use [latte ($N1)] for both "latte", "a latte", "types of latte", "new latte" and "old latte". Entities should NOT begin with a preposition. For example, "using cryptography" is an incorrect entity, while just "cryptography" is correct. Similarly, 'a network of computers' is incorrect, while "network of computers" is correct. \
+Do not annotate conjunctive adverbs, such as "since then" or "therefore," as entities in the map. \
 \
-A relationship is usually a word or a phrase that consists of verbs, adjectives, adverbs, or propositions. \
+A relationship is usually a word or a phrase that consists of verbs, adjectives, adverbs, or prepositions. \
 Relationships should be annotated with the relevant entities and saliency of the relationship, as high ($H) or low ($L), in the format of [relationship ($H, $N1, $N2)], \
 for example, [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
 Relationships of high saliency are often included in summaries. Relationships of low saliency are often omitted in summaries. \
 It's important to choose relationships that accurately reflect the nature of the connection between the concepts in text, \
-and to use consistent labeling conventions throughout the paragraphs. Please refer to the list of properties in this URL: https://www.wikidata.org/wiki/Wikidata:List_of_properties/all_in_one_table. The relationships should not be labeled with anything else other than the properties from the aforementioned URL. \
+and to use consistent labeling conventions throughout the paragraphs. \
 \
 You should try to annotate at least one relationship for each entity. Relationships should only connect entities that appear in the response. \
 You can arrange the sentences in a way that facilitates the annotation of entities and relationships, \
@@ -200,7 +200,7 @@ ${
     : ''
 }\n
 ${
-  hasOrphan && hasNoWhere
+  hasNoWhere
     ? ` One or more relationships annotated by relationship annotations "${noWhereEdges.join(
         ', '
       )}" \
