@@ -1,6 +1,11 @@
 import { Edge, Node } from 'reactflow'
 
-import { EdgeEntity, NodeEntity, OriginRange } from '../App'
+import {
+  EdgeEntity,
+  NodeEntity,
+  OriginRange,
+  QuestionAndAnswerSynced,
+} from '../App'
 import { getNewEdge } from '../componentsFlow/Edge'
 import { getNewCustomNode } from '../componentsFlow/Node'
 import { styles } from '../constants'
@@ -47,11 +52,14 @@ const _addMentionedNode = (
 export const answerObjectsToReactFlowObject = (
   graph: dagre.graphlib.Graph<{}>,
   rawNodeEntities: NodeEntity[],
-  rawEdgeEntities: EdgeEntity[]
+  rawEdgeEntities: EdgeEntity[],
+  synced: QuestionAndAnswerSynced
 ): {
   nodes: Node[]
   edges: Edge[]
 } => {
+  const { saliencyFilter } = synced
+
   // build nodes and edges from node and edge entities
   const nodes: Node[] = []
   const edges: Edge[] = []
@@ -182,12 +190,24 @@ export const answerObjectsToReactFlowObject = (
   // ! filter node and edge entities
 
   const filteredEdgeEntities = edgeEntities.filter(edgeEntity => {
+    // const {
+    //   originRange: { answerObjectId },
+    // } = edgeEntity
     const { sourceId, targetId, saliency } = edgeEntity.edgePairs[0]
 
-    if (sourceId === targetId || targetId === '$N1') {
-      // ? disable edge to the first node // TODO any better way?
-      return false
-    }
+    // saliency filter
+    if (saliencyAHigherThanB(saliencyFilter, saliency)) return false
+
+    // highlight answer part filter
+    // * filtered in mergeEdgeEntities
+    // if (
+    //   highlightedAnswerObjectIds.length > 0 &&
+    //   !highlightedAnswerObjectIds.includes(answerObjectId)
+    // )
+    //   return false
+
+    // ? disable edge to the first node // TODO any better way?
+    if (sourceId === targetId || targetId === '$N1') return false
 
     // if the edge doesn't have a label, and there are other edges between the same nodes,
     // then eliminate this edge
@@ -242,9 +262,11 @@ export const answerObjectsToReactFlowObject = (
     return true
   })
 
+  // !
   const filteredNodeEntities = nodeEntities.filter(nodeEntity => {
     // eliminate orphan nodes
     const { id } = nodeEntity
+
     return (
       filteredEdgeEntities.find(
         edgeEntity =>
@@ -257,6 +279,8 @@ export const answerObjectsToReactFlowObject = (
   // ! construct positioned graph
   const computedNodes = constructGraph(
     graph,
+    nodeEntities,
+    edgeEntities,
     filteredNodeEntities,
     filteredEdgeEntities
   )
@@ -279,6 +303,7 @@ export const answerObjectsToReactFlowObject = (
     }
   } = {}
 
+  // node entities to nodes
   computedNodes.map(({ id, x, y }) => {
     const entity = getNodeEntityFromNodeEntityId(nodeEntities, id)
     if (!entity) return null
@@ -311,6 +336,7 @@ export const answerObjectsToReactFlowObject = (
     )
   })
 
+  // edge entities to edges
   filteredEdgeEntities.forEach(
     ({ edgeLabel, edgePairs, originRange, originText }) => {
       edgePairs.forEach(({ sourceId, targetId }) => {

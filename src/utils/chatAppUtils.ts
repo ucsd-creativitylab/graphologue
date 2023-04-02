@@ -105,6 +105,7 @@ export const newQuestionAndAnswer = (
       highlightedAnswerObjectIds:
         prefill?.synced?.highlightedAnswerObjectIds ?? [],
       highlightedNodeIds: prefill?.synced?.highlightedNodeIds ?? [],
+      saliencyFilter: prefill?.synced?.saliencyFilter ?? 'medium',
     },
   }
 }

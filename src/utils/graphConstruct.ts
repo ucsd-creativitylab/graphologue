@@ -244,6 +244,8 @@ export const hasHiddenExpandId = (text: string) => {
 
 export const constructGraph = (
   graph: dagre.graphlib.Graph<{}>,
+  rawNodeEntities: NodeEntity[],
+  rawEdgeEntities: EdgeEntity[],
   nodeEntities: NodeEntity[],
   edgeEntities: EdgeEntity[]
 ) => {
@@ -259,19 +261,41 @@ export const constructGraph = (
     return ''
   })
 
-  nodeEntities.forEach(nodeE => {
-    graph.setNode(nodeE.id, {
-      label: nodeE.id,
-      width: hardcodedNodeWidthEstimation(nodeE.displayNodeLabel),
-      height: hardcodedNodeSize.height,
-    })
+  rawNodeEntities.forEach(nodeE => {
+    // check if the node is nodeEntities
+    const nodeEntity = nodeEntities.find(nE => nE.id === nodeE.id)
+
+    if (!nodeEntity) {
+      graph.removeNode(nodeE.id)
+    } else {
+      graph.setNode(nodeE.id, {
+        label: nodeE.id,
+        width: hardcodedNodeWidthEstimation(nodeE.displayNodeLabel),
+        height: hardcodedNodeSize.height,
+      })
+    }
   })
 
-  edgeEntities.forEach(edgeE => {
+  rawEdgeEntities.forEach(edgeE => {
+    const edgeLabel = edgeE.edgeLabel
     const edgePair = edgeE.edgePairs[0]
-    graph.setEdge(edgePair.sourceId, edgePair.targetId, {
-      label: edgeE.edgeLabel,
+
+    // check if the edge is edgeEntities
+    const edgeEntity = edgeEntities.find(eE => {
+      return (
+        edgePair.sourceId === eE.edgePairs[0].sourceId &&
+        edgePair.targetId === eE.edgePairs[0].targetId &&
+        edgeLabel === eE.edgeLabel
+      )
     })
+
+    if (!edgeEntity) {
+      graph.removeEdge(edgePair.sourceId, edgePair.targetId)
+    } else {
+      graph.setEdge(edgePair.sourceId, edgePair.targetId, {
+        label: edgeE.edgeLabel,
+      })
+    }
   })
 
   // ! compute

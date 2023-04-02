@@ -689,11 +689,14 @@ const Flow = () => {
         setModel: setModelForMagic,
       }}
     >
-      <div className="react-flow-wrapper" ref={reactFlowWrapper}>
+      <div
+        className={`react-flow-wrapper${
+          generatingFlow ? ' generating-flow' : ''
+        }`}
+        ref={reactFlowWrapper}
+      >
         <ReactFlow
-          className={`${metaPressed ? 'flow-meta-pressed' : ''}${
-            generatingFlow ? ' generating-flow' : ''
-          }`}
+          className={`${metaPressed ? 'flow-meta-pressed' : ''}`}
           // basic
           defaultViewport={defaultViewport}
           nodes={nodes}
@@ -795,6 +798,7 @@ const Flow = () => {
             redoTime={redoTime}
             canUndo={canUndo}
             canRedo={canRedo}
+            flowWrapperRef={reactFlowWrapper}
             // notesOpened={notesOpened}
             // setNotesOpened={setNotesOpened}
           />

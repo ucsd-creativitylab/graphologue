@@ -20,6 +20,9 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded'
 // import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded'
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded'
 import AccountTreeRoundedIcon from '@mui/icons-material/AccountTreeRounded'
+import SignalWifi1BarRoundedIcon from '@mui/icons-material/SignalWifi1BarRounded'
+import SignalWifi3BarRoundedIcon from '@mui/icons-material/SignalWifi3BarRounded'
+import SignalWifi4BarRoundedIcon from '@mui/icons-material/SignalWifi4BarRounded'
 
 import { customAddNodes } from './Node'
 import {
@@ -51,6 +54,7 @@ type CustomControlsProps = {
   canUndo: boolean
   // notesOpened: boolean
   // setNotesOpened: (notesOpened: boolean) => void
+  flowWrapperRef: React.RefObject<HTMLDivElement>
 }
 export const CustomControls = memo(
   ({
@@ -61,6 +65,7 @@ export const CustomControls = memo(
     redoTime,
     canUndo,
     canRedo,
+    flowWrapperRef,
   }: // notesOpened,
   // setNotesOpened,
   CustomControlsProps) => {
@@ -77,12 +82,14 @@ export const CustomControls = memo(
     } = useReactFlow()
     // const { model, selectNodes, setModel } = useContext(FlowContext)
     const { selectNodes } = useContext(FlowContext)
-    const { handleOrganizeNodes } = useContext(AnswerContext)
     const {
       questionAndAnswer: {
         modelStatus: { modelParsing },
+        synced: { saliencyFilter },
       },
+      handleSwitchSaliency,
     } = useContext(InterchangeContext)
+    const { handleOrganizeNodes } = useContext(AnswerContext)
 
     const _returnToOrigin = useCallback(() => {
       setViewport({ x: 0, y: 0, zoom: 1 }, { duration: transitionDuration })
@@ -217,6 +224,28 @@ export const CustomControls = memo(
     //     return node && node.type !== 'magic' && node.selected
     //   }) || selectedComponents.edges.length > 0
 
+    let saliencyTip = ''
+    let saliencyComponent = <></>
+    const saliencyComponentStyle: React.CSSProperties = {
+      transform: 'rotate(180deg)',
+    }
+    if (saliencyFilter === 'high') {
+      saliencyTip = 'showing only the most important relationships'
+      saliencyComponent = (
+        <SignalWifi1BarRoundedIcon style={saliencyComponentStyle} />
+      )
+    } else if (saliencyFilter === 'medium') {
+      saliencyTip = 'showing all somewhat important relationships'
+      saliencyComponent = (
+        <SignalWifi3BarRoundedIcon style={saliencyComponentStyle} />
+      )
+    } else if (saliencyFilter === 'low') {
+      saliencyTip = 'showing all relationships'
+      saliencyComponent = (
+        <SignalWifi4BarRoundedIcon style={saliencyComponentStyle} />
+      )
+    }
+
     return (
       <Controls
         showZoom={false}
@@ -242,6 +271,17 @@ export const CustomControls = memo(
         <ControlButton onClick={handleOrganizeNodes}>
           <AccountTreeRoundedIcon />
           <span>organize</span>
+        </ControlButton>
+
+        <ControlButton onClick={handleSwitchSaliency}>
+          {saliencyComponent}
+          <span>saliency</span>
+
+          <ControlButtonTooltip>
+            <TooltipLine>
+              <span>{saliencyTip}</span>
+            </TooltipLine>
+          </ControlButtonTooltip>
         </ControlButton>
 
         {/* <ControlButton onClick={handleAddNode}>

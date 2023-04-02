@@ -14,6 +14,24 @@
   // animation-delay: $transition-fast;
 }
 
+@keyframes fade-out-node-outline {
+  from {
+    outline-color: rgba($purple, $opacity-mid);
+    outline-offset: rem-to-px(2rem);
+  }
+
+  to {
+    outline-color: transparent;
+    outline-offset: rem-to-px(0);
+  }
+}
+
+.fade-out-node-outline {
+  animation-name: fade-out-node-outline;
+  animation-duration: $transition-slow-x;
+  animation-delay: $transition-fast;
+}
+
 @keyframes drop-down {
   from {
     // opacity: 0;

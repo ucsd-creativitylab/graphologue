@@ -70,6 +70,7 @@ export const Answer = () => {
     id,
     answerObjects,
     modelStatus: { modelParsing },
+    synced,
     synced: { highlightedAnswerObjectIds },
   } = questionAndAnswer as QuestionAndAnswer
 
@@ -88,7 +89,6 @@ export const Answer = () => {
     answerObjects,
     highlightedAnswerObjectIds
   )
-
   const edgeEntities = mergeEdgeEntities(
     answerObjects,
     highlightedAnswerObjectIds
@@ -187,7 +187,8 @@ export const Answer = () => {
     const { nodes: newNodes, edges: newEdges } = answerObjectsToReactFlowObject(
       stableDagreGraph.current,
       nodeEntities,
-      edgeEntities
+      edgeEntities,
+      synced
     )
 
     setNodes(newNodes)
@@ -247,6 +248,9 @@ export const Answer = () => {
       }))(nE)
     ),
     edgeEntities,
+    // ! should we  add this?
+    // synced, // ???
+    synced.saliencyFilter,
     setNodes,
     setEdges,
     runViewFittingJobs,
@@ -256,7 +260,8 @@ export const Answer = () => {
     const { nodes: newNodes, edges: newEdges } = answerObjectsToReactFlowObject(
       stableDagreGraph.current,
       nodeEntities,
-      edgeEntities
+      edgeEntities,
+      synced
     )
 
     setNodes(newNodes)
@@ -274,7 +279,7 @@ export const Answer = () => {
     }))
 
     prevNodeSnippets.current = newNodeSnippets
-  }, [edgeEntities, nodeEntities, setEdges, setNodes])
+  }, [edgeEntities, nodeEntities, setEdges, setNodes, synced])
 
   return (
     <AnswerContext.Provider

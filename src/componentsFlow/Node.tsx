@@ -219,7 +219,7 @@ export const CustomNode = memo(
 
     return (
       <div
-        className={`custom-node-body${
+        className={`fade-in fade-out-node-outline custom-node-body${
           metaPressed ? ' custom-node-meta-pressed' : ''
         }${
           isExplainedByMagicNode || highlightedNodeIds.includes(id)

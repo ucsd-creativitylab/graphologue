@@ -3,7 +3,11 @@ import React, { useEffect, useState } from 'react'
 import { ChatContext } from './components/Contexts'
 import { Interchange } from './components/Interchange'
 import { newQuestionAndAnswer } from './utils/chatAppUtils'
-import { EdgeInformation, NodeInformation } from './utils/responseProcessing'
+import {
+  EdgeInformation,
+  NodeInformation,
+  RelationshipSaliency,
+} from './utils/responseProcessing'
 
 // import the package.json file
 import packageJson from '../package.json'
@@ -63,6 +67,7 @@ export interface QuestionAndAnswerSynced {
   highlightedOriginRanges: OriginRange[] // for highlight text
   highlightedAnswerObjectIds: string[] // for highlight from text block to show partial graph
   highlightedNodeIds: string[] // for highlight nodes when it is expanding
+  saliencyFilter: RelationshipSaliency // to filter edges
 }
 
 /* -------------------------------------------------------------------------- */

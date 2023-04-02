@@ -51,6 +51,8 @@ export interface InterchangeContextProps {
   ) => void
   handleAnswerObjectNodeRemove: (nodeEntityId: string) => void
   handleAnswerObjectNodeCollapse: (nodeEntityId: string) => void
+  /* -------------------------------------------------------------------------- */
+  handleSwitchSaliency: () => void
 }
 ////
 export const InterchangeContext = createContext<InterchangeContextProps>({
@@ -62,6 +64,8 @@ export const InterchangeContext = createContext<InterchangeContextProps>({
   handleAnswerObjectNodeExpand: () => {},
   handleAnswerObjectNodeRemove: () => {},
   handleAnswerObjectNodeCollapse: () => {},
+  /* -------------------------------------------------------------------------- */
+  handleSwitchSaliency: () => {},
 })
 
 /* -------------------------------------------------------------------------- */
@@ -78,6 +82,7 @@ export const Interchange = ({
     answer,
     answerObjects,
     modelStatus: { modelParsingComplete, modelError, modelInitialPrompts },
+    synced: { saliencyFilter },
   },
 }: InterchangeProps) => {
   const { setQuestionsAndAnswers } = useContext(ChatContext)
@@ -436,6 +441,21 @@ export const Interchange = ({
 
   /* -------------------------------------------------------------------------- */
 
+  const handleSwitchSaliency = useCallback(() => {
+    setQuestionsAndAnswers(prevQsAndAs =>
+      helpSetQuestionAndAnswer(prevQsAndAs, id, {
+        synced: {
+          saliencyFilter:
+            saliencyFilter === 'high'
+              ? 'medium'
+              : saliencyFilter === 'medium'
+              ? 'low'
+              : 'high',
+        },
+      })
+    )
+  }, [id, saliencyFilter, setQuestionsAndAnswers])
+
   return (
     <InterchangeContext.Provider
       value={{
@@ -447,6 +467,7 @@ export const Interchange = ({
         handleAnswerObjectNodeExpand,
         handleAnswerObjectNodeRemove,
         handleAnswerObjectNodeCollapse,
+        handleSwitchSaliency,
       }}
     >
       <div className="interchange-item">
