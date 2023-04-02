@@ -161,6 +161,22 @@ For example, for "[Fruits ($N1)]" in the sentence \
       },
     ]
   },
+  _graph_2MoreSentences: (
+    prevConversation: Prompt[],
+    originText: string
+  ): Prompt[] => {
+    return [
+      ...prevConversation,
+      {
+        role: 'user',
+        content: `For the paragraph "${originText}", \
+can you continue writing one or two more sentences at the end of the paragraph? \
+Your response should follow the same annotation format as the original response.
+${_graph_handleFollowupQuestionsIdMatching} \
+Your response should only have the new content.`,
+      },
+    ]
+  },
   _graph_sentenceCorrection: (
     prevConversation: Prompt[],
     originalSentence: string,
@@ -174,14 +190,15 @@ For example, for "[Fruits ($N1)]" in the sentence \
       ...prevConversation,
       {
         role: 'system',
-        content: `In the following sentence of the original response, there are some issues that need to be fixed. \
+        content: `In the following sentence of the original response, there are some issues that need to be fixed.
+
 ${
   hasOrphan
     ? `The entities "${orphanNodes.join(
         ', '
       )}" were mentioned but not connected by any relationships.`
     : ''
-} \
+}\n
 ${
   hasOrphan && hasNoWhere
     ? ` One or more relationships annotated by relationship annotations "${noWhereEdges.join(
@@ -189,7 +206,7 @@ ${
       )}" \
 were trying to connect entities with ids that are not mentioned in the response.`
     : ''
-} \
+}\n
 Please try to fix these issues in your response by annotating the same sentence again. \
 You may arrange the sentences in a way that facilitates the annotation of entities and relationships, \
 but the arrangement should not alter their meaning and they should still flow naturally in language. \

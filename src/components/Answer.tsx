@@ -338,7 +338,7 @@ const RawAnswer = ({
   const {
     handleSetSyncedAnswerObjectIdsHighlighted,
     handleSetSyncedAnswerObjectIdsHidden,
-    handleAnswerObjectTellLessOrMore,
+    // handleAnswerObjectTellLessOrMore,
     handleAnswerObjectRemove,
   } = useContext(InterchangeContext)
 
@@ -514,7 +514,7 @@ const RawAnswer = ({
                 <div className="answer-item-text">{contentComponent}</div>
                 {answerObjectComplete && (
                   <div className="answer-block-menu">
-                    <span
+                    {/* <span
                       className={`answer-block-menu-item${
                         !modelParsingComplete ? ' disabled' : ''
                       }`}
@@ -526,8 +526,8 @@ const RawAnswer = ({
                       }}
                     >
                       less
-                    </span>
-                    <span
+                    </span> */}
+                    {/* <span
                       className={`answer-block-menu-item${
                         !modelParsingComplete ? ' disabled' : ''
                       }`}
@@ -539,7 +539,7 @@ const RawAnswer = ({
                       }}
                     >
                       more
-                    </span>
+                    </span> */}
                     <span
                       className={`answer-block-menu-item${
                         answerObjectHighlighted ? ' highlighted' : ''
