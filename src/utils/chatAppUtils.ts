@@ -101,9 +101,10 @@ export const newQuestionAndAnswer = (
       modelInitialPrompts: prefill?.modelStatus?.modelInitialPrompts ?? [],
     },
     synced: {
+      answerObjectIdsHighlighted:
+        prefill?.synced?.answerObjectIdsHighlighted ?? [],
+      answerObjectIdsHidden: prefill?.synced?.answerObjectIdsHidden ?? [],
       highlightedOriginRanges: prefill?.synced?.highlightedOriginRanges ?? [],
-      highlightedAnswerObjectIds:
-        prefill?.synced?.highlightedAnswerObjectIds ?? [],
       highlightedNodeIds: prefill?.synced?.highlightedNodeIds ?? [],
       saliencyFilter: prefill?.synced?.saliencyFilter ?? 'high', // ! default saliency
     },

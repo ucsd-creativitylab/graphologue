@@ -71,7 +71,7 @@ export const Answer = () => {
     answerObjects,
     modelStatus: { modelParsing },
     synced,
-    synced: { highlightedAnswerObjectIds },
+    synced: { answerObjectIdsHidden },
   } = questionAndAnswer as QuestionAndAnswer
 
   const { setNodes, setEdges, fitView, getViewport, setViewport } =
@@ -85,14 +85,8 @@ export const Answer = () => {
   // const prevEdges = useRef<Edge[]>([])
 
   // ! put all node and edge entities together
-  const nodeEntities = mergeNodeEntities(
-    answerObjects,
-    highlightedAnswerObjectIds
-  )
-  const edgeEntities = mergeEdgeEntities(
-    answerObjects,
-    highlightedAnswerObjectIds
-  )
+  const nodeEntities = mergeNodeEntities(answerObjects, answerObjectIdsHidden)
+  const edgeEntities = mergeEdgeEntities(answerObjects, answerObjectIdsHidden)
 
   const runViewFittingJobs = useCallback(() => {
     if (viewFittingJobRunning.current || viewFittingJobs.current.length === 0)
@@ -342,7 +336,9 @@ const RawAnswer = ({
   questionAndAnswer: QuestionAndAnswer
 }) => {
   const {
-    handleSetSyncedHighlightedAnswerObjectIds,
+    handleSetSyncedAnswerObjectIdsHighlighted,
+    handleSetSyncedAnswerObjectIdsHidden,
+    handleAnswerObjectTellMore,
     handleAnswerObjectRemove,
   } = useContext(InterchangeContext)
 
@@ -376,22 +372,36 @@ const RawAnswer = ({
 
   const handleHighlightAnswerObject = useCallback(
     (answerObjectId: string) => {
-      const currentIds = synced.highlightedAnswerObjectIds
+      const currentIds = synced.answerObjectIdsHighlighted
 
       if (currentIds.includes(answerObjectId)) {
-        handleSetSyncedHighlightedAnswerObjectIds(
+        handleSetSyncedAnswerObjectIdsHighlighted(
           currentIds.filter(id => id !== answerObjectId)
         )
       } else
-        handleSetSyncedHighlightedAnswerObjectIds([
+        handleSetSyncedAnswerObjectIdsHighlighted([
           ...currentIds,
           answerObjectId,
         ])
     },
     [
-      handleSetSyncedHighlightedAnswerObjectIds,
-      synced.highlightedAnswerObjectIds,
+      handleSetSyncedAnswerObjectIdsHighlighted,
+      synced.answerObjectIdsHighlighted,
     ]
+  )
+
+  const handleHideAnswerObject = useCallback(
+    (answerObjectId: string) => {
+      const currentIds = synced.answerObjectIdsHidden
+
+      if (currentIds.includes(answerObjectId)) {
+        handleSetSyncedAnswerObjectIdsHidden(
+          currentIds.filter(id => id !== answerObjectId)
+        )
+      } else
+        handleSetSyncedAnswerObjectIdsHidden([...currentIds, answerObjectId])
+    },
+    [handleSetSyncedAnswerObjectIdsHidden, synced.answerObjectIdsHidden]
   )
 
   return (
@@ -459,7 +469,11 @@ const RawAnswer = ({
             const answerObjectComplete = answerObject.complete
 
             const answerObjectHighlighted =
-              synced.highlightedAnswerObjectIds.includes(answerObject.id)
+              synced.answerObjectIdsHighlighted.includes(answerObject.id)
+
+            const answerObjectHidden = synced.answerObjectIdsHidden.includes(
+              answerObject.id
+            )
 
             const loadingComponent = (
               <div className="answer-loading-placeholder">
@@ -502,7 +516,9 @@ const RawAnswer = ({
                       className={`answer-block-menu-item${
                         !modelParsingComplete ? ' disabled' : ''
                       }`}
-                      onClick={() => {}}
+                      onClick={() => {
+                        handleAnswerObjectTellMore(answerObject.id)
+                      }}
                     >
                       tell me more
                     </span>
@@ -515,6 +531,16 @@ const RawAnswer = ({
                       }}
                     >
                       highlight
+                    </span>
+                    <span
+                      className={`answer-block-menu-item${
+                        answerObjectHidden ? ' hidden' : ''
+                      }`}
+                      onClick={() => {
+                        handleHideAnswerObject(answerObject.id)
+                      }}
+                    >
+                      hide
                     </span>
                     <span
                       className={`answer-block-menu-item`}

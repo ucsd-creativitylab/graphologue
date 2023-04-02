@@ -64,8 +64,9 @@ interface ModelStatus {
 }
 
 export interface QuestionAndAnswerSynced {
+  answerObjectIdsHighlighted: string[] // for highlight from text block to show partial graph
+  answerObjectIdsHidden: string[]
   highlightedOriginRanges: OriginRange[] // for highlight text
-  highlightedAnswerObjectIds: string[] // for highlight from text block to show partial graph
   highlightedNodeIds: string[] // for highlight nodes when it is expanding
   saliencyFilter: RelationshipSaliency // to filter edges
 }

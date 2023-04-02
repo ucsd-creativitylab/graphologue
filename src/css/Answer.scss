@@ -158,7 +158,12 @@
         }
 
         &.highlighted {
-          background-color: $elegant-yellow;
+          background-color: $purple;
+          color: $white;
+        }
+
+        &.hidden {
+          background-color: $elegant-red;
           color: $white;
         }
 

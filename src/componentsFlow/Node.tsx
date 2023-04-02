@@ -87,6 +87,15 @@ export const copyNodeSnippets = (nodes: NodeSnippet[]) => {
   })
 }
 
+export const anyNodeIndividualInHighlightedAnswerObject = (
+  answerObjectIdsHighlighted: string[],
+  originRanges: OriginRange[]
+) => {
+  return originRanges.some(originRange =>
+    answerObjectIdsHighlighted.includes(originRange.answerObjectId)
+  )
+}
+
 /* -------------------------------------------------------------------------- */
 
 const connectionNodeIdSelector = (state: ReactFlowState) =>
@@ -98,7 +107,7 @@ export const CustomNode = memo(
     const { metaPressed, selectedComponents } = useContext(FlowContext)
     const {
       questionAndAnswer: {
-        synced: { highlightedNodeIds },
+        synced: { highlightedNodeIds, answerObjectIdsHighlighted },
       },
       handleAnswerObjectNodeExpand,
       handleAnswerObjectNodeCollapse,
@@ -159,6 +168,7 @@ export const CustomNode = memo(
     const selectedMagicNodes = selectedComponents.nodes.filter(
       (nodeId: string) => nodeId.includes('magic-node')
     )
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const isExplainedByMagicNode = selectedMagicNodes.some((nodeId: string) => {
       const magicNode = getNodes().find(node => node.id === nodeId)
       if (!magicNode) return false
@@ -221,8 +231,13 @@ export const CustomNode = memo(
       <div
         className={`fade-in fade-out-node-outline custom-node-body${
           metaPressed ? ' custom-node-meta-pressed' : ''
+          // }${isExplainedByMagicNode ? ' custom-node-explained' : ''}${
         }${
-          isExplainedByMagicNode || highlightedNodeIds.includes(id)
+          highlightedNodeIds.includes(id) ||
+          anyNodeIndividualInHighlightedAnswerObject(
+            answerObjectIdsHighlighted,
+            originRanges
+          )
             ? ' custom-node-explained'
             : ''
         }${

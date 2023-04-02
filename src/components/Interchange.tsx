@@ -40,8 +40,9 @@ export type NodeConceptExpansionType = 'explain' | 'examples'
 
 export interface InterchangeContextProps {
   questionAndAnswer: QuestionAndAnswer
+  handleSetSyncedAnswerObjectIdsHighlighted: (ids: string[]) => void
+  handleSetSyncedAnswerObjectIdsHidden: (ids: string[]) => void
   handleSetSyncedOriginRanges: (highlightedOriginRanges: OriginRange[]) => void
-  handleSetSyncedHighlightedAnswerObjectIds: (ids: string[]) => void
   handleAnswerObjectRemove: (id: string) => void
   handleAnswerObjectTellMore: (id: string) => void
   handleAnswerObjectNodeExpand: (
@@ -57,8 +58,9 @@ export interface InterchangeContextProps {
 ////
 export const InterchangeContext = createContext<InterchangeContextProps>({
   questionAndAnswer: newQuestionAndAnswer(),
+  handleSetSyncedAnswerObjectIdsHighlighted: () => {},
+  handleSetSyncedAnswerObjectIdsHidden: () => {},
   handleSetSyncedOriginRanges: () => {},
-  handleSetSyncedHighlightedAnswerObjectIds: () => {},
   handleAnswerObjectRemove: () => {},
   handleAnswerObjectTellMore: () => {},
   handleAnswerObjectNodeExpand: () => {},
@@ -112,7 +114,7 @@ export const Interchange = ({
     [id, setQuestionsAndAnswers]
   )
 
-  const handleSetSyncedHighlightedAnswerObjectIds = useCallback(
+  const handleSetSyncedAnswerObjectIdsHighlighted = useCallback(
     (ids: string[]) => {
       setQuestionsAndAnswers(
         (questionsAndAnswers: QuestionAndAnswer[]): QuestionAndAnswer[] =>
@@ -123,7 +125,38 @@ export const Interchange = ({
                   ...deepCopyQuestionAndAnswer(questionAndAnswer),
                   synced: {
                     ...questionAndAnswer.synced,
-                    highlightedAnswerObjectIds: ids,
+                    answerObjectIdsHighlighted: ids,
+                    answerObjectIdsHidden:
+                      questionAndAnswer.synced.answerObjectIdsHidden.filter(
+                        (id: string) => !ids.includes(id)
+                      ),
+                  },
+                }
+              }
+              return questionAndAnswer
+            }
+          )
+      )
+    },
+    [id, setQuestionsAndAnswers]
+  )
+
+  const handleSetSyncedAnswerObjectIdsHidden = useCallback(
+    (ids: string[]) => {
+      setQuestionsAndAnswers(
+        (questionsAndAnswers: QuestionAndAnswer[]): QuestionAndAnswer[] =>
+          questionsAndAnswers.map(
+            (questionAndAnswer: QuestionAndAnswer): QuestionAndAnswer => {
+              if (questionAndAnswer.id === id) {
+                return {
+                  ...deepCopyQuestionAndAnswer(questionAndAnswer),
+                  synced: {
+                    ...questionAndAnswer.synced,
+                    answerObjectIdsHidden: ids,
+                    answerObjectIdsHighlighted:
+                      questionAndAnswer.synced.answerObjectIdsHighlighted.filter(
+                        (id: string) => !ids.includes(id)
+                      ),
                   },
                 }
               }
@@ -150,8 +183,12 @@ export const Interchange = ({
                   ),
                   synced: {
                     ...questionAndAnswer.synced,
-                    highlightedAnswerObjectIds:
-                      questionAndAnswer.synced.highlightedAnswerObjectIds.filter(
+                    answerObjectIdsHighlighted:
+                      questionAndAnswer.synced.answerObjectIdsHighlighted.filter(
+                        (id: string) => id !== answerObjectId
+                      ),
+                    answerObjectIdsHidden:
+                      questionAndAnswer.synced.answerObjectIdsHidden.filter(
                         (id: string) => id !== answerObjectId
                       ),
                   },
@@ -177,6 +214,12 @@ export const Interchange = ({
     answerObjectNew: null,
     answerBefore: '',
     answerObjectsBefore: [],
+  })
+
+  const answerObjectWorkStorage = useRef<{
+    answerObjectUpdated: AnswerObject | null
+  }>({
+    answerObjectUpdated: null,
   })
 
   const _handleResponseError = useCallback(
@@ -297,7 +340,7 @@ export const Interchange = ({
           complete: false,
         }
 
-        // handleSetSyncedHighlightedAnswerObjectIds([
+        // handleSetSyncedAnswerObjectIdsHighlighted([
         //   nodeWorkStorage.current.answerObjectNew.id,
         // ])
       } else {
@@ -310,8 +353,8 @@ export const Interchange = ({
       _handleUpdateRelationshipEntities(nodeWorkStorage.current.answer)
 
       // ! update the answer
-      setQuestionsAndAnswers(prevQsAndAs =>
-        helpSetQuestionAndAnswer(prevQsAndAs, id, {
+      setQuestionsAndAnswers(prevQsAndAs => {
+        return helpSetQuestionAndAnswer(prevQsAndAs, id, {
           answer:
             nodeWorkStorage.current.answerBefore +
             ' ' +
@@ -322,8 +365,13 @@ export const Interchange = ({
                 nodeWorkStorage.current.answerObjectNew,
               ]
             : nodeWorkStorage.current.answerObjectsBefore,
+          synced: {
+            answerObjectIdsHighlighted: nodeWorkStorage.current.answerObjectNew
+              ? [nodeWorkStorage.current.answerObjectNew.id]
+              : [],
+          },
         })
-      )
+      })
 
       // smoothly scroll .answer-text with data-id === answerObjectId into view
       const answerObjectElement = document.querySelector(
@@ -341,7 +389,29 @@ export const Interchange = ({
 
   /* -------------------------------------------------------------------------- */
 
-  const handleAnswerObjectTellMore = useCallback(() => {}, [])
+  const handleAnswerObjectTellMore = useCallback(
+    async (answerObjectId: string) => {
+      if (!modelParsingComplete || modelError) return
+
+      const answerObject = answerObjects.find(a => a.id === answerObjectId)
+      if (!answerObject) return
+
+      // // ! reset
+      answerObjectWorkStorage.current = {
+        answerObjectUpdated: deepCopyAnswerObject(answerObject),
+      }
+      // TODO
+      // setQuestionsAndAnswers(prevQsAndAs =>
+      //   helpSetQuestionAndAnswer(prevQsAndAs, id, {
+      //     modelStatus: {
+      //       modelParsing: true,
+      //       modelParsingComplete: false,
+      //     },
+      //   })
+      // )
+    },
+    [answerObjects, modelError, modelParsingComplete]
+  )
 
   const handleAnswerObjectNodeExpand = useCallback(
     async (
@@ -374,7 +444,6 @@ export const Interchange = ({
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
           modelStatus: {
-            // modelAnswering: true,
             modelParsing: true,
             modelParsingComplete: false,
           },
@@ -394,7 +463,8 @@ export const Interchange = ({
           role: 'assistant',
           // we want to include the expanded text
           // also as the assistant's initial response
-          content: answer, // TODO is it okay?
+          // TODO is it okay?
+          content: answer,
         },
       ]
 
@@ -471,8 +541,9 @@ export const Interchange = ({
     <InterchangeContext.Provider
       value={{
         questionAndAnswer: data,
+        handleSetSyncedAnswerObjectIdsHighlighted,
+        handleSetSyncedAnswerObjectIdsHidden,
         handleSetSyncedOriginRanges,
-        handleSetSyncedHighlightedAnswerObjectIds,
         handleAnswerObjectRemove,
         handleAnswerObjectTellMore,
         handleAnswerObjectNodeExpand,
