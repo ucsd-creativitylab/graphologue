@@ -97,6 +97,9 @@ export const CustomNode = memo(
     const { getNodes, setNodes } = useReactFlow()
     const { metaPressed, selectedComponents } = useContext(FlowContext)
     const {
+      questionAndAnswer: {
+        synced: { highlightedNodeIds },
+      },
       handleAnswerObjectNodeExpand,
       handleAnswerObjectNodeCollapse,
       handleAnswerObjectNodeRemove,
@@ -218,7 +221,11 @@ export const CustomNode = memo(
       <div
         className={`custom-node-body${
           metaPressed ? ' custom-node-meta-pressed' : ''
-        }${isExplainedByMagicNode ? ' custom-node-explained' : ''}${
+        }${
+          isExplainedByMagicNode || highlightedNodeIds.includes(id)
+            ? ' custom-node-explained'
+            : ''
+        }${
           styleBackground !== '#ffffff' ? ' custom-node-background-color' : ''
         }`}
         // }${temporary ? ' custom-node-temporary' : ''}`}

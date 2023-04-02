@@ -53,7 +53,7 @@ $shadow-node-selected: $shadow-heavy;
     }
 
     &.custom-node-explained {
-      outline: rem-to-px(2rem) dotted rgba($purple, $opacity-mid) !important;
+      outline: rem-to-px(2rem) solid rgba($purple, $opacity-mid) !important; // !
       outline-offset: rem-to-px(2rem);
     }
 

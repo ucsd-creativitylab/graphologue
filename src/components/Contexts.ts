@@ -23,6 +23,11 @@ export interface FlowContextType {
     nodes: string[]
     edges: string[]
   }
+  initialSelectItem: {
+    selected: boolean
+    type: 'node' | 'edge'
+    id: string
+  }
   doSetNodesEditing: (nodeIds: string[], editing: boolean) => void
   doSetEdgesEditing: (edgeIds: string[], editing: boolean) => void
   selectNodes: (nodeIds: string[]) => void

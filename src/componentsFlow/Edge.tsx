@@ -232,10 +232,18 @@ export const EdgeCustomLabel = memo(
   }: // roughZoomLevel,
   EdgeCustomLabelProps) => {
     const { getNodes, addNodes, setEdges, fitView } = useReactFlow()
-    const { selectedComponents, selectNodes } = useContext(FlowContext)
+    const { initialSelectItem, selectNodes } = useContext(FlowContext)
 
-    const moreThanOneComponentsSelected =
-      selectedComponents.nodes.length + selectedComponents.edges.length > 1
+    // const moreThanOneComponentsSelected =
+    //   selectedComponents.nodes.length + selectedComponents.edges.length > 1
+    // getNodes().filter(node => node.data.selected).length +
+    //   getEdges().filter(edge => edge.data.selected).length >
+    // 1
+
+    const useToolbox =
+      selected &&
+      initialSelectItem.type === 'edge' &&
+      initialSelectItem.id === edgeId
 
     // ! add node from edge
     const handleAddNodeFromEdge = useCallback(() => {
@@ -362,12 +370,10 @@ export const EdgeCustomLabel = memo(
         <div className="super-wrapper super-wrapper-edge super-wrapper-static-text super-wrapper-static-text-edge">
           <span className="edge-label">{edgeData.label}</span>
           {/* -------------------------------------------------------------------------- */}
-          {!moreThanOneComponentsSelected && selected ? (
+          {useToolbox ? (
             <MagicToolbox
               className={`edge-label-toolbox${
-                !moreThanOneComponentsSelected && selected
-                  ? ' magic-toolbox-show'
-                  : ''
+                useToolbox ? ' magic-toolbox-show' : ''
               }`}
             >
               {edgeData.label.length === 0 && selected ? (
@@ -378,7 +384,7 @@ export const EdgeCustomLabel = memo(
                     getRelevantNodesForEdge(connection, getNodes())
                   )}
                   edgeLabels={[]}
-                  disabled={moreThanOneComponentsSelected}
+                  disabled={!useToolbox}
                 />
               ) : (
                 <></>

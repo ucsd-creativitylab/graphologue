@@ -1,7 +1,6 @@
 import React, {
   useCallback,
   BaseSyntheticEvent,
-  useEffect,
   MouseEvent,
   useRef,
   useState,
@@ -134,7 +133,7 @@ const Flow = () => {
   // ! internal states
   const reactFlowWrapper = useRef(null)
 
-  const [selectedComponents, setSelectedComponents] = useState({
+  const [selectedComponents] = useState({
     nodes: [],
     edges: [],
   } as PromptSourceComponentsType)
@@ -145,7 +144,7 @@ const Flow = () => {
   // })
 
   // const anyNodeDragging = useRef(false)
-  const { setTime, undoTime, redoTime, canUndo, canRedo } = useTimeMachine(
+  const { undoTime, redoTime, canUndo, canRedo } = useTimeMachine(
     toObject(),
     setNodes,
     setEdges,
@@ -163,9 +162,20 @@ const Flow = () => {
     },
   })
 
+  const initialSelectItem = useRef<{
+    selected: boolean
+    type: 'node' | 'edge'
+    id: string
+  }>({
+    selected: false,
+    type: 'node',
+    id: '',
+  })
+
   /* -------------------------------------------------------------------------- */
 
   // ! store to session storage and push to time machine
+  /*
   useEffect(() => {
     const dragging = nodes.find((nd: Node) => nd.dragging)
     if (dragging) return
@@ -192,6 +202,7 @@ const Flow = () => {
         edges: selectedEdges.map((ed: Edge) => ed.id),
       })
   }, [nodes, edges, toObject, setTime, selectedComponents])
+  */
 
   // ! keys
   // const metaPressed = useKeyPress(['Ctrl', 'Alt', 'Space'])
@@ -308,6 +319,11 @@ const Flow = () => {
     (e: BaseSyntheticEvent, node: Node) => {
       // select the node and all its edges
       selectNodeAndEdges(node)
+      initialSelectItem.current = {
+        selected: true,
+        type: 'node',
+        id: node.id,
+      }
     },
     [selectNodeAndEdges]
   )
@@ -317,6 +333,11 @@ const Flow = () => {
       // e.preventDefault()
       // e.stopPropagation()
       // if (node.type === 'custom') doSetNodesEditing([node.id], true)
+      initialSelectItem.current = {
+        selected: true,
+        type: 'node',
+        id: node.id,
+      }
     },
     []
   )
@@ -325,6 +346,11 @@ const Flow = () => {
     (e: MouseEvent, node: Node) => {
       // anyNodeDragging.current = true
       selectNodeAndEdges(node)
+      initialSelectItem.current = {
+        selected: true,
+        type: 'node',
+        id: node.id,
+      }
     },
     [selectNodeAndEdges]
   )
@@ -470,6 +496,14 @@ const Flow = () => {
     [setEdges]
   )
 
+  const handleEdgeClick = useCallback((e: MouseEvent, edge: Edge) => {
+    initialSelectItem.current = {
+      selected: true,
+      type: 'edge',
+      id: edge.id,
+    }
+  }, [])
+
   const handleEdgeDoubleClick = useCallback(
     (e: BaseSyntheticEvent, edge: Edge) => {
       // e.preventDefault()
@@ -488,6 +522,11 @@ const Flow = () => {
       //     }
       //   })
       // })
+      initialSelectItem.current = {
+        selected: true,
+        type: 'edge',
+        id: edge.id,
+      }
     },
     []
   )
@@ -514,6 +553,12 @@ const Flow = () => {
         })
 
       handleSetSyncedOriginRanges([] as OriginRange[])
+
+      initialSelectItem.current = {
+        selected: false,
+        type: 'node',
+        id: '',
+      }
 
       // check if it's a double click
       /*
@@ -575,9 +620,10 @@ const Flow = () => {
   const handleNodeMouseLeave = useCallback(
     (e: MouseEvent, node: Node) => {
       handleSetSyncedOriginRanges(
-        selectedComponents.nodes
-          .map(nodeId => {
-            const node = nodes.find(nd => nd.id === nodeId)
+        nodes
+          .filter((nd: Node) => nd.selected)
+          .map(selectedNode => {
+            const node = nodes.find((nd: Node) => nd.id === selectedNode.id)
             if (!node) return null
 
             const { data } = node
@@ -595,7 +641,7 @@ const Flow = () => {
           .flat(1) as OriginRange[]
       )
     },
-    [handleSetSyncedOriginRanges, nodes, selectedComponents.nodes]
+    [handleSetSyncedOriginRanges, nodes]
   )
 
   const handleEdgeMouseEnter = useCallback(
@@ -609,9 +655,10 @@ const Flow = () => {
   const handleEdgeMouseLeave = useCallback(
     (e: MouseEvent, edge: Edge<CustomEdgeData>) => {
       handleSetSyncedOriginRanges(
-        selectedComponents.edges
-          .map(edgeId => {
-            const edge = edges.find(ed => ed.id === edgeId)
+        edges
+          .filter((ed: Edge) => ed.selected)
+          .map(selectedEdge => {
+            const edge = edges.find(ed => ed.id === selectedEdge.id)
             if (!edge) return null
 
             return edge.data?.generated?.originRanges ?? null
@@ -624,7 +671,7 @@ const Flow = () => {
           .flat(1) as OriginRange[]
       )
     },
-    [edges, handleSetSyncedOriginRanges, selectedComponents.edges]
+    [edges, handleSetSyncedOriginRanges]
   )
 
   const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')
@@ -635,6 +682,7 @@ const Flow = () => {
         metaPressed,
         model: modelForMagic,
         selectedComponents: selectedComponents,
+        initialSelectItem: initialSelectItem.current,
         doSetNodesEditing,
         doSetEdgesEditing,
         selectNodes,
@@ -677,6 +725,7 @@ const Flow = () => {
           onNodeContextMenu={handleNodeContextMenu}
           onNodeDragStart={handleNodeDragStart}
           onNodeDragStop={handleNodeDragStop}
+          onEdgeClick={handleEdgeClick}
           onEdgeDoubleClick={handleEdgeDoubleClick}
           onPaneClick={handlePaneClick}
           onDragOver={handleDragOver}

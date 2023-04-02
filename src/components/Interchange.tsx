@@ -248,6 +248,9 @@ export const Interchange = ({
             modelParsing: false,
             modelParsingComplete: true,
           },
+          synced: {
+            highlightedNodeIds: [],
+          },
         })
       )
     }
