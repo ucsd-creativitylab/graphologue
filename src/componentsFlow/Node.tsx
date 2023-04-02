@@ -289,21 +289,6 @@ export const CustomNode = memo(
                 }`}
                 onUnmount={onToolboxClose}
               >
-                <MagicToolboxItem title="color">
-                  <>
-                    <MagicToolboxButton
-                      content={styleBackground}
-                      onClick={handleToggleShowColorPicker}
-                    />
-                    {showColorPicker && (
-                      <TwitterPicker
-                        color={styleBackground}
-                        onChange={handleChangeColor}
-                      />
-                    )}
-                  </>
-                </MagicToolboxItem>
-
                 <MagicToolboxItem title="more">
                   <>
                     <MagicToolboxButton
@@ -363,6 +348,21 @@ export const CustomNode = memo(
                         handleAnswerObjectNodeRemove(id)
                       }}
                     />
+                  </>
+                </MagicToolboxItem>
+
+                <MagicToolboxItem title="color">
+                  <>
+                    <MagicToolboxButton
+                      content={styleBackground}
+                      onClick={handleToggleShowColorPicker}
+                    />
+                    {showColorPicker && (
+                      <TwitterPicker
+                        color={styleBackground}
+                        onChange={handleChangeColor}
+                      />
+                    )}
                   </>
                 </MagicToolboxItem>
 
