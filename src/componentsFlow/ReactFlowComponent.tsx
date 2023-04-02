@@ -43,7 +43,6 @@ import {
   hardcodedNodeSize,
   styles,
   useTokenDataTransferHandle,
-  viewFittingOptions,
 } from '../constants'
 import { FlowContext } from '../components/Contexts'
 import { useTimeMachine } from '../utils/timeMachine'
@@ -97,7 +96,7 @@ const Flow = () => {
     addNodes,
     // addEdges,
     toObject,
-    fitView,
+    // fitView,
     getViewport,
   }: ReactFlowInstance = thisReactFlowInstance
 
@@ -113,9 +112,23 @@ const Flow = () => {
   // const onEdgesChange = useCallback(() => {}, [])
 
   // fit to view on page load
+  // ? need it?
+  /*
   useEffect(() => {
     fitView(viewFittingOptions)
   }, [fitView])
+  */
+
+  // const reactFlowWrapperElement = document.querySelector(
+  //   '.react-flow__renderer'
+  // ) as HTMLElement
+  // const { width, height } = reactFlowWrapperElement.getBoundingClientRect()
+
+  const defaultViewport = {
+    x: (window.innerWidth * 0.5) / 2,
+    y: Math.min(window.innerHeight * 0.5, 1000) / 2,
+    zoom: 1,
+  }
 
   /* -------------------------------------------------------------------------- */
   // ! internal states
@@ -634,6 +647,7 @@ const Flow = () => {
             generatingFlow ? ' generating-flow' : ''
           }`}
           // basic
+          defaultViewport={defaultViewport}
           nodes={nodes}
           edges={edges}
           nodeTypes={nodeTypes}
