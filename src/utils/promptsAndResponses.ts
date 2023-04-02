@@ -76,7 +76,7 @@ Relationships should be annotated with the relevant entities and saliency of the
 for example, [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
 Relationships of high saliency are often included in summaries. Relationships of low saliency are often omitted in summaries. \
 It's important to choose relationships that accurately reflect the nature of the connection between the concepts in text, \
-and to use consistent labeling conventions throughout the paragraphs. \
+and to use consistent labeling conventions throughout the paragraphs. Please refer to the list of properties in this URL: https://www.wikidata.org/wiki/Wikidata:List_of_properties/all_in_one_table. The relationships should not be labeled with anything else other than the properties from the aforementioned URL. \
 \
 You should try to annotate at least one relationship for each entity. Relationships should only connect entities that appear in the response. \
 You can arrange the sentences in a way that facilitates the annotation of entities and relationships, \
