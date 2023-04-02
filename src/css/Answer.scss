@@ -1,3 +1,8 @@
+@mixin answer-content-height {
+  height: 95vh;
+  max-height: 60rem;
+}
+
 .answer-wrapper {
   display: flex;
   align-items: flex-start;
@@ -9,6 +14,7 @@
   padding: 0 $padding-mid;
 
   .answer-item-display {
+    @include answer-content-height;
     @include bar-button;
 
     display: flex;
@@ -54,6 +60,17 @@
       flex-direction: column;
       align-items: stretch;
       gap: $padding-mid;
+
+      background-color: $white;
+      border-radius: $radius-default;
+      outline: 1px solid $light-grey;
+
+      padding: $padding-mid;
+      overflow: scroll;
+    }
+
+    .answer-full-block {
+      margin: $padding-mid $padding-mid 0 $padding-mid;
     }
 
     .answer-loading-placeholder {
@@ -158,8 +175,7 @@
     align-items: center;
     justify-content: center;
 
-    height: 90vh;
-    max-height: 60rem;
+    @include answer-content-height;
     width: 100%;
     padding: 0;
     margin: 0;
@@ -172,4 +188,18 @@
       box-sizing: border-box;
     }
   }
+}
+
+.react-flow-wrapper {
+  flex-grow: 1;
+
+  @include answer-content-height;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+
+  overflow: hidden;
+  background-color: $white;
+  border-radius: $radius-default;
+  outline: 1px solid $light-grey;
 }

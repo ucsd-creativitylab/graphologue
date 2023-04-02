@@ -188,11 +188,21 @@ export const Question = () => {
 
     // scroll to the question item (questionItemRef)
     setTimeout(() => {
-      if (questionItemRef.current) {
-        questionItemRef.current.scrollIntoView({
+      const answerWrapper = document.querySelector(
+        `.answer-wrapper[data-id="${id}"]`
+      )
+      if (answerWrapper)
+        answerWrapper.scrollIntoView({
           behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest',
         })
-      }
+      // if (questionItemRef.current) {
+      //   // find element with className .answer-wrapper and data-id = id
+      //   questionItemRef.current.scrollIntoView({
+      //     behavior: 'smooth',
+      //   })
+      // }
     }, 1000)
   }, [id, question, setQuestionsAndAnswers])
 

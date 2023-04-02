@@ -200,16 +200,3 @@ $node-selection-border-width: rem-to-px(2rem);
     background: rgba($blue, $opacity-xxx-h);
   }
 }
-
-.react-flow-wrapper {
-  flex-grow: 1;
-  height: 50rem;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-
-  overflow: hidden;
-  background-color: $white;
-  border-radius: $radius-default;
-  outline: 1px solid $light-grey;
-}

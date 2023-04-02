@@ -244,7 +244,7 @@ export const Answer = () => {
   ])
 
   return (
-    <div className="answer-wrapper">
+    <div className="answer-wrapper" data-id={id}>
       {/* 0 */}
       <RawAnswer
         key={`raw-answer-${id}`}
@@ -488,10 +488,11 @@ const RawAnswer = ({
       ) : (
         /* -------------------------------------------------------------------------- */
         /* ------------------------------- full answer ------------------------------ */
-        <div className={`answer-item interchange-component`}>
+        <div className={`answer-item answer-full-block interchange-component`}>
           <div className="answer-item-text">
             {answerObjects.map((answerObject, index) => (
               <AnswerText
+                key={`answer-range-in-full-text-${answerObject.id}`}
                 answerObjectId={answerObject.id}
                 rawAnswer={answerObject.originText}
                 highlightedRanges={synced.highlightedOriginRanges}
