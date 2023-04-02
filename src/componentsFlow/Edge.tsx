@@ -13,7 +13,7 @@ import {
   useReactFlow,
 } from 'reactflow'
 
-import LinearScaleRoundedIcon from '@mui/icons-material/LinearScaleRounded'
+// import LinearScaleRoundedIcon from '@mui/icons-material/LinearScaleRounded'
 
 import { ReactComponent as DashLine } from '../media/dashLine.svg'
 import { ReactComponent as PlainLine } from '../media/plainLine.svg'
@@ -22,13 +22,8 @@ import { ReactComponent as ArrowLine } from '../media/arrowLine.svg'
 import { hardcodedNodeSize, styles } from '../constants'
 import { FlowContext } from '../components/Contexts'
 import { getMarkerId } from './CustomDefs'
-import {
-  MagicSuggestItem,
-  MagicToolbox,
-  MagicToolboxButton,
-  MagicToolboxItem,
-} from './MagicToolbox'
-import { getEdgeId, getEdgeParams, getNodeLabelAndTags } from '../utils/utils'
+import { MagicToolbox, MagicToolboxItem } from './MagicToolbox'
+import { getEdgeId, getEdgeParams } from '../utils/utils'
 import { customAddNodes, GeneratedInformation } from './Node'
 import { MagicNodeData } from './MagicNode'
 
@@ -194,6 +189,7 @@ export const getNewEdge = (
 /* -------------------------------------------------------------------------- */
 
 // !for magic suggestions
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getRelevantNodesForEdge = (connection: Connection, nodes: Node[]) => {
   const targetNode = nodes.find(node => node.id === connection.target)
   const sourceNode = nodes.find(node => node.id === connection.source)
@@ -231,7 +227,7 @@ export const EdgeCustomLabel = memo(
     selected,
   }: // roughZoomLevel,
   EdgeCustomLabelProps) => {
-    const { getNodes, addNodes, setEdges, fitView } = useReactFlow()
+    const { addNodes, setEdges, fitView } = useReactFlow()
     const { initialSelectItem, selectNodes } = useContext(FlowContext)
 
     // const moreThanOneComponentsSelected =
@@ -246,6 +242,7 @@ export const EdgeCustomLabel = memo(
       initialSelectItem.id === edgeId
 
     // ! add node from edge
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleAddNodeFromEdge = useCallback(() => {
       const { width: nodeWidth, height: nodeHeight } = hardcodedNodeSize
       const {
@@ -376,7 +373,7 @@ export const EdgeCustomLabel = memo(
                 useToolbox ? ' magic-toolbox-show' : ''
               }`}
             >
-              {edgeData.label.length === 0 && selected ? (
+              {/* {edgeData.label.length === 0 && selected ? (
                 <MagicSuggestItem
                   target="edge"
                   targetId={edgeId}
@@ -388,7 +385,7 @@ export const EdgeCustomLabel = memo(
                 />
               ) : (
                 <></>
-              )}
+              )} */}
 
               <MagicToolboxItem title="switch type">
                 <EdgeCustomTypeSwitch
@@ -397,7 +394,7 @@ export const EdgeCustomLabel = memo(
                 />
               </MagicToolboxItem>
 
-              <MagicToolboxItem title="make node">
+              {/* <MagicToolboxItem title="make node">
                 <MagicToolboxButton
                   content={
                     <>
@@ -409,7 +406,7 @@ export const EdgeCustomLabel = memo(
                   }
                   onClick={handleAddNodeFromEdge}
                 />
-              </MagicToolboxItem>
+              </MagicToolboxItem> */}
             </MagicToolbox>
           ) : (
             <></>

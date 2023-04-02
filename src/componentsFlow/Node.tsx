@@ -27,8 +27,8 @@ import tinycolor from 'tinycolor2'
 
 import ManageSearchRoundedIcon from '@mui/icons-material/ManageSearchRounded'
 import TextIncreaseRoundedIcon from '@mui/icons-material/TextIncreaseRounded'
-import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded'
-import NotInterestedRoundedIcon from '@mui/icons-material/NotInterestedRounded'
+// import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded'
+// import NotInterestedRoundedIcon from '@mui/icons-material/NotInterestedRounded'
 
 import { hardcodedNodeSize, styles, viewFittingOptions } from '../constants'
 import { FlowContext } from '../components/Contexts'
@@ -110,8 +110,8 @@ export const CustomNode = memo(
         synced: { highlightedNodeIds, answerObjectIdsHighlighted },
       },
       handleAnswerObjectNodeExpand,
-      handleAnswerObjectNodeCollapse,
-      handleAnswerObjectNodeRemove,
+      // handleAnswerObjectNodeCollapse,
+      // handleAnswerObjectNodeRemove,
     } = useContext(InterchangeContext)
 
     // const moreThanOneComponentsSelected =
@@ -339,7 +339,7 @@ export const CustomNode = memo(
                   </>
                 </MagicToolboxItem>
 
-                <MagicToolboxItem title="less">
+                {/* <MagicToolboxItem title="less">
                   <>
                     <MagicToolboxButton
                       content={
@@ -364,7 +364,7 @@ export const CustomNode = memo(
                       }}
                     />
                   </>
-                </MagicToolboxItem>
+                </MagicToolboxItem> */}
 
                 <MagicToolboxItem title="color">
                   <>
