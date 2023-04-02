@@ -643,7 +643,7 @@ const AnswerText = ({
                 }
                 data-start={start}
               >
-                {part}
+                {removeAnnotations(part)}
               </span>
             )
           })}
