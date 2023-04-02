@@ -32,6 +32,7 @@ import isEqual from 'react-fast-compare'
 import {
   CustomConnectionLine,
   CustomEdge,
+  CustomEdgeData,
   customConnectionLineStyle,
   customEdgeOptions,
 } from './Edge'
@@ -584,6 +585,35 @@ const Flow = () => {
     [handleSetSyncedOriginRanges, nodes, selectedComponents.nodes]
   )
 
+  const handleEdgeMouseEnter = useCallback(
+    (e: MouseEvent, edge: Edge<CustomEdgeData>) => {
+      if (edge.data?.generated?.originRanges)
+        handleSetSyncedOriginRanges(edge?.data.generated?.originRanges)
+    },
+    [handleSetSyncedOriginRanges]
+  )
+
+  const handleEdgeMouseLeave = useCallback(
+    (e: MouseEvent, edge: Edge<CustomEdgeData>) => {
+      handleSetSyncedOriginRanges(
+        selectedComponents.edges
+          .map(edgeId => {
+            const edge = edges.find(ed => ed.id === edgeId)
+            if (!edge) return null
+
+            return edge.data?.generated?.originRanges ?? null
+          })
+          .filter(
+            (
+              originRanges: OriginRange[] | null
+            ): originRanges is OriginRange[] => !!originRanges
+          )
+          .flat(1) as OriginRange[]
+      )
+    },
+    [edges, handleSetSyncedOriginRanges, selectedComponents.edges]
+  )
+
   const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')
 
   return (
@@ -640,8 +670,8 @@ const Flow = () => {
           // onPaneContextMenu={handlePaneContextMenu}
           onNodeMouseEnter={handleNodeMouseEnter}
           onNodeMouseLeave={handleNodeMouseLeave}
-          // onEdgeMouseEnter={handleEdgeMouseEnter}
-          // onEdgeMouseLeave={handleEdgeMouseLeave}
+          onEdgeMouseEnter={handleEdgeMouseEnter}
+          onEdgeMouseLeave={handleEdgeMouseLeave}
         >
           <CustomMarkerDefs
             markerOptions={
