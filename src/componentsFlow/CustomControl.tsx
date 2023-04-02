@@ -221,7 +221,7 @@ export const CustomControls = memo(
         showFitView={false}
         position="top-left"
       >
-        <ControlButton className="title-button" onClick={handleSetViewport}>
+        {/* <ControlButton className="title-button" onClick={handleSetViewport}>
           <span id="title">Graphologue</span>
           <ControlButtonTooltip>
             <TooltipLine>
@@ -229,6 +229,11 @@ export const CustomControls = memo(
               <span>fit view</span>
             </TooltipLine>
           </ControlButtonTooltip>
+        </ControlButton> */}
+
+        <ControlButton onClick={handleSetViewport}>
+          <FitScreenRoundedIcon />
+          <span>fit view</span>
         </ControlButton>
 
         {/* <ControlButton onClick={handleAddNode}>
@@ -351,9 +356,9 @@ export const CustomControls = memo(
         </ControlButton>
 
         {modelParsing && (
-          <ControlButton className="tips-button pointer-events-no">
+          <ControlButton className="tips-button">
             <HourglassTopRoundedIcon className="control-button-tips-icon loading-icon" />
-            <span className="control-button-tips">still processing</span>
+            <span className="control-button-processing">still processing</span>
           </ControlButton>
         )}
       </Controls>

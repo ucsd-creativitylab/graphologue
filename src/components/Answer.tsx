@@ -15,7 +15,7 @@ import ShortTextRoundedIcon from '@mui/icons-material/ShortTextRounded'
 import NotesRoundedIcon from '@mui/icons-material/NotesRounded'
 import CropLandscapeRoundedIcon from '@mui/icons-material/CropLandscapeRounded'
 
-import { QuestionAndAnswer, OriginAnswerRange } from '../App'
+import { QuestionAndAnswer, OriginRange } from '../App'
 import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 import { InterchangeContext } from './Interchange'
 import { SlideAnswerText } from './SlideAnswer'
@@ -437,15 +437,15 @@ const RawAnswer = ({
                 )
               ) : (
                 <AnswerText
-                  rawAnswer={answer}
+                  answerObjectId={answerObject.id}
+                  rawAnswer={answerObject.originText}
                   highlightedRanges={synced.highlightedOriginRanges}
-                  slicingRange={answerObject.originRange}
                 />
               )
 
             return (
               <div
-                key={`answer-range-${answerObject.originRange.start}`}
+                key={`answer-range-${answerObject.id}`}
                 className={`answer-item answer-item-block interchange-component${
                   index !== 0 ? ' drop-down' : ''
                 }${listDisplay === 'slide' ? ' slide-wrapper' : ''}`}
@@ -486,16 +486,17 @@ const RawAnswer = ({
           })}
         </div>
       ) : (
+        /* -------------------------------------------------------------------------- */
+        /* ------------------------------- full answer ------------------------------ */
         <div className={`answer-item interchange-component`}>
           <div className="answer-item-text">
-            <AnswerText
-              rawAnswer={answer}
-              highlightedRanges={synced.highlightedOriginRanges}
-              slicingRange={{
-                start: 0,
-                end: answer.length - 1,
-              }}
-            />
+            {answerObjects.map((answerObject, index) => (
+              <AnswerText
+                answerObjectId={answerObject.id}
+                rawAnswer={answerObject.originText}
+                highlightedRanges={synced.highlightedOriginRanges}
+              />
+            ))}
           </div>
         </div>
       )}
@@ -504,22 +505,23 @@ const RawAnswer = ({
 }
 
 const AnswerText = ({
+  answerObjectId,
   rawAnswer,
   highlightedRanges,
-  slicingRange,
 }: {
+  answerObjectId: string
   rawAnswer: string
-  highlightedRanges: OriginAnswerRange[]
-  slicingRange: OriginAnswerRange
+  highlightedRanges: OriginRange[]
 }) => {
   // const displayText = removeAnnotations(
   //   rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
   // )
-  const text = rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
+  // const text = rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
+  const text = rawAnswer
 
   const sentences = splitAnnotatedSentences(text)
 
-  let globalStart = slicingRange.start
+  let globalStart = 0
   return (
     <>
       {sentences.map((sentence, sentenceIndex) => (
@@ -540,7 +542,12 @@ const AnswerText = ({
                 className={
                   'text-segment' +
                   (isAnnotated ? ' annotated' : '') +
-                  (highlightedRanges.some(range => range.start === start)
+                  (highlightedRanges.some(range => {
+                    return (
+                      range.answerObjectId === answerObjectId &&
+                      range.start === start
+                    )
+                  })
                     ? ' highlighted-answer-text'
                     : '')
                 }

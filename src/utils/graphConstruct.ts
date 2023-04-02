@@ -1,10 +1,9 @@
 import dagre from 'dagre'
 import { v4 as uuidv4 } from 'uuid'
-import { EdgeEntity, NodeEntity, OriginAnswerRange } from '../App'
+import { EdgeEntity, NodeEntity, OriginRange } from '../App'
 
 import { hardcodedNodeWidthEstimation } from '../componentsFlow/Node'
 import { hardcodedNodeSize } from '../constants'
-import { addOrMergeRanges } from './chatAppUtils'
 
 import {
   getOpenAICompletion,
@@ -384,7 +383,7 @@ export const constructGraphChat = (annotatedRelationships: {
   answerObjectId: string
   relationships: {
     relationship: [string, string, string]
-    origin: OriginAnswerRange
+    origin: OriginRange
   }[]
 }) => {
   const { answerObjectId, relationships } = annotatedRelationships
@@ -408,7 +407,7 @@ export const constructGraphChat = (annotatedRelationships: {
   } = {}
 
   const nodesToOrigins: {
-    [key: string]: OriginAnswerRange[]
+    [key: string]: OriginRange[]
   } = {}
 
   relationships.forEach(({ relationship: [a, edge, b], origin }) => {
@@ -422,7 +421,7 @@ export const constructGraphChat = (annotatedRelationships: {
       nodesToOrigins[a] = []
     }
     addedNodes[a].add(answerObjectId)
-    nodesToOrigins[a] = addOrMergeRanges(nodesToOrigins[a], origin)
+    // nodesToOrigins[a] = addOrMergeRanges(nodesToOrigins[a], origin)
 
     if (!(b in addedNodes)) {
       pseudoGraph.setNode(b, {
@@ -434,7 +433,7 @@ export const constructGraphChat = (annotatedRelationships: {
       nodesToOrigins[b] = []
     }
     addedNodes[b].add(answerObjectId)
-    nodesToOrigins[b] = addOrMergeRanges(nodesToOrigins[b], origin)
+    // nodesToOrigins[b] = addOrMergeRanges(nodesToOrigins[b], origin)
 
     pseudoGraph.setEdge(a, b, { label: edge })
   })

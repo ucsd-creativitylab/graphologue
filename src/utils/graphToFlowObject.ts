@@ -1,6 +1,6 @@
 import { Edge, Node } from 'reactflow'
 
-import { EdgeEntity, NodeEntity, OriginAnswerRange } from '../App'
+import { EdgeEntity, NodeEntity, OriginRange } from '../App'
 import { getNewEdge } from '../componentsFlow/Edge'
 import { getNewCustomNode } from '../componentsFlow/Node'
 import { styles } from '../constants'
@@ -21,7 +21,7 @@ import { getHandleId } from './utils'
 
 interface NodeMention {
   // mentionEdgeId: string;
-  mentionOriginRange: OriginAnswerRange
+  mentionOriginRange: OriginRange
   mentionOriginText: string
 }
 

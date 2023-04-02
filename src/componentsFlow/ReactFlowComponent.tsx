@@ -11,7 +11,6 @@ import React, {
 } from 'react'
 import ReactFlow, {
   useReactFlow,
-  useKeyPress,
   Background,
   SelectionMode,
   NodeTypes,
@@ -56,7 +55,7 @@ import { ModelForMagic } from '../utils/openAI'
 import { ReactFlowObjectContext } from '../components/Answer'
 import { SimpleEdge } from './SimpleEdge'
 import { InterchangeContext } from '../components/Interchange'
-import { OriginAnswerRange } from '../App'
+import { OriginRange } from '../App'
 
 const reactFlowWrapperStyle = {
   width: '100%',
@@ -182,7 +181,8 @@ const Flow = () => {
 
   // ! keys
   // const metaPressed = useKeyPress(['Ctrl', 'Alt', 'Space'])
-  const metaPressed = useKeyPress(['Alt'])
+  // * const metaPressed = useKeyPress(['Alt'])
+  const metaPressed = false
   // const undoPressed = useKeyPress('Meta+z')
   // const redoPressed = useKeyPress('Meta+x')
 
@@ -499,7 +499,7 @@ const Flow = () => {
           })
         })
 
-      handleSetSyncedOriginRanges([] as OriginAnswerRange[])
+      handleSetSyncedOriginRanges([] as OriginRange[])
 
       // check if it's a double click
       /*
@@ -575,10 +575,10 @@ const Flow = () => {
           })
           .filter(
             (
-              originRanges: OriginAnswerRange[] | null
-            ): originRanges is OriginAnswerRange[] => originRanges !== null
+              originRanges: OriginRange[] | null
+            ): originRanges is OriginRange[] => originRanges !== null
           )
-          .flat(1) as OriginAnswerRange[]
+          .flat(1) as OriginRange[]
       )
     },
     [handleSetSyncedOriginRanges, nodes, selectedComponents.nodes]
@@ -718,7 +718,7 @@ const ReactFlowComponent = memo(({ id }: { id: string }) =>
   // }: {
   //   answerRelationships: {
   //     answerObjectId: string
-  //     origin: OriginAnswerRange[]
+  //     origin: OriginRange[]
   //     relationships: AnswerRelationshipObject[]
   //   }[]
   // }

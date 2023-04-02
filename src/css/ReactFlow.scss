@@ -149,13 +149,22 @@ $node-selection-border-width: rem-to-px(2rem);
         }
       }
 
+      .loading-icon {
+        fill: $purple;
+      }
+
+      .control-button-processing {
+        color: $purple !important;
+        font-weight: $font-weight-bold;
+      }
+
       &:hover {
         .control-button-tooltip {
           opacity: 1;
           visibility: visible;
         }
 
-        .control-button-tips-icon {
+        .control-button-tips-icon:not(.loading-icon) {
           fill: $elegant-yellow;
         }
 

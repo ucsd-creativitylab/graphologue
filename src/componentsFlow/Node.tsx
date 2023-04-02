@@ -40,11 +40,11 @@ import {
 } from './MagicToolbox'
 import randomPhrases from '../utils/randomPhrases'
 import { getHandleId, getNodeId } from '../utils/utils'
-import { OriginAnswerRange } from '../App'
+import { OriginRange } from '../App'
 import { InterchangeContext } from '../components/Interchange'
 
 export interface GeneratedInformation {
-  originRanges: OriginAnswerRange[]
+  originRanges: OriginRange[]
   originTexts: string[]
 }
 

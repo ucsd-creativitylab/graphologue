@@ -3,7 +3,7 @@ import {
   EdgeEntity,
   NodeEntity,
   NodeEntityIndividual,
-  OriginAnswerRange,
+  OriginRange,
 } from '../App'
 
 export const nodeAnnotationRegex =
@@ -94,15 +94,16 @@ export const getAnnotationType = (annotation: string): AnnotationType => {
 
 export const parseNodes = (
   annotatedNodeString: string,
-  offset = 0
+  answerObjectId: string
 ): NodeEntityIndividual[] => {
   const matches = [...annotatedNodeString.matchAll(nodeAnnotationRegex)]
   return matches.map(match => ({
     nodeLabel: match[1],
     id: match[2],
     originRange: {
-      start: (match.index ?? 0) + offset,
-      end: (match.index ?? 0) + match[0].length + offset,
+      start: match.index ?? 0,
+      end: (match.index ?? 0) + match[0].length,
+      answerObjectId,
     },
     originText: match[0],
   }))
@@ -110,7 +111,7 @@ export const parseNodes = (
 
 export const parseEdges = (
   annotatedRelationshipString: string,
-  offset = 0
+  answerObjectId: string
 ): EdgeEntity[] => {
   const matches = [...annotatedRelationshipString.matchAll(edgeAnnotationRegex)]
   return matches.map(match => {
@@ -129,12 +130,14 @@ export const parseEdges = (
         }
       })
       .filter(pair => pair !== null) as EdgePair[]
+
     return {
       edgeLabel,
       edgePairs,
       originRange: {
-        start: (match.index ?? 0) + offset,
-        end: (match.index ?? 0) + match[0].length + offset,
+        start: match.index ?? 0,
+        end: (match.index ?? 0) + match[0].length,
+        answerObjectId,
       },
       originText: match[0],
     }
@@ -194,7 +197,7 @@ export const getNodeEntityFromNodeEntityId = (
 }
 
 export const getEntitySource = (entity: NodeEntity) => {
-  const originRanges: OriginAnswerRange[] = []
+  const originRanges: OriginRange[] = []
   const originTexts: string[] = []
   entity.individuals.map(individual => {
     originRanges.push(individual.originRange)
@@ -295,7 +298,7 @@ export const mergeEdgeEntities = (
 }
 
 export const findEntitySentence = (
-  originRange: OriginAnswerRange,
+  originRange: OriginRange,
   answer: string
 ) => {
   const sentenceStart = answer.lastIndexOf('.', originRange.start) + 1

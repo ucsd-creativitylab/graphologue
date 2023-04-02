@@ -9,14 +9,15 @@ import { EdgeInformation, NodeInformation } from './utils/responseProcessing'
 import packageJson from '../package.json'
 import { Prompt } from './utils/openAI'
 
-export interface OriginAnswerRange {
+export interface OriginRange {
   start: number
   end: number
+  answerObjectId: string
 }
 
 export interface NodeEntityIndividual extends NodeInformation {
   // nodeLabel & id
-  originRange: OriginAnswerRange
+  originRange: OriginRange
   originText: string
 }
 
@@ -30,7 +31,7 @@ export interface NodeEntity {
 export interface EdgeEntity extends EdgeInformation {
   // edgeLabel & edgePairs
   // id: string
-  originRange: OriginAnswerRange
+  originRange: OriginRange
   originText: string
 }
 
@@ -41,7 +42,6 @@ export interface AnswerSlideObject {
 // ! AnswerObject
 export interface AnswerObject {
   id: string
-  originRange: OriginAnswerRange
   originText: string
   summary: string
   slide: AnswerSlideObject
@@ -60,8 +60,9 @@ interface ModelStatus {
 }
 
 export interface QuestionAndAnswerSynced {
-  highlightedOriginRanges: OriginAnswerRange[]
-  highlightedAnswerObjectIds: string[]
+  highlightedOriginRanges: OriginRange[] // for highlight text
+  highlightedAnswerObjectIds: string[] // for highlight from text block to show partial graph
+  highlightedNodeIds: string[] // for highlight nodes when it is expanding
 }
 
 /* -------------------------------------------------------------------------- */
@@ -82,7 +83,7 @@ export interface PartialQuestionAndAnswer {
   answer?: string
   answerObjects?: AnswerObject[]
   modelStatus?: Partial<ModelStatus>
-  synced?: QuestionAndAnswerSynced
+  synced?: Partial<QuestionAndAnswerSynced>
 }
 
 export const ChatApp = () => {

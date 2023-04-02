@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useRef } from 'react'
 
-import { AnswerObject, OriginAnswerRange, QuestionAndAnswer } from '../App'
+import { AnswerObject, OriginRange, QuestionAndAnswer } from '../App'
 import {
   deepCopyAnswerObject,
   deepCopyQuestionAndAnswer,
@@ -28,6 +28,7 @@ import {
 } from '../utils/responseProcessing'
 import {
   OpenAIChatCompletionResponseStream,
+  Prompt,
   getTextFromModelResponse,
   getTextFromStreamResponse,
   models,
@@ -39,15 +40,13 @@ export type NodeConceptExpansionType = 'explain' | 'examples'
 
 export interface InterchangeContextProps {
   questionAndAnswer: QuestionAndAnswer
-  handleSetSyncedOriginRanges: (
-    highlightedOriginRanges: OriginAnswerRange[]
-  ) => void
+  handleSetSyncedOriginRanges: (highlightedOriginRanges: OriginRange[]) => void
   handleSetSyncedHighlightedAnswerObjectIds: (ids: string[]) => void
   handleAnswerObjectRemove: (id: string) => void
   handleAnswerObjectTellMore: (id: string) => void
   handleAnswerObjectNodeExpand: (
     nodeEntityId: string,
-    nodeEntityOriginRanges: OriginAnswerRange[],
+    nodeEntityOriginRanges: OriginRange[],
     type: NodeConceptExpansionType
   ) => void
   handleAnswerObjectNodeRemove: (nodeEntityId: string) => void
@@ -86,7 +85,7 @@ export const Interchange = ({
   // const answerItemRef = createRef<HTMLDivElement>()
 
   const handleSetSyncedOriginRanges = useCallback(
-    (highlightedOriginRanges: OriginAnswerRange[]) => {
+    (highlightedOriginRanges: OriginRange[]) => {
       setQuestionsAndAnswers(
         (questionsAndAnswers: QuestionAndAnswer[]): QuestionAndAnswer[] =>
           questionsAndAnswers.map(
@@ -175,7 +174,7 @@ export const Interchange = ({
     answerObjectsBefore: [],
   })
 
-  const handleResponseError = useCallback(
+  const _handleResponseError = useCallback(
     (response: any) => {
       console.error(response.error)
 
@@ -190,7 +189,7 @@ export const Interchange = ({
     [id, setQuestionsAndAnswers]
   )
 
-  const handleParsingCompleteAnswerObject = useCallback(async () => {
+  const _handleParsingCompleteAnswerObject = useCallback(async () => {
     const answerObject = nodeWorkStorage.current.answerObjectNew
     if (!answerObject) return
 
@@ -216,7 +215,7 @@ export const Interchange = ({
           )
 
           if (parsingResult.error) {
-            handleResponseError(parsingResult)
+            _handleResponseError(parsingResult)
             parsingError = true
             return
           }
@@ -252,15 +251,15 @@ export const Interchange = ({
         })
       )
     }
-  }, [handleResponseError, id, setQuestionsAndAnswers])
+  }, [_handleResponseError, id, setQuestionsAndAnswers])
 
-  const handleUpdateRelationshipEntities = useCallback((content: string) => {
+  const _handleUpdateRelationshipEntities = useCallback((content: string) => {
     const answerObject = nodeWorkStorage.current.answerObjectNew
     if (!answerObject) return
 
     const cleanedContent = removeLastBracket(content, true)
-    const nodes = parseNodes(cleanedContent, answerObject.originRange.start)
-    const edges = parseEdges(cleanedContent, answerObject.originRange.start)
+    const nodes = parseNodes(cleanedContent, answerObject.id)
+    const edges = parseEdges(cleanedContent, answerObject.id)
 
     nodeWorkStorage.current.answerObjectNew = {
       ...answerObject,
@@ -286,10 +285,6 @@ export const Interchange = ({
           },
           nodeEntities: [],
           edgeEntities: [],
-          originRange: {
-            start: answer.length + 1,
-            end: answer.length + deltaContent.length + 1,
-          },
           originText: deltaContent,
           complete: false,
         }
@@ -298,13 +293,13 @@ export const Interchange = ({
         //   nodeWorkStorage.current.answerObjectNew.id,
         // ])
       } else {
-        nodeWorkStorage.current.answerObjectNew.originRange.end =
-          answer.length + nodeWorkStorage.current.answer.length + 1
+        // nodeWorkStorage.current.answerObjectNew.originRange.end =
+        //   answer.length + nodeWorkStorage.current.answer.length + 1
         nodeWorkStorage.current.answerObjectNew.originText += deltaContent
       }
 
       // ! parse relationships
-      handleUpdateRelationshipEntities(nodeWorkStorage.current.answer)
+      _handleUpdateRelationshipEntities(nodeWorkStorage.current.answer)
 
       // ! update the answer
       setQuestionsAndAnswers(prevQsAndAs =>
@@ -322,12 +317,7 @@ export const Interchange = ({
         })
       )
     },
-    [
-      answer.length,
-      handleUpdateRelationshipEntities,
-      id,
-      setQuestionsAndAnswers,
-    ]
+    [_handleUpdateRelationshipEntities, id, setQuestionsAndAnswers]
   )
 
   /* -------------------------------------------------------------------------- */
@@ -337,7 +327,7 @@ export const Interchange = ({
   const handleAnswerObjectNodeExpand = useCallback(
     async (
       nodeEntityId: string,
-      nodeEntityOriginRanges: OriginAnswerRange[],
+      nodeEntityOriginRanges: OriginRange[],
       type: NodeConceptExpansionType
     ) => {
       if (!modelParsingComplete || modelError) return
@@ -347,6 +337,13 @@ export const Interchange = ({
         nodeEntityId
       )
       if (!nodeEntity) return
+
+      const originRange = nodeEntityOriginRanges[0]
+
+      const answerObject = answerObjects.find(
+        a => a.id === originRange.answerObjectId
+      )
+      if (!answerObject) return
 
       // ! reset
       nodeWorkStorage.current = {
@@ -362,21 +359,38 @@ export const Interchange = ({
             modelParsing: true,
             modelParsingComplete: false,
           },
+          synced: {
+            highlightedNodeIds: [nodeEntityId],
+          },
         })
       )
 
       const originSentence = findEntitySentence(
         nodeEntityOriginRanges[0],
-        answer
+        answerObject.originText
       ) // ? good enough
+      const prevConversation: Prompt[] = [
+        ...modelInitialPrompts,
+        {
+          role: 'assistant',
+          // we want to include the expanded text
+          // also as the assistant's initial response
+          content: answer, // TODO is it okay?
+        },
+      ]
+
       const prompts =
         type === 'explain'
           ? predefinedPrompts._graph_nodeExpand(
-              modelInitialPrompts,
+              prevConversation,
               originSentence,
               nodeEntity.displayNodeLabel
             )
-          : [] // TODO
+          : predefinedPrompts._graph_nodeExamples(
+              prevConversation,
+              originSentence,
+              nodeEntity.displayNodeLabel
+            )
 
       await streamOpenAICompletion(
         prompts,
@@ -385,13 +399,13 @@ export const Interchange = ({
       )
       console.log(`node expand ${type} raw answering complete`)
 
-      await handleParsingCompleteAnswerObject()
+      await _handleParsingCompleteAnswerObject()
       console.log(`node expand ${type} parsing complete`)
     },
     [
       answer,
       answerObjects,
-      handleParsingCompleteAnswerObject,
+      _handleParsingCompleteAnswerObject,
       handleStreamRawAnswer,
       id,
       modelError,

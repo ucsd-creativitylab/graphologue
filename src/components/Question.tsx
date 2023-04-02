@@ -278,8 +278,8 @@ export const Question = () => {
       if (!answerObject) return
 
       const cleanedContent = removeLastBracket(content, true)
-      const nodes = parseNodes(cleanedContent, answerObject.originRange.start)
-      const edges = parseEdges(cleanedContent, answerObject.originRange.start)
+      const nodes = parseNodes(cleanedContent, answerObjectId)
+      const edges = parseEdges(cleanedContent, answerObjectId)
 
       answerStorage.current.answerObjects =
         answerStorage.current.answerObjects.map((a: AnswerObject) => {
@@ -323,7 +323,6 @@ export const Question = () => {
       const _appendContentToLastAnswerObject = (content: string) => {
         const lastObject = aC.answerObjects[aC.answerObjects.length - 1]
         lastObject.originText += content
-        lastObject.originRange.end += content.length
       }
 
       const preparedNewObject = {
@@ -342,10 +341,6 @@ export const Question = () => {
         // * new answer object
         aC.answerObjects.push({
           ...preparedNewObject,
-          originRange: {
-            start: 0,
-            end: deltaContent.length,
-          },
           originText: deltaContent,
         })
 
@@ -478,13 +473,7 @@ export const Question = () => {
         modelStatus: {
           modelParsing: false,
           modelParsingComplete: true,
-          modelInitialPrompts: [
-            ...initialPrompts.map(p => ({ ...p })),
-            {
-              role: 'assistant',
-              content: answerStorage.current.answer,
-            },
-          ],
+          modelInitialPrompts: [...initialPrompts.map(p => ({ ...p }))],
         },
       })
     )

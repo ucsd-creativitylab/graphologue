@@ -4,7 +4,7 @@ import {
   AnswerObject,
   PartialQuestionAndAnswer,
   QuestionAndAnswer,
-  OriginAnswerRange,
+  OriginRange,
   NodeEntity,
   NodeEntityIndividual,
   EdgeEntity,
@@ -15,65 +15,17 @@ export const getAnswerObjectId = () => {
   return `answer-object-${uuidv4()}`
 }
 
-export const rangeToId = (range: OriginAnswerRange): string => {
+export const rangeToId = (range: OriginRange): string => {
   return `range-${range.start}-${range.end}`
 }
 
-export const originTextToRange = (
-  response: string,
-  origin: string,
-  offset = 0
-): OriginAnswerRange => {
-  if (!origin.length)
-    return {
-      start: offset,
-      end: offset,
-    }
-
-  const start = response.indexOf(origin)
-
-  if (start === -1) {
-    // try removing the last word of origin one by one
-    // until we find a match
-    const words = origin.split(' ')
-    let i = words.length - 1
-    while (i > 0) {
-      const newOrigin = words.slice(0, i).join(' ')
-      const newStart = response.indexOf(newOrigin)
-      if (newStart !== -1) {
-        return {
-          start: newStart,
-          end: newStart + newOrigin.length,
-        }
-      }
-      i--
-    }
-  }
-
-  return {
-    start: start,
-    end: start + origin.length,
-  }
-}
-
-export const rangesToOriginText = (
-  response: string,
-  range: OriginAnswerRange
-) => {
+export const rangesToOriginText = (response: string, range: OriginRange) => {
   return response.substring(range.start, range.end)
 }
 
-export const findHighlightedRangeByAnswerObjectId = (
-  answerObjects: AnswerObject[],
-  answerObjectId: string
-): OriginAnswerRange | undefined => {
-  return answerObjects.find(answerObject => answerObject.id === answerObjectId)
-    ?.originRange
-}
-
 export const addOrMergeRanges = (
-  existingRanges: OriginAnswerRange[],
-  newRange: OriginAnswerRange
+  existingRanges: OriginRange[],
+  newRange: OriginRange
 ) => {
   let merged = false
 
@@ -148,9 +100,11 @@ export const newQuestionAndAnswer = (
       modelError: prefill?.modelStatus?.modelError ?? false,
       modelInitialPrompts: prefill?.modelStatus?.modelInitialPrompts ?? [],
     },
-    synced: prefill?.synced ?? {
-      highlightedOriginRanges: [],
-      highlightedAnswerObjectIds: [],
+    synced: {
+      highlightedOriginRanges: prefill?.synced?.highlightedOriginRanges ?? [],
+      highlightedAnswerObjectIds:
+        prefill?.synced?.highlightedAnswerObjectIds ?? [],
+      highlightedNodeIds: prefill?.synced?.highlightedNodeIds ?? [],
     },
   }
 }
@@ -158,7 +112,6 @@ export const newQuestionAndAnswer = (
 export const deepCopyAnswerObject = (a: AnswerObject): AnswerObject => {
   return {
     ...a,
-    originRange: { ...a.originRange },
     slide: { ...a.slide },
     nodeEntities: a.nodeEntities.map((e: NodeEntity) => ({
       ...e,
@@ -218,6 +171,10 @@ export const helpSetQuestionAndAnswer = (
             ...prevQAndA.modelStatus,
             ...(newQAndA.modelStatus ?? {}),
             ...templateModelStatus,
+          },
+          synced: {
+            ...prevQAndA.synced,
+            ...(newQAndA.synced ?? {}),
           },
         }
       : prevQAndA
