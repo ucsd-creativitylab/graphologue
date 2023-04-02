@@ -71,7 +71,7 @@ To achieve this, annotate the key entities and relationships inline for each sen
 Entities are usually noun phrases and should be annotated with [entity ($N1)], for example, [Artificial Intelligence ($N1)]. \
 \
 A relationship is usually a word or a phrase that consists of verbs, adjectives, adverbs, or propositions. \
-Relationships should be annotated with the relevant entities and saliency of the relationship as high ($H), medium ($M), or low ($L), in the format of [relationship ($H, $N1, $N2)], \
+Relationships should be annotated with the relevant entities and saliency of the relationship as high ($H) or low ($L), in the format of [relationship ($H, $N1, $N2)], \
 for example, [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
 Relationships of high saliency are often included in summaries. Relationships of low saliency are often omitted in summaries. \
 \
@@ -79,19 +79,19 @@ You should try to annotate at least one relationship for each entity. Relationsh
 
 Example paragraph A:
 [Artificial Intelligence (AI) ($N1)] [is a ($H, $N1, $N2)] [field of computer science ($N2)] that [creates ($H, $N1, $N3)] [intelligent machines ($N3)]. \
-[These machines ($N3)] [possess ($H, $N3, $N4)] [capabilities ($N4)] [such as ($M, $N4, $N5; $M, $N4, $N6; $M, $N4, $N7; $M, $N4, $N8)] \
+[These machines ($N3)] [possess ($H, $N3, $N4)] [capabilities ($N4)] [such as ($L, $N4, $N5; $L, $N4, $N6; $L, $N4, $N7; $L, $N4, $N8)] \
 [learning ($N5)], \
 [reasoning ($N6)], \
 [perception ($N7)], \
 and [problem-solving ($N8)]. \
 [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
-[Narrow AI ($N9)] [is designed for ($M, $N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($M, $N10, $N12)] [mimic human intelligence ($N12)].
+[Narrow AI ($N9)] [is designed for ($H, $N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($H, $N10, $N12)] [mimic human intelligence ($N12)].
 
 Example paragraph B:
 [Human-Computer Interaction ($N1)] [is a ($H, $N1, $N2)] [multidisciplinary field ($N2)] that [focuses on ($H, $N1, $N3)] [the design and use of computer technology ($N3)], \
 [centered around ($H, $N1, $N4)] [the interfaces ($N4)] [between ($H, $N4, $N5; $H, $N4, $N6)] [people (users) ($N5)] and [computers ($N6)]. \
 [Researchers ($N7)] [working on $($L, $N1, $N7)] [HCI ($N1)] [study ($H, $N7, $N8)] [issues ($N8)] \
-[related to ($M, $N8, $N9; $M, $N8, $N10; $M, $N8, $N11)] \
+[related to ($L, $N8, $N9; $L, $N8, $N10; $L, $N8, $N11)] \
 [usability ($N9)], \
 [accessibility ($N10)], \
 and [user experience ($N11)] [in ($L, $N9, $N3; $L, $N10, $N3; $L, $N11, $N3)] [technology design ($N3)].
@@ -100,9 +100,9 @@ Your response should have multiple paragraphs.`,
         /**
 Example:
 [Apple Inc. ($N1)] [is a ($H, $N1, $N2)] [technology company ($N2)] [based in ($H, $N1, $N3)] [Cupertino, California ($N3)]. \
-[It ($N1)] [was ($H, $N1, $N4)] [founded ($N4)] [by ($H, $N4, $N5; $H, $N4, $N6; $H, $N4, $N7)] [Steve Jobs ($N5)], [Steve Wozniak ($N6)], and [Ronald Wayne ($N7)] [in ($M, $N4, $N8)] [1976 ($N8)]. \
-[Apple ($N1)] [is known for ($H, $N1, $N9)] [its innovative products ($N9)], [such as ($M, $N9, $N10; $M, $N9, $N11; $M, $N9, $N12)] [iPhones ($N10)], [iPads ($N11)], and [Mac computers ($N12)]. \
-[The company ($N1)] also [offers ($M, $N1, $N13; $M, $N1, $N14; $M, $N1, $N15)] [software ($N13)], [services ($N14)], and [accessories ($N15)].*/
+[It ($N1)] [was ($H, $N1, $N4)] [founded ($N4)] [by ($H, $N4, $N5; $H, $N4, $N6; $H, $N4, $N7)] [Steve Jobs ($N5)], [Steve Wozniak ($N6)], and [Ronald Wayne ($N7)] [in ($H, $N4, $N8)] [1976 ($N8)]. \
+[Apple ($N1)] [is known for ($H, $N1, $N9)] [its innovative products ($N9)], [such as ($L, $N9, $N10; $L, $N9, $N11; $L, $N9, $N12)] [iPhones ($N10)], [iPads ($N11)], and [Mac computers ($N12)]. \
+[The company ($N1)] also [offers ($L, $N1, $N13; $L, $N1, $N14; $L, $N1, $N15)] [software ($N13)], [services ($N14)], and [accessories ($N15)].*/
       },
       {
         role: 'user',
@@ -128,8 +128,9 @@ ${_graph_handleFollowupQuestionsIdMatching}
 
 For example, for "[general AI ($N10)]" in the sentence \
 "[AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)].":
-[General AI ($N10)] refers to a [type of artificial intelligence ($N1)] that \
-[has the ability to ($M, $N10, $N13)] [understand ($N14)], [learn ($N5)], and [apply knowledge across a wide range of tasks ($N15)].`,
+[General AI ($N10)] refers to a [type of ($L, $N1, $N10)] [artificial intelligence ($N1)] that \
+[has the ability to ($L, $N10, $N14; $L, $N10, $N5; $L, $N10, $N15)] [understand ($N14)], [learn ($N5)], \
+and [apply knowledge across a wide range of tasks ($N15)].`,
       },
     ]
   },
@@ -149,7 +150,7 @@ ${_graph_handleFollowupQuestionsIdMatching}
 
 For example, for "[Fruits ($N1)]" in the sentence \
 "[Fruits ($N1)] can [help with ($H, $N1, $N2)] [health ($N2)].", your response could be: \
-"[Fruits ($N1)], for example, [includes ($M, $N1, $N3; $M, $N1, $N4; $M, $N1, $N5)], \
+"[Fruits ($N1)], for example, [includes ($H, $N1, $N3; $H, $N1, $N4; $H, $N1, $N5)], \
 [apples ($N3)], [oranges ($N4)], and [watermelons ($N5)]."`,
       },
     ]
