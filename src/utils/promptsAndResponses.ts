@@ -49,8 +49,9 @@ Each relationship should be an object with the following fields:
     * "origin" (array of strings): The phrases or sentences in the original response that the relationship is summarized from. Make sure they are exactly the same as the text in the original response`
 
 export const _graph_handleFollowupQuestionsIdMatching = `When annotating a new entity that was not mentioned in previous response, \
-please make sure that they are annotated with a new entity id (e.g., $N1, $N2, etc.), while \
-if the same entity have indeed been mentioned, please match their id. \
+please make sure that they are annotated with a new entity id \
+(for example, if the previous annotation has reached id "$N102", then the new annotation id should start at "$N103"). \
+However, if the same entity have indeed been mentioned, please match their id. \
 You don't need to further explain the examples you give.`
 
 export interface NodeLabelAndTags {

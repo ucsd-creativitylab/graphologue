@@ -437,8 +437,10 @@ export const Question = () => {
       )
 
       // scroll
+      // TODO
+      /*
       const lastAnswerObject = aC.answerObjects[aC.answerObjects.length - 1]
-      const answerObjectElement = document.getElementById(
+      const answerObjectElement = document.querySelector(
         `.answer-text[data-id="${lastAnswerObject.id}"]`
       )
       if (answerObjectElement) {
@@ -447,6 +449,7 @@ export const Question = () => {
           block: 'end',
         })
       }
+      */
     },
     [
       handleParsingCompleteAnswerObject,

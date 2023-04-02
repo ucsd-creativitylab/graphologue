@@ -449,7 +449,7 @@ export const Interchange = ({
           },
           synced: {
             highlightedNodeIds: [nodeEntityId],
-            saliencyFilter: 'low',
+            // saliencyFilter: 'low',
           },
         })
       )
