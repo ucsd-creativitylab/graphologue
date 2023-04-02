@@ -428,13 +428,25 @@ export const Question = () => {
       //   }
       // }
 
-      // finally, update the state
+      // * finally, update the state
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
           answer: aC.answer,
           answerObjects: aC.answerObjects,
         })
       )
+
+      // scroll
+      const lastAnswerObject = aC.answerObjects[aC.answerObjects.length - 1]
+      const answerObjectElement = document.getElementById(
+        `.answer-text[data-id="${lastAnswerObject.id}"]`
+      )
+      if (answerObjectElement) {
+        answerObjectElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'end',
+        })
+      }
     },
     [
       handleParsingCompleteAnswerObject,

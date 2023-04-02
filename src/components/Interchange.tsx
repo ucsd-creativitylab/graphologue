@@ -449,6 +449,7 @@ export const Interchange = ({
           },
           synced: {
             highlightedNodeIds: [nodeEntityId],
+            saliencyFilter: 'low',
           },
         })
       )
@@ -526,12 +527,7 @@ export const Interchange = ({
     setQuestionsAndAnswers(prevQsAndAs =>
       helpSetQuestionAndAnswer(prevQsAndAs, id, {
         synced: {
-          saliencyFilter:
-            saliencyFilter === 'high'
-              ? 'medium'
-              : saliencyFilter === 'medium'
-              ? 'low'
-              : 'high',
+          saliencyFilter: saliencyFilter === 'high' ? 'low' : 'high',
         },
       })
     )

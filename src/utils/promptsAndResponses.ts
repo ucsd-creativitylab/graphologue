@@ -50,7 +50,7 @@ Each relationship should be an object with the following fields:
 
 export const _graph_handleFollowupQuestionsIdMatching = `When annotating a new entity that was not mentioned in previous response, \
 please make sure that they are annotated with a new entity id (e.g., $N1, $N2, etc.), while \
-if the same concept have indeed been mentioned, please match their id. \
+if the same entity have indeed been mentioned, please match their id. \
 You don't need to further explain the examples you give.`
 
 export interface NodeLabelAndTags {
@@ -69,6 +69,7 @@ The user’s goal is to construct a concept map to visually explain your respons
 To achieve this, annotate the key entities and relationships inline for each sentence in the paragraphs. \
 \
 Entities are usually noun phrases and should be annotated with [entity ($N1)], for example, [Artificial Intelligence ($N1)]. \
+Do not annotate conjunctive adverbs, such as "since then" or "therefore," as entities in the map. \
 \
 A relationship is usually a word or a phrase that consists of verbs, adjectives, adverbs, or propositions. \
 Relationships should be annotated with the relevant entities and saliency of the relationship as high ($H) or low ($L), in the format of [relationship ($H, $N1, $N2)], \
@@ -85,7 +86,7 @@ Example paragraph A:
 [perception ($N7)], \
 and [problem-solving ($N8)]. \
 [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
-[Narrow AI ($N9)] [is designed for ($H, $N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($H, $N10, $N12)] [mimic human intelligence ($N12)].
+[Narrow AI ($N9)] [is designed for ($L, $N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($L, $N10, $N12)] [mimic human intelligence ($N12)].
 
 Example paragraph B:
 [Human-Computer Interaction ($N1)] [is a ($H, $N1, $N2)] [multidisciplinary field ($N2)] that [focuses on ($H, $N1, $N3)] [the design and use of computer technology ($N3)], \

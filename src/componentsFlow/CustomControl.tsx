@@ -20,8 +20,9 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded'
 // import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded'
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded'
 import AccountTreeRoundedIcon from '@mui/icons-material/AccountTreeRounded'
+////
 import SignalWifi1BarRoundedIcon from '@mui/icons-material/SignalWifi1BarRounded'
-import SignalWifi3BarRoundedIcon from '@mui/icons-material/SignalWifi3BarRounded'
+// import SignalWifi3BarRoundedIcon from '@mui/icons-material/SignalWifi3BarRounded'
 import SignalWifi4BarRoundedIcon from '@mui/icons-material/SignalWifi4BarRounded'
 
 import { customAddNodes } from './Node'
@@ -256,11 +257,6 @@ export const CustomControls = memo(
       saliencyTip = 'showing only the most important relationships'
       saliencyComponent = (
         <SignalWifi1BarRoundedIcon style={saliencyComponentStyle} />
-      )
-    } else if (saliencyFilter === 'medium') {
-      saliencyTip = 'showing all somewhat important relationships'
-      saliencyComponent = (
-        <SignalWifi3BarRoundedIcon style={saliencyComponentStyle} />
       )
     } else if (saliencyFilter === 'low') {
       saliencyTip = 'showing all relationships'

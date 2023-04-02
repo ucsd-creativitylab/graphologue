@@ -54,15 +54,13 @@ export const removeAnnotations = (text: string) => {
 
 export type AnnotationType = 'node' | 'edge' | 'none'
 
-export type RelationshipSaliency = 'high' | 'medium' | 'low'
+export type RelationshipSaliency = 'high' | 'low'
 
 export const Saliency: {
   H: RelationshipSaliency
-  M: RelationshipSaliency
   L: RelationshipSaliency
 } = {
   H: 'high',
-  M: 'medium',
   L: 'low',
 }
 
@@ -146,9 +144,8 @@ export const parseEdges = (
 
 export const parseSaliency = (saliency: string): RelationshipSaliency => {
   if (saliency === '$H') return 'high'
-  if (saliency === '$M') return 'medium'
   if (saliency === '$L') return 'low'
-  return 'medium' // ?
+  return 'high' // ?
 }
 
 export const nodeIndividualsToNodeEntities = (
@@ -314,7 +311,8 @@ export const saliencyAHigherThanB = (
   sA: RelationshipSaliency,
   sB: RelationshipSaliency
 ) => {
-  if (sA === 'high' && sB !== 'high') return true
-  if (sA === 'medium' && sB === 'low') return true
+  if (sA === 'high' && sB === 'low') return true
+  if (sA === 'high' && sB === 'high') return false
+  if (sA === 'low' && sB === 'low') return false
   return false
 }
