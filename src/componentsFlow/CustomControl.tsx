@@ -19,6 +19,7 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded'
 // import TheatersRoundedIcon from '@mui/icons-material/TheatersRounded'
 // import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded'
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded'
+import AccountTreeRoundedIcon from '@mui/icons-material/AccountTreeRounded'
 
 import { customAddNodes } from './Node'
 import {
@@ -35,6 +36,7 @@ import {
 // import defaultExample from '../examples/default.json'
 import { FlowContext } from '../components/Contexts'
 import { InterchangeContext } from '../components/Interchange'
+import { AnswerContext } from '../components/Answer'
 
 type CustomControlsProps = {
   nodes: Node[]
@@ -75,6 +77,7 @@ export const CustomControls = memo(
     } = useReactFlow()
     // const { model, selectNodes, setModel } = useContext(FlowContext)
     const { selectNodes } = useContext(FlowContext)
+    const { handleOrganizeNodes } = useContext(AnswerContext)
     const {
       questionAndAnswer: {
         modelStatus: { modelParsing },
@@ -234,6 +237,11 @@ export const CustomControls = memo(
         <ControlButton onClick={handleSetViewport}>
           <FitScreenRoundedIcon />
           <span>fit view</span>
+        </ControlButton>
+
+        <ControlButton onClick={handleOrganizeNodes}>
+          <AccountTreeRoundedIcon />
+          <span>organize</span>
         </ControlButton>
 
         {/* <ControlButton onClick={handleAddNode}>

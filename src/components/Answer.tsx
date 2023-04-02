@@ -55,6 +55,15 @@ export const ReactFlowObjectContext =
     generatingFlow: false,
   })
 
+////
+export interface AnswerContextProps {
+  handleOrganizeNodes: () => void
+}
+
+export const AnswerContext = createContext<AnswerContextProps>(
+  {} as AnswerContextProps
+)
+
 export const Answer = () => {
   const { questionAndAnswer } = useContext(InterchangeContext)
   const {
@@ -243,35 +252,64 @@ export const Answer = () => {
     runViewFittingJobs,
   ])
 
-  return (
-    <div className="answer-wrapper" data-id={id}>
-      {/* 0 */}
-      <RawAnswer
-        key={`raw-answer-${id}`}
-        questionAndAnswer={questionAndAnswer}
-      />
+  const handleOrganizeNodes = useCallback(() => {
+    const { nodes: newNodes, edges: newEdges } = answerObjectsToReactFlowObject(
+      stableDagreGraph.current,
+      nodeEntities,
+      edgeEntities
+    )
 
-      {/* <div className="answer-item-height answer-item interchange-component">
+    setNodes(newNodes)
+    setEdges(newEdges)
+
+    const newNodeSnippets: NodeSnippet[] = newNodes.map(n => ({
+      id: n.id,
+      label: (n.data as CustomNodeData).label,
+      position: {
+        x: n.position.x,
+        y: n.position.y,
+      },
+      width: n.width ?? hardcodedNodeWidthEstimation(n.data.label),
+      height: n.height ?? hardcodedNodeSize.height,
+    }))
+
+    prevNodeSnippets.current = newNodeSnippets
+  }, [edgeEntities, nodeEntities, setEdges, setNodes])
+
+  return (
+    <AnswerContext.Provider
+      value={{
+        handleOrganizeNodes,
+      }}
+    >
+      <div className="answer-wrapper" data-id={id}>
+        {/* 0 */}
+        <RawAnswer
+          key={`raw-answer-${id}`}
+          questionAndAnswer={questionAndAnswer}
+        />
+
+        {/* <div className="answer-item-height answer-item interchange-component">
         {answer}
       </div> */}
 
-      {/* 1 */}
-      <ReactFlowObjectContext.Provider
-        value={{
-          // nodeEntities: answerObjects.reduce(
-          //   (acc, { nodeEntities }) => [...acc, ...nodeEntities],
-          //   [] as NodeEntity[]
-          // ),
-          // edgeEntities: answerObjects.reduce(
-          //   (acc, { edgeEntities }) => [...acc, ...edgeEntities],
-          //   [] as EdgeEntity[]
-          // ),
-          generatingFlow: modelParsing,
-        }}
-      >
-        <ReactFlowComponent key={`react-flow-${id}`} id={id} />
-      </ReactFlowObjectContext.Provider>
-      {/* {modelAnsweringComplete && modelParsingComplete ? (
+        {/* 1 */}
+        <ReactFlowObjectContext.Provider
+          value={{
+            // nodeEntities: answerObjects.reduce(
+            //   (acc, { nodeEntities }) => [...acc, ...nodeEntities],
+            //   [] as NodeEntity[]
+            // ),
+            // edgeEntities: answerObjects.reduce(
+            //   (acc, { edgeEntities }) => [...acc, ...edgeEntities],
+            //   [] as EdgeEntity[]
+            // ),
+            generatingFlow: modelParsing,
+          }}
+        >
+          <ReactFlowComponent key={`react-flow-${id}`} id={id} />
+        </ReactFlowObjectContext.Provider>
+        {/* {modelAnsweringComplete && modelParsingComplete ? (
         <></>
       ) : modelAnsweringComplete ? (
         <div className="react-flow-loading-placeholder">
@@ -280,7 +318,8 @@ export const Answer = () => {
       ) : (
         <></>
       )} */}
-    </div>
+      </div>
+    </AnswerContext.Provider>
   )
 }
 

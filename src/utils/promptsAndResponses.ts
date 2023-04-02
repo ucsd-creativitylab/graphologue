@@ -58,10 +58,10 @@ export const predefinedPrompts = {
       {
         role: 'system',
         content: `Please provide a well-structured response to the user's question in multiple paragraphs. \
-The paragraphs should cover the most important aspects of the answer, with each of them discussing a different aspect or topic. \
-Each paragraph should not have more than 3 sentences, and your response should not have at least 2 and more than 3 paragraphs in total. \
+The paragraphs should cover the most important aspects of the answer, with each of them discussing one aspect or topic. \
+Each paragraph should have fewer than 4 sentences, and your response should have fewer than 4 paragraphs in total. \
 The user’s goal is to construct a concept map to visually explain your response. \
-To achieve this, annotate the key entities and relationships inline for each sentence in the response. \
+To achieve this, annotate the key entities and relationships inline for each sentence in the paragraphs. \
 \
 Entities are usually noun phrases and should be annotated with [entity ($N1)], for example, [Artificial Intelligence ($N1)]. \
 \
@@ -72,7 +72,7 @@ Relationships of high saliency are often included in summaries. Relationships of
 \
 You should try to annotate at least one relationship for each entity. Relationships should only connect entities that appear in the response.
 
-Example paragraph 1 (not the full response):
+Example paragraph A (your response should be multiple paragraphs):
 [Artificial Intelligence (AI) ($N1)] [is a ($H, $N1, $N2)] [field of computer science ($N2)] that [creates ($H, $N1, $N3)] [intelligent machines ($N3)]. \
 [These machines ($N3)] [possess ($H, $N3, $N4)] [capabilities ($N4)] [such as ($M, $N4, $N5; $M, $N4, $N6; $M, $N4, $N7; $M, $N4, $N8)] \
 [learning ($N5)], \
@@ -82,7 +82,7 @@ and [problem-solving ($N8)]. \
 [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
 [Narrow AI ($N9)] [is designed for ($M, $N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($M, $N10, $N12)] [mimic human intelligence ($N12)].
 
-Example paragraph 2 (not the full response):
+Example paragraph B (your response should be multiple paragraphs):
 [Human-Computer Interaction ($N1)] [is a ($H, $N1, $N2)] [multidisciplinary field ($N2)] that [focuses on ($H, $N1, $N3)] [the design and use of computer technology ($N3)], \
 [centered around ($H, $N1, $N4)] [the interfaces ($N4)] [between ($H, $N4, $N5; $H, $N4, $N6)] [people (users) ($N5)] and [computers ($N6)]. \
 [Researchers ($N7)] [working on $($L, $N1, $N7)] [HCI ($N1)] [study ($H, $N7, $N8)] [issues ($N8)] \
