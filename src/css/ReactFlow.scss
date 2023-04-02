@@ -32,10 +32,11 @@ $node-selection-border-width: rem-to-px(2rem);
       // align-self: stretch;
       justify-content: center;
       gap: $padding-xs;
+
       line-height: 100%;
       height: 100%;
       width: fit-content;
-      padding: $padding-small $padding-mid;
+      padding: $padding-small;
       border: none !important;
       border-radius: $radius-small;
       background: transparent;
@@ -64,7 +65,7 @@ $node-selection-border-width: rem-to-px(2rem);
 
       * {
         line-height: 100%;
-        font-size: $font-size-default;
+        font-size: $font-size-small;
       }
 
       svg {

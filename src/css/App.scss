@@ -41,9 +41,9 @@ code {
   visibility: hidden;
 
   &::after {
-    content: 'UIST 2023 | Built with React Flow';
+    content: 'React Flow';
     visibility: visible;
-    color: $grey;
+    color: $light-grey;
   }
 }
 

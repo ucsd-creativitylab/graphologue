@@ -712,6 +712,7 @@ const Flow = () => {
           style={reactFlowWrapperStyle}
           fitView={false}
           attributionPosition="top-right"
+          maxZoom={1.5}
           // edge specs
           elevateEdgesOnSelect={false}
           defaultEdgeOptions={customEdgeOptions} // adding a new edge with this configs without notice

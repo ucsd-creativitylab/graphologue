@@ -6,10 +6,10 @@ import { ControlButton, Controls, Edge, Node, useReactFlow } from 'reactflow'
 // import StarRoundedIcon from '@mui/icons-material/StarRounded'
 // import SpeedRoundedIcon from '@mui/icons-material/SpeedRounded'
 // import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
-import LightbulbRoundedIcon from '@mui/icons-material/LightbulbRounded'
-import LaptopChromebookRoundedIcon from '@mui/icons-material/LaptopChromebookRounded'
+// import LightbulbRoundedIcon from '@mui/icons-material/LightbulbRounded'
+// import LaptopChromebookRoundedIcon from '@mui/icons-material/LaptopChromebookRounded'
 import FitScreenRoundedIcon from '@mui/icons-material/FitScreenRounded'
-import SwipeRoundedIcon from '@mui/icons-material/SwipeRounded'
+// import SwipeRoundedIcon from '@mui/icons-material/SwipeRounded'
 // import KeyboardOptionKeyRoundedIcon from '@mui/icons-material/KeyboardOptionKeyRounded'
 // import MouseRoundedIcon from '@mui/icons-material/MouseRounded'
 // import EditRoundedIcon from '@mui/icons-material/EditRounded'
@@ -21,9 +21,9 @@ import SwipeRoundedIcon from '@mui/icons-material/SwipeRounded'
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded'
 import AlignHorizontalLeftRoundedIcon from '@mui/icons-material/AlignHorizontalLeftRounded'
 ////
-import SignalWifi1BarRoundedIcon from '@mui/icons-material/SignalWifi1BarRounded'
+// import SignalWifi1BarRoundedIcon from '@mui/icons-material/SignalWifi1BarRounded'
 // import SignalWifi3BarRoundedIcon from '@mui/icons-material/SignalWifi3BarRounded'
-import SignalWifi4BarRoundedIcon from '@mui/icons-material/SignalWifi4BarRounded'
+// import SignalWifi4BarRoundedIcon from '@mui/icons-material/SignalWifi4BarRounded'
 
 import { customAddNodes } from './Node'
 import {
@@ -40,7 +40,7 @@ import {
 // import defaultExample from '../examples/default.json'
 import { FlowContext } from '../components/Contexts'
 import { InterchangeContext } from '../components/Interchange'
-import { AnswerContext } from '../components/Answer'
+import { AnswerBlockContext } from '../components/Answer'
 
 type CustomControlsProps = {
   nodes: Node[]
@@ -86,11 +86,10 @@ export const CustomControls = memo(
     const {
       questionAndAnswer: {
         modelStatus: { modelParsing },
-        synced: { saliencyFilter },
       },
       handleSwitchSaliency,
     } = useContext(InterchangeContext)
-    const { handleOrganizeNodes } = useContext(AnswerContext)
+    const { handleOrganizeNodes } = useContext(AnswerBlockContext)
 
     const flowChangingTimer = useRef<NodeJS.Timer | null>(null)
 
@@ -131,6 +130,7 @@ export const CustomControls = memo(
       })
     }, [addNodes, fitView, getNodes, getViewport, selectNodes])
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleSaliency = useCallback(() => {
       // using timeout, set the className of flowWrapperRef to .changing-flow
       // and remove it after 700ms
@@ -248,6 +248,7 @@ export const CustomControls = memo(
     //     return node && node.type !== 'magic' && node.selected
     //   }) || selectedComponents.edges.length > 0
 
+    /*
     let saliencyTip = ''
     let saliencyComponent = <></>
     const saliencyComponentStyle: React.CSSProperties = {
@@ -264,13 +265,14 @@ export const CustomControls = memo(
         <SignalWifi4BarRoundedIcon style={saliencyComponentStyle} />
       )
     }
+    */
 
     return (
       <Controls
         showZoom={false}
         showInteractive={false}
         showFitView={false}
-        position="top-left"
+        position="bottom-left"
       >
         {/* <ControlButton className="title-button" onClick={handleSetViewport}>
           <span id="title">Graphologue</span>
@@ -292,7 +294,7 @@ export const CustomControls = memo(
           <span>align nodes</span>
         </ControlButton>
 
-        <ControlButton onClick={handleSaliency}>
+        {/* <ControlButton onClick={handleSaliency}>
           {saliencyComponent}
           <span>saliency</span>
 
@@ -301,7 +303,7 @@ export const CustomControls = memo(
               <span>{saliencyTip}</span>
             </TooltipLine>
           </ControlButtonTooltip>
-        </ControlButton>
+        </ControlButton> */}
 
         {/* <ControlButton onClick={handleAddNode}>
           <AddRoundedIcon />
@@ -390,7 +392,7 @@ export const CustomControls = memo(
           <span>examples</span>
         </ControlButton> */}
 
-        <ControlButton className="tips-button">
+        {/* <ControlButton className="tips-button">
           <LightbulbRoundedIcon className="control-button-tips-icon" />
           <span className="control-button-tips">tips</span>
 
@@ -407,7 +409,7 @@ export const CustomControls = memo(
                 scroll to <strong>pan around</strong>
               </span>
             </TooltipLine>
-            {/* <TooltipLine>
+            <TooltipLine>
               <KeyboardOptionKeyRoundedIcon />
               <span>
                 press option (alt) key to <strong>connect</strong>
@@ -418,9 +420,9 @@ export const CustomControls = memo(
               <span>
                 double click to <strong>edit text</strong>
               </span>
-            </TooltipLine> */}
+            </TooltipLine>
           </ControlButtonTooltip>
-        </ControlButton>
+        </ControlButton> */}
 
         {modelParsing && (
           <ControlButton className="tips-button">
@@ -433,10 +435,12 @@ export const CustomControls = memo(
   }
 )
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ControlButtonTooltip = ({ children }: { children: React.ReactNode }) => (
   <div className="control-button-tooltip pointer-events-no">{children}</div>
 )
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const TooltipLine = ({ children }: { children: React.ReactNode }) => (
   <div className="tooltip-line">{children}</div>
 )
