@@ -74,7 +74,7 @@ Do not annotate conjunctive adverbs, such as "since then" or "therefore", as ent
 A relationship is usually a word or a phrase that consists of verbs, adjectives, adverbs, or prepositions, e.g., "contribute to", "by", and "such as". \
 Relationships should be annotated with the relevant entities and saliency of the relationship, as high ($H) or low ($L), in the format of [relationship ($H, $N1, $N2)], \
 for example, [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
-Relationships of high saliency are often included in summaries. Relationships of low saliency are often omitted in summaries. \
+Relationships of high saliency are those included in summaries. Relationships of low saliency are often omitted in summaries. \
 It's important to choose relationships that accurately reflect the nature of the connection between the entities in text, \
 and to use a consistent annotation format throughout the paragraphs. \
 \

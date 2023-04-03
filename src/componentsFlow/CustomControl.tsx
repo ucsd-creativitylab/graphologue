@@ -21,9 +21,9 @@ import FitScreenRoundedIcon from '@mui/icons-material/FitScreenRounded'
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded'
 import AlignHorizontalLeftRoundedIcon from '@mui/icons-material/AlignHorizontalLeftRounded'
 ////
-// import SignalWifi1BarRoundedIcon from '@mui/icons-material/SignalWifi1BarRounded'
+import SignalWifi1BarRoundedIcon from '@mui/icons-material/SignalWifi1BarRounded'
 // import SignalWifi3BarRoundedIcon from '@mui/icons-material/SignalWifi3BarRounded'
-// import SignalWifi4BarRoundedIcon from '@mui/icons-material/SignalWifi4BarRounded'
+import SignalWifi4BarRoundedIcon from '@mui/icons-material/SignalWifi4BarRounded'
 
 import { customAddNodes } from './Node'
 import {
@@ -86,6 +86,7 @@ export const CustomControls = memo(
     const {
       questionAndAnswer: {
         modelStatus: { modelParsing },
+        synced: { saliencyFilter },
       },
       handleSwitchSaliency,
     } = useContext(InterchangeContext)
@@ -248,7 +249,6 @@ export const CustomControls = memo(
     //     return node && node.type !== 'magic' && node.selected
     //   }) || selectedComponents.edges.length > 0
 
-    /*
     let saliencyTip = ''
     let saliencyComponent = <></>
     const saliencyComponentStyle: React.CSSProperties = {
@@ -265,7 +265,6 @@ export const CustomControls = memo(
         <SignalWifi4BarRoundedIcon style={saliencyComponentStyle} />
       )
     }
-    */
 
     return (
       <Controls
@@ -291,6 +290,17 @@ export const CustomControls = memo(
           </ControlButton>
         )}
 
+        <ControlButton onClick={handleSaliency}>
+          {saliencyComponent}
+          <span>saliency</span>
+
+          <ControlButtonTooltip>
+            <TooltipLine>
+              <span>{saliencyTip}</span>
+            </TooltipLine>
+          </ControlButtonTooltip>
+        </ControlButton>
+
         <ControlButton onClick={handleSetViewport}>
           <FitScreenRoundedIcon />
           <span>fit view</span>
@@ -300,17 +310,6 @@ export const CustomControls = memo(
           <AlignHorizontalLeftRoundedIcon />
           <span>align nodes</span>
         </ControlButton>
-
-        {/* <ControlButton onClick={handleSaliency}>
-          {saliencyComponent}
-          <span>saliency</span>
-
-          <ControlButtonTooltip>
-            <TooltipLine>
-              <span>{saliencyTip}</span>
-            </TooltipLine>
-          </ControlButtonTooltip>
-        </ControlButton> */}
 
         {/* <ControlButton onClick={handleAddNode}>
           <AddRoundedIcon />

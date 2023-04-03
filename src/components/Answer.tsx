@@ -284,10 +284,12 @@ const AnswerListView = ({
                 ))}
               </div>
               <ReactFlowProvider
-                key={`answer-block-flow-provider-${id}-${answerObjects[0].id}`}
+                key={`answer-block-flow-provider-merged-${id}`}
+                // key={`answer-block-flow-provider-${id}-${answerObjects[0].id}`}
               >
                 <AnswerBlockItem
-                  key={`answer-block-item-${id}-${answerObjects[0].id}`}
+                  key={`answer-block-item-${id}`}
+                  // key={`answer-block-item-${id}-${answerObjects[0].id}`}
                   index={0}
                   questionAndAnswer={questionAndAnswer}
                   answerObject={answerObjects[0]}
@@ -377,6 +379,7 @@ const AnswerBlockItem = ({
   const stableDagreGraph = useRef(new dagre.graphlib.Graph())
   const viewFittingJobs = useRef<ViewFittingJob[]>([])
   const viewFittingJobRunning = useRef(false)
+  const firstCameraJob = useRef(true)
 
   const prevNodeSnippets = useRef<NodeSnippet[]>([])
   // const prevEdges = useRef<Edge[]>([])
@@ -414,7 +417,11 @@ const AnswerBlockItem = ({
         nodesBounding.width < viewBounding.width * 1.5 &&
         nodesBounding.height < viewBounding.height * 1.5
       ) {
-        fitView(viewFittingOptions)
+        fitView({
+          ...viewFittingOptions,
+          duration: firstCameraJob.current ? 0 : viewFittingOptions.duration,
+        })
+        firstCameraJob.current = false
       } else {
         // find changed nodes
 
@@ -468,16 +475,17 @@ const AnswerBlockItem = ({
             zoom: 1,
           },
           {
-            duration: viewFittingOptions.duration,
+            duration: firstCameraJob.current ? 0 : viewFittingOptions.duration,
           }
         )
+        firstCameraJob.current = false
       }
 
       setTimeout(() => {
         viewFittingJobRunning.current = false
         runViewFittingJobs()
       }, viewFittingOptions.duration)
-    }, 10)
+    }, 5)
   }, [fitView, getViewport, setViewport])
 
   useEffectEqual(() => {

@@ -49,6 +49,21 @@
   animation-duration: $transition-normal;
 }
 
+@keyframes remove-margin {
+  from {
+    margin: 0 $padding-mid;
+  }
+
+  to {
+    margin: 0;
+  }
+}
+
+.remove-margin {
+  animation-name: remove-margin;
+  animation-duration: $transition-normal;
+}
+
 @keyframes drop-down {
   from {
     // opacity: 0;
