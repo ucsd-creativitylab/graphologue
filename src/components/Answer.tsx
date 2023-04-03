@@ -412,7 +412,8 @@ const AnswerBlockItem = ({
     if (viewFittingJobRunning.current || viewFittingJobs.current.length === 0)
       return
 
-    const job = viewFittingJobs.current.shift()
+    if (!viewFittingJobs.current.length) return
+    const job = viewFittingJobs.current[viewFittingJobs.current.length - 1]
     if (!job) return
 
     viewFittingJobRunning.current = true
@@ -499,7 +500,7 @@ const AnswerBlockItem = ({
         viewFittingJobRunning.current = false
         runViewFittingJobs()
       }, viewFittingOptions.duration)
-    }, 5)
+    }, 10)
   }, [fitView, getViewport, setViewport])
 
   useEffectEqual(() => {
@@ -560,7 +561,12 @@ const AnswerBlockItem = ({
     if (viewFittingJobs.current.length > 1) viewFittingJobs.current.shift()
     runViewFittingJobs()
 
-    prevNodeSnippets.current = newNodeSnippets
+    prevNodeSnippets.current = newNodeSnippets.map(n => ({
+      ...n,
+      position: {
+        ...n.position,
+      },
+    }))
   }, [
     // we don't care about individuals
     nodeEntities.map(nE =>
