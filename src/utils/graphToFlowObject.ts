@@ -267,6 +267,8 @@ export const answerObjectsToReactFlowObject = (
     // eliminate orphan nodes
     const { id } = nodeEntity
 
+    if (nodeEntities.length === 1) return true
+
     return (
       // that's all edges
       filteredEdgeEntities.find(

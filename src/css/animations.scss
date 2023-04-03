@@ -32,6 +32,23 @@
   animation-delay: $transition-fast;
 }
 
+@keyframes fade-in-outline {
+  from {
+    outline: 1px solid transparent;
+    padding: 0;
+  }
+
+  to {
+    outline: 1px solid $light-grey;
+    padding: $padding-mid;
+  }
+}
+
+.fade-in-outline {
+  animation-name: fade-in-outline;
+  animation-duration: $transition-normal;
+}
+
 @keyframes drop-down {
   from {
     // opacity: 0;

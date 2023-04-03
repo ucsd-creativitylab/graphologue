@@ -63,13 +63,16 @@ $shadow-node-selected: $shadow-heavy;
       //   background: #ccc !important;
       // }
 
-      .super-wrapper {
+      .super-wrapper.super-wrapper-static-text-node {
         width: fit-content !important;
         min-width: 5rem !important;
 
         .node-label {
-          padding: $padding-mid !important;
-          font-size: $font-size-default !important;
+          font-size: $font-size-small !important;
+          padding: calc(
+              $padding-mid + ($font-size-default - $font-size-small) / 2
+            )
+            $padding-mid !important;
         }
       }
     }

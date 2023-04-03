@@ -101,6 +101,12 @@ Example paragraph B:
 [accessibility ($N10)], \
 and [user experience ($N11)] [in ($L, $N9, $N3; $L, $N10, $N3; $L, $N11, $N3)] [technology design ($N3)].
 
+Example paragraph C:
+[Birds ($N1)] [can ($H, $N1, $N2)] [fly ($N2)] [due to ($H, $N2, $N3)] [a combination of physiological adaptations ($N3)]. \
+[One key ($H, $N3, $N4)] [adaptation ($N4)] [is ($H, $N4, $N5)] the [presence of lightweight bones ($N5)] that [reduce ($H, $N5, $N6)] [their body weight ($N6)], \
+[making ($L, $N5, $N7)] it [easier for them to fly ($N7)]. \
+[Another ($H, $N3, $N8)] [adaptation ($N8)] [is ($H, $N8, $N9)] the [structure of their wings ($N9)] which [are designed for ($H, $N9, $N2)] [flight ($N2)].
+
 Your response should have multiple paragraphs.`,
         /**
 Example:

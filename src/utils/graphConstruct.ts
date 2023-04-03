@@ -261,6 +261,10 @@ export const constructGraph = (
     return ''
   })
 
+  // for (const nId of graph.nodes()) {
+  //   graph.removeNode(nId)
+  // }
+
   rawNodeEntities.forEach(nodeE => {
     // check if the node is nodeEntities
     const nodeEntity = nodeEntities.find(nE => nE.id === nodeE.id)
@@ -303,6 +307,7 @@ export const constructGraph = (
 
   // ! compute
   dagre.layout(graph)
+  // console.log('* graph layout')
 
   // print the graph
   const nodes: {

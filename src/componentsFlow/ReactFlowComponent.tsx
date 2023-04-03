@@ -125,8 +125,10 @@ const Flow = () => {
   // const { width, height } = reactFlowWrapperElement.getBoundingClientRect()
 
   const defaultViewport = {
-    x: (window.innerWidth * 0.5) / 2,
-    y: Math.min(window.innerHeight * 0.3, 1000) / 2,
+    // x: (window.innerWidth * 0.5) / 2,
+    // y: Math.min(window.innerHeight * 0.3, 1000) / 2,
+    x: 0,
+    y: 0,
     zoom: 1,
   }
 

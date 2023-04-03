@@ -135,8 +135,8 @@ export const CustomNode = memo(
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
     const tagRef = useRef<HTMLDivElement>(null)
 
-    const nodeHighlighted = highlightedCoReferenceOriginRanges.some(r =>
-      r.nodeIds.includes(id)
+    const nodeHighlighted = highlightedCoReferenceOriginRanges.some(
+      r => r.nodeIds.length === 1 && r.nodeIds.includes(id)
     )
 
     // ! tags to clarify the node label

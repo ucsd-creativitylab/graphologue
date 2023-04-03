@@ -75,6 +75,33 @@
       // overflow: scroll;
     }
 
+    .answer-block-list-merged-diagram {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: $padding-mid;
+
+      width: 100%;
+      height: 100%;
+
+      .answer-text-block-list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: $padding-mid;
+
+        // height: 95vh;
+        // max-height: 60rem;
+        padding: $padding-mid;
+
+        // overflow-y: scroll;
+
+        background: $white;
+        border-radius: $radius-default;
+        outline: 1px solid $light-grey;
+      }
+    }
+
     .answer-full-block {
       margin: $padding-mid $padding-mid 0 $padding-mid;
     }
@@ -118,6 +145,13 @@
       border-radius: $radius-default;
       outline: 1px solid $light-grey;
     }
+
+    &.merged-diagram-wrapper {
+      .react-flow-wrapper {
+        height: 95vh;
+        max-height: 60rem;
+      }
+    }
   }
 
   .answer-item {
@@ -127,7 +161,7 @@
     gap: $padding-small;
 
     // margin: 0 $padding-large;
-    width: 100%;
+    width: 20rem;
     max-width: 20rem;
     height: fit-content;
 
@@ -151,7 +185,7 @@
       transition: border-bottom-color $transition-normal ease;
 
       &:has(.highlighted-answer-text) {
-        border-bottom-color: $elegant-yellow;
+        border-bottom-color: rgba($elegant-yellow, $opacity-mid);
       }
     }
 
@@ -232,10 +266,16 @@
   }
 }
 
-.react-flow-wrapper {
+.merged-diagram {
+  display: flex;
+  width: 100%;
+}
+
+.merged-diagram .react-flow-wrapper {
   flex-grow: 1;
 
-  @include answer-content-height;
+  height: 95vh;
+  max-height: 60rem;
   width: 100%;
   padding: 0;
   margin: 0;
