@@ -430,8 +430,15 @@ export const CustomNode = memo(
                 <MagicToolboxItem title="color">
                   <>
                     <MagicToolboxButton
-                      content={styleBackground}
+                      content={'white'}
                       onClick={handleToggleShowColorPicker}
+                      style={{
+                        color:
+                          styleBackground === '#ffffff'
+                            ? '#cfcfcf'
+                            : 'transparent',
+                        backgroundColor: styleBackground,
+                      }}
                     />
                     {showColorPicker && (
                       <TwitterPicker

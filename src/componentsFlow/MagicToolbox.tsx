@@ -92,6 +92,7 @@ interface MagicToolboxButtonProps {
   onClick?: (e: MouseEvent) => void
   preventDefault?: boolean
   className?: string
+  style?: React.CSSProperties
   disabled?: boolean
 }
 export const MagicToolboxButton = memo(
@@ -100,6 +101,7 @@ export const MagicToolboxButton = memo(
     onClick,
     preventDefault = true,
     className = '',
+    style,
     disabled = false,
   }: MagicToolboxButtonProps) => {
     // handle click
@@ -125,6 +127,7 @@ export const MagicToolboxButton = memo(
         }
         onClick={handleOnClick}
         disabled={disabled}
+        style={style ?? {}}
       >
         {content}
       </button>
