@@ -189,10 +189,22 @@
       }
     }
 
+    &:hover {
+      .text-segment.annotated {
+        // border-bottom-color: $light;
+        background-color: $light;
+      }
+    }
+
     .text-segment {
+      // border-bottom-width: 2px;
+      // border-bottom-style: solid;
+      // border-bottom-color: transparent;
+
       transition: background-color $transition-normal ease;
+
       &.highlighted-answer-text {
-        background-color: $warn-yellow-x-light;
+        background-color: $warn-yellow-x-light !important;
       }
     }
 

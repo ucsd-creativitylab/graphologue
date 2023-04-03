@@ -284,7 +284,7 @@ The user may made mistakes in the annotation that there might be some entities t
 or some relationships that are trying to connect entities that are not mentioned in the text. Please avoid these mistakes when \
 annotating the summary. Your summary should have only one short sentence.
 
-Do not include anything else in the response other than the summarized text. For example, for paragraph:
+Do not include anything else in the response other than the annotated, summarized text. For example, for paragraph:
 
 [Human-Computer Interaction ($N1)] [is a ($H, $N1, $N2)] [multidisciplinary field ($N2)] that [focuses on ($H, $N1, $N3)] [the design and use of computer technology ($N3)], \
 [centered around ($H, $N1, $N4)] [the interfaces ($N4)] [between ($H, $N4, $N5; $H, $N4, $N6)] [people (users) ($N5)] and [computers ($N6)]. \

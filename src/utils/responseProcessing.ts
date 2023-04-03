@@ -398,3 +398,23 @@ export const cleanSlideResponse = (slideResponse: string) => {
     .replace(/```$/, '')
   return cleanedSlideResponse
 }
+
+export const getRangeFromStart = (
+  start: number,
+  nodeEntities: NodeEntity[],
+  edgeEntities: EdgeEntity[]
+): OriginRange | undefined => {
+  for (const nodeEntity of nodeEntities) {
+    for (const individual of nodeEntity.individuals) {
+      if (individual.originRange.start === start) {
+        return individual.originRange
+      }
+    }
+  }
+
+  for (const edgeEntity of edgeEntities) {
+    if (edgeEntity.originRange.start === start) {
+      return edgeEntity.originRange
+    }
+  }
+}

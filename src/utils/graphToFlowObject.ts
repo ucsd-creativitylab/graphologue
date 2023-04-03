@@ -58,7 +58,7 @@ export const answerObjectsToReactFlowObject = (
   nodes: Node[]
   edges: Edge[]
 } => {
-  const { saliencyFilter } = synced
+  const { saliencyFilter, highlightedCoReferenceOriginRanges } = synced
 
   // build nodes and edges from node and edge entities
   const nodes: Node[] = []
@@ -268,6 +268,13 @@ export const answerObjectsToReactFlowObject = (
     const { id } = nodeEntity
 
     if (nodeEntities.length === 1) return true
+
+    if (
+      highlightedCoReferenceOriginRanges.some(range =>
+        range.nodeIds.includes(id)
+      )
+    )
+      return true
 
     return (
       // that's all edges

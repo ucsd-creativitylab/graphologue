@@ -22,6 +22,7 @@ import {
   OriginRange,
   AnswerObject,
   EdgeEntity,
+  AnswerObjectEntitiesTarget,
 } from '../App'
 import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 import { InterchangeContext } from './Interchange'
@@ -37,6 +38,7 @@ import {
 import { hardcodedNodeSize, viewFittingOptions } from '../constants'
 import { ViewFittingJob } from '../componentsFlow/ViewFitter'
 import {
+  getRangeFromStart,
   mergeEdgeEntities,
   mergeNodeEntities,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -95,6 +97,7 @@ export type DiagramDisplayFormat = 'split' | 'merged'
 /* -------------------------------------------------------------------------- */
 
 interface AnswerListContextProps {
+  // synced: QuestionAndAnswerSynced
   handleHighlightAnswerObject: (answerObjectId: string) => void
   handleHideAnswerObject: (answerObjectId: string) => void
   handleAnswerObjectSwitchListDisplayFormat: (
@@ -309,20 +312,21 @@ const AnswerListView = ({
           /* -------------------------------------------------------------------------- */
           /* ------------------------------- full answer ------------------------------ */
           // ! not using now!
-          <div
-            className={`answer-item answer-full-block interchange-component`}
-          >
-            <div className="answer-item-text">
-              {answerObjects.map((answerObject, index) => (
-                <AnswerText
-                  key={`answer-range-in-full-text-${answerObject.id}`}
-                  answerObjectId={answerObject.id}
-                  rawAnswer={answerObject.originText.content}
-                  highlightedRanges={synced.highlightedCoReferenceOriginRanges}
-                />
-              ))}
-            </div>
-          </div>
+          <></>
+          // <div
+          //   className={`answer-item answer-full-block interchange-component`}
+          // >
+          //   <div className="answer-item-text">
+          //     {answerObjects.map((answerObject, index) => (
+          //       <AnswerText
+          //         key={`answer-range-in-full-text-${answerObject.id}`}
+          //         answerObjectId={answerObject.id}
+          //         rawAnswer={answerObject.originText.content}
+          //         highlightedRanges={synced.highlightedCoReferenceOriginRanges}
+          //       />
+          //     ))}
+          //   </div>
+          // </div>
         )}
       </div>
     </AnswerListContext.Provider>
@@ -549,6 +553,7 @@ const AnswerBlockItem = ({
     // ! should we  add this?
     // synced, // ???
     synced.saliencyFilter,
+    // synced.highlightedCoReferenceOriginRanges,
     setNodes,
     setEdges,
     runViewFittingJobs,
@@ -665,8 +670,9 @@ const AnswerTextBlock = ({
     listDisplay === 'summary' ? (
       answerObject.summary.content.length ? (
         <AnswerText
-          answerObjectId={answerObject.id}
+          answerObject={answerObject}
           rawAnswer={answerObject.summary.content}
+          entitiesTarget="summary"
           highlightedRanges={synced.highlightedCoReferenceOriginRanges}
         />
       ) : (
@@ -680,8 +686,9 @@ const AnswerTextBlock = ({
       )
     ) : (
       <AnswerText
-        answerObjectId={answerObject.id}
+        answerObject={answerObject}
         rawAnswer={answerObject.originText.content}
+        entitiesTarget="originText"
         highlightedRanges={synced.highlightedCoReferenceOriginRanges}
       />
     )
@@ -802,25 +809,58 @@ const AnswerTextBlock = ({
 }
 
 const AnswerText = ({
-  answerObjectId,
+  answerObject,
   rawAnswer,
+  entitiesTarget,
   highlightedRanges,
 }: {
-  answerObjectId: string
+  answerObject: AnswerObject
   rawAnswer: string
+  entitiesTarget: AnswerObjectEntitiesTarget
   highlightedRanges: OriginRange[]
 }) => {
+  const { handleSetSyncedCoReferenceOriginRanges } =
+    useContext(InterchangeContext)
+
   // const displayText = removeAnnotations(
   //   rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
   // )
   // const text = rawAnswer.slice(slicingRange.start, slicingRange.end + 1)
   const text = rawAnswer
-
   const sentences = splitAnnotatedSentences(text)
+
+  const prevSyncedList = useRef<OriginRange[]>([])
+
+  const handleHoverAnnotatedTextSegment = useCallback(
+    (start: number) => {
+      const range = getRangeFromStart(
+        start,
+        answerObject[entitiesTarget].nodeEntities,
+        answerObject[entitiesTarget].edgeEntities
+      )
+
+      if (range) {
+        prevSyncedList.current = highlightedRanges
+        const newRanges = [...new Set([...highlightedRanges, range])]
+        handleSetSyncedCoReferenceOriginRanges(newRanges)
+      }
+    },
+    [
+      answerObject,
+      entitiesTarget,
+      handleSetSyncedCoReferenceOriginRanges,
+      highlightedRanges,
+    ]
+  )
+
+  const handleLeaveAnnotatedTextSegment = useCallback(() => {
+    handleSetSyncedCoReferenceOriginRanges(prevSyncedList.current)
+    prevSyncedList.current = []
+  }, [handleSetSyncedCoReferenceOriginRanges])
 
   let globalStart = 0
   return (
-    <div className="answer-text" data-id={answerObjectId}>
+    <div className="answer-text" data-id={answerObject.id}>
       {sentences.map((sentence, sentenceIndex) => (
         <span key={sentenceIndex} className="sentence-segment">
           {sentence.split(/(\[[^\]]+\])/).map((part, partIndex) => {
@@ -860,7 +900,7 @@ const AnswerText = ({
 
                       // edge
                       return (
-                        answerObjectId === highlightedAnswerObjectId &&
+                        answerObject.id === highlightedAnswerObjectId &&
                         start === highlightedStart
                       )
                     }
@@ -869,9 +909,16 @@ const AnswerText = ({
                     : '')
                 }
                 data-start={start}
+                ////
+                onMouseEnter={() => {
+                  handleHoverAnnotatedTextSegment(start)
+                }}
+                onMouseLeave={() => {
+                  handleLeaveAnnotatedTextSegment()
+                }}
               >
-                {/* {removeAnnotations(part)} */}
-                {part}
+                {removeAnnotations(part)}
+                {/* {part} */}
               </span>
             )
           })}
