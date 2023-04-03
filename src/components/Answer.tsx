@@ -140,8 +140,19 @@ const AnswerListView = ({
   const handleSwitchDiagramDisplay = useCallback(
     (newDisplayFormat: DiagramDisplayFormat) => {
       setDiagramDisplay(newDisplayFormat)
+
+      // smoothly scroll .answer-text with data-id === answerObjectId into view
+      const answerObjectElement = document.querySelector(
+        `.answer-wrapper[data-id="${id}"]`
+      )
+      if (answerObjectElement) {
+        answerObjectElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        })
+      }
     },
-    []
+    [id]
   )
 
   const handleHighlightAnswerObject = useCallback(
@@ -184,6 +195,7 @@ const AnswerListView = ({
       //   modelAnsweringComplete ? ' answer-side' : ' answer-centered'
       // }`}
       className={`answer-item-display`}
+      data-id={id}
     >
       <div className="block-display-switches">
         {/* <button
