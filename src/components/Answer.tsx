@@ -2,6 +2,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from 'react'
@@ -343,7 +344,7 @@ const AnswerBlockItem = ({
     answerObjects,
     modelStatus: { modelParsingComplete },
     synced,
-    synced: { answerObjectIdsHidden },
+    synced: { answerObjectIdsHidden, saliencyFilter },
   },
   answerObject,
   diagramDisplay,
@@ -367,6 +368,10 @@ const AnswerBlockItem = ({
 
   const prevNodeSnippets = useRef<NodeSnippet[]>([])
   // const prevEdges = useRef<Edge[]>([])
+
+  useEffect(() => {
+    stableDagreGraph.current = new dagre.graphlib.Graph()
+  }, [useSummary, saliencyFilter])
 
   // ! put all node and edge entities together
   // const nodeEntities = mergeNodeEntities(answerObjects, answerObjectIdsHidden)
