@@ -269,12 +269,12 @@ export const answerObjectsToReactFlowObject = (
 
     if (nodeEntities.length === 1) return true
 
-    if (
-      highlightedCoReferenceOriginRanges.some(range =>
-        range.nodeIds.includes(id)
-      )
-    )
-      return true
+    // if (
+    //   highlightedCoReferenceOriginRanges.some(range =>
+    //     range.nodeIds.includes(id)
+    //   )
+    // )
+    //   return true
 
     return (
       // that's all edges
