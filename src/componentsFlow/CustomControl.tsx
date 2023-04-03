@@ -272,7 +272,7 @@ export const CustomControls = memo(
         showZoom={false}
         showInteractive={false}
         showFitView={false}
-        position="bottom-left"
+        position="top-right"
       >
         {/* <ControlButton className="title-button" onClick={handleSetViewport}>
           <span id="title">Graphologue</span>

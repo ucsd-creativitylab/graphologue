@@ -270,7 +270,10 @@ export const constructGraph = (
     } else {
       graph.setNode(nodeE.id, {
         label: nodeE.id,
-        width: hardcodedNodeWidthEstimation(nodeE.displayNodeLabel),
+        width: hardcodedNodeWidthEstimation(
+          nodeE.displayNodeLabel,
+          nodeE.pseudo
+        ),
         height: hardcodedNodeSize.height,
       })
     }
@@ -438,7 +441,9 @@ export const constructGraphChat = (annotatedRelationships: {
     if (!(a in addedNodes)) {
       pseudoGraph.setNode(a, {
         label: a,
-        width: hardcodedNodeWidthEstimation(removeHiddenExpandId(a)),
+        // TODO
+        // width: hardcodedNodeWidthEstimation(removeHiddenExpandId(a)),
+        width: hardcodedNodeSize.width,
         height: hardcodedNodeSize.height,
       })
       addedNodes[a] = new Set()
@@ -450,7 +455,9 @@ export const constructGraphChat = (annotatedRelationships: {
     if (!(b in addedNodes)) {
       pseudoGraph.setNode(b, {
         label: b,
-        width: hardcodedNodeWidthEstimation(removeHiddenExpandId(b)),
+        // TODO
+        // width: hardcodedNodeWidthEstimation(removeHiddenExpandId(b)),
+        width: hardcodedNodeSize.width,
         height: hardcodedNodeSize.height,
       })
       addedNodes[b] = new Set()

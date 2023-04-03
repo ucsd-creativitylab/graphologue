@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { ReactFlowProvider, useReactFlow } from 'reactflow'
+import { Node, ReactFlowProvider, useReactFlow } from 'reactflow'
 import dagre from 'dagre'
 import isEqual from 'react-fast-compare'
 import { PuffLoader } from 'react-spinners'
@@ -223,7 +223,9 @@ const AnswerListView = ({
         <div className={`answer-block-list`} data-id={id}>
           {/* ! MAP */}
           {answerObjects.map((answerObject, index) => (
-            <ReactFlowProvider>
+            <ReactFlowProvider
+              key={`answer-block-flow-provider-${id}-${answerObject.id}`}
+            >
               <AnswerBlockItem
                 key={`answer-block-item-${id}-${answerObject.id}`}
                 index={index}
@@ -407,16 +409,20 @@ const AnswerBlockItem = ({
     setNodes(newNodes)
     setEdges(newEdges)
 
-    const newNodeSnippets: NodeSnippet[] = newNodes.map(n => ({
-      id: n.id,
-      label: (n.data as CustomNodeData).label,
-      position: {
-        x: n.position.x,
-        y: n.position.y,
-      },
-      width: n.width ?? hardcodedNodeWidthEstimation(n.data.label),
-      height: n.height ?? hardcodedNodeSize.height,
-    }))
+    const newNodeSnippets: NodeSnippet[] = newNodes.map(
+      (n: Node<CustomNodeData>) => ({
+        id: n.id,
+        label: (n.data as CustomNodeData).label,
+        position: {
+          x: n.position.x,
+          y: n.position.y,
+        },
+        width:
+          n.width ??
+          hardcodedNodeWidthEstimation(n.data.label, n.data.generated.pseudo),
+        height: n.height ?? hardcodedNodeSize.height,
+      })
+    )
 
     // const nodeSnippetExtraction = (n: NodeSnippet) => ({
     //   id: n.id,
@@ -480,16 +486,20 @@ const AnswerBlockItem = ({
     setNodes(newNodes)
     setEdges(newEdges)
 
-    const newNodeSnippets: NodeSnippet[] = newNodes.map(n => ({
-      id: n.id,
-      label: (n.data as CustomNodeData).label,
-      position: {
-        x: n.position.x,
-        y: n.position.y,
-      },
-      width: n.width ?? hardcodedNodeWidthEstimation(n.data.label),
-      height: n.height ?? hardcodedNodeSize.height,
-    }))
+    const newNodeSnippets: NodeSnippet[] = newNodes.map(
+      (n: Node<CustomNodeData>) => ({
+        id: n.id,
+        label: (n.data as CustomNodeData).label,
+        position: {
+          x: n.position.x,
+          y: n.position.y,
+        },
+        width:
+          n.width ??
+          hardcodedNodeWidthEstimation(n.data.label, n.data.generated.pseudo),
+        height: n.height ?? hardcodedNodeSize.height,
+      })
+    )
 
     prevNodeSnippets.current = newNodeSnippets
   }, [edgeEntities, nodeEntities, setEdges, setNodes, synced])

@@ -99,6 +99,15 @@
   font-weight: $font-weight-thin;
 }
 
+.width-measuring-span-pseudo {
+  display: inline-flex;
+  padding: $padding-mid;
+
+  font-family: inherit;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-default;
+}
+
 .edge-label-width-measuring-span {
   display: inline-flex;
   padding: $padding-xs $padding-xs;

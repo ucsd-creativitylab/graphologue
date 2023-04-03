@@ -125,7 +125,7 @@ const Flow = () => {
 
   const defaultViewport = {
     x: (window.innerWidth * 0.5) / 2,
-    y: Math.min(window.innerHeight * 0.5, 1000) / 2,
+    y: Math.min(window.innerHeight * 0.3, 1000) / 2,
     zoom: 1,
   }
 
@@ -676,6 +676,8 @@ const Flow = () => {
 
   const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')
 
+  const handleScroll = useCallback((e: any) => {}, [])
+
   return (
     <FlowContext.Provider
       value={{
@@ -711,19 +713,22 @@ const Flow = () => {
           // flow view
           style={reactFlowWrapperStyle}
           fitView={false}
-          attributionPosition="top-right"
-          maxZoom={1.5}
+          attributionPosition="bottom-right"
+          maxZoom={1}
           // edge specs
           elevateEdgesOnSelect={false}
           defaultEdgeOptions={customEdgeOptions} // adding a new edge with this configs without notice
           connectionLineComponent={CustomConnectionLine}
           connectionLineStyle={customConnectionLineStyle}
           // viewport control
-          panOnScroll={true}
+          panOnScroll={false}
+          zoomOnScroll={false}
+          preventScrolling={false}
           selectionOnDrag={false}
           panOnDrag={[0, 1, 2]}
           selectionMode={SelectionMode.Full}
           // ! actions
+          onScroll={handleScroll}
           onNodeClick={handleNodeClick}
           onNodeDoubleClick={handleNodeDoubleClick}
           onNodeContextMenu={handleNodeContextMenu}

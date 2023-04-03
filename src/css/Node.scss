@@ -58,6 +58,22 @@ $shadow-node-selected: $shadow-heavy;
       outline-offset: rem-to-px(2rem);
     }
 
+    &.custom-node-pseudo {
+      // .custom-node-content {
+      //   background: #ccc !important;
+      // }
+
+      .super-wrapper {
+        width: fit-content !important;
+        min-width: unset !important;
+
+        .node-label {
+          padding: $padding-mid !important;
+          font-size: $font-size-small !important;
+        }
+      }
+    }
+
     .custom-node-tag {
       display: flex;
       align-items: center;

@@ -330,6 +330,7 @@ export const answerObjectsToReactFlowObject = (
           ? styles.nodeColorDefaultGrey
           : styles.nodeColorDefaultWhite, // expanded edge label will be grey
         {
+          pseudo: entity.pseudo,
           originRanges,
           originTexts,
         }
@@ -354,6 +355,7 @@ export const answerObjectsToReactFlowObject = (
               customType: 'arrow',
               editing: false,
               generated: {
+                pseudo: false,
                 originRanges: [originRange],
                 originTexts: [originText],
               },

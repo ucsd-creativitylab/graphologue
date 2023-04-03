@@ -44,6 +44,7 @@ import { OriginRange } from '../App'
 import { InterchangeContext } from '../components/Interchange'
 
 export interface GeneratedInformation {
+  pseudo: boolean
   originRanges: OriginRange[]
   originTexts: string[]
 }
@@ -124,7 +125,7 @@ export const CustomNode = memo(
       sourceHandleId,
       targetHandleId,
       // editing,
-      generated: { originRanges },
+      generated: { originRanges, pseudo },
     } = data as CustomNodeData
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
@@ -242,7 +243,7 @@ export const CustomNode = memo(
             : ''
         }${
           styleBackground !== '#ffffff' ? ' custom-node-background-color' : ''
-        }`}
+        }${pseudo ? ' custom-node-pseudo' : ''}`}
         // }${temporary ? ' custom-node-temporary' : ''}`}
       >
         <Handle
@@ -285,19 +286,25 @@ export const CustomNode = memo(
           <div className="super-wrapper super-wrapper-static-text super-wrapper-static-text-node">
             <span
               className="node-label"
-              style={{
-                color:
-                  styleBackground === styles.nodeColorDefaultWhite
-                    ? '#333333'
-                    : tinycolor(styleBackground).isDark()
-                    ? 'white'
-                    : tinycolor(styleBackground).darken(45).toHexString(),
-              }}
+              style={
+                pseudo
+                  ? {
+                      color: styles.nodeColorDefaultWhite,
+                    }
+                  : {
+                      color:
+                        styleBackground === styles.nodeColorDefaultWhite
+                          ? '#333333'
+                          : tinycolor(styleBackground).isDark()
+                          ? 'white'
+                          : tinycolor(styleBackground).darken(45).toHexString(),
+                    }
+              }
             >
               {label}
             </span>
             {/* {!moreThanOneComponentsSelected && selected ? ( */}
-            {selected ? (
+            {selected && !pseudo ? (
               <MagicToolbox
                 className={`edge-label-toolbox${
                   selected ? ' magic-toolbox-show' : ''
@@ -481,7 +488,7 @@ export const getNewCustomNode = (
     } as CustomNodeData,
     position: { x, y },
     selected: selected,
-    width: hardcodedNodeWidthEstimation(label), // ! are you sure?
+    width: hardcodedNodeWidthEstimation(label, generated.pseudo), // ! are you sure?
     height: nodeHeight, // ! are you sure?
   } as Node
 }
@@ -529,6 +536,7 @@ export const customAddNodes = (
     editing,
     styleBackground,
     {
+      pseudo: false,
       originRanges: [],
       originTexts: [],
     }
@@ -552,16 +560,23 @@ export const customAddNodes = (
 
 /* -------------------------------------------------------------------------- */
 
-export const hardcodedNodeWidthEstimation = (content: string) => {
+export const hardcodedNodeWidthEstimation = (
+  content: string,
+  pseudo: boolean
+) => {
   // make a pseudo node to estimate width
   const pseudoNode = document.createElement('span')
-  pseudoNode.className = 'width-measuring-span'
+
+  pseudoNode.className = pseudo
+    ? 'width-measuring-span-pseudo'
+    : 'width-measuring-span'
   pseudoNode.innerText = content
+
   document.body.appendChild(pseudoNode)
   const width = pseudoNode.offsetWidth
   document.body.removeChild(pseudoNode)
 
-  return Math.max(160, width)
+  return pseudo ? width : Math.max(160, width)
 
   // if (content.length < 16) return hardcodedNodeSize.width
   // return Math.max(210, 64 + content.length * 8) // TODO better ways?

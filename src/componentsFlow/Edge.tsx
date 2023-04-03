@@ -172,6 +172,7 @@ export const getNewEdge = (
       customType: 'plain',
       editing: false,
       generated: {
+        pseudo: false,
         originRanges: [],
         originTexts: [],
       },
@@ -285,6 +286,7 @@ export const EdgeCustomLabel = memo(
                 customType: edgeData.customType,
                 editing: false,
                 generated: {
+                  pseudo: false,
                   originRanges: [],
                   originTexts: [],
                 },
@@ -302,6 +304,7 @@ export const EdgeCustomLabel = memo(
                 customType: edgeData.customType,
                 editing: false,
                 generated: {
+                  pseudo: false,
                   originRanges: [],
                   originTexts: [],
                 },
@@ -366,6 +369,11 @@ export const EdgeCustomLabel = memo(
         > */}
         <div className="super-wrapper super-wrapper-edge super-wrapper-static-text super-wrapper-static-text-edge">
           <span className="edge-label">{edgeData.label}</span>
+
+          {edgeData.label.length > 0 && (
+            <div className="content-tooltip">{edgeData.label}</div>
+          )}
+
           {/* -------------------------------------------------------------------------- */}
           {useToolbox ? (
             <MagicToolbox
