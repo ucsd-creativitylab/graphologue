@@ -148,6 +148,14 @@ $magic-tag-color-hover: $grey;
     }
   }
 
+  .magic-hint-text {
+    font-size: $font-size-small;
+    font-weight: $font-weight-default;
+    width: 7rem;
+    color: $light-grey;
+    margin: $padding-small 0;
+  }
+
   .magic-toolbox-button {
     @include magic-button;
 

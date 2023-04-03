@@ -21,6 +21,7 @@ import {
   ReactFlowState,
   NodeProps,
   useReactFlow,
+  Edge,
 } from 'reactflow'
 import { ColorResult, TwitterPicker } from 'react-color'
 import tinycolor from 'tinycolor2'
@@ -41,8 +42,12 @@ import {
 import randomPhrases from '../utils/randomPhrases'
 import { getHandleId, getNodeId } from '../utils/utils'
 import { OriginRange } from '../App'
-import { InterchangeContext } from '../components/Interchange'
+import {
+  InterchangeContext,
+  NodeConceptExpansionType,
+} from '../components/Interchange'
 import { ReactFlowObjectContext } from '../components/Answer'
+import { CustomEdgeData } from './Edge'
 
 export interface GeneratedInformation {
   pseudo: boolean
@@ -109,10 +114,11 @@ const connectionNodeIdSelector = (state: ReactFlowState) =>
 
 export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
-    const { getNodes, setNodes } = useReactFlow()
+    const { getNodes, setNodes, setEdges } = useReactFlow()
     const { metaPressed, selectedComponents } = useContext(FlowContext)
     const {
       questionAndAnswer: {
+        modelStatus: { modelParsingComplete },
         synced: {
           highlightedCoReferenceOriginRanges,
           highlightedNodeIdsProcessing,
@@ -123,7 +129,9 @@ export const CustomNode = memo(
       // handleAnswerObjectNodeCollapse,
       // handleAnswerObjectNodeRemove,
     } = useContext(InterchangeContext)
-    const { answerObjectId } = useContext(ReactFlowObjectContext)
+    const { answerObjectId, generatingFlow } = useContext(
+      ReactFlowObjectContext
+    )
 
     // const moreThanOneComponentsSelected =
     //   selectedComponents.nodes.length + selectedComponents.edges.length > 1
@@ -237,6 +245,38 @@ export const CustomNode = memo(
       setShowColorPicker(false)
     }, [])
 
+    const handleNodeExplainOrExamples = useCallback(
+      (type: NodeConceptExpansionType) => {
+        // de-select all nodes and edges
+        setNodes((nodes: Node<CustomNodeData>[]) => {
+          return nodes.map(node => {
+            return {
+              ...node,
+              selected: false,
+            }
+          })
+        })
+        setEdges((edges: Edge<CustomEdgeData>[]) => {
+          return edges.map(edge => {
+            return {
+              ...edge,
+              selected: false,
+            }
+          })
+        })
+
+        handleAnswerObjectNodeExpand(answerObjectId, id, originRanges, type)
+      },
+      [
+        answerObjectId,
+        handleAnswerObjectNodeExpand,
+        id,
+        originRanges,
+        setEdges,
+        setNodes,
+      ]
+    )
+
     /* -------------------------------------------------------------------------- */
     /* -------------------------------------------------------------------------- */
     /* -------------------------------------------------------------------------- */
@@ -328,40 +368,36 @@ export const CustomNode = memo(
                 onUnmount={onToolboxClose}
               >
                 <MagicToolboxItem title="more">
-                  <>
-                    <MagicToolboxButton
-                      content={
-                        <>
-                          <ManageSearchRoundedIcon />
-                          <span>explain</span>
-                        </>
-                      }
-                      onClick={() => {
-                        handleAnswerObjectNodeExpand(
-                          answerObjectId,
-                          id,
-                          originRanges,
-                          'explain'
-                        )
-                      }}
-                    />
-                    <MagicToolboxButton
-                      content={
-                        <>
-                          <TextIncreaseRoundedIcon />
-                          <span>examples</span>
-                        </>
-                      }
-                      onClick={() => {
-                        handleAnswerObjectNodeExpand(
-                          answerObjectId,
-                          id,
-                          originRanges,
-                          'examples'
-                        )
-                      }}
-                    />
-                  </>
+                  {generatingFlow || !modelParsingComplete ? (
+                    <span className="magic-hint-text">
+                      waiting the model to finish other tasks ...
+                    </span>
+                  ) : (
+                    <>
+                      <MagicToolboxButton
+                        content={
+                          <>
+                            <ManageSearchRoundedIcon />
+                            <span>explain</span>
+                          </>
+                        }
+                        onClick={() => {
+                          handleNodeExplainOrExamples('explain')
+                        }}
+                      />
+                      <MagicToolboxButton
+                        content={
+                          <>
+                            <TextIncreaseRoundedIcon />
+                            <span>examples</span>
+                          </>
+                        }
+                        onClick={() => {
+                          handleNodeExplainOrExamples('examples')
+                        }}
+                      />
+                    </>
+                  )}
                 </MagicToolboxItem>
 
                 {/* <MagicToolboxItem title="less">

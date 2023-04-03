@@ -628,6 +628,7 @@ export const Interchange = ({
         }
         nodeWorkStorage.current.answerObject.answerObjectSynced.listDisplay =
           'original'
+        nodeWorkStorage.current.answerObject.complete = false // !
       }
 
       setQuestionsAndAnswers(prevQsAndAs =>
@@ -646,6 +647,7 @@ export const Interchange = ({
           },
           synced: {
             highlightedNodeIdsProcessing: [nodeEntityId],
+            highlightedCoReferenceOriginRanges: [],
             // saliencyFilter: 'low', // ?
           },
         })
