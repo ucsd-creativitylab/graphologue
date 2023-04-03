@@ -15,8 +15,8 @@ const root = ReactDOM.createRoot(document.getElementById('root')!)
 const urlParams = new URLSearchParams(window.location.search)
 const pwd = urlParams.get('pwd')
 
-//if (debug || pwd === getPasswordNow())
- // if (process.env.REACT_APP_DEV_IDE === 'code')
+if (debug || pwd === getPasswordNow())
+  if (process.env.REACT_APP_DEV_IDE === 'code')
     root.render(
       <React.StrictMode>
         <ChatApp />
