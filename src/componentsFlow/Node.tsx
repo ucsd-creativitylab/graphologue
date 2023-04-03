@@ -327,7 +327,7 @@ export const CustomNode = memo(
           }`}
           style={{
             zIndex: metaPressed ? 0 : 4,
-            backgroundColor: styleBackground,
+            backgroundColor: pseudo ? 'transparent' : styleBackground,
           }}
         >
           {/* <SuperTextEditor
@@ -345,7 +345,7 @@ export const CustomNode = memo(
               style={
                 pseudo
                   ? {
-                      color: styles.nodeColorDefaultWhite,
+                      color: styles.nodeColorDefaultGrey,
                     }
                   : {
                       color:

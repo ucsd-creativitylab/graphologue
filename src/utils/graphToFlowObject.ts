@@ -7,7 +7,7 @@ import {
   QuestionAndAnswerSynced,
 } from '../App'
 import { getNewEdge } from '../componentsFlow/Edge'
-import { getNewCustomNode } from '../componentsFlow/Node'
+import { CustomNodeData, getNewCustomNode } from '../componentsFlow/Node'
 import { styles } from '../constants'
 import { constructGraph } from './graphConstruct'
 
@@ -351,6 +351,11 @@ export const answerObjectsToReactFlowObject = (
   filteredEdgeEntities.forEach(
     ({ edgeLabel, edgePairs, originRange, originText }) => {
       edgePairs.forEach(({ sourceId, targetId }) => {
+        const targetNode: Node<CustomNodeData> | undefined = nodes.find(
+          node => node.id === targetId
+        )
+        if (!targetNode) return null
+
         edges.push(
           getNewEdge(
             {
@@ -361,7 +366,7 @@ export const answerObjectsToReactFlowObject = (
             },
             {
               label: edgeLabel,
-              customType: 'arrow',
+              customType: targetNode.data.generated.pseudo ? 'plain' : 'arrow',
               editing: false,
               generated: {
                 pseudo: false,

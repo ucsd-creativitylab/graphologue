@@ -71,13 +71,13 @@
 
   .content-tooltip {
     position: absolute;
-    top: 50%;
-    right: calc(100% + $padding-large);
-    transform: translateY(-50%);
+    bottom: calc(100% + $padding-small);
+    left: 50%;
+    transform: translateX(-50%);
 
     @include tooltip-styles();
-    font-size: $font-size-xxs;
-    padding: $padding-xs;
+    font-size: $font-size-small;
+    padding: $padding-xs $padding-small;
     max-width: 10rem;
     white-space: pre-wrap;
     word-break: break-all;
@@ -87,6 +87,8 @@
     pointer-events: none;
 
     transition: opacity $transition-normal;
+
+    z-index: 999;
   }
 }
 
