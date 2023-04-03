@@ -840,7 +840,10 @@ const AnswerText = ({
       )
 
       if (range) {
-        prevSyncedList.current = highlightedRanges
+        prevSyncedList.current = highlightedRanges.map(r => ({
+          ...r,
+          nodeIds: [...r.nodeIds],
+        }))
         const newRanges = [...new Set([...highlightedRanges, range])]
         handleSetSyncedCoReferenceOriginRanges(newRanges)
       }
