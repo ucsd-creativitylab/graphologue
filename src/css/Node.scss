@@ -58,18 +58,18 @@ $shadow-node-selected: $shadow-heavy;
       outline-offset: rem-to-px(2rem);
     }
 
-    &.custom-node-pseudo {
+    &.custom-node-body-pseudo {
       // .custom-node-content {
       //   background: #ccc !important;
       // }
 
       .super-wrapper {
         width: fit-content !important;
-        min-width: unset !important;
+        min-width: 5rem !important;
 
         .node-label {
           padding: $padding-mid !important;
-          font-size: $font-size-small !important;
+          font-size: $font-size-default !important;
         }
       }
     }
@@ -210,10 +210,13 @@ $shadow-node-selected: $shadow-heavy;
       outline-color: rgba($red, $opacity-mid) !important;
       outline-offset: rem-to-px(2rem);
     }
+  }
 
-    // .custom-node-content {
-    //   font-weight: $font-weight-default;
-    // }
+  .custom-node-body.custom-node-body-highlighted {
+    box-shadow: $shadow-node-selected;
+    outline: rem-to-px(2rem) solid rgba($red, $opacity-mid);
+    outline-color: rgba($red, $opacity-mid) !important;
+    outline-offset: rem-to-px(2rem);
   }
 }
 

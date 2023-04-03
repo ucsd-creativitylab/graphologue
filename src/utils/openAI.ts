@@ -16,7 +16,7 @@ export const models = {
 }
 
 const temperatures = {
-  response: 0.7,
+  response: 0.6,
   parsing: 0.3,
 }
 

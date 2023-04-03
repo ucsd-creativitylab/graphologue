@@ -108,7 +108,11 @@ export const CustomNode = memo(
     const { metaPressed, selectedComponents } = useContext(FlowContext)
     const {
       questionAndAnswer: {
-        synced: { highlightedNodeIds, answerObjectIdsHighlighted },
+        synced: {
+          highlightedCoReferenceOriginRanges,
+          highlightedNodeIdsProcessing,
+          answerObjectIdsHighlighted,
+        },
       },
       handleAnswerObjectNodeExpand,
       // handleAnswerObjectNodeCollapse,
@@ -130,6 +134,10 @@ export const CustomNode = memo(
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
     const tagRef = useRef<HTMLDivElement>(null)
+
+    const nodeHighlighted = highlightedCoReferenceOriginRanges.some(r =>
+      r.nodeIds.includes(id)
+    )
 
     // ! tags to clarify the node label
     ////
@@ -234,7 +242,7 @@ export const CustomNode = memo(
           metaPressed ? ' custom-node-meta-pressed' : ''
           // }${isExplainedByMagicNode ? ' custom-node-explained' : ''}${
         }${
-          highlightedNodeIds.includes(id) ||
+          highlightedNodeIdsProcessing.includes(id) ||
           anyNodeIndividualInHighlightedAnswerObject(
             answerObjectIdsHighlighted,
             originRanges
@@ -243,7 +251,9 @@ export const CustomNode = memo(
             : ''
         }${
           styleBackground !== '#ffffff' ? ' custom-node-background-color' : ''
-        }${pseudo ? ' custom-node-pseudo' : ''}`}
+        }${pseudo ? ' custom-node-body-pseudo' : ''}${
+          nodeHighlighted ? ' custom-node-body-highlighted' : ''
+        }`}
         // }${temporary ? ' custom-node-temporary' : ''}`}
       >
         <Handle
@@ -576,7 +586,7 @@ export const hardcodedNodeWidthEstimation = (
   const width = pseudoNode.offsetWidth
   document.body.removeChild(pseudoNode)
 
-  return pseudo ? width : Math.max(160, width)
+  return pseudo ? Math.max(80, width) : Math.max(160, width)
 
   // if (content.length < 16) return hardcodedNodeSize.width
   // return Math.max(210, 64 + content.length * 8) // TODO better ways?

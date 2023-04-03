@@ -104,8 +104,10 @@ export const newQuestionAndAnswer = (
       answerObjectIdsHighlighted:
         prefill?.synced?.answerObjectIdsHighlighted ?? [],
       answerObjectIdsHidden: prefill?.synced?.answerObjectIdsHidden ?? [],
-      highlightedOriginRanges: prefill?.synced?.highlightedOriginRanges ?? [],
-      highlightedNodeIds: prefill?.synced?.highlightedNodeIds ?? [],
+      highlightedCoReferenceOriginRanges:
+        prefill?.synced?.highlightedCoReferenceOriginRanges ?? [],
+      highlightedNodeIdsProcessing:
+        prefill?.synced?.highlightedNodeIdsProcessing ?? [],
       saliencyFilter: prefill?.synced?.saliencyFilter ?? 'low', // ! default saliency
     },
   }

@@ -84,7 +84,8 @@ const edgeTypes = {
 } as EdgeTypes
 
 const Flow = () => {
-  const { handleSetSyncedOriginRanges } = useContext(InterchangeContext)
+  const { handleSetSyncedCoReferenceOriginRanges } =
+    useContext(InterchangeContext)
   const { generatingFlow } = useContext(ReactFlowObjectContext)
 
   const thisReactFlowInstance = useReactFlow()
@@ -552,7 +553,7 @@ const Flow = () => {
           })
         })
 
-      handleSetSyncedOriginRanges([] as OriginRange[])
+      handleSetSyncedCoReferenceOriginRanges([] as OriginRange[])
 
       initialSelectItem.current = {
         selected: false,
@@ -595,7 +596,7 @@ const Flow = () => {
       lastClickTime.current = performance.now()
       */
     },
-    [handleSetSyncedOriginRanges, nodes, setNodes]
+    [handleSetSyncedCoReferenceOriginRanges, nodes, setNodes]
   )
 
   // const handlePaneContextMenu = useCallback((e: BaseSyntheticEvent) => {
@@ -612,14 +613,14 @@ const Flow = () => {
       const {
         generated: { originRanges },
       } = data as CustomNodeData
-      handleSetSyncedOriginRanges(originRanges)
+      handleSetSyncedCoReferenceOriginRanges(originRanges)
     },
-    [handleSetSyncedOriginRanges]
+    [handleSetSyncedCoReferenceOriginRanges]
   )
 
   const handleNodeMouseLeave = useCallback(
     (e: MouseEvent, node: Node) => {
-      handleSetSyncedOriginRanges(
+      handleSetSyncedCoReferenceOriginRanges(
         nodes
           .filter((nd: Node) => nd.selected)
           .map(selectedNode => {
@@ -641,20 +642,22 @@ const Flow = () => {
           .flat(1) as OriginRange[]
       )
     },
-    [handleSetSyncedOriginRanges, nodes]
+    [handleSetSyncedCoReferenceOriginRanges, nodes]
   )
 
   const handleEdgeMouseEnter = useCallback(
     (e: MouseEvent, edge: Edge<CustomEdgeData>) => {
       if (edge.data?.generated?.originRanges)
-        handleSetSyncedOriginRanges(edge?.data.generated?.originRanges)
+        handleSetSyncedCoReferenceOriginRanges(
+          edge?.data.generated?.originRanges
+        )
     },
-    [handleSetSyncedOriginRanges]
+    [handleSetSyncedCoReferenceOriginRanges]
   )
 
   const handleEdgeMouseLeave = useCallback(
     (e: MouseEvent, edge: Edge<CustomEdgeData>) => {
-      handleSetSyncedOriginRanges(
+      handleSetSyncedCoReferenceOriginRanges(
         edges
           .filter((ed: Edge) => ed.selected)
           .map(selectedEdge => {
@@ -671,7 +674,7 @@ const Flow = () => {
           .flat(1) as OriginRange[]
       )
     },
-    [edges, handleSetSyncedOriginRanges]
+    [edges, handleSetSyncedCoReferenceOriginRanges]
   )
 
   const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')

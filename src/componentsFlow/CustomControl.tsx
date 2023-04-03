@@ -284,6 +284,13 @@ export const CustomControls = memo(
           </ControlButtonTooltip>
         </ControlButton> */}
 
+        {modelParsing && (
+          <ControlButton className="tips-button">
+            <HourglassTopRoundedIcon className="control-button-tips-icon loading-icon" />
+            <span className="control-button-processing">still processing</span>
+          </ControlButton>
+        )}
+
         <ControlButton onClick={handleSetViewport}>
           <FitScreenRoundedIcon />
           <span>fit view</span>
@@ -423,13 +430,6 @@ export const CustomControls = memo(
             </TooltipLine>
           </ControlButtonTooltip>
         </ControlButton> */}
-
-        {modelParsing && (
-          <ControlButton className="tips-button">
-            <HourglassTopRoundedIcon className="control-button-tips-icon loading-icon" />
-            <span className="control-button-processing">still processing</span>
-          </ControlButton>
-        )}
       </Controls>
     )
   }

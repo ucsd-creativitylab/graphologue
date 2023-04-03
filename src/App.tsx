@@ -17,6 +17,7 @@ export interface OriginRange {
   start: number
   end: number
   answerObjectId: string
+  nodeIds: string[]
 }
 
 export interface NodeEntityIndividual extends NodeInformation {
@@ -66,8 +67,8 @@ interface ModelStatus {
 export interface QuestionAndAnswerSynced {
   answerObjectIdsHighlighted: string[] // for highlight from text block to show partial graph
   answerObjectIdsHidden: string[]
-  highlightedOriginRanges: OriginRange[] // for highlight text
-  highlightedNodeIds: string[] // for highlight nodes when it is expanding
+  highlightedCoReferenceOriginRanges: OriginRange[] // for highlight text
+  highlightedNodeIdsProcessing: string[] // for highlight nodes when it is expanding
   saliencyFilter: RelationshipSaliency // to filter edges
 }
 

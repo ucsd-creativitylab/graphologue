@@ -250,7 +250,7 @@ const AnswerListView = ({
                 key={`answer-range-in-full-text-${answerObject.id}`}
                 answerObjectId={answerObject.id}
                 rawAnswer={answerObject.originText}
-                highlightedRanges={synced.highlightedOriginRanges}
+                highlightedRanges={synced.highlightedCoReferenceOriginRanges}
               />
             ))}
           </div>
@@ -529,7 +529,7 @@ const AnswerBlockItem = ({
       <AnswerText
         answerObjectId={answerObject.id}
         rawAnswer={answerObject.originText}
-        highlightedRanges={synced.highlightedOriginRanges}
+        highlightedRanges={synced.highlightedCoReferenceOriginRanges}
       />
     )
 
@@ -647,6 +647,8 @@ const AnswerText = ({
         <span key={sentenceIndex} className="sentence-segment">
           {sentence.split(/(\[[^\]]+\])/).map((part, partIndex) => {
             const isAnnotated = part.startsWith('[') && part.endsWith(']')
+            // const partNodeIds = isAnnotated ? getPartNodeIds(part) : []
+
             const start = globalStart
             globalStart += part.length
 
@@ -661,18 +663,37 @@ const AnswerText = ({
                 className={
                   'text-segment' +
                   (isAnnotated ? ' annotated' : '') +
-                  (highlightedRanges.some(range => {
-                    return (
-                      range.answerObjectId === answerObjectId &&
-                      range.start === start
-                    )
-                  })
+                  (highlightedRanges.some(
+                    ({
+                      nodeIds: highlightedNodeIds,
+                      start: highlightedStart,
+                      answerObjectId: highlightedAnswerObjectId,
+                    }) => {
+                      // if ((part.match(/\$/g) || []).length > 1) return false
+                      // node
+                      if (highlightedNodeIds.length === 1) {
+                        return (
+                          (part.match(/\$/g) || []).length === 1 &&
+                          highlightedNodeIds.some(highlightedNodeId =>
+                            part.includes(`${highlightedNodeId}`)
+                          )
+                        )
+                      }
+
+                      // edge
+                      return (
+                        answerObjectId === highlightedAnswerObjectId &&
+                        start === highlightedStart
+                      )
+                    }
+                  )
                     ? ' highlighted-answer-text'
                     : '')
                 }
                 data-start={start}
               >
                 {removeAnnotations(part)}
+                {/* {part} */}
               </span>
             )
           })}

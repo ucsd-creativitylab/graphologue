@@ -56,7 +56,9 @@ export interface InterchangeContextProps {
   handleSelfCorrection: (answerObjects: AnswerObject[]) => Promise<void>
   handleSetSyncedAnswerObjectIdsHighlighted: (ids: string[]) => void
   handleSetSyncedAnswerObjectIdsHidden: (ids: string[]) => void
-  handleSetSyncedOriginRanges: (highlightedOriginRanges: OriginRange[]) => void
+  handleSetSyncedCoReferenceOriginRanges: (
+    highlightedCoReferenceOriginRanges: OriginRange[]
+  ) => void
   handleAnswerObjectRemove: (id: string) => void
   handleAnswerObjectTellLessOrMore: (
     id: string,
@@ -78,7 +80,7 @@ export const InterchangeContext = createContext<InterchangeContextProps>({
   handleSelfCorrection: async () => {},
   handleSetSyncedAnswerObjectIdsHighlighted: () => {},
   handleSetSyncedAnswerObjectIdsHidden: () => {},
-  handleSetSyncedOriginRanges: () => {},
+  handleSetSyncedCoReferenceOriginRanges: () => {},
   handleAnswerObjectRemove: () => {},
   handleAnswerObjectTellLessOrMore: () => {},
   handleAnswerObjectNodeExpand: () => {},
@@ -188,8 +190,8 @@ export const Interchange = ({
     [answer, modelInitialPrompts]
   )
 
-  const handleSetSyncedOriginRanges = useCallback(
-    (highlightedOriginRanges: OriginRange[]) => {
+  const handleSetSyncedCoReferenceOriginRanges = useCallback(
+    (highlightedCoReferenceOriginRanges: OriginRange[]) => {
       setQuestionsAndAnswers(
         (questionsAndAnswers: QuestionAndAnswer[]): QuestionAndAnswer[] =>
           questionsAndAnswers.map(
@@ -199,7 +201,7 @@ export const Interchange = ({
                   ...deepCopyQuestionAndAnswer(questionAndAnswer),
                   synced: {
                     ...questionAndAnswer.synced,
-                    highlightedOriginRanges,
+                    highlightedCoReferenceOriginRanges,
                   },
                 }
               }
@@ -394,7 +396,7 @@ export const Interchange = ({
             modelParsingComplete: true,
           },
           synced: {
-            highlightedNodeIds: [],
+            highlightedNodeIdsProcessing: [],
           },
         })
       )
@@ -545,7 +547,7 @@ export const Interchange = ({
             modelParsingComplete: false,
           },
           synced: {
-            highlightedNodeIds: [nodeEntityId],
+            highlightedNodeIdsProcessing: [nodeEntityId],
             // saliencyFilter: 'low',
           },
         })
@@ -637,7 +639,7 @@ export const Interchange = ({
         handleSelfCorrection,
         handleSetSyncedAnswerObjectIdsHighlighted,
         handleSetSyncedAnswerObjectIdsHidden,
-        handleSetSyncedOriginRanges,
+        handleSetSyncedCoReferenceOriginRanges,
         handleAnswerObjectRemove,
         handleAnswerObjectTellLessOrMore,
         handleAnswerObjectNodeExpand,

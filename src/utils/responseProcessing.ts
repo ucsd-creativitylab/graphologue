@@ -102,6 +102,7 @@ export const parseNodes = (
       start: match.index ?? 0,
       end: (match.index ?? 0) + match[0].length,
       answerObjectId,
+      nodeIds: [match[2]],
     },
     originText: match[0],
   }))
@@ -136,10 +137,23 @@ export const parseEdges = (
         start: match.index ?? 0,
         end: (match.index ?? 0) + match[0].length,
         answerObjectId,
+        nodeIds: [
+          ...new Set(edgePairs.flatMap(pair => [pair.sourceId, pair.targetId])),
+        ],
       },
       originText: match[0],
     }
   })
+}
+
+export const getPartNodeIds = (part: string): string[] => {
+  const partType = getAnnotationType(part)
+
+  if (partType === 'node')
+    return parseNodes(part, '')?.map(node => node.id) ?? []
+  if (partType === 'edge')
+    return parseEdges(part, '')[0]?.originRange.nodeIds ?? []
+  return []
 }
 
 export const parseSaliency = (saliency: string): RelationshipSaliency => {
