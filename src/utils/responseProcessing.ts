@@ -1,10 +1,12 @@
 import {
   AnswerObject,
+  AnswerObjectEntitiesTarget,
   EdgeEntity,
   NodeEntity,
   NodeEntityIndividual,
   OriginRange,
 } from '../App'
+import { ListDisplayFormat } from '../components/Answer'
 
 export const nodeAnnotationRegex =
   /\[([^[\]()]+(?:\([^)]*\))*)\s\((\$N\d+)\)\]/g
@@ -174,6 +176,11 @@ export const nodeIndividualsToNodeEntities = (
 
     if (existingNode) {
       existingNode.individuals.push(node)
+      // pick the longest node label for display label
+      existingNode.displayNodeLabel = existingNode.individuals.reduce(
+        (acc, cur) => (cur.nodeLabel.length > acc.length ? cur.nodeLabel : acc),
+        existingNode.displayNodeLabel
+      )
     } else {
       nodeEntities.push({
         id: node.id,
@@ -260,6 +267,16 @@ export const splitAnnotatedSentences = (text: string): string[] => {
   return sentences
 }
 
+export const listDisplayToEntityTarget = (
+  listDisplay: ListDisplayFormat
+): AnswerObjectEntitiesTarget => {
+  return {
+    original: 'originText',
+    summary: 'summary',
+    slide: 'originText',
+  }[listDisplay] as AnswerObjectEntitiesTarget
+}
+
 export const mergeNodeEntities = (
   answerObjects: AnswerObject[],
   answerObjectIdsHidden: string[]
@@ -269,7 +286,9 @@ export const mergeNodeEntities = (
   answerObjects.forEach(answerObject => {
     if (answerObjectIdsHidden.includes(answerObject.id)) return
 
-    answerObject.nodeEntities.forEach(nodeEntity => {
+    answerObject[
+      listDisplayToEntityTarget(answerObject.answerObjectSynced.listDisplay)
+    ].nodeEntities.forEach(nodeEntity => {
       const existingNode = nodeEntities.find(n => n.id === nodeEntity.id)
 
       if (existingNode) {
@@ -292,7 +311,9 @@ export const mergeEdgeEntities = (
   answerObjects.forEach(answerObject => {
     if (answerObjectIdsHidden.includes(answerObject.id)) return
 
-    answerObject.edgeEntities.forEach(edgeEntity => {
+    answerObject[
+      listDisplayToEntityTarget(answerObject.answerObjectSynced.listDisplay)
+    ].edgeEntities.forEach(edgeEntity => {
       edgeEntities.push(edgeEntity)
     })
   })
@@ -315,7 +336,12 @@ export const findEntityFromAnswerObjects = (
   entityId: string
 ) => {
   const entity = answerObjects
-    .map(answerObject => answerObject.nodeEntities)
+    .map(
+      answerObject =>
+        answerObject[
+          listDisplayToEntityTarget(answerObject.answerObjectSynced.listDisplay)
+        ].nodeEntities
+    )
     .flat()
     .find(entity => entity.id === entityId)
   return entity
@@ -363,4 +389,12 @@ export const findNowhereEdgeEntities = (
       )
     })
   })
+}
+
+export const cleanSlideResponse = (slideResponse: string) => {
+  // remove ``` at the beginning and end, if there is any
+  const cleanedSlideResponse = slideResponse
+    .replace(/^```/, '')
+    .replace(/```$/, '')
+  return cleanedSlideResponse
 }

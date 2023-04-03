@@ -12,6 +12,7 @@ import {
 // import the package.json file
 import packageJson from '../package.json'
 import { Prompt } from './utils/openAI'
+import { ListDisplayFormat } from './components/Answer'
 
 export interface OriginRange {
   start: number
@@ -44,14 +45,26 @@ export interface AnswerSlideObject {
   content: string
 }
 
+export type AnswerObjectEntitiesTarget = 'originText' | 'summary'
+
 // ! AnswerObject
 export interface AnswerObject {
   id: string
-  originText: string
-  summary: string
+  originText: {
+    content: string
+    nodeEntities: NodeEntity[]
+    edgeEntities: EdgeEntity[]
+  }
+  summary: {
+    content: string
+    nodeEntities: NodeEntity[]
+    edgeEntities: EdgeEntity[]
+  }
   slide: AnswerSlideObject
-  nodeEntities: NodeEntity[]
-  edgeEntities: EdgeEntity[]
+  answerObjectSynced: {
+    listDisplay: ListDisplayFormat
+    saliencyFilter: RelationshipSaliency
+  }
   complete: boolean
 }
 

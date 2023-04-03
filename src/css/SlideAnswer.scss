@@ -29,23 +29,28 @@
       font-weight: $font-weight-default;
     }
 
-    ul {
-      padding: 0;
-      // make it beautiful
+    ul,
+    ol {
+      padding: 0 0 0 $padding-mid;
 
-      li {
-        list-style: none;
-        font-size: $font-size-small;
-        font-weight: $font-weight-thin;
-
-        &::before {
-          content: 'ꕤ';
-          color: $light-grey;
-          display: inline-block;
-          // width: 1em;
-          margin-right: $padding-small;
-        }
+      ::marker {
+        font-weight: $font-weight-bold;
+        color: $grey;
       }
+
+      // li {
+      //   list-style: none;
+      //   font-size: $font-size-small;
+      //   font-weight: $font-weight-thin;
+
+      //   &::before {
+      //     content: 'ꕤ';
+      //     color: $light-grey;
+      //     display: inline-block;
+      //     // width: 1em;
+      //     margin-right: $padding-small;
+      //   }
+      // }
     }
   }
 }

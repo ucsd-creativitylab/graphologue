@@ -81,13 +81,28 @@
   animation-duration: $transition-normal-slow;
 }
 
-@keyframes drop-up {
+@keyframes drop-up-answer {
   from {
-    transform: translateY($padding-mid);
+    transform: translateY($padding-x-large);
   }
 
   to {
     transform: translateY(0);
+  }
+}
+
+.drop-up-answer {
+  animation-name: drop-up-answer;
+  animation-duration: $transition-normal;
+}
+
+@keyframes drop-up {
+  from {
+    transform: scale(0.75) translateY($padding-mid);
+  }
+
+  to {
+    transform: scale(1) translateY(0);
   }
 }
 

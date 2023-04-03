@@ -113,32 +113,48 @@ export const newQuestionAndAnswer = (
   }
 }
 
+export const copyNodeEntities = (nodeEntities: NodeEntity[]) => {
+  return nodeEntities.map((e: NodeEntity) => ({
+    ...e,
+    individuals: e.individuals.map((i: NodeEntityIndividual) => ({
+      ...i,
+      originRange: {
+        ...i.originRange,
+        nodeIds: [...i.originRange.nodeIds],
+      },
+    })),
+  }))
+}
+
+export const copyEdgeEntities = (edgeEntities: EdgeEntity[]) => {
+  return edgeEntities.map((e: EdgeEntity) => ({
+    ...e,
+    edgePairs: e.edgePairs.map(
+      (p: EdgePair): EdgePair => ({
+        ...p,
+      })
+    ),
+    originRange: {
+      ...e.originRange,
+      nodeIds: [...e.originRange.nodeIds],
+    },
+  }))
+}
+
 export const deepCopyAnswerObject = (a: AnswerObject): AnswerObject => {
   return {
     ...a,
     slide: { ...a.slide },
-    nodeEntities: a.nodeEntities.map((e: NodeEntity) => ({
-      ...e,
-      individuals: e.individuals.map((i: NodeEntityIndividual) => ({
-        ...i,
-        originRange: {
-          ...i.originRange,
-          nodeIds: [...i.originRange.nodeIds],
-        },
-      })),
-    })),
-    edgeEntities: a.edgeEntities.map((e: EdgeEntity) => ({
-      ...e,
-      edgePairs: e.edgePairs.map(
-        (p: EdgePair): EdgePair => ({
-          ...p,
-        })
-      ),
-      originRange: {
-        ...e.originRange,
-        nodeIds: [...e.originRange.nodeIds],
-      },
-    })),
+    originText: {
+      ...a.originText,
+      nodeEntities: copyNodeEntities(a.originText.nodeEntities),
+      edgeEntities: copyEdgeEntities(a.originText.edgeEntities),
+    },
+    summary: {
+      ...a.summary,
+      nodeEntities: copyNodeEntities(a.summary.nodeEntities),
+      edgeEntities: copyEdgeEntities(a.summary.edgeEntities),
+    },
   }
 }
 
@@ -159,7 +175,7 @@ export const deepCopyQuestionAndAnswer = (
 
 export const helpSetQuestionAndAnswer = (
   prevQsAndAs: QuestionAndAnswer[],
-  id: string,
+  questionAndAnswerId: string,
   newQAndA: PartialQuestionAndAnswer
 ): QuestionAndAnswer[] => {
   const templateModelStatus = newQAndA.modelStatus?.modelError
@@ -173,7 +189,7 @@ export const helpSetQuestionAndAnswer = (
     : {}
 
   return prevQsAndAs.map((prevQAndA: QuestionAndAnswer) => {
-    return prevQAndA.id === id
+    return prevQAndA.id === questionAndAnswerId
       ? {
           ...deepCopyQuestionAndAnswer(prevQAndA),
           ...newQAndA,

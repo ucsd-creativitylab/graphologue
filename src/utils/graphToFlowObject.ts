@@ -284,7 +284,7 @@ export const answerObjectsToReactFlowObject = (
     graph,
     nodeEntities,
     edgeEntities,
-    filteredNodeEntities,
+    filteredNodeEntities.length ? filteredNodeEntities : nodeEntities, // you don't want to remove everything
     filteredEdgeEntities
   )
   // const computedNodes = await smartLayout(

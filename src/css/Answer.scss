@@ -1,5 +1,5 @@
 @mixin answer-content-height {
-  // height: 95vh;
+  // height: 90vh;
   // max-height: 60rem;
 }
 
@@ -90,7 +90,7 @@
         align-items: center;
         gap: $padding-mid;
 
-        // height: 95vh;
+        // height: 90vh;
         // max-height: 60rem;
         // padding: $padding-mid;
 
@@ -148,7 +148,7 @@
 
     &.merged-diagram-wrapper {
       .react-flow-wrapper {
-        height: 95vh;
+        height: 90vh;
         max-height: 60rem;
       }
     }
@@ -214,13 +214,30 @@
 
       line-height: 100%;
 
-      .answer-block-menu-item {
+      .answer-block-menu-item-divider {
         font-size: $font-size-xs;
-        padding: $padding-xs $padding-small;
+      }
+
+      .answer-block-menu-item {
+        display: inline-flex;
+        align-items: center;
+        gap: $padding-xxs;
+
+        font-size: $font-size-xs;
+        padding: $padding-xs $padding-xs;
         border-radius: $radius-small;
 
         cursor: pointer;
         user-select: none;
+
+        * {
+          font-size: $font-size-xs;
+        }
+
+        &.highlighted-list-display {
+          outline: 1px solid $grey;
+          outline-offset: -1px;
+        }
 
         &:hover {
           background-color: $grey;
@@ -274,7 +291,7 @@
 .merged-diagram .react-flow-wrapper {
   flex-grow: 1;
 
-  height: 95vh;
+  height: 90vh;
   max-height: 60rem;
   width: 100%;
   padding: 0;

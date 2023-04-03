@@ -35,12 +35,15 @@ import {
 import { InterchangeContext } from './Interchange'
 import { SentenceParser, SentenceParsingJob } from '../utils/sentenceParser'
 import {
+  cleanSlideResponse,
   nodeIndividualsToNodeEntities,
   parseEdges,
   parseNodes,
+  RelationshipSaliency,
   removeAnnotations,
   removeLastBracket,
 } from '../utils/responseProcessing'
+import { ListDisplayFormat } from './Answer'
 
 export type FinishedAnswerObjectParsingTypes = 'summary' | 'slide'
 
@@ -228,12 +231,16 @@ export const Question = () => {
           async (parsingType: FinishedAnswerObjectParsingTypes) => {
             if (parsingError) return
 
+            const parsingSummary = parsingType === 'summary'
+
             // ! request
             const parsingResult = await parseOpenAIResponseToObjects(
               predefinedPromptsForParsing[parsingType](
-                removeAnnotations(answerObject.originText)
+                parsingSummary
+                  ? answerObject.originText.content
+                  : removeAnnotations(answerObject.originText.content)
               ),
-              models.faster
+              models.smarter
             )
 
             if (parsingResult.error) {
@@ -255,9 +262,18 @@ export const Question = () => {
             if (a.id === answerObjectId) {
               return {
                 ...a,
-                summary: parsingResults.summary,
+                summary: {
+                  content: parsingResults.summary,
+                  nodeEntities: nodeIndividualsToNodeEntities(
+                    parseNodes(parsingResults.summary, answerObjectId)
+                  ),
+                  edgeEntities: parseEdges(
+                    parsingResults.summary,
+                    answerObjectId
+                  ),
+                },
                 slide: {
-                  content: parsingResults.slide,
+                  content: cleanSlideResponse(parsingResults.slide),
                 },
                 complete: true,
               }
@@ -294,15 +310,20 @@ export const Question = () => {
       const edges = parseEdges(cleanedContent, answerObjectId)
 
       answerStorage.current.answerObjects =
-        answerStorage.current.answerObjects.map((a: AnswerObject) => {
-          if (a.id === answerObjectId) {
-            return {
-              ...a,
-              nodeEntities: nodeIndividualsToNodeEntities(nodes),
-              edgeEntities: edges,
-            }
-          } else return a
-        })
+        answerStorage.current.answerObjects.map(
+          (a: AnswerObject): AnswerObject => {
+            if (a.id === answerObjectId) {
+              return {
+                ...a,
+                originText: {
+                  ...a.originText,
+                  nodeEntities: nodeIndividualsToNodeEntities(nodes),
+                  edgeEntities: edges,
+                },
+              }
+            } else return a
+          }
+        )
 
       // setQuestionsAndAnswers(prevQsAndAs =>
       //   helpSetQuestionAndAnswer(prevQsAndAs, id, {
@@ -334,17 +355,23 @@ export const Question = () => {
 
       const _appendContentToLastAnswerObject = (content: string) => {
         const lastObject = aC.answerObjects[aC.answerObjects.length - 1]
-        lastObject.originText += content
+        lastObject.originText.content += content
       }
 
       const preparedNewObject = {
         id: getAnswerObjectId(), // add id
-        summary: '', // add summary
+        summary: {
+          content: '',
+          nodeEntities: [],
+          edgeEntities: [],
+        }, // add summary
         slide: {
           content: '',
         }, // pop empty slide
-        nodeEntities: [],
-        edgeEntities: [],
+        answerObjectSynced: {
+          listDisplay: 'original' as ListDisplayFormat,
+          saliencyFilter: 'high' as RelationshipSaliency,
+        },
         complete: false,
       }
 
@@ -353,7 +380,11 @@ export const Question = () => {
         // * new answer object
         aC.answerObjects.push({
           ...preparedNewObject,
-          originText: deltaContent,
+          originText: {
+            content: deltaContent,
+            nodeEntities: [],
+            edgeEntities: [],
+          },
         })
 
         targetLastAnswerObjectId = preparedNewObject.id
@@ -386,12 +417,16 @@ export const Question = () => {
         // * new answer object
         aC.answerObjects.push({
           ...preparedNewObject,
-          originRange: {
-            start: aC.answer.length - paragraphForNewAnswerObject.length,
-            end: aC.answer.length,
-          }, // from text to ranges
-          originText: paragraphForNewAnswerObject, // add raw text
-        } as AnswerObject)
+          // originRange: {
+          //   start: aC.answer.length - paragraphForNewAnswerObject.length,
+          //   end: aC.answer.length,
+          // }, // from text to ranges
+          originText: {
+            content: paragraphForNewAnswerObject,
+            nodeEntities: [],
+            edgeEntities: [],
+          }, // add raw text
+        })
 
         // ! finish a previous answer object
         // as the object is finished, we can start parsing it
@@ -434,7 +469,7 @@ export const Question = () => {
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
           answer: aC.answer,
-          answerObjects: aC.answerObjects,
+          answerObjects: aC.answerObjects, // TODO account for answerObjectSynced changes
         })
       )
 

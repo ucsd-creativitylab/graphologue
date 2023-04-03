@@ -15,7 +15,7 @@ import {
   newQuestionAndAnswer,
   trimLineBreaks,
 } from '../utils/chatAppUtils'
-import { Answer } from './Answer'
+import { Answer, ListDisplayFormat } from './Answer'
 import { ChatContext } from './Contexts'
 import { FinishedAnswerObjectParsingTypes, Question } from './Question'
 import { ReactFlowProvider } from 'reactflow'
@@ -24,6 +24,7 @@ import {
   predefinedPromptsForParsing,
 } from '../utils/promptsAndResponses'
 import {
+  cleanSlideResponse,
   findEntityFromAnswerObjects,
   findEntitySentence,
   findNowhereEdgeEntities,
@@ -59,6 +60,10 @@ export interface InterchangeContextProps {
     highlightedCoReferenceOriginRanges: OriginRange[]
   ) => void
   handleAnswerObjectRemove: (id: string) => void
+  handleAnswerObjectSwitchListDisplayFormat: (
+    id: string,
+    listDisplay: ListDisplayFormat
+  ) => void
   handleAnswerObjectTellLessOrMore: (
     id: string,
     request: 'less' | 'more'
@@ -82,6 +87,7 @@ export const InterchangeContext = createContext<InterchangeContextProps>({
   handleSetSyncedAnswerObjectIdsHidden: () => {},
   handleSetSyncedCoReferenceOriginRanges: () => {},
   handleAnswerObjectRemove: () => {},
+  handleAnswerObjectSwitchListDisplayFormat: () => {},
   handleAnswerObjectTellLessOrMore: () => {},
   handleAnswerObjectNodeExpand: () => {},
   handleAnswerObjectNodeRemove: () => {},
@@ -118,9 +124,15 @@ export const Interchange = ({
 
       await Promise.all(
         answerObjects.map(async (answerObject: AnswerObject) => {
-          const { originText, nodeEntities, edgeEntities } = answerObject
+          const {
+            originText: {
+              content: originTextContent,
+              nodeEntities,
+              edgeEntities,
+            },
+          } = answerObject
 
-          const sentences = splitAnnotatedSentences(originText)
+          const sentences = splitAnnotatedSentences(originTextContent)
 
           const orphanEntities: NodeEntity[] = findOrphanNodeEntities(
             nodeEntities,
@@ -133,7 +145,7 @@ export const Interchange = ({
 
           for (let sentence of sentences) {
             // get start and end index of the sentence
-            const start = originText.indexOf(sentence)
+            const start = originTextContent.indexOf(sentence)
             const end = start + sentence.length
             // find all problematic entities in the sentence
             const n: string[] = [],
@@ -301,6 +313,54 @@ export const Interchange = ({
     [id, setQuestionsAndAnswers]
   )
 
+  const changingFlowTimer = useRef<NodeJS.Timeout | null>(null)
+  const handleAnswerObjectSwitchListDisplayFormat = useCallback(
+    (answerObjectId: string, listDisplay: ListDisplayFormat) => {
+      setQuestionsAndAnswers(
+        (questionsAndAnswers: QuestionAndAnswer[]): QuestionAndAnswer[] =>
+          questionsAndAnswers.map(
+            (questionAndAnswer: QuestionAndAnswer): QuestionAndAnswer => {
+              if (questionAndAnswer.id === id) {
+                return {
+                  ...deepCopyQuestionAndAnswer(questionAndAnswer),
+                  answerObjects: questionAndAnswer.answerObjects.map(
+                    (answerObject: AnswerObject): AnswerObject => {
+                      if (answerObject.id === answerObjectId) {
+                        return {
+                          ...answerObject,
+                          answerObjectSynced: {
+                            ...answerObject.answerObjectSynced,
+                            listDisplay,
+                          },
+                        }
+                      }
+                      return answerObject
+                    }
+                  ),
+                }
+              }
+              return questionAndAnswer
+            }
+          )
+      )
+
+      // set flow canvases to .changing-flow
+      // and remove it after 700ms
+      const flowCanvases = document.querySelectorAll('.react-flow-wrapper')
+      flowCanvases.forEach(canvas => {
+        canvas.classList.add('changing-flow')
+      })
+
+      if (changingFlowTimer.current) clearTimeout(changingFlowTimer.current)
+      changingFlowTimer.current = setTimeout(() => {
+        flowCanvases.forEach(canvas => {
+          canvas.classList.remove('changing-flow')
+        })
+      }, 700)
+    },
+    [id, setQuestionsAndAnswers]
+  )
+
   /* -------------------------------------------------------------------------- */
 
   const nodeWorkStorage = useRef<{
@@ -335,9 +395,6 @@ export const Interchange = ({
   )
 
   const _handleParsingCompleteAnswerObject = useCallback(async () => {
-    const answerObject = nodeWorkStorage.current.answerObject
-    if (!answerObject) return
-
     const parsingResults: {
       [key in FinishedAnswerObjectParsingTypes]: string
     } = {
@@ -354,7 +411,12 @@ export const Interchange = ({
           // ! request
           const parsingResult = await parseOpenAIResponseToObjects(
             predefinedPromptsForParsing[parsingType](
-              removeAnnotations(answerObject.originText)
+              parsingType === 'summary'
+                ? nodeWorkStorage.current.answerObject?.originText.content || ''
+                : removeAnnotations(
+                    nodeWorkStorage.current.answerObject?.originText.content ||
+                      ''
+                  )
             ),
             models.faster
           )
@@ -370,13 +432,25 @@ export const Interchange = ({
       )
     )
 
-    if (!parsingError) {
+    if (!parsingError && nodeWorkStorage.current.answerObject) {
       // ! complete answer object
       nodeWorkStorage.current.answerObject = {
-        ...answerObject,
-        summary: parsingResults.summary,
+        ...nodeWorkStorage.current.answerObject,
+        summary: {
+          content: parsingResults.summary,
+          nodeEntities: nodeIndividualsToNodeEntities(
+            parseNodes(
+              parsingResults.summary,
+              nodeWorkStorage.current.answerObject.id
+            )
+          ),
+          edgeEntities: parseEdges(
+            parsingResults.summary,
+            nodeWorkStorage.current.answerObject.id
+          ),
+        },
         slide: {
-          content: parsingResults.slide,
+          content: cleanSlideResponse(parsingResults.slide),
         },
         complete: true,
       }
@@ -384,7 +458,9 @@ export const Interchange = ({
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
           answerObjects: nodeWorkStorage.current.answerObjectsBefore.map(a =>
-            a.id === answerObject.id ? answerObject : a
+            a.id === nodeWorkStorage.current.answerObject?.id
+              ? nodeWorkStorage.current.answerObject
+              : a
           ),
           modelStatus: {
             modelParsing: false,
@@ -399,17 +475,25 @@ export const Interchange = ({
   }, [_handleResponseError, id, setQuestionsAndAnswers])
 
   const _handleUpdateRelationshipEntities = useCallback((content: string) => {
-    const answerObject = nodeWorkStorage.current.answerObject
-    if (!answerObject) return
+    if (!nodeWorkStorage.current.answerObject) return
 
     const cleanedContent = removeLastBracket(content, true)
-    const nodes = parseNodes(cleanedContent, answerObject.id)
-    const edges = parseEdges(cleanedContent, answerObject.id)
+    const nodes = parseNodes(
+      cleanedContent,
+      nodeWorkStorage.current.answerObject.id
+    )
+    const edges = parseEdges(
+      cleanedContent,
+      nodeWorkStorage.current.answerObject.id
+    )
 
     nodeWorkStorage.current.answerObject = {
-      ...answerObject,
-      nodeEntities: nodeIndividualsToNodeEntities(nodes),
-      edgeEntities: edges,
+      ...nodeWorkStorage.current.answerObject,
+      originText: {
+        ...nodeWorkStorage.current.answerObject.originText,
+        nodeEntities: nodeIndividualsToNodeEntities(nodes),
+        edgeEntities: edges,
+      },
     }
   }, [])
 
@@ -425,20 +509,20 @@ export const Interchange = ({
         nodeWorkStorage.current.answerObjectsBefore.find(
           (answerObject: AnswerObject) =>
             answerObject.id === nodeWorkStorage.current.answerObject?.id
-        )?.originText
+        )?.originText?.content
       if (!answerObjectOriginTextBefore) return
 
       if (
         answerObjectOriginTextBefore ===
-        nodeWorkStorage.current.answerObject.originText
+        nodeWorkStorage.current.answerObject.originText.content
       )
-        nodeWorkStorage.current.answerObject.originText += ' '
+        nodeWorkStorage.current.answerObject.originText.content += ' '
       // ! ground truth of the response
-      nodeWorkStorage.current.answerObject.originText += deltaContent
+      nodeWorkStorage.current.answerObject.originText.content += deltaContent
 
       // ! parse relationships
       _handleUpdateRelationshipEntities(
-        nodeWorkStorage.current.answerObject.originText
+        nodeWorkStorage.current.answerObject.originText.content
       )
 
       // ! update the answer
@@ -446,7 +530,7 @@ export const Interchange = ({
         return helpSetQuestionAndAnswer(prevQsAndAs, id, {
           answer: nodeWorkStorage.current.answerBefore.replace(
             answerObjectOriginTextBefore,
-            nodeWorkStorage.current.answerObject?.originText ??
+            nodeWorkStorage.current.answerObject?.originText.content ??
               answerObjectOriginTextBefore
           ),
           answerObjects: nodeWorkStorage.current.answerObject
@@ -533,8 +617,29 @@ export const Interchange = ({
         answerBefore: answer,
         answerObjectsBefore: answerObjects.map(a => deepCopyAnswerObject(a)),
       }
+      if (nodeWorkStorage.current.answerObject) {
+        nodeWorkStorage.current.answerObject.summary = {
+          content: '',
+          nodeEntities: [],
+          edgeEntities: [],
+        }
+        nodeWorkStorage.current.answerObject.slide = {
+          content: '',
+        }
+        nodeWorkStorage.current.answerObject.answerObjectSynced.listDisplay =
+          'original'
+      }
+
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
+          answerObjects: nodeWorkStorage.current.answerObject
+            ? nodeWorkStorage.current.answerObjectsBefore.map(a => {
+                if (a.id === nodeWorkStorage.current.answerObject?.id) {
+                  return nodeWorkStorage.current.answerObject
+                }
+                return a
+              })
+            : nodeWorkStorage.current.answerObjectsBefore,
           modelStatus: {
             modelParsing: true,
             modelParsingComplete: false,
@@ -548,7 +653,7 @@ export const Interchange = ({
 
       const originSentence = findEntitySentence(
         nodeEntityOriginRanges[0],
-        answerObject.originText
+        answerObject.originText.content
       ) // ? good enough
       const prevConversation: Prompt[] = [
         ...modelInitialPrompts,
@@ -634,6 +739,7 @@ export const Interchange = ({
         handleSetSyncedAnswerObjectIdsHidden,
         handleSetSyncedCoReferenceOriginRanges,
         handleAnswerObjectRemove,
+        handleAnswerObjectSwitchListDisplayFormat,
         handleAnswerObjectTellLessOrMore,
         handleAnswerObjectNodeExpand,
         handleAnswerObjectNodeRemove,

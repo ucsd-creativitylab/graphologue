@@ -265,8 +265,39 @@ Do not include anything else in the response other than the chunks.`,
     return [
       {
         role: 'system',
-        content: `You are a professional writer specialized in text summarization. Make a short, one-line summary of the chunk of the text provided by the user. \
-Do not include anything else in the response other than the summarized text.`,
+        content: `You are a professional writer specialized in text summarization. Make a short, one-sentence summary of the chunk of the text provided by the user. \
+The summary should reflect the main idea and the most important relationships of the text.
+Notice that the user have annotated the text with entities and relationships. \
+Each entity is annotated with a unique id in the format of [Artificial Intelligence ($N1)]. \
+Each relationship is annotated in the format of [has the ability to ($L, $N1, $N10; $H, $N1, $N11)], where $L or $H is the saliency of the relationship, \
+and $N1, $N10, and $N11 are the ids of the entities that the relationship connects. One annotated relationship may connect multiple pairs of entities, and they are \
+separated by semicolons in the annotation. \
+\
+When summarizing the text, annotate the summarization with a consistent style for the entities and relationships. \
+Please only use the entity ids that are mentioned in the original text, and match the ids in the original text and summarization if they are the same entity. \
+Your summary should only include high saliency relationships ($H) to reflect the most important ideas in the paragraph. \
+\
+You can arrange the sentences in the summarization in a way that facilitates the annotation of entities and relationships, \
+but the arrangement should not alter their meaning and they should still flow naturally in language. \
+\
+The user may made mistakes in the annotation that there might be some entities that are not connected by any relationships, \
+or some relationships that are trying to connect entities that are not mentioned in the text. Please avoid these mistakes when \
+annotating the summary. Your summary should have only one short sentence.
+
+Do not include anything else in the response other than the summarized text. For example, for paragraph:
+
+[Human-Computer Interaction ($N1)] [is a ($H, $N1, $N2)] [multidisciplinary field ($N2)] that [focuses on ($H, $N1, $N3)] [the design and use of computer technology ($N3)], \
+[centered around ($H, $N1, $N4)] [the interfaces ($N4)] [between ($H, $N4, $N5; $H, $N4, $N6)] [people (users) ($N5)] and [computers ($N6)]. \
+[Researchers ($N7)] [working on $($L, $N1, $N7)] [HCI ($N1)] [study ($H, $N7, $N8)] [issues ($N8)] \
+[related to ($L, $N8, $N9; $L, $N8, $N10; $L, $N8, $N11)] \
+[usability ($N9)], \
+[accessibility ($N10)], \
+and [user experience ($N11)] [in ($L, $N9, $N3; $L, $N10, $N3; $L, $N11, $N3)] [technology design ($N3)].
+
+You may summarize it as:
+
+[HCI ($N1)] [is a ($H, $N1, $N2)] [multidisciplinary field ($N2)] that [centered around ($H, $N1, $N4)] \
+[the interfaces ($N4)] [between ($H, $N4, $N5; $H, $N4, $N6)] [users ($N5)] and [computers ($N6)].`,
       },
       {
         role: 'user',
@@ -288,6 +319,7 @@ Do not include anything else in the response other than the summarized text.`,
       {
         role: 'system',
         content: `You are a professional presentation slide builder. Structure the following text provided by the user into a presentation slide, in markdown format. \
+If you need to use a list, use a numbered list. \
 Do not include anything else in the response other than the markdown text.`,
       },
       {

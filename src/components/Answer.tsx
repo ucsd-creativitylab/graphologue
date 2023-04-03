@@ -17,7 +17,12 @@ import CropLandscapeRoundedIcon from '@mui/icons-material/CropLandscapeRounded'
 import HorizontalSplitRoundedIcon from '@mui/icons-material/HorizontalSplitRounded'
 import RectangleRoundedIcon from '@mui/icons-material/RectangleRounded'
 
-import { QuestionAndAnswer, OriginRange, AnswerObject } from '../App'
+import {
+  QuestionAndAnswer,
+  OriginRange,
+  AnswerObject,
+  EdgeEntity,
+} from '../App'
 import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 import { InterchangeContext } from './Interchange'
 import { SlideAnswerText } from './SlideAnswer'
@@ -89,6 +94,19 @@ export type DiagramDisplayFormat = 'split' | 'merged'
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+interface AnswerListContextProps {
+  handleHighlightAnswerObject: (answerObjectId: string) => void
+  handleHideAnswerObject: (answerObjectId: string) => void
+  handleAnswerObjectSwitchListDisplayFormat: (
+    answerObjectId: string,
+    newDisplay: ListDisplayFormat
+  ) => void
+  handleAnswerObjectRemove: (answerObjectId: string) => void
+}
+const AnswerListContext = createContext<AnswerListContextProps>(
+  {} as AnswerListContextProps
+)
+
 const AnswerListView = ({
   questionAndAnswer,
   questionAndAnswer: {
@@ -102,6 +120,7 @@ const AnswerListView = ({
   questionAndAnswer: QuestionAndAnswer
 }) => {
   const {
+    handleAnswerObjectSwitchListDisplayFormat,
     handleSetSyncedAnswerObjectIdsHighlighted,
     handleSetSyncedAnswerObjectIdsHidden,
     // handleAnswerObjectTellLessOrMore,
@@ -109,7 +128,6 @@ const AnswerListView = ({
   } = useContext(InterchangeContext)
 
   const [blockDisplay, setBlockDisplay] = useState(true)
-  const [listDisplay, setListDisplay] = useState<ListDisplayFormat>('original')
   const [diagramDisplay, setDiagramDisplay] =
     useState<DiagramDisplayFormat>('split')
 
@@ -131,13 +149,6 @@ const AnswerListView = ({
     // setListDisplay('original')
     setBlockDisplay(prev => !prev)
   }, [])
-
-  const handleSwitchSummaryDisplay = useCallback(
-    (newDisplayFormat: ListDisplayFormat) => {
-      setListDisplay(newDisplayFormat)
-    },
-    []
-  )
 
   const handleSwitchDiagramDisplay = useCallback(
     (newDisplayFormat: DiagramDisplayFormat) => {
@@ -192,167 +203,129 @@ const AnswerListView = ({
   )
 
   return (
-    <div
-      // className={`answer-item-display${
-      //   modelAnsweringComplete ? ' answer-side' : ' answer-centered'
-      // }`}
-      className={`answer-item-display`}
-      data-id={id}
+    <AnswerListContext.Provider
+      value={{
+        handleHighlightAnswerObject,
+        handleHideAnswerObject,
+        handleAnswerObjectSwitchListDisplayFormat,
+        handleAnswerObjectRemove,
+      }}
     >
-      <div className="block-display-switches">
-        {/* <button
+      <div
+        // className={`answer-item-display${
+        //   modelAnsweringComplete ? ' answer-side' : ' answer-centered'
+        // }`}
+        className={`answer-item-display`}
+        data-id={id}
+      >
+        <div className="block-display-switches">
+          {/* <button
           // disabled={!canSwitchBlockDisplay}
           className="bar-button"
           onClick={handleSwitchBlockDisplay}
         >
           <VerticalSplitRoundedIcon />
         </button> */}
-        <div className="list-display-switch">
-          <button
-            disabled={!blockDisplay}
-            className={`bar-button${
-              listDisplay === 'original' ? ' selected' : ''
-            }`}
-            onClick={() => handleSwitchSummaryDisplay('original')}
-          >
-            <NotesRoundedIcon />
-            <span>original</span>
-          </button>
-          <button
-            disabled={
-              !blockDisplay || !answerObjects.some(a => a.summary.length > 0)
-            }
-            className={`bar-button${
-              listDisplay === 'summary' ? ' selected' : ''
-            }`}
-            onClick={() => handleSwitchSummaryDisplay('summary')}
-          >
-            <ShortTextRoundedIcon />
-            <span>summary</span>
-          </button>
-          <button
-            disabled={
-              !blockDisplay ||
-              !answerObjects.some(a => a.slide.content.length > 0)
-            }
-            className={`bar-button${
-              listDisplay === 'slide' ? ' selected' : ''
-            }`}
-            onClick={() => handleSwitchSummaryDisplay('slide')}
-          >
-            <CropLandscapeRoundedIcon />
-            <span>slide</span>
-          </button>
+
+          <div className="list-display-switch">
+            <button
+              // disabled={!blockDisplay}
+              className={`bar-button${
+                diagramDisplay === 'split' ? ' selected' : ''
+              }`}
+              onClick={() => handleSwitchDiagramDisplay('split')}
+            >
+              <HorizontalSplitRoundedIcon />
+              <span>split diagram</span>
+            </button>
+            <button
+              // disabled={
+              //   !blockDisplay || !answerObjects.some(a => a.summary.length > 0)
+              // }
+              className={`bar-button${
+                diagramDisplay === 'merged' ? ' selected' : ''
+              }`}
+              onClick={() => handleSwitchDiagramDisplay('merged')}
+            >
+              <RectangleRoundedIcon />
+              <span>merged diagram</span>
+            </button>
+          </div>
         </div>
 
-        <div className="list-display-switch">
-          <button
-            // disabled={!blockDisplay}
-            className={`bar-button${
-              diagramDisplay === 'split' ? ' selected' : ''
+        {/* display in block */}
+        {blockDisplay ? (
+          <div
+            className={`answer-block-list${
+              diagramDisplay === 'merged' ? '-merged-diagram' : ''
             }`}
-            onClick={() => handleSwitchDiagramDisplay('split')}
+            data-id={id}
           >
-            <HorizontalSplitRoundedIcon />
-            <span>split diagram</span>
-          </button>
-          <button
-            // disabled={
-            //   !blockDisplay || !answerObjects.some(a => a.summary.length > 0)
-            // }
-            className={`bar-button${
-              diagramDisplay === 'merged' ? ' selected' : ''
-            }`}
-            onClick={() => handleSwitchDiagramDisplay('merged')}
-          >
-            <RectangleRoundedIcon />
-            <span>merged diagram</span>
-          </button>
-        </div>
-      </div>
-
-      {/* display in block */}
-      {blockDisplay ? (
-        <div
-          className={`answer-block-list${
-            diagramDisplay === 'merged' ? '-merged-diagram' : ''
-          }`}
-          data-id={id}
-        >
-          {/* ! MAP */}
-          {diagramDisplay === 'merged' ? (
-            <>
-              <div className="answer-text-block-list">
-                {answerObjects.map((answerObject, index) => (
-                  <AnswerTextBlock
+            {/* ! MAP */}
+            {diagramDisplay === 'merged' ? (
+              <>
+                <div className="answer-text-block-list">
+                  {answerObjects.map((answerObject, index) => (
+                    <AnswerTextBlock
+                      key={`answer-block-item-${id}-${answerObject.id}`}
+                      index={index}
+                      questionAndAnswer={questionAndAnswer}
+                      answerObject={answerObject}
+                      diagramDisplay={diagramDisplay}
+                    />
+                  ))}
+                </div>
+                <ReactFlowProvider
+                  key={`answer-block-flow-provider-merged-${id}`}
+                  // key={`answer-block-flow-provider-${id}-${answerObjects[0].id}`}
+                >
+                  <AnswerBlockItem
+                    key={`answer-block-item-${id}`}
+                    // key={`answer-block-item-${id}-${answerObjects[0].id}`}
+                    index={0}
+                    questionAndAnswer={questionAndAnswer}
+                    answerObject={answerObjects[0]}
+                    diagramDisplay={diagramDisplay}
+                  />
+                </ReactFlowProvider>
+              </>
+            ) : (
+              answerObjects.map((answerObject, index) => (
+                <ReactFlowProvider
+                  key={`answer-block-flow-provider-${id}-${answerObject.id}`}
+                >
+                  <AnswerBlockItem
                     key={`answer-block-item-${id}-${answerObject.id}`}
                     index={index}
                     questionAndAnswer={questionAndAnswer}
                     answerObject={answerObject}
-                    listDisplay={listDisplay}
                     diagramDisplay={diagramDisplay}
-                    handleHighlightAnswerObject={handleHighlightAnswerObject}
-                    handleHideAnswerObject={handleHideAnswerObject}
-                    handleAnswerObjectRemove={handleAnswerObjectRemove}
                   />
-                ))}
-              </div>
-              <ReactFlowProvider
-                key={`answer-block-flow-provider-merged-${id}`}
-                // key={`answer-block-flow-provider-${id}-${answerObjects[0].id}`}
-              >
-                <AnswerBlockItem
-                  key={`answer-block-item-${id}`}
-                  // key={`answer-block-item-${id}-${answerObjects[0].id}`}
-                  index={0}
-                  questionAndAnswer={questionAndAnswer}
-                  answerObject={answerObjects[0]}
-                  listDisplay={listDisplay}
-                  diagramDisplay={diagramDisplay}
-                  handleHighlightAnswerObject={handleHighlightAnswerObject}
-                  handleHideAnswerObject={handleHideAnswerObject}
-                  handleAnswerObjectRemove={handleAnswerObjectRemove}
-                />
-              </ReactFlowProvider>
-            </>
-          ) : (
-            answerObjects.map((answerObject, index) => (
-              <ReactFlowProvider
-                key={`answer-block-flow-provider-${id}-${answerObject.id}`}
-              >
-                <AnswerBlockItem
-                  key={`answer-block-item-${id}-${answerObject.id}`}
-                  index={index}
-                  questionAndAnswer={questionAndAnswer}
-                  answerObject={answerObject}
-                  listDisplay={listDisplay}
-                  diagramDisplay={diagramDisplay}
-                  handleHighlightAnswerObject={handleHighlightAnswerObject}
-                  handleHideAnswerObject={handleHideAnswerObject}
-                  handleAnswerObjectRemove={handleAnswerObjectRemove}
-                />
-              </ReactFlowProvider>
-            ))
-          )}
-        </div>
-      ) : (
-        /* -------------------------------------------------------------------------- */
-        /* ------------------------------- full answer ------------------------------ */
-        // ! not using now!
-        <div className={`answer-item answer-full-block interchange-component`}>
-          <div className="answer-item-text">
-            {answerObjects.map((answerObject, index) => (
-              <AnswerText
-                key={`answer-range-in-full-text-${answerObject.id}`}
-                answerObjectId={answerObject.id}
-                rawAnswer={answerObject.originText}
-                highlightedRanges={synced.highlightedCoReferenceOriginRanges}
-              />
-            ))}
+                </ReactFlowProvider>
+              ))
+            )}
           </div>
-        </div>
-      )}
-    </div>
+        ) : (
+          /* -------------------------------------------------------------------------- */
+          /* ------------------------------- full answer ------------------------------ */
+          // ! not using now!
+          <div
+            className={`answer-item answer-full-block interchange-component`}
+          >
+            <div className="answer-item-text">
+              {answerObjects.map((answerObject, index) => (
+                <AnswerText
+                  key={`answer-range-in-full-text-${answerObject.id}`}
+                  answerObjectId={answerObject.id}
+                  rawAnswer={answerObject.originText.content}
+                  highlightedRanges={synced.highlightedCoReferenceOriginRanges}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </AnswerListContext.Provider>
   )
 }
 
@@ -369,23 +342,16 @@ const AnswerBlockItem = ({
     synced: { answerObjectIdsHidden },
   },
   answerObject,
-  listDisplay,
   diagramDisplay,
-  handleHighlightAnswerObject,
-  handleHideAnswerObject,
-  handleAnswerObjectRemove,
 }: {
   index: number
   questionAndAnswer: QuestionAndAnswer
   answerObject: AnswerObject
-  listDisplay: ListDisplayFormat
   diagramDisplay: DiagramDisplayFormat
-  handleHighlightAnswerObject: (answerObjectId: string) => void
-  handleHideAnswerObject: (answerObjectId: string) => void
-  handleAnswerObjectRemove: (answerObjectId: string) => void
 }) => {
   /* -------------------------------------------------------------------------- */
   const isForMergedDiagram = diagramDisplay === 'merged'
+  const useSummary = answerObject.answerObjectSynced.listDisplay === 'summary'
 
   const { setNodes, setEdges, fitView, getViewport, setViewport } =
     useReactFlow()
@@ -403,17 +369,20 @@ const AnswerBlockItem = ({
   // const edgeEntities = mergeEdgeEntities(answerObjects, answerObjectIdsHidden)
   const nodeEntities = isForMergedDiagram
     ? mergeNodeEntities(answerObjects, answerObjectIdsHidden)
-    : answerObject.nodeEntities
-  const edgeEntities = isForMergedDiagram
+    : useSummary
+    ? answerObject.summary.nodeEntities
+    : answerObject.originText.nodeEntities
+  const edgeEntities: EdgeEntity[] = isForMergedDiagram
     ? mergeEdgeEntities(answerObjects, answerObjectIdsHidden)
-    : answerObject.edgeEntities
+    : useSummary
+    ? answerObject.summary.edgeEntities
+    : answerObject.originText.edgeEntities
 
   const runViewFittingJobs = useCallback(() => {
     if (viewFittingJobRunning.current || viewFittingJobs.current.length === 0)
       return
 
-    if (!viewFittingJobs.current.length) return
-    const job = viewFittingJobs.current[viewFittingJobs.current.length - 1]
+    const job = viewFittingJobs.current.pop()
     if (!job) return
 
     viewFittingJobRunning.current = true
@@ -632,11 +601,7 @@ const AnswerBlockItem = ({
             index={index}
             questionAndAnswer={questionAndAnswer}
             answerObject={answerObject}
-            listDisplay={listDisplay}
             diagramDisplay={diagramDisplay}
-            handleHighlightAnswerObject={handleHighlightAnswerObject}
-            handleHideAnswerObject={handleHideAnswerObject}
-            handleAnswerObjectRemove={handleAnswerObjectRemove}
           />
         )}
 
@@ -665,21 +630,20 @@ const AnswerTextBlock = ({
     synced,
   },
   answerObject,
-  listDisplay,
   diagramDisplay,
-  handleHighlightAnswerObject,
-  handleHideAnswerObject,
-  handleAnswerObjectRemove,
 }: {
   index: number
   questionAndAnswer: QuestionAndAnswer
   answerObject: AnswerObject
-  listDisplay: ListDisplayFormat
   diagramDisplay: DiagramDisplayFormat
-  handleHighlightAnswerObject: (answerObjectId: string) => void
-  handleHideAnswerObject: (answerObjectId: string) => void
-  handleAnswerObjectRemove: (answerObjectId: string) => void
 }) => {
+  const {
+    handleHighlightAnswerObject,
+    handleHideAnswerObject,
+    handleAnswerObjectSwitchListDisplayFormat,
+    // handleAnswerObjectRemove,
+  } = useContext(AnswerListContext)
+
   const answerObjectComplete = answerObject.complete
   const answerObjectHighlighted = synced.answerObjectIdsHighlighted.includes(
     answerObject.id
@@ -687,6 +651,9 @@ const AnswerTextBlock = ({
   const answerObjectHidden = synced.answerObjectIdsHidden.includes(
     answerObject.id
   )
+
+  const listDisplay = answerObject.answerObjectSynced.listDisplay
+  const diagramMerged = diagramDisplay === 'merged'
 
   const loadingComponent = (
     <div className="answer-loading-placeholder">
@@ -696,8 +663,12 @@ const AnswerTextBlock = ({
 
   const contentComponent =
     listDisplay === 'summary' ? (
-      answerObject.summary.length ? (
-        <>{answerObject.summary}</>
+      answerObject.summary.content.length ? (
+        <AnswerText
+          answerObjectId={answerObject.id}
+          rawAnswer={answerObject.summary.content}
+          highlightedRanges={synced.highlightedCoReferenceOriginRanges}
+        />
       ) : (
         loadingComponent
       )
@@ -710,7 +681,7 @@ const AnswerTextBlock = ({
     ) : (
       <AnswerText
         answerObjectId={answerObject.id}
-        rawAnswer={answerObject.originText}
+        rawAnswer={answerObject.originText.content}
         highlightedRanges={synced.highlightedCoReferenceOriginRanges}
       />
     )
@@ -719,15 +690,13 @@ const AnswerTextBlock = ({
     <div
       key={`answer-range-${answerObject.id}`}
       className={`answer-item answer-item-block interchange-component${
-        index !== 0 ? ' drop-down' : ''
+        index !== 0 ? (diagramMerged ? ' drop-up-answer' : ' drop-down') : ''
       }${listDisplay === 'slide' ? ' slide-wrapper' : ''}${
         answerObjectHighlighted ? ' highlighted-item' : ''
       }`}
     >
-      <div className="answer-item-text">{contentComponent}</div>
-      {answerObjectComplete && (
-        <div className="answer-block-menu">
-          {/* <span
+      <div className="answer-block-menu">
+        {/* <span
               className={`answer-block-menu-item${
                 !modelParsingComplete ? ' disabled' : ''
               }`}
@@ -740,7 +709,7 @@ const AnswerTextBlock = ({
             >
               less
             </span> */}
-          {/* <span
+        {/* <span
               className={`answer-block-menu-item${
                 !modelParsingComplete ? ' disabled' : ''
               }`}
@@ -753,36 +722,81 @@ const AnswerTextBlock = ({
             >
               more
             </span> */}
-          <span
-            className={`answer-block-menu-item${
-              answerObjectHighlighted ? ' highlighted' : ''
-            }`}
-            onClick={() => {
-              handleHighlightAnswerObject(answerObject.id)
-            }}
-          >
-            highlight
-          </span>
-          <span
-            className={`answer-block-menu-item${
-              answerObjectHidden ? ' hidden' : ''
-            }`}
-            onClick={() => {
-              handleHideAnswerObject(answerObject.id)
-            }}
-          >
-            hide
-          </span>
-          <span
-            className={`answer-block-menu-item`}
-            onClick={() => {
-              handleAnswerObjectRemove(answerObject.id)
-            }}
-          >
-            remove
-          </span>
-        </div>
-      )}
+
+        <span
+          className={`answer-block-menu-item${
+            listDisplay === 'original' ? ' highlighted-list-display' : ''
+          }`}
+          onClick={() => {
+            handleAnswerObjectSwitchListDisplayFormat(
+              answerObject.id,
+              'original'
+            )
+          }}
+        >
+          <NotesRoundedIcon />
+          original
+        </span>
+        <span
+          className={`answer-block-menu-item${
+            listDisplay === 'slide' ? ' highlighted-list-display' : ''
+          }${answerObjectComplete && modelParsingComplete ? '' : ' disabled'}`}
+          onClick={() => {
+            handleAnswerObjectSwitchListDisplayFormat(answerObject.id, 'slide')
+          }}
+        >
+          <CropLandscapeRoundedIcon />
+          slide
+        </span>
+        <span
+          className={`answer-block-menu-item${
+            listDisplay === 'summary' ? ' highlighted-list-display' : ''
+          }${answerObjectComplete && modelParsingComplete ? '' : ' disabled'}`}
+          onClick={() => {
+            handleAnswerObjectSwitchListDisplayFormat(
+              answerObject.id,
+              'summary'
+            )
+          }}
+        >
+          <ShortTextRoundedIcon />
+          summary
+        </span>
+
+        <span className="answer-block-menu-item-divider">|</span>
+
+        <span
+          className={`answer-block-menu-item${
+            answerObjectHighlighted ? ' highlighted' : ''
+          }${!answerObjectComplete || !diagramMerged ? ' disabled' : ''}`}
+          onClick={() => {
+            handleHighlightAnswerObject(answerObject.id)
+          }}
+        >
+          highlight
+        </span>
+        <span
+          className={`answer-block-menu-item${
+            answerObjectHidden ? ' hidden' : ''
+          }${!answerObjectComplete || !diagramMerged ? ' disabled' : ''}`}
+          onClick={() => {
+            handleHideAnswerObject(answerObject.id)
+          }}
+        >
+          hide
+        </span>
+        {/* <span
+          className={`answer-block-menu-item`}
+          onClick={() => {
+            handleAnswerObjectRemove(answerObject.id)
+          }}
+        >
+          remove
+        </span> */}
+      </div>
+      <div className="answer-item-text">{contentComponent}</div>
+      {/* {answerObjectComplete && ( */}
+      {/* )} */}
     </div>
   )
 }
