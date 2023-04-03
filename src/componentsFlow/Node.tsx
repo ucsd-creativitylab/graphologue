@@ -42,6 +42,7 @@ import randomPhrases from '../utils/randomPhrases'
 import { getHandleId, getNodeId } from '../utils/utils'
 import { OriginRange } from '../App'
 import { InterchangeContext } from '../components/Interchange'
+import { ReactFlowObjectContext } from '../components/Answer'
 
 export interface GeneratedInformation {
   pseudo: boolean
@@ -102,6 +103,10 @@ export const anyNodeIndividualInHighlightedAnswerObject = (
 const connectionNodeIdSelector = (state: ReactFlowState) =>
   state.connectionNodeId
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
     const { getNodes, setNodes } = useReactFlow()
@@ -118,6 +123,7 @@ export const CustomNode = memo(
       // handleAnswerObjectNodeCollapse,
       // handleAnswerObjectNodeRemove,
     } = useContext(InterchangeContext)
+    const { answerObjectId } = useContext(ReactFlowObjectContext)
 
     // const moreThanOneComponentsSelected =
     //   selectedComponents.nodes.length + selectedComponents.edges.length > 1
@@ -332,6 +338,7 @@ export const CustomNode = memo(
                       }
                       onClick={() => {
                         handleAnswerObjectNodeExpand(
+                          answerObjectId,
                           id,
                           originRanges,
                           'explain'
@@ -347,6 +354,7 @@ export const CustomNode = memo(
                       }
                       onClick={() => {
                         handleAnswerObjectNodeExpand(
+                          answerObjectId,
                           id,
                           originRanges,
                           'examples'

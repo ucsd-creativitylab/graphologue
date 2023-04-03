@@ -47,6 +47,7 @@ import {
 export interface ReactFlowObjectContextProps {
   // nodeEntities: NodeEntity[]
   // edgeEntities: EdgeEntity[]
+  answerObjectId: string
   generatingFlow: boolean
 }
 
@@ -54,6 +55,7 @@ export const ReactFlowObjectContext =
   createContext<ReactFlowObjectContextProps>({
     // nodeEntities: [],
     // edgeEntities: [],
+    answerObjectId: '',
     generatingFlow: false,
   })
 
@@ -280,7 +282,7 @@ const AnswerListView = ({
           {/* ! MAP */}
           {diagramDisplay === 'merged' ? (
             <>
-              <div className="answer-text-block-list fade-in-outline">
+              <div className="answer-text-block-list">
                 {answerObjects.map((answerObject, index) => (
                   <AnswerTextBlock
                     key={`answer-block-item-${id}-${answerObject.id}`}
@@ -634,6 +636,7 @@ const AnswerBlockItem = ({
 
         <ReactFlowObjectContext.Provider
           value={{
+            answerObjectId: answerObject.id,
             generatingFlow: isForMergedDiagram
               ? !modelParsingComplete
               : !answerObject.complete,

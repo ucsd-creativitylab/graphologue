@@ -123,14 +123,20 @@ export const deepCopyAnswerObject = (a: AnswerObject): AnswerObject => {
         ...i,
         originRange: {
           ...i.originRange,
+          nodeIds: [...i.originRange.nodeIds],
         },
       })),
     })),
     edgeEntities: a.edgeEntities.map((e: EdgeEntity) => ({
       ...e,
-      edgePairs: e.edgePairs.map((p: EdgePair) => ({ ...p })),
+      edgePairs: e.edgePairs.map(
+        (p: EdgePair): EdgePair => ({
+          ...p,
+        })
+      ),
       originRange: {
         ...e.originRange,
+        nodeIds: [...e.originRange.nodeIds],
       },
     })),
   }

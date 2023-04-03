@@ -11,7 +11,6 @@ import {
 import {
   deepCopyAnswerObject,
   deepCopyQuestionAndAnswer,
-  getAnswerObjectId,
   helpSetQuestionAndAnswer,
   newQuestionAndAnswer,
   trimLineBreaks,
@@ -65,6 +64,7 @@ export interface InterchangeContextProps {
     request: 'less' | 'more'
   ) => void
   handleAnswerObjectNodeExpand: (
+    sourceAnswerObjectId: string,
     nodeEntityId: string,
     nodeEntityOriginRanges: OriginRange[],
     type: NodeConceptExpansionType
@@ -304,13 +304,11 @@ export const Interchange = ({
   /* -------------------------------------------------------------------------- */
 
   const nodeWorkStorage = useRef<{
-    answer: string
-    answerObjectNew: AnswerObject | null
+    answerObject: AnswerObject | null
     answerBefore: string
     answerObjectsBefore: AnswerObject[]
   }>({
-    answer: '',
-    answerObjectNew: null,
+    answerObject: null,
     answerBefore: '',
     answerObjectsBefore: [],
   })
@@ -337,7 +335,7 @@ export const Interchange = ({
   )
 
   const _handleParsingCompleteAnswerObject = useCallback(async () => {
-    const answerObject = nodeWorkStorage.current.answerObjectNew
+    const answerObject = nodeWorkStorage.current.answerObject
     if (!answerObject) return
 
     const parsingResults: {
@@ -374,7 +372,7 @@ export const Interchange = ({
 
     if (!parsingError) {
       // ! complete answer object
-      nodeWorkStorage.current.answerObjectNew = {
+      nodeWorkStorage.current.answerObject = {
         ...answerObject,
         summary: parsingResults.summary,
         slide: {
@@ -385,12 +383,9 @@ export const Interchange = ({
 
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
-          answerObjects: nodeWorkStorage.current.answerObjectNew
-            ? [
-                ...nodeWorkStorage.current.answerObjectsBefore,
-                nodeWorkStorage.current.answerObjectNew,
-              ]
-            : nodeWorkStorage.current.answerObjectsBefore,
+          answerObjects: nodeWorkStorage.current.answerObjectsBefore.map(a =>
+            a.id === answerObject.id ? answerObject : a
+          ),
           modelStatus: {
             modelParsing: false,
             modelParsingComplete: true,
@@ -404,14 +399,14 @@ export const Interchange = ({
   }, [_handleResponseError, id, setQuestionsAndAnswers])
 
   const _handleUpdateRelationshipEntities = useCallback((content: string) => {
-    const answerObject = nodeWorkStorage.current.answerObjectNew
+    const answerObject = nodeWorkStorage.current.answerObject
     if (!answerObject) return
 
     const cleanedContent = removeLastBracket(content, true)
     const nodes = parseNodes(cleanedContent, answerObject.id)
     const edges = parseEdges(cleanedContent, answerObject.id)
 
-    nodeWorkStorage.current.answerObjectNew = {
+    nodeWorkStorage.current.answerObject = {
       ...answerObject,
       nodeEntities: nodeIndividualsToNodeEntities(nodes),
       edgeEntities: edges,
@@ -423,56 +418,55 @@ export const Interchange = ({
       const deltaContent = trimLineBreaks(getTextFromStreamResponse(data))
       if (!deltaContent) return
 
+      if (!nodeWorkStorage.current.answerObject) return
+
+      // add a space before the stream starts
+      const answerObjectOriginTextBefore =
+        nodeWorkStorage.current.answerObjectsBefore.find(
+          (answerObject: AnswerObject) =>
+            answerObject.id === nodeWorkStorage.current.answerObject?.id
+        )?.originText
+      if (!answerObjectOriginTextBefore) return
+
+      if (
+        answerObjectOriginTextBefore ===
+        nodeWorkStorage.current.answerObject.originText
+      )
+        nodeWorkStorage.current.answerObject.originText += ' '
       // ! ground truth of the response
-      nodeWorkStorage.current.answer += deltaContent
-
-      if (!nodeWorkStorage.current.answerObjectNew) {
-        nodeWorkStorage.current.answerObjectNew = {
-          id: getAnswerObjectId(),
-          summary: '',
-          slide: {
-            content: '',
-          },
-          nodeEntities: [],
-          edgeEntities: [],
-          originText: deltaContent,
-          complete: false,
-        }
-
-        // handleSetSyncedAnswerObjectIdsHighlighted([
-        //   nodeWorkStorage.current.answerObjectNew.id,
-        // ])
-      } else {
-        // nodeWorkStorage.current.answerObjectNew.originRange.end =
-        //   answer.length + nodeWorkStorage.current.answer.length + 1
-        nodeWorkStorage.current.answerObjectNew.originText += deltaContent
-      }
+      nodeWorkStorage.current.answerObject.originText += deltaContent
 
       // ! parse relationships
-      _handleUpdateRelationshipEntities(nodeWorkStorage.current.answer)
+      _handleUpdateRelationshipEntities(
+        nodeWorkStorage.current.answerObject.originText
+      )
 
       // ! update the answer
       setQuestionsAndAnswers(prevQsAndAs => {
         return helpSetQuestionAndAnswer(prevQsAndAs, id, {
-          answer:
-            nodeWorkStorage.current.answerBefore +
-            ' ' +
-            nodeWorkStorage.current.answer,
-          answerObjects: nodeWorkStorage.current.answerObjectNew
-            ? [
-                ...nodeWorkStorage.current.answerObjectsBefore,
-                nodeWorkStorage.current.answerObjectNew,
-              ]
+          answer: nodeWorkStorage.current.answerBefore.replace(
+            answerObjectOriginTextBefore,
+            nodeWorkStorage.current.answerObject?.originText ??
+              answerObjectOriginTextBefore
+          ),
+          answerObjects: nodeWorkStorage.current.answerObject
+            ? nodeWorkStorage.current.answerObjectsBefore.map(
+                (answerObject: AnswerObject) =>
+                  answerObject.id === nodeWorkStorage.current.answerObject?.id
+                    ? nodeWorkStorage.current.answerObject
+                    : answerObject
+              )
             : nodeWorkStorage.current.answerObjectsBefore,
-          synced: {
-            answerObjectIdsHighlighted: nodeWorkStorage.current.answerObjectNew
-              ? [nodeWorkStorage.current.answerObjectNew.id]
-              : [],
-          },
+          // synced: {
+          //   answerObjectIdsHighlighted: nodeWorkStorage.current.answerObject
+          //     ? [nodeWorkStorage.current.answerObject.id]
+          //     : [],
+          // },
         })
       })
 
       // smoothly scroll .answer-text with data-id === answerObjectId into view
+      /*
       const answerObjectElement = document.querySelector(
         `.answer-text[data-id="${nodeWorkStorage.current.answerObjectNew?.id}"]`
       )
@@ -482,6 +476,7 @@ export const Interchange = ({
           block: 'nearest',
         })
       }
+      */
     },
     [_handleUpdateRelationshipEntities, id, setQuestionsAndAnswers]
   )
@@ -514,6 +509,7 @@ export const Interchange = ({
 
   const handleAnswerObjectNodeExpand = useCallback(
     async (
+      sourceAnswerObjectId: string,
       nodeEntityId: string,
       nodeEntityOriginRanges: OriginRange[],
       type: NodeConceptExpansionType
@@ -526,18 +522,15 @@ export const Interchange = ({
       )
       if (!nodeEntity) return
 
-      const originRange = nodeEntityOriginRanges[0]
-
       const answerObject = answerObjects.find(
-        a => a.id === originRange.answerObjectId
+        a => a.id === sourceAnswerObjectId
       )
       if (!answerObject) return
 
       // ! reset
       nodeWorkStorage.current = {
-        answer: '',
+        answerObject: deepCopyAnswerObject(answerObject),
         answerBefore: answer,
-        answerObjectNew: null,
         answerObjectsBefore: answerObjects.map(a => deepCopyAnswerObject(a)),
       }
       setQuestionsAndAnswers(prevQsAndAs =>
@@ -548,7 +541,7 @@ export const Interchange = ({
           },
           synced: {
             highlightedNodeIdsProcessing: [nodeEntityId],
-            // saliencyFilter: 'low',
+            // saliencyFilter: 'low', // ?
           },
         })
       )

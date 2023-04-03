@@ -40,7 +40,10 @@ import {
 // import defaultExample from '../examples/default.json'
 import { FlowContext } from '../components/Contexts'
 import { InterchangeContext } from '../components/Interchange'
-import { AnswerBlockContext } from '../components/Answer'
+import {
+  AnswerBlockContext,
+  ReactFlowObjectContext,
+} from '../components/Answer'
 
 type CustomControlsProps = {
   nodes: Node[]
@@ -85,12 +88,12 @@ export const CustomControls = memo(
     const { selectNodes } = useContext(FlowContext)
     const {
       questionAndAnswer: {
-        modelStatus: { modelParsing },
         synced: { saliencyFilter },
       },
       handleSwitchSaliency,
     } = useContext(InterchangeContext)
     const { handleOrganizeNodes } = useContext(AnswerBlockContext)
+    const { generatingFlow } = useContext(ReactFlowObjectContext)
 
     const flowChangingTimer = useRef<NodeJS.Timer | null>(null)
 
@@ -283,7 +286,7 @@ export const CustomControls = memo(
           </ControlButtonTooltip>
         </ControlButton> */}
 
-        {modelParsing && (
+        {generatingFlow && (
           <ControlButton className="tips-button">
             <HourglassTopRoundedIcon className="control-button-tips-icon loading-icon" />
             <span className="control-button-processing">still processing</span>
