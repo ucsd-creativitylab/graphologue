@@ -80,7 +80,7 @@ and to use a consistent annotation format throughout the paragraphs. \
 \
 You should try to annotate at least one relationship for each entity. Relationships should only connect entities that appear in the response. \
 You can arrange the sentences in a way that facilitates the annotation of entities and relationships, \
-but the arrangement should not alter their meaning and they should still flow naturally in language.
+but the arrangement should not alter their meaning, and they should still flow naturally in language.
 
 Example paragraph A:
 [Artificial Intelligence (AI) ($N1)] [is a ($H, $N1, $N2)] [field of computer science ($N2)] that [creates ($H, $N1, $N3)] [intelligent machines ($N3)]. \

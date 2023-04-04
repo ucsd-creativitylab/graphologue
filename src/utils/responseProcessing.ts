@@ -35,7 +35,7 @@ export const removeLastBracket = (text: string, eliminateAfter = false) => {
       (eliminateAfter
         ? ''
         : cleanStreamedAnnotationsRealtime(afterBracket).replace(
-            /[$HML,;\s]+/g,
+            /\$(?:H|M|L|)|[;,]\s*/g,
             ' ' // TODO polish
           ))
     )
