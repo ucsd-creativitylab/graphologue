@@ -410,7 +410,7 @@ export const Interchange = ({
                       ''
                   )
             ),
-            models.faster
+            parsingType === 'slide' ? models.faster : models.smarter
           )
 
           if (parsingResult.error) {
