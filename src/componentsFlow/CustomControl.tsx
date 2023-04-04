@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useRef } from 'react'
+import React, { memo, useCallback, useContext } from 'react'
 import { ControlButton, Controls, Edge, Node, useReactFlow } from 'reactflow'
 
 // import AddRoundedIcon from '@mui/icons-material/AddRounded'
@@ -21,9 +21,9 @@ import FitScreenRoundedIcon from '@mui/icons-material/FitScreenRounded'
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded'
 import AlignHorizontalLeftRoundedIcon from '@mui/icons-material/AlignHorizontalLeftRounded'
 ////
-import SignalWifi1BarRoundedIcon from '@mui/icons-material/SignalWifi1BarRounded'
+// import SignalWifi1BarRoundedIcon from '@mui/icons-material/SignalWifi1BarRounded'
 // import SignalWifi3BarRoundedIcon from '@mui/icons-material/SignalWifi3BarRounded'
-import SignalWifi4BarRoundedIcon from '@mui/icons-material/SignalWifi4BarRounded'
+// import SignalWifi4BarRoundedIcon from '@mui/icons-material/SignalWifi4BarRounded'
 
 import { customAddNodes } from './Node'
 import {
@@ -44,6 +44,7 @@ import {
   AnswerBlockContext,
   ReactFlowObjectContext,
 } from '../components/Answer'
+import { makeFlowTransition } from '../utils/flowChangingTransition'
 
 type CustomControlsProps = {
   nodes: Node[]
@@ -87,15 +88,11 @@ export const CustomControls = memo(
     // const { model, selectNodes, setModel } = useContext(FlowContext)
     const { selectNodes } = useContext(FlowContext)
     const {
-      questionAndAnswer: {
-        synced: { saliencyFilter },
-      },
+      // questionAndAnswer,
       handleSwitchSaliency,
     } = useContext(InterchangeContext)
     const { handleOrganizeNodes } = useContext(AnswerBlockContext)
     const { generatingFlow } = useContext(ReactFlowObjectContext)
-
-    const flowChangingTimer = useRef<NodeJS.Timer | null>(null)
 
     const _returnToOrigin = useCallback(() => {
       setViewport({ x: 0, y: 0, zoom: 1 }, { duration: transitionDuration })
@@ -138,23 +135,9 @@ export const CustomControls = memo(
     const handleSaliency = useCallback(() => {
       // using timeout, set the className of flowWrapperRef to .changing-flow
       // and remove it after 700ms
-
-      if (flowChangingTimer.current) {
-        clearTimeout(flowChangingTimer.current)
-      }
-
-      flowChangingTimer.current = setTimeout(() => {
-        if (flowWrapperRef.current) {
-          flowWrapperRef.current.classList.remove('changing-flow')
-        }
-      }, 700)
-
-      if (flowWrapperRef.current) {
-        flowWrapperRef.current.classList.add('changing-flow')
-      }
-
+      makeFlowTransition()
       handleSwitchSaliency()
-    }, [flowWrapperRef, handleSwitchSaliency])
+    }, [handleSwitchSaliency])
 
     // !
     // const handleClearCanvas = useCallback(() => {
@@ -252,6 +235,7 @@ export const CustomControls = memo(
     //     return node && node.type !== 'magic' && node.selected
     //   }) || selectedComponents.edges.length > 0
 
+    /*
     let saliencyTip = ''
     let saliencyComponent = <></>
     const saliencyComponentStyle: React.CSSProperties = {
@@ -268,6 +252,7 @@ export const CustomControls = memo(
         <SignalWifi4BarRoundedIcon style={saliencyComponentStyle} />
       )
     }
+    */
 
     return (
       <Controls
@@ -293,7 +278,7 @@ export const CustomControls = memo(
           </ControlButton>
         )}
 
-        <ControlButton onClick={handleSaliency}>
+        {/* <ControlButton onClick={handleSaliency}>
           {saliencyComponent}
           <span>saliency</span>
 
@@ -302,7 +287,7 @@ export const CustomControls = memo(
               <span>{saliencyTip}</span>
             </TooltipLine>
           </ControlButtonTooltip>
-        </ControlButton>
+        </ControlButton> */}
 
         <ControlButton onClick={handleSetViewport}>
           <FitScreenRoundedIcon />

@@ -48,6 +48,7 @@ import {
   parseOpenAIResponseToObjects,
   streamOpenAICompletion,
 } from '../utils/openAI'
+import { makeFlowTransition } from '../utils/flowChangingTransition'
 
 export type NodeConceptExpansionType = 'explain' | 'examples'
 
@@ -275,6 +276,8 @@ export const Interchange = ({
             }
           )
       )
+
+      makeFlowTransition()
     },
     [id, setQuestionsAndAnswers]
   )
@@ -313,7 +316,6 @@ export const Interchange = ({
     [id, setQuestionsAndAnswers]
   )
 
-  const changingFlowTimer = useRef<NodeJS.Timeout | null>(null)
   const handleAnswerObjectSwitchListDisplayFormat = useCallback(
     (answerObjectId: string, listDisplay: ListDisplayFormat) => {
       setQuestionsAndAnswers(
@@ -346,17 +348,7 @@ export const Interchange = ({
 
       // set flow canvases to .changing-flow
       // and remove it after 700ms
-      const flowCanvases = document.querySelectorAll('.react-flow-wrapper')
-      flowCanvases.forEach(canvas => {
-        canvas.classList.add('changing-flow')
-      })
-
-      if (changingFlowTimer.current) clearTimeout(changingFlowTimer.current)
-      changingFlowTimer.current = setTimeout(() => {
-        flowCanvases.forEach(canvas => {
-          canvas.classList.remove('changing-flow')
-        })
-      }, 700)
+      makeFlowTransition()
     },
     [id, setQuestionsAndAnswers]
   )

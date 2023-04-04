@@ -17,6 +17,9 @@ import NotesRoundedIcon from '@mui/icons-material/NotesRounded'
 import CropLandscapeRoundedIcon from '@mui/icons-material/CropLandscapeRounded'
 import HorizontalSplitRoundedIcon from '@mui/icons-material/HorizontalSplitRounded'
 import RectangleRoundedIcon from '@mui/icons-material/RectangleRounded'
+////
+import SignalWifi1BarRoundedIcon from '@mui/icons-material/SignalWifi1BarRounded'
+import SignalWifi4BarRoundedIcon from '@mui/icons-material/SignalWifi4BarRounded'
 
 import {
   QuestionAndAnswer,
@@ -51,6 +54,7 @@ import {
   BoundingAInBoundingB,
   minMoveBringBoundingAIntoB,
 } from '../utils/viewGeometry'
+import { makeFlowTransition } from '../utils/flowChangingTransition'
 
 export interface ReactFlowObjectContextProps {
   // nodeEntities: NodeEntity[]
@@ -118,6 +122,7 @@ const AnswerListView = ({
     answer,
     answerObjects,
     synced,
+    synced: { saliencyFilter },
     modelStatus: { modelParsingComplete },
   },
 }: {
@@ -129,6 +134,7 @@ const AnswerListView = ({
     handleSetSyncedAnswerObjectIdsHidden,
     // handleAnswerObjectTellLessOrMore,
     handleAnswerObjectRemove,
+    handleSwitchSaliency,
   } = useContext(InterchangeContext)
 
   const [blockDisplay, setBlockDisplay] = useState(true)
@@ -158,6 +164,12 @@ const AnswerListView = ({
     (newDisplayFormat: DiagramDisplayFormat) => {
       setDiagramDisplay(newDisplayFormat)
 
+      // remove all highlighted and hidden answer objects if switching to split
+      if (newDisplayFormat === 'split') {
+        handleSetSyncedAnswerObjectIdsHighlighted([])
+        handleSetSyncedAnswerObjectIdsHidden([])
+      }
+
       // smoothly scroll .answer-text with data-id === answerObjectId into view
       const answerObjectElement = document.querySelector(
         `.answer-wrapper[data-id="${id}"]`
@@ -169,8 +181,17 @@ const AnswerListView = ({
         })
       }
     },
-    [id]
+    [
+      handleSetSyncedAnswerObjectIdsHidden,
+      handleSetSyncedAnswerObjectIdsHighlighted,
+      id,
+    ]
   )
+
+  const handleSwitchSaliencyFilter = useCallback(() => {
+    makeFlowTransition()
+    handleSwitchSaliency()
+  }, [handleSwitchSaliency])
 
   const handleHighlightAnswerObject = useCallback(
     (answerObjectId: string) => {
@@ -255,6 +276,26 @@ const AnswerListView = ({
               <span>merged diagram</span>
             </button>
           </div>
+
+          <button
+            className={`bar-button`}
+            onClick={() => handleSwitchSaliencyFilter()}
+          >
+            {saliencyFilter === 'high' ? (
+              <SignalWifi1BarRoundedIcon
+                style={{
+                  transform: 'rotate(180deg)',
+                }}
+              />
+            ) : (
+              <SignalWifi4BarRoundedIcon
+                style={{
+                  transform: 'rotate(180deg)',
+                }}
+              />
+            )}
+            <span>saliency</span>
+          </button>
         </div>
 
         {/* display in block */}
@@ -371,7 +412,7 @@ const AnswerBlockItem = ({
 
   useEffect(() => {
     stableDagreGraph.current = new dagre.graphlib.Graph()
-  }, [useSummary, saliencyFilter])
+  }, [useSummary, saliencyFilter, answerObjectIdsHidden])
 
   // ! put all node and edge entities together
   // const nodeEntities = mergeNodeEntities(answerObjects, answerObjectIdsHidden)
