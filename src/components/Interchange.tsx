@@ -399,84 +399,98 @@ export const Interchange = ({
     [id, setQuestionsAndAnswers]
   )
 
-  const _handleParsingCompleteAnswerObject = useCallback(async () => {
-    const parsingResults: {
-      [key in FinishedAnswerObjectParsingTypes]: string
-    } = {
-      summary: '',
-      slide: '',
-    }
-
-    let parsingError = false
-    await Promise.all(
-      (['summary', 'slide'] as FinishedAnswerObjectParsingTypes[]).map(
-        async (parsingType: FinishedAnswerObjectParsingTypes) => {
-          if (parsingError) return
-
-          // ! request
-          const parsingResult = await parseOpenAIResponseToObjects(
-            predefinedPromptsForParsing[parsingType](
-              parsingType === 'summary'
-                ? workingMemory.current.answerObject?.originText.content || ''
-                : removeAnnotations(
-                    workingMemory.current.answerObject?.originText.content || ''
-                  )
-            ),
-            debug || parsingType === 'slide' ? models.faster : models.smarter
-          )
-
-          if (parsingResult.error) {
-            _handleResponseError(parsingResult)
-            parsingError = true
-            return
-          }
-
-          parsingResults[parsingType] = getTextFromModelResponse(parsingResult)
-        }
-      )
-    )
-
-    if (!parsingError && workingMemory.current.answerObject) {
-      // ! complete answer object
-      workingMemory.current.answerObject = {
-        ...workingMemory.current.answerObject,
-        summary: {
-          content: parsingResults.summary,
-          nodeEntities: nodeIndividualsToNodeEntities(
-            parseNodes(
-              parsingResults.summary,
-              workingMemory.current.answerObject.id
-            )
-          ),
-          edgeEntities: parseEdges(
-            parsingResults.summary,
-            workingMemory.current.answerObject.id
-          ),
-        },
-        slide: {
-          content: cleanSlideResponse(parsingResults.slide),
-        },
-        complete: true,
+  const _handleParsingCompleteAnswerObject = useCallback(
+    async (newAnswerObject: boolean) => {
+      const parsingResults: {
+        [key in FinishedAnswerObjectParsingTypes]: string
+      } = {
+        summary: '',
+        slide: '',
       }
 
-      setQuestionsAndAnswers(prevQsAndAs =>
-        helpSetQuestionAndAnswer(prevQsAndAs, id, {
-          answerObjects: answerObjects.map(a =>
-            a.id === workingMemory.current.answerObject?.id
-              ? workingMemory.current.answerObject
-              : a
-          ),
-          modelStatus: {
-            modelParsing: false,
-            modelParsingComplete: true,
-          },
-          synced: {
-            highlightedNodeIdsProcessing: [],
-          },
-        })
+      let parsingError = false
+      await Promise.all(
+        (['summary', 'slide'] as FinishedAnswerObjectParsingTypes[]).map(
+          async (parsingType: FinishedAnswerObjectParsingTypes) => {
+            if (parsingError) return
+
+            // ! request
+            const parsingResult = await parseOpenAIResponseToObjects(
+              predefinedPromptsForParsing[parsingType](
+                parsingType === 'summary'
+                  ? workingMemory.current.answerObject?.originText.content || ''
+                  : removeAnnotations(
+                      workingMemory.current.answerObject?.originText.content ||
+                        ''
+                    )
+              ),
+              debug || parsingType === 'slide' ? models.faster : models.smarter
+            )
+
+            if (parsingResult.error) {
+              _handleResponseError(parsingResult)
+              parsingError = true
+              return
+            }
+
+            parsingResults[parsingType] =
+              getTextFromModelResponse(parsingResult)
+          }
+        )
       )
-    }
-  }, [_handleResponseError, answerObjects, id, setQuestionsAndAnswers])
+
+      if (!parsingError && workingMemory.current.answerObject) {
+        // ! complete answer object
+        workingMemory.current.answerObject = {
+          ...workingMemory.current.answerObject,
+          summary: {
+            content: parsingResults.summary,
+            nodeEntities: nodeIndividualsToNodeEntities(
+              parseNodes(
+                parsingResults.summary,
+                workingMemory.current.answerObject.id
+              )
+            ),
+            edgeEntities: parseEdges(
+              parsingResults.summary,
+              workingMemory.current.answerObject.id
+            ),
+          },
+          slide: {
+            content: cleanSlideResponse(parsingResults.slide),
+          },
+          complete: true,
+        }
+
+        setQuestionsAndAnswers(prevQsAndAs =>
+          helpSetQuestionAndAnswer(prevQsAndAs, id, {
+            answerObjects: workingMemory.current.answerObject
+              ? newAnswerObject
+                ? [
+                    ...answerObjects.filter(
+                      a => a.id !== workingMemory.current.answerObject?.id
+                    ),
+                    workingMemory.current.answerObject,
+                  ]
+                : answerObjects.map(a =>
+                    a.id === workingMemory.current.answerObject?.id
+                      ? workingMemory.current.answerObject
+                      : a
+                  )
+              : answerObjects,
+            modelStatus: {
+              modelParsing: false,
+              modelParsingComplete: true,
+            },
+            synced: {
+              highlightedNodeIdsProcessing: [],
+            },
+          })
+        )
+      }
+    },
+    [_handleResponseError, answerObjects, id, setQuestionsAndAnswers]
+  )
 
   const _handleUpdateRelationshipEntities = useCallback((content: string) => {
     if (!workingMemory.current.answerObject) return
@@ -653,7 +667,7 @@ export const Interchange = ({
         false
       )
       console.log(`text block expand raw answering complete`)
-      await _handleParsingCompleteAnswerObject()
+      await _handleParsingCompleteAnswerObject(false)
       console.log(`text block expand parsing complete`)
     },
     [
@@ -766,7 +780,7 @@ export const Interchange = ({
       )
       console.log(`node expand ${type} raw answering complete`)
 
-      await _handleParsingCompleteAnswerObject()
+      await _handleParsingCompleteAnswerObject(false)
       console.log(`node expand ${type} parsing complete`)
     },
     [
@@ -858,7 +872,7 @@ export const Interchange = ({
       true
     )
     console.log(`new paragraph expand raw answering complete`)
-    await _handleParsingCompleteAnswerObject()
+    await _handleParsingCompleteAnswerObject(true)
     console.log(`new paragraph expand parsing complete`)
   }, [
     _handleParsingCompleteAnswerObject,
