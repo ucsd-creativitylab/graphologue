@@ -428,3 +428,12 @@ export const cleanNodeLabel = (label: string) => {
 
   return cleanedLabel
 }
+
+export const pairTargetIdHasPair = (
+  edgeEntities: EdgeEntity[],
+  targetId: string
+) => {
+  return edgeEntities.some(edgeEntity =>
+    edgeEntity.edgePairs.some(edgePair => edgePair.sourceId === targetId)
+  )
+}

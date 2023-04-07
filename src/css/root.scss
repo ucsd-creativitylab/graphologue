@@ -231,6 +231,14 @@ $shadow-heavy: rgba($cold-grey, 0.6) 0 rem-to-px(2rem) rem-to-px(10rem)
   border-radius: $radius-small;
   cursor: pointer;
 
+  &.alert-button {
+    outline-color: $error-red-light;
+
+    * {
+      color: $error-red-light;
+    }
+  }
+
   &:hover {
     background: $light;
   }

@@ -17,6 +17,7 @@ import {
   getNodeEntityFromNodeEntityId,
   havePair,
   nodeLabelling,
+  pairTargetIdHasPair,
   saliencyAHigherThanB,
 } from './responseProcessing'
 import { getHandleId } from './utils'
@@ -53,7 +54,8 @@ export const answerObjectsToReactFlowObject = (
   graph: dagre.graphlib.Graph<{}>,
   rawNodeEntities: NodeEntity[],
   rawEdgeEntities: EdgeEntity[],
-  synced: QuestionAndAnswerSynced
+  synced: QuestionAndAnswerSynced,
+  collapsedNodeIds: string[]
 ): {
   nodes: Node[]
   edges: Edge[]
@@ -187,6 +189,33 @@ export const answerObjectsToReactFlowObject = (
 
   /* -------------------------------------------------------------------------- */
 
+  // filter node entities by collapsed nodes
+  const collapsedHiddenNodeIds: Set<string> = new Set()
+  const collapseEndPoints = new Set([...collapsedNodeIds])
+
+  while (collapseEndPoints.size > 0) {
+    const collapseEndPointsLoop = [...collapseEndPoints]
+    collapseEndPointsLoop.forEach(collapseEndPoint => {
+      // if (collapsedHiddenNodeIds.includes(collapseEndPoint)) {
+      //   collapseEndPoints.splice(collapseEndPoints.indexOf(collapseEndPoint), 1)
+      //   return
+      // }
+
+      edgeEntities.forEach(({ edgePairs }) => {
+        edgePairs.forEach(({ sourceId, targetId }) => {
+          if (sourceId === collapseEndPoint) {
+            collapsedHiddenNodeIds.add(targetId)
+
+            if (pairTargetIdHasPair(edgeEntities, targetId))
+              collapseEndPoints.add(targetId)
+          }
+        })
+      })
+
+      collapseEndPoints.delete(collapseEndPoint)
+    })
+  }
+
   // ! filter node and edge entities
 
   const filteredEdgeEntities = edgeEntities.filter(edgeEntity => {
@@ -194,6 +223,13 @@ export const answerObjectsToReactFlowObject = (
     //   originRange: { answerObjectId },
     // } = edgeEntity
     const { sourceId, targetId, saliency } = edgeEntity.edgePairs[0]
+
+    // hidden node filter
+    if (
+      collapsedHiddenNodeIds.has(sourceId) ||
+      collapsedHiddenNodeIds.has(targetId)
+    )
+      return false
 
     // saliency filter
     if (saliencyAHigherThanB(saliencyFilter, saliency)) return false
@@ -267,7 +303,12 @@ export const answerObjectsToReactFlowObject = (
     // eliminate orphan nodes
     const { id } = nodeEntity
 
-    if (nodeEntities.length === 1) return true
+    if (id === '$N1') return true
+
+    if (nodeEntities.length === 1 && collapsedHiddenNodeIds.size !== 0)
+      return true
+
+    if (collapsedHiddenNodeIds.has(id)) return false
 
     // if (
     //   highlightedCoReferenceOriginRanges.some(range =>

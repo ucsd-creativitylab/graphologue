@@ -157,6 +157,10 @@ export const deepCopyAnswerObject = (a: AnswerObject): AnswerObject => {
       nodeEntities: copyNodeEntities(a.summary.nodeEntities),
       edgeEntities: copyEdgeEntities(a.summary.edgeEntities),
     },
+    answerObjectSynced: {
+      ...a.answerObjectSynced,
+      collapsedNodes: [...a.answerObjectSynced.collapsedNodes],
+    },
   }
 }
 

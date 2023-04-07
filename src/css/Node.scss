@@ -222,6 +222,30 @@ $shadow-node-selected: $shadow-heavy;
     outline-color: rgba($red, $opacity-mid) !important;
     outline-offset: rem-to-px(2rem);
   }
+
+  .custom-node-return-collapse {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translate(50%, -50%);
+    z-index: 999;
+
+    width: 2rem;
+    height: 2rem;
+    background-color: $white;
+    border-radius: 50%;
+    box-shadow: $shadow-default;
+
+    cursor: pointer;
+
+    * {
+      font-size: $font-size-x-large;
+    }
+  }
 }
 
 .flow-meta-pressed {

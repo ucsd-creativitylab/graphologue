@@ -562,7 +562,8 @@ const AnswerBlockItem = ({
       stableDagreGraph.current,
       nodeEntities,
       edgeEntities,
-      synced
+      synced,
+      answerObject.answerObjectSynced.collapsedNodes
     )
 
     setNodes(newNodes)
@@ -631,10 +632,11 @@ const AnswerBlockItem = ({
       }))(nE)
     ),
     edgeEntities,
-    // ! should we  add this?
+    // ! should we add this?
     // synced, // ???
     synced.saliencyFilter,
     // synced.highlightedCoReferenceOriginRanges,
+    answerObject.answerObjectSynced.collapsedNodes,
     setNodes,
     setEdges,
     runViewFittingJobs,
@@ -645,7 +647,8 @@ const AnswerBlockItem = ({
       stableDagreGraph.current,
       nodeEntities,
       edgeEntities,
-      synced
+      synced,
+      answerObject.answerObjectSynced.collapsedNodes
     )
 
     setNodes(newNodes)
@@ -667,7 +670,14 @@ const AnswerBlockItem = ({
     )
 
     prevNodeSnippets.current = newNodeSnippets
-  }, [edgeEntities, nodeEntities, setEdges, setNodes, synced])
+  }, [
+    answerObject.answerObjectSynced.collapsedNodes,
+    edgeEntities,
+    nodeEntities,
+    setEdges,
+    setNodes,
+    synced,
+  ])
 
   /* -------------------------------------------------------------------------- */
 

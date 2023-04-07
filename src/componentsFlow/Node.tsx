@@ -28,8 +28,9 @@ import tinycolor from 'tinycolor2'
 
 import ManageSearchRoundedIcon from '@mui/icons-material/ManageSearchRounded'
 import TextIncreaseRoundedIcon from '@mui/icons-material/TextIncreaseRounded'
-// import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded'
-// import NotInterestedRoundedIcon from '@mui/icons-material/NotInterestedRounded'
+import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded'
+import NotInterestedRoundedIcon from '@mui/icons-material/NotInterestedRounded'
+import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded'
 
 import { hardcodedNodeSize, styles, viewFittingOptions } from '../constants'
 import { FlowContext } from '../components/Contexts'
@@ -119,6 +120,7 @@ export const CustomNode = memo(
     const { metaPressed, selectedComponents } = useContext(FlowContext)
     const {
       questionAndAnswer: {
+        answerObjects,
         modelStatus: { modelParsingComplete },
         synced: {
           highlightedCoReferenceOriginRanges,
@@ -128,12 +130,18 @@ export const CustomNode = memo(
         },
       },
       handleAnswerObjectNodeExpand,
-      // handleAnswerObjectNodeCollapse,
-      // handleAnswerObjectNodeRemove,
+      handleAnswerObjectNodeCollapse,
+      handleAnswerObjectNodeRemove,
     } = useContext(InterchangeContext)
     const { answerObjectId, generatingFlow } = useContext(
       ReactFlowObjectContext
     )
+
+    const answerObject = answerObjects.find(
+      answerObject => answerObject.id === answerObjectId
+    )
+    const collapsingParent =
+      answerObject?.answerObjectSynced.collapsedNodes.includes(id)
 
     // const moreThanOneComponentsSelected =
     //   selectedComponents.nodes.length + selectedComponents.edges.length > 1
@@ -323,6 +331,19 @@ export const CustomNode = memo(
           // }}
         />
 
+        {collapsingParent && (
+          <div
+            className="custom-node-return-collapse"
+            onClick={() => handleAnswerObjectNodeCollapse(answerObjectId, id)}
+          >
+            <UnfoldMoreRoundedIcon
+              style={{
+                transform: 'rotate(45deg)',
+              }}
+            />
+          </div>
+        )}
+
         <div
           className={`custom-node-content${
             isTarget ? ' custom-node-content-target' : ''
@@ -402,32 +423,39 @@ export const CustomNode = memo(
                   )}
                 </MagicToolboxItem>
 
-                {/* <MagicToolboxItem title="less">
+                <MagicToolboxItem title="less">
                   <>
                     <MagicToolboxButton
                       content={
                         <>
-                          <UnfoldLessRoundedIcon />
-                          <span>collapse</span>
+                          <UnfoldLessRoundedIcon
+                            style={{
+                              transform: 'rotate(45deg)',
+                            }}
+                          />
+                          <span>
+                            {collapsingParent ? 'expand' : 'collapse'}
+                          </span>
                         </>
                       }
                       onClick={() => {
-                        handleAnswerObjectNodeCollapse(id)
+                        handleAnswerObjectNodeCollapse(answerObjectId, id)
                       }}
                     />
                     <MagicToolboxButton
                       content={
                         <>
                           <NotInterestedRoundedIcon />
-                          <span>remove</span>
+                          <span>trim</span>
                         </>
                       }
                       onClick={() => {
-                        handleAnswerObjectNodeRemove(id)
+                        handleAnswerObjectNodeRemove(answerObjectId, id)
                       }}
+                      className="alert-button"
                     />
                   </>
-                </MagicToolboxItem> */}
+                </MagicToolboxItem>
 
                 <MagicToolboxItem title="color">
                   <>

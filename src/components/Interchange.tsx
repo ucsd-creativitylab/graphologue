@@ -81,8 +81,8 @@ export interface InterchangeContextProps {
     nodeEntityOriginRanges: OriginRange[],
     type: NodeConceptExpansionType
   ) => void
-  handleAnswerObjectNodeRemove: (nodeEntityId: string) => void
-  handleAnswerObjectNodeCollapse: (nodeEntityId: string) => void
+  handleAnswerObjectNodeRemove: (id: string, nodeEntityId: string) => void
+  handleAnswerObjectNodeCollapse: (id: string, nodeEntityId: string) => void
   handleAnswerObjectsAddOneMore: () => void
   /* -------------------------------------------------------------------------- */
   handleSwitchSaliency: () => void
@@ -799,7 +799,7 @@ export const Interchange = ({
   /* -------------------------------------------------------------------------- */
 
   const handleAnswerObjectNodeRemove = useCallback(
-    (nodeEntityId: string) => {
+    (answerObjectId: string, nodeEntityId: string) => {
       if (!modelParsingComplete || modelError) return
     },
     [modelError, modelParsingComplete]
@@ -808,8 +808,30 @@ export const Interchange = ({
   /* -------------------------------------------------------------------------- */
 
   const handleAnswerObjectNodeCollapse = useCallback(
-    (nodeEntityId: string) => {},
-    []
+    (answerObjectId: string, nodeEntityId: string) => {
+      // get answer object
+      const answerObject = answerObjects.find(a => a.id === answerObjectId)
+      if (!answerObject) return
+
+      if (answerObject.answerObjectSynced.collapsedNodes.includes(nodeEntityId))
+        // remove
+        answerObject.answerObjectSynced.collapsedNodes =
+          answerObject.answerObjectSynced.collapsedNodes.filter(
+            n => n !== nodeEntityId
+          )
+      else answerObject.answerObjectSynced.collapsedNodes.push(nodeEntityId)
+
+      setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
+          answerObjects: answerObjects.map(a => {
+            if (a.id === answerObjectId)
+              return deepCopyAnswerObject(answerObject)
+            return a
+          }),
+        })
+      )
+    },
+    [answerObjects, id, setQuestionsAndAnswers]
   )
 
   /* -------------------------------------------------------------------------- */
@@ -836,6 +858,7 @@ export const Interchange = ({
         answerObjectSynced: {
           listDisplay: 'original' as ListDisplayFormat,
           saliencyFilter: 'high' as RelationshipSaliency,
+          collapsedNodes: [],
         },
         complete: false,
       },

@@ -64,6 +64,7 @@ export interface AnswerObject {
   answerObjectSynced: {
     listDisplay: ListDisplayFormat
     saliencyFilter: RelationshipSaliency
+    collapsedNodes: string[]
   }
   complete: boolean
 }

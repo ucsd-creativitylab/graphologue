@@ -372,6 +372,7 @@ export const Question = () => {
         answerObjectSynced: {
           listDisplay: 'original' as ListDisplayFormat,
           saliencyFilter: 'high' as RelationshipSaliency,
+          collapsedNodes: [],
         },
         complete: false,
       }
