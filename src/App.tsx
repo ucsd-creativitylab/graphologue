@@ -47,6 +47,12 @@ export interface AnswerSlideObject {
 
 export type AnswerObjectEntitiesTarget = 'originText' | 'summary'
 
+export interface SentenceInAnswer {
+  originalText: string
+  offset: number
+  length: number
+}
+
 // ! AnswerObject
 export interface AnswerObject {
   id: string
@@ -65,6 +71,7 @@ export interface AnswerObject {
     listDisplay: ListDisplayFormat
     saliencyFilter: RelationshipSaliency
     collapsedNodes: string[]
+    sentencesBeingCorrected: SentenceInAnswer[]
   }
   complete: boolean
 }

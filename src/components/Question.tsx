@@ -373,6 +373,7 @@ export const Question = () => {
           listDisplay: 'original' as ListDisplayFormat,
           saliencyFilter: 'high' as RelationshipSaliency,
           collapsedNodes: [],
+          sentencesBeingCorrected: [],
         },
         complete: false,
       }

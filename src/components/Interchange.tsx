@@ -859,6 +859,7 @@ export const Interchange = ({
           listDisplay: 'original' as ListDisplayFormat,
           saliencyFilter: 'high' as RelationshipSaliency,
           collapsedNodes: [],
+          sentencesBeingCorrected: [],
         },
         complete: false,
       },
