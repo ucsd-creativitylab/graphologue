@@ -154,6 +154,49 @@
     }
   }
 
+  .answer-item-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: $padding-mid;
+
+    .add-paragraph {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $padding-xs;
+
+      width: 100%;
+      height: fit-content;
+      padding: $padding-small 0;
+      margin: 0;
+
+      border-radius: $radius-default;
+      background-color: $light-grey;
+
+      font-size: $font-size-default;
+      color: $white;
+
+      cursor: pointer;
+
+      opacity: 1;
+      transition: opacity $transition-normal ease;
+
+      * {
+        font-size: $font-size-default;
+        box-sizing: border-box;
+      }
+
+      &:hover {
+        background-color: $grey;
+      }
+
+      &.disabled {
+        pointer-events: none;
+        opacity: 0 !important;
+      }
+    }
+  }
+
   .answer-item {
     // display: inline;
     display: flex;

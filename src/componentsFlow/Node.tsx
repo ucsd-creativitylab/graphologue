@@ -48,6 +48,7 @@ import {
 } from '../components/Interchange'
 import { ReactFlowObjectContext } from '../components/Answer'
 import { CustomEdgeData } from './Edge'
+import { cleanNodeLabel } from '../utils/responseProcessing'
 
 export interface GeneratedInformation {
   pseudo: boolean
@@ -358,7 +359,7 @@ export const CustomNode = memo(
                     }
               }
             >
-              {label}
+              {cleanNodeLabel(label)}
             </span>
             {/* {!moreThanOneComponentsSelected && selected ? ( */}
             {selected && !pseudo ? (

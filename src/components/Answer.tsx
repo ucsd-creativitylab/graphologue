@@ -17,7 +17,9 @@ import NotesRoundedIcon from '@mui/icons-material/NotesRounded'
 import CropLandscapeRoundedIcon from '@mui/icons-material/CropLandscapeRounded'
 import HorizontalSplitRoundedIcon from '@mui/icons-material/HorizontalSplitRounded'
 import RectangleRoundedIcon from '@mui/icons-material/RectangleRounded'
-import BugReportRoundedIcon from '@mui/icons-material/BugReportRounded'
+import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded'
+import MoneyOffRoundedIcon from '@mui/icons-material/MoneyOffRounded'
+import SubjectRoundedIcon from '@mui/icons-material/SubjectRounded'
 ////
 import SignalWifi1BarRoundedIcon from '@mui/icons-material/SignalWifi1BarRounded'
 import SignalWifi4BarRoundedIcon from '@mui/icons-material/SignalWifi4BarRounded'
@@ -320,8 +322,9 @@ const AnswerListView = ({
             className={`bar-button`}
             onClick={() => setDebugMode(!debugMode)}
           >
-            <BugReportRoundedIcon />
-            <span>debug</span>
+            {debugMode ? <AttachMoneyRoundedIcon /> : <MoneyOffRoundedIcon />}
+            {/* <span>{debugMode ? '[annotation ($N1)]' : 'annotation'}</span> */}
+            <span>annotation</span>
           </button>
         </div>
 
@@ -344,6 +347,7 @@ const AnswerListView = ({
                       questionAndAnswer={questionAndAnswer}
                       answerObject={answerObject}
                       diagramDisplay={diagramDisplay}
+                      lastTextBlock={index === answerObjects.length - 1}
                     />
                   ))}
                 </div>
@@ -358,6 +362,7 @@ const AnswerListView = ({
                     questionAndAnswer={questionAndAnswer}
                     answerObject={answerObjects[0]}
                     diagramDisplay={diagramDisplay}
+                    lastTextBlock={false}
                   />
                 </ReactFlowProvider>
               </>
@@ -372,6 +377,7 @@ const AnswerListView = ({
                     questionAndAnswer={questionAndAnswer}
                     answerObject={answerObject}
                     diagramDisplay={diagramDisplay}
+                    lastTextBlock={index === answerObjects.length - 1}
                   />
                 </ReactFlowProvider>
               ))
@@ -416,11 +422,13 @@ const AnswerBlockItem = ({
   },
   answerObject,
   diagramDisplay,
+  lastTextBlock,
 }: {
   index: number
   questionAndAnswer: QuestionAndAnswer
   answerObject: AnswerObject
   diagramDisplay: DiagramDisplayFormat
+  lastTextBlock: boolean
 }) => {
   /* -------------------------------------------------------------------------- */
   const isForMergedDiagram = diagramDisplay === 'merged'
@@ -680,6 +688,7 @@ const AnswerBlockItem = ({
             questionAndAnswer={questionAndAnswer}
             answerObject={answerObject}
             diagramDisplay={diagramDisplay}
+            lastTextBlock={lastTextBlock}
           />
         )}
 
@@ -709,13 +718,16 @@ const AnswerTextBlock = ({
   },
   answerObject,
   diagramDisplay,
+  lastTextBlock,
 }: {
   index: number
   questionAndAnswer: QuestionAndAnswer
   answerObject: AnswerObject
   diagramDisplay: DiagramDisplayFormat
+  lastTextBlock: boolean
 }) => {
-  const { handleAnswerObjectTellLessOrMore } = useContext(InterchangeContext)
+  const { handleAnswerObjectTellLessOrMore, handleAnswerObjectsAddOneMore } =
+    useContext(InterchangeContext)
   const {
     handleHighlightAnswerObject,
     handleHideAnswerObject,
@@ -772,24 +784,25 @@ const AnswerTextBlock = ({
     )
 
   return (
-    <div
-      key={`answer-range-${answerObject.id}`}
-      className={`answer-item answer-item-block interchange-component${
-        index !== 0 ? (diagramMerged ? ' drop-up-answer' : ' drop-down') : ''
-      }${listDisplay === 'slide' ? ' slide-wrapper' : ''}${
-        answerObjectHighlighted && diagramMerged ? ' highlighted-item' : ''
-      }`}
-      onMouseEnter={() => {
-        if (diagramMerged && !answerObjectHidden)
-          handleHighlightAnswerObject(answerObject.id, 'add', true)
-      }}
-      onMouseLeave={() => {
-        if (diagramMerged && !answerObjectHidden)
-          handleHighlightAnswerObject(answerObject.id, 'remove', true)
-      }}
-    >
-      <div className="answer-block-menu">
-        {/* <span
+    <div className="answer-item-wrapper">
+      <div
+        key={`answer-range-${answerObject.id}`}
+        className={`answer-item answer-item-block interchange-component${
+          index !== 0 ? (diagramMerged ? ' drop-up-answer' : ' drop-down') : ''
+        }${listDisplay === 'slide' ? ' slide-wrapper' : ''}${
+          answerObjectHighlighted && diagramMerged ? ' highlighted-item' : ''
+        }`}
+        onMouseEnter={() => {
+          if (diagramMerged && !answerObjectHidden)
+            handleHighlightAnswerObject(answerObject.id, 'add', true)
+        }}
+        onMouseLeave={() => {
+          if (diagramMerged && !answerObjectHidden)
+            handleHighlightAnswerObject(answerObject.id, 'remove', true)
+        }}
+      >
+        <div className="answer-block-menu">
+          {/* <span
               className={`answer-block-menu-item${
                 !modelParsingComplete ? ' disabled' : ''
               }`}
@@ -802,7 +815,7 @@ const AnswerTextBlock = ({
             >
               less
             </span> */}
-        {/* <span
+          {/* <span
               className={`answer-block-menu-item${
                 !modelParsingComplete ? ' disabled' : ''
               }`}
@@ -816,73 +829,80 @@ const AnswerTextBlock = ({
               more
             </span> */}
 
-        <span
-          className={`answer-block-menu-item${
-            listDisplay === 'original' ? ' highlighted-list-display' : ''
-          }`}
-          onClick={() => {
-            handleAnswerObjectSwitchListDisplayFormat(
-              answerObject.id,
-              'original'
-            )
-          }}
-        >
-          <NotesRoundedIcon />
-          original
-        </span>
-        <span
-          className={`answer-block-menu-item${
-            listDisplay === 'slide' ? ' highlighted-list-display' : ''
-          }${answerObjectComplete && modelParsingComplete ? '' : ' disabled'}`}
-          onClick={() => {
-            handleAnswerObjectSwitchListDisplayFormat(answerObject.id, 'slide')
-          }}
-        >
-          <CropLandscapeRoundedIcon />
-          outline
-        </span>
-        <span
-          className={`answer-block-menu-item${
-            listDisplay === 'summary' ? ' highlighted-list-display' : ''
-          }${answerObjectComplete && modelParsingComplete ? '' : ' disabled'}`}
-          onClick={() => {
-            handleAnswerObjectSwitchListDisplayFormat(
-              answerObject.id,
-              'summary'
-            )
-          }}
-        >
-          <ShortTextRoundedIcon />
-          summary
-        </span>
+          <span
+            className={`answer-block-menu-item${
+              listDisplay === 'original' ? ' highlighted-list-display' : ''
+            }`}
+            onClick={() => {
+              handleAnswerObjectSwitchListDisplayFormat(
+                answerObject.id,
+                'original'
+              )
+            }}
+          >
+            <NotesRoundedIcon />
+            original
+          </span>
+          <span
+            className={`answer-block-menu-item${
+              listDisplay === 'slide' ? ' highlighted-list-display' : ''
+            }${
+              answerObjectComplete && modelParsingComplete ? '' : ' disabled'
+            }`}
+            onClick={() => {
+              handleAnswerObjectSwitchListDisplayFormat(
+                answerObject.id,
+                'slide'
+              )
+            }}
+          >
+            <CropLandscapeRoundedIcon />
+            outline
+          </span>
+          <span
+            className={`answer-block-menu-item${
+              listDisplay === 'summary' ? ' highlighted-list-display' : ''
+            }${
+              answerObjectComplete && modelParsingComplete ? '' : ' disabled'
+            }`}
+            onClick={() => {
+              handleAnswerObjectSwitchListDisplayFormat(
+                answerObject.id,
+                'summary'
+              )
+            }}
+          >
+            <ShortTextRoundedIcon />
+            summary
+          </span>
 
-        <span className="answer-block-menu-item-divider">|</span>
+          <span className="answer-block-menu-item-divider">|</span>
 
-        <span
-          className={`answer-block-menu-item${
-            answerObjectHighlightedActually ? ' highlighted' : ''
-          }${!answerObjectComplete || !diagramMerged ? ' disabled' : ''}`}
-          onClick={() => {
-            handleHighlightAnswerObject(
-              answerObject.id,
-              answerObjectHighlightedActually ? 'remove' : 'add',
-              false
-            )
-          }}
-        >
-          highlight
-        </span>
-        <span
-          className={`answer-block-menu-item${
-            answerObjectHidden ? ' hidden' : ''
-          }${!answerObjectComplete || !diagramMerged ? ' disabled' : ''}`}
-          onClick={() => {
-            handleHideAnswerObject(answerObject.id)
-          }}
-        >
-          hide
-        </span>
-        {/* <span
+          <span
+            className={`answer-block-menu-item${
+              answerObjectHighlightedActually ? ' highlighted' : ''
+            }${!answerObjectComplete || !diagramMerged ? ' disabled' : ''}`}
+            onClick={() => {
+              handleHighlightAnswerObject(
+                answerObject.id,
+                answerObjectHighlightedActually ? 'remove' : 'add',
+                false
+              )
+            }}
+          >
+            highlight
+          </span>
+          <span
+            className={`answer-block-menu-item${
+              answerObjectHidden ? ' hidden' : ''
+            }${!answerObjectComplete || !diagramMerged ? ' disabled' : ''}`}
+            onClick={() => {
+              handleHideAnswerObject(answerObject.id)
+            }}
+          >
+            hide
+          </span>
+          {/* <span
           className={`answer-block-menu-item`}
           onClick={() => {
             handleAnswerObjectRemove(answerObject.id)
@@ -890,22 +910,34 @@ const AnswerTextBlock = ({
         >
           remove
         </span> */}
+        </div>
+        <div className="answer-item-text">{contentComponent}</div>
+        {/* {answerObjectComplete && ( */}
+        {/* )} */}
+        <div className="tell-me-more-wrapper">
+          <span
+            className={`tell-me-more${
+              answerObjectComplete && modelParsingComplete ? '' : ' disabled'
+            }`}
+            onClick={() => {
+              handleAnswerObjectTellLessOrMore(answerObject.id, 'more')
+            }}
+          >
+            tell me more...
+          </span>
+        </div>
       </div>
-      <div className="answer-item-text">{contentComponent}</div>
-      {/* {answerObjectComplete && ( */}
-      {/* )} */}
-      <div className="tell-me-more-wrapper">
-        <span
-          className={`tell-me-more${
+      {lastTextBlock && (
+        <div
+          className={`add-paragraph${
             answerObjectComplete && modelParsingComplete ? '' : ' disabled'
           }`}
-          onClick={() => {
-            handleAnswerObjectTellLessOrMore(answerObject.id, 'more')
-          }}
+          onClick={() => handleAnswerObjectsAddOneMore()}
         >
-          tell me more...
-        </span>
-      </div>
+          <SubjectRoundedIcon />
+          <span>add a paragraph</span>
+        </div>
+      )}
     </div>
   )
 }

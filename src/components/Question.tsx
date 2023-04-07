@@ -336,7 +336,7 @@ export const Question = () => {
   )
 
   const handleStreamRawAnswer = useCallback(
-    (data: OpenAIChatCompletionResponseStream) => {
+    (data: OpenAIChatCompletionResponseStream, freshStream = true) => {
       const deltaContent = trimLineBreaks(getTextFromStreamResponse(data))
       if (!deltaContent) return
 
@@ -508,7 +508,8 @@ export const Question = () => {
     await streamOpenAICompletion(
       initialPrompts,
       debug ? models.faster : models.smarter,
-      handleStreamRawAnswer
+      handleStreamRawAnswer,
+      true
     )
     // * model done raw answering
     console.log('model done raw answering')

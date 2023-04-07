@@ -96,7 +96,8 @@ export const getOpenAICompletion = async (
 export const streamOpenAICompletion = async (
   prompts: Prompt[],
   model: ModelForMagic,
-  streamFunction: (data: any) => void,
+  streamFunction: (data: any, freshStream: boolean) => void,
+  freshStream: boolean,
   temperature = temperatures.response,
   token = 2048
 ) => {
@@ -141,7 +142,7 @@ export const streamOpenAICompletion = async (
           dataObject.choices?.length > 0 &&
           dataObject.choices[0].delta.content
         )
-          streamFunction(dataObject)
+          streamFunction(dataObject, freshStream)
 
         parsingSuccessful = true
         dataParticle.current = ''
@@ -162,7 +163,7 @@ export const streamOpenAICompletion = async (
             dataObject.choices?.length > 0 &&
             dataObject.choices[0].delta.content
           )
-            streamFunction(dataObject)
+            streamFunction(dataObject, freshStream)
 
           dataParticle.current = ''
         } catch (error) {}

@@ -418,3 +418,13 @@ export const getRangeFromStart = (
     }
   }
 }
+
+export const cleanNodeLabel = (label: string) => {
+  // remove These, This, Those, That, A, An, The, Their, Its, etc.
+  const cleanedLabel = label.replace(
+    /^(these|this|those|that|a|an|the|their|its|his|her|their|our|my|your)\s/i,
+    ''
+  )
+
+  return cleanedLabel
+}

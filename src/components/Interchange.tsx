@@ -11,6 +11,7 @@ import {
 import {
   deepCopyAnswerObject,
   deepCopyQuestionAndAnswer,
+  getAnswerObjectId,
   helpSetQuestionAndAnswer,
   newQuestionAndAnswer,
   trimLineBreaks,
@@ -24,6 +25,7 @@ import {
   predefinedPromptsForParsing,
 } from '../utils/promptsAndResponses'
 import {
+  RelationshipSaliency,
   cleanSlideResponse,
   findEntityFromAnswerObjects,
   findEntitySentence,
@@ -81,6 +83,7 @@ export interface InterchangeContextProps {
   ) => void
   handleAnswerObjectNodeRemove: (nodeEntityId: string) => void
   handleAnswerObjectNodeCollapse: (nodeEntityId: string) => void
+  handleAnswerObjectsAddOneMore: () => void
   /* -------------------------------------------------------------------------- */
   handleSwitchSaliency: () => void
 }
@@ -97,6 +100,7 @@ export const InterchangeContext = createContext<InterchangeContextProps>({
   handleAnswerObjectNodeExpand: () => {},
   handleAnswerObjectNodeRemove: () => {},
   handleAnswerObjectNodeCollapse: () => {},
+  handleAnswerObjectsAddOneMore: () => {},
   /* -------------------------------------------------------------------------- */
   handleSwitchSaliency: () => {},
 })
@@ -372,7 +376,7 @@ export const Interchange = ({
 
   /* -------------------------------------------------------------------------- */
 
-  const nodeWorkStorage = useRef<{
+  const workingMemory = useRef<{
     answerObject: AnswerObject | null
     answerBefore: string
   }>({
@@ -413,10 +417,9 @@ export const Interchange = ({
           const parsingResult = await parseOpenAIResponseToObjects(
             predefinedPromptsForParsing[parsingType](
               parsingType === 'summary'
-                ? nodeWorkStorage.current.answerObject?.originText.content || ''
+                ? workingMemory.current.answerObject?.originText.content || ''
                 : removeAnnotations(
-                    nodeWorkStorage.current.answerObject?.originText.content ||
-                      ''
+                    workingMemory.current.answerObject?.originText.content || ''
                   )
             ),
             debug || parsingType === 'slide' ? models.faster : models.smarter
@@ -433,21 +436,21 @@ export const Interchange = ({
       )
     )
 
-    if (!parsingError && nodeWorkStorage.current.answerObject) {
+    if (!parsingError && workingMemory.current.answerObject) {
       // ! complete answer object
-      nodeWorkStorage.current.answerObject = {
-        ...nodeWorkStorage.current.answerObject,
+      workingMemory.current.answerObject = {
+        ...workingMemory.current.answerObject,
         summary: {
           content: parsingResults.summary,
           nodeEntities: nodeIndividualsToNodeEntities(
             parseNodes(
               parsingResults.summary,
-              nodeWorkStorage.current.answerObject.id
+              workingMemory.current.answerObject.id
             )
           ),
           edgeEntities: parseEdges(
             parsingResults.summary,
-            nodeWorkStorage.current.answerObject.id
+            workingMemory.current.answerObject.id
           ),
         },
         slide: {
@@ -459,8 +462,8 @@ export const Interchange = ({
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
           answerObjects: answerObjects.map(a =>
-            a.id === nodeWorkStorage.current.answerObject?.id
-              ? nodeWorkStorage.current.answerObject
+            a.id === workingMemory.current.answerObject?.id
+              ? workingMemory.current.answerObject
               : a
           ),
           modelStatus: {
@@ -476,22 +479,22 @@ export const Interchange = ({
   }, [_handleResponseError, answerObjects, id, setQuestionsAndAnswers])
 
   const _handleUpdateRelationshipEntities = useCallback((content: string) => {
-    if (!nodeWorkStorage.current.answerObject) return
+    if (!workingMemory.current.answerObject) return
 
     const cleanedContent = removeLastBracket(content, true)
     const nodes = parseNodes(
       cleanedContent,
-      nodeWorkStorage.current.answerObject.id
+      workingMemory.current.answerObject.id
     )
     const edges = parseEdges(
       cleanedContent,
-      nodeWorkStorage.current.answerObject.id
+      workingMemory.current.answerObject.id
     )
 
-    nodeWorkStorage.current.answerObject = {
-      ...nodeWorkStorage.current.answerObject,
+    workingMemory.current.answerObject = {
+      ...workingMemory.current.answerObject,
       originText: {
-        ...nodeWorkStorage.current.answerObject.originText,
+        ...workingMemory.current.answerObject.originText,
         nodeEntities: nodeIndividualsToNodeEntities(nodes),
         edgeEntities: edges,
       },
@@ -499,50 +502,65 @@ export const Interchange = ({
   }, [])
 
   const handleStreamRawAnswer = useCallback(
-    (data: OpenAIChatCompletionResponseStream) => {
+    (data: OpenAIChatCompletionResponseStream, newParagraph: boolean) => {
       const deltaContent = trimLineBreaks(getTextFromStreamResponse(data))
       if (!deltaContent) return
 
-      if (!nodeWorkStorage.current.answerObject) return
+      if (!workingMemory.current.answerObject) return
 
       // add a space before the stream starts
-      const answerObjectOriginTextBefore = answerObjects.find(
-        (answerObject: AnswerObject) =>
-          answerObject.id === nodeWorkStorage.current.answerObject?.id
-      )?.originText?.content
-      if (!answerObjectOriginTextBefore) return
+      const answerObjectOriginTextBefore = newParagraph
+        ? ''
+        : answerObjects.find(
+            (answerObject: AnswerObject) =>
+              answerObject.id === workingMemory.current.answerObject?.id
+          )?.originText?.content
+
+      if (!answerObjectOriginTextBefore && answerObjectOriginTextBefore !== '')
+        return
 
       if (
         answerObjectOriginTextBefore ===
-        nodeWorkStorage.current.answerObject.originText.content
+          workingMemory.current.answerObject.originText.content &&
+        !newParagraph
       )
-        nodeWorkStorage.current.answerObject.originText.content += ' '
+        workingMemory.current.answerObject.originText.content += ' '
       // ! ground truth of the response
-      nodeWorkStorage.current.answerObject.originText.content += deltaContent
+      workingMemory.current.answerObject.originText.content += deltaContent
 
       // ! parse relationships
       _handleUpdateRelationshipEntities(
-        nodeWorkStorage.current.answerObject.originText.content
+        workingMemory.current.answerObject.originText.content
       )
 
       // ! update the answer
       setQuestionsAndAnswers(prevQsAndAs => {
         return helpSetQuestionAndAnswer(prevQsAndAs, id, {
-          answer: nodeWorkStorage.current.answerBefore.replace(
-            answerObjectOriginTextBefore,
-            nodeWorkStorage.current.answerObject?.originText.content ??
-              answerObjectOriginTextBefore
-          ),
-          answerObjects: nodeWorkStorage.current.answerObject
-            ? answerObjects.map((answerObject: AnswerObject) =>
-                answerObject.id === nodeWorkStorage.current.answerObject?.id
-                  ? nodeWorkStorage.current.answerObject
-                  : answerObject
-              )
+          answer: newParagraph
+            ? workingMemory.current.answerObject?.originText.content ?? ''
+            : workingMemory.current.answerBefore.replace(
+                answerObjectOriginTextBefore,
+                workingMemory.current.answerObject?.originText.content ??
+                  answerObjectOriginTextBefore
+              ),
+          answerObjects: workingMemory.current.answerObject
+            ? newParagraph
+              ? [
+                  ...answerObjects.filter(
+                    (answerObject: AnswerObject) =>
+                      answerObject.id !== workingMemory.current.answerObject?.id
+                  ),
+                  workingMemory.current.answerObject,
+                ]
+              : answerObjects.map((answerObject: AnswerObject) =>
+                  answerObject.id === workingMemory.current.answerObject?.id
+                    ? workingMemory.current.answerObject
+                    : answerObject
+                )
             : answerObjects,
           // synced: {
-          //   answerObjectIdsHighlighted: nodeWorkStorage.current.answerObject
-          //     ? [nodeWorkStorage.current.answerObject.id]
+          //   answerObjectIdsHighlighted: workingMemory.current.answerObject
+          //     ? [workingMemory.current.answerObject.id]
           //     : [],
           // },
         })
@@ -551,7 +569,7 @@ export const Interchange = ({
       // smoothly scroll .answer-text with data-id === answerObjectId into view
       /*
       const answerObjectElement = document.querySelector(
-        `.answer-text[data-id="${nodeWorkStorage.current.answerObjectNew?.id}"]`
+        `.answer-text[data-id="${workingMemory.current.answerObjectNew?.id}"]`
       )
       if (answerObjectElement) {
         answerObjectElement.scrollIntoView({
@@ -579,29 +597,29 @@ export const Interchange = ({
       if (!answerObject) return
 
       // ! reset
-      nodeWorkStorage.current = {
+      workingMemory.current = {
         answerObject: deepCopyAnswerObject(answerObject),
         answerBefore: answer,
       }
-      if (nodeWorkStorage.current.answerObject) {
-        nodeWorkStorage.current.answerObject.summary = {
+      if (workingMemory.current.answerObject) {
+        workingMemory.current.answerObject.summary = {
           content: '',
           nodeEntities: [],
           edgeEntities: [],
         }
-        nodeWorkStorage.current.answerObject.slide = {
+        workingMemory.current.answerObject.slide = {
           content: '',
         }
-        nodeWorkStorage.current.answerObject.answerObjectSynced.listDisplay =
+        workingMemory.current.answerObject.answerObjectSynced.listDisplay =
           'original'
-        nodeWorkStorage.current.answerObject.complete = false // !
+        workingMemory.current.answerObject.complete = false // !
       }
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
-          answerObjects: nodeWorkStorage.current.answerObject
+          answerObjects: workingMemory.current.answerObject
             ? answerObjects.map(a => {
-                if (a.id === nodeWorkStorage.current.answerObject?.id) {
-                  return nodeWorkStorage.current.answerObject
+                if (a.id === workingMemory.current.answerObject?.id) {
+                  return workingMemory.current.answerObject
                 }
                 return a
               })
@@ -631,7 +649,8 @@ export const Interchange = ({
       await streamOpenAICompletion(
         prompts,
         debug ? models.faster : models.smarter,
-        handleStreamRawAnswer
+        handleStreamRawAnswer,
+        false
       )
       console.log(`text block expand raw answering complete`)
       await _handleParsingCompleteAnswerObject()
@@ -671,30 +690,30 @@ export const Interchange = ({
       if (!answerObject) return
 
       // ! reset
-      nodeWorkStorage.current = {
+      workingMemory.current = {
         answerObject: deepCopyAnswerObject(answerObject),
         answerBefore: answer,
       }
-      if (nodeWorkStorage.current.answerObject) {
-        nodeWorkStorage.current.answerObject.summary = {
+      if (workingMemory.current.answerObject) {
+        workingMemory.current.answerObject.summary = {
           content: '',
           nodeEntities: [],
           edgeEntities: [],
         }
-        nodeWorkStorage.current.answerObject.slide = {
+        workingMemory.current.answerObject.slide = {
           content: '',
         }
-        nodeWorkStorage.current.answerObject.answerObjectSynced.listDisplay =
+        workingMemory.current.answerObject.answerObjectSynced.listDisplay =
           'original'
-        nodeWorkStorage.current.answerObject.complete = false // !
+        workingMemory.current.answerObject.complete = false // !
       }
 
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
-          answerObjects: nodeWorkStorage.current.answerObject
+          answerObjects: workingMemory.current.answerObject
             ? answerObjects.map(a => {
-                if (a.id === nodeWorkStorage.current.answerObject?.id) {
-                  return nodeWorkStorage.current.answerObject
+                if (a.id === workingMemory.current.answerObject?.id) {
+                  return workingMemory.current.answerObject
                 }
                 return a
               })
@@ -742,7 +761,8 @@ export const Interchange = ({
       await streamOpenAICompletion(
         prompts,
         debug ? models.faster : models.smarter,
-        handleStreamRawAnswer
+        handleStreamRawAnswer,
+        false
       )
       console.log(`node expand ${type} raw answering complete`)
 
@@ -780,6 +800,80 @@ export const Interchange = ({
 
   /* -------------------------------------------------------------------------- */
 
+  const handleAnswerObjectsAddOneMore = useCallback(async () => {
+    if (!modelParsingComplete || modelError) return
+
+    workingMemory.current = {
+      answerObject: {
+        id: getAnswerObjectId(),
+        originText: {
+          content: '',
+          nodeEntities: [],
+          edgeEntities: [],
+        },
+        summary: {
+          content: '',
+          nodeEntities: [],
+          edgeEntities: [],
+        },
+        slide: {
+          content: '',
+        },
+        answerObjectSynced: {
+          listDisplay: 'original' as ListDisplayFormat,
+          saliencyFilter: 'high' as RelationshipSaliency,
+        },
+        complete: false,
+      },
+      answerBefore: '',
+    }
+    setQuestionsAndAnswers(prevQsAndAs =>
+      helpSetQuestionAndAnswer(prevQsAndAs, id, {
+        answerObjects: workingMemory.current.answerObject
+          ? [...answerObjects, workingMemory.current.answerObject]
+          : answerObjects,
+        modelStatus: {
+          modelParsing: true,
+          modelParsingComplete: false,
+        },
+        synced: {
+          // saliencyFilter: 'low', // ?
+        },
+      })
+    )
+
+    const prevConversation: Prompt[] = [
+      ...modelInitialPrompts,
+      {
+        role: 'assistant',
+        content: answer,
+      },
+    ]
+    const prompts = predefinedPrompts._graph_1MoreParagraph(prevConversation)
+
+    await streamOpenAICompletion(
+      prompts,
+      debug ? models.faster : models.smarter,
+      handleStreamRawAnswer,
+      true
+    )
+    console.log(`new paragraph expand raw answering complete`)
+    await _handleParsingCompleteAnswerObject()
+    console.log(`new paragraph expand parsing complete`)
+  }, [
+    _handleParsingCompleteAnswerObject,
+    answer,
+    answerObjects,
+    handleStreamRawAnswer,
+    id,
+    modelError,
+    modelInitialPrompts,
+    modelParsingComplete,
+    setQuestionsAndAnswers,
+  ])
+
+  /* -------------------------------------------------------------------------- */
+
   const handleSwitchSaliency = useCallback(() => {
     setQuestionsAndAnswers(prevQsAndAs =>
       helpSetQuestionAndAnswer(prevQsAndAs, id, {
@@ -804,6 +898,7 @@ export const Interchange = ({
         handleAnswerObjectNodeExpand,
         handleAnswerObjectNodeRemove,
         handleAnswerObjectNodeCollapse,
+        handleAnswerObjectsAddOneMore,
         handleSwitchSaliency,
       }}
     >
