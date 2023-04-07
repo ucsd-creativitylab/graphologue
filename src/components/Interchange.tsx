@@ -83,6 +83,11 @@ export interface InterchangeContextProps {
   ) => void
   handleAnswerObjectNodeRemove: (id: string, nodeEntityId: string) => void
   handleAnswerObjectNodeCollapse: (id: string, nodeEntityId: string) => void
+  handleAnswerObjectNodeMerge: (
+    id: string,
+    nodeEntityFromId: string,
+    nodeEntityToId: string
+  ) => void
   handleAnswerObjectsAddOneMore: () => void
   /* -------------------------------------------------------------------------- */
   handleSwitchSaliency: () => void
@@ -100,6 +105,7 @@ export const InterchangeContext = createContext<InterchangeContextProps>({
   handleAnswerObjectNodeExpand: () => {},
   handleAnswerObjectNodeRemove: () => {},
   handleAnswerObjectNodeCollapse: () => {},
+  handleAnswerObjectNodeMerge: () => {},
   handleAnswerObjectsAddOneMore: () => {},
   /* -------------------------------------------------------------------------- */
   handleSwitchSaliency: () => {},
@@ -834,6 +840,86 @@ export const Interchange = ({
     [answerObjects, id, setQuestionsAndAnswers]
   )
 
+  const handleAnswerObjectNodeMerge = useCallback(
+    (
+      answerObjectId: string,
+      nodeEntityFromId: string,
+      nodeEntityToId: string
+    ) => {
+      const answerObject = answerObjects.find(a => a.id === answerObjectId)
+      if (!answerObject) return
+
+      const newA = deepCopyAnswerObject(answerObject)
+
+      // merge node entity from to to
+      const nodeEntityFrom = newA.originText.nodeEntities.find(
+        n => n.id === nodeEntityFromId
+      )
+
+      const nodeEntityTo = newA.originText.nodeEntities.find(
+        n => n.id === nodeEntityToId
+      )
+
+      if (!nodeEntityFrom || !nodeEntityTo) return
+
+      // merge node entity from to to
+      // nodeEntityTo.displayNodeLabel = nodeEntityFrom.displayNodeLabel
+      nodeEntityTo.individuals = [
+        ...nodeEntityTo.individuals,
+        ...nodeEntityFrom.individuals.map(i => ({
+          ...i,
+          id: nodeEntityTo.id,
+        })),
+      ]
+
+      newA.originText.nodeEntities = newA.originText.nodeEntities.filter(
+        n => n.id !== nodeEntityFromId
+      )
+
+      // remove all the connections between to and from
+      newA.originText.edgeEntities = newA.originText.edgeEntities.filter(
+        e =>
+          e.edgePairs.filter(
+            p =>
+              (p.sourceId === nodeEntityFromId &&
+                p.targetId === nodeEntityToId) ||
+              (p.sourceId === nodeEntityToId && p.targetId === nodeEntityFromId)
+          ).length === 0
+      )
+
+      // redirect all from edges to to
+      newA.originText.edgeEntities = newA.originText.edgeEntities.map(e => {
+        e.edgePairs = e.edgePairs.map(p => {
+          if (p.sourceId === nodeEntityFromId) p.sourceId = nodeEntityToId
+          if (p.targetId === nodeEntityFromId) p.targetId = nodeEntityToId
+          return p
+        })
+        return e
+      })
+
+      // remove from from collapsed nodes
+      newA.answerObjectSynced.collapsedNodes =
+        newA.answerObjectSynced.collapsedNodes.filter(
+          n => n !== nodeEntityFromId
+        )
+
+      setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
+          answerObjects: answerObjects.map(a => {
+            if (a.id === answerObjectId) return newA
+            return a
+          }),
+          synced: {
+            highlightedCoReferenceOriginRanges: [
+              ...nodeEntityTo.individuals.map(i => i.originRange),
+            ],
+          },
+        })
+      )
+    },
+    [answerObjects, id, setQuestionsAndAnswers]
+  )
+
   /* -------------------------------------------------------------------------- */
 
   const handleAnswerObjectsAddOneMore = useCallback(async () => {
@@ -936,6 +1022,7 @@ export const Interchange = ({
         handleAnswerObjectNodeExpand,
         handleAnswerObjectNodeRemove,
         handleAnswerObjectNodeCollapse,
+        handleAnswerObjectNodeMerge,
         handleAnswerObjectsAddOneMore,
         handleSwitchSaliency,
       }}

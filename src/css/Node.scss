@@ -21,6 +21,23 @@ $shadow-node-selected: $shadow-heavy;
     z-index: -1 !important;
   }
 
+  &.node-to-merge-source {
+    .custom-node-body {
+      transform: scale(0.7);
+
+      .magic-toolbox {
+        opacity: 0 !important;
+      }
+    }
+
+    .node-label {
+      // text cross
+      // text-decoration: line-through;
+      opacity: $opacity-high !important;
+      // transform: scale(0.7);
+    }
+  }
+
   .custom-node-body {
     display: flex !important;
     align-items: center;
@@ -36,7 +53,13 @@ $shadow-node-selected: $shadow-heavy;
     outline: rem-to-px(2rem) solid transparent;
     outline-offset: rem-to-px(0);
     transition: box-shadow $transition-fast, outline $transition-fast,
-      outline-offset $transition-fast;
+      outline-offset $transition-fast, opacity $transition-fast,
+      transform $transition-normal;
+
+    .node-label {
+      transition: opacity $transition-normal ease,
+        transform $transition-normal ease, font-size $transition-normal ease;
+    }
 
     &.custom-node-meta-pressed {
       box-shadow: $light-grey 0 0 0 rem-to-px(2rem) !important;

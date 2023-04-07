@@ -84,9 +84,12 @@ const edgeTypes = {
 } as EdgeTypes
 
 const Flow = () => {
-  const { handleSetSyncedCoReferenceOriginRanges } =
-    useContext(InterchangeContext)
-  const { generatingFlow } = useContext(ReactFlowObjectContext)
+  const {
+    questionAndAnswer: { answerObjects },
+    handleSetSyncedCoReferenceOriginRanges,
+    handleAnswerObjectNodeMerge,
+  } = useContext(InterchangeContext)
+  const { answerObjectId, generatingFlow } = useContext(ReactFlowObjectContext)
 
   const thisReactFlowInstance = useReactFlow()
   const {
@@ -98,7 +101,11 @@ const Flow = () => {
     toObject,
     // fitView,
     getViewport,
+    ////
+    getIntersectingNodes,
   }: ReactFlowInstance = thisReactFlowInstance
+
+  const answerObject = answerObjects.find(a => a.id === answerObjectId)
 
   // useLayout({
   //   direction: 'LR',
@@ -358,10 +365,81 @@ const Flow = () => {
     [selectNodeAndEdges]
   )
 
-  const handleNodeDragStop = useCallback((e: MouseEvent, node: Node) => {
-    // anyNodeDragging.current = false
-    // selectNodeAndEdges(node)
-  }, [])
+  const handleNodeDrag = useCallback(
+    (e: MouseEvent, node: Node) => {
+      if (
+        generatingFlow ||
+        !answerObject ||
+        answerObject.answerObjectSynced.listDisplay === 'summary'
+      )
+        return
+
+      const intersections = getIntersectingNodes(node).map(nd => nd.id)
+
+      const setPosition = generatingFlow
+        ? {}
+        : {
+            position: {
+              x: node.position.x + e.movementX,
+              y: node.position.y + e.movementY,
+            },
+          }
+
+      setNodes(ns =>
+        ns.map((n: Node): Node<CustomNodeData> => {
+          if (n.id === node.id)
+            return {
+              ...n,
+              ...setPosition,
+              // position: {
+              //   x: node.position.x + (generatingFlow ? 0 : e.movementX),
+              //   y: node.position.y + (generatingFlow ? 0 : e.movementY),
+              // },
+              className:
+                intersections.length && !generatingFlow
+                  ? 'node-to-merge-source'
+                  : '',
+            }
+
+          return {
+            ...n,
+            className: intersections.includes(n.id)
+              ? 'node-to-merge-target'
+              : '',
+          }
+        })
+      )
+    },
+    [answerObject, generatingFlow, getIntersectingNodes, setNodes]
+  )
+
+  const handleNodeDragStop = useCallback(
+    (e: MouseEvent, node: Node) => {
+      if (
+        generatingFlow ||
+        !answerObject ||
+        answerObject.answerObjectSynced.listDisplay === 'summary'
+      )
+        return
+
+      const intersections = getIntersectingNodes(node).map(nd => nd.id)
+
+      // merge node with the first intersecting node
+      if (intersections.length) {
+        const targetNodeId = intersections[0]
+
+        // merge the nodes
+        handleAnswerObjectNodeMerge(answerObjectId, node.id, targetNodeId)
+      }
+    },
+    [
+      answerObject,
+      answerObjectId,
+      generatingFlow,
+      getIntersectingNodes,
+      handleAnswerObjectNodeMerge,
+    ]
+  )
 
   /* -------------------------------------------------------------------------- */
 
@@ -732,12 +810,14 @@ const Flow = () => {
           selectionOnDrag={false}
           panOnDrag={[0, 1, 2]}
           selectionMode={SelectionMode.Full}
+          selectNodesOnDrag={false}
           // ! actions
           onScroll={handleScroll}
           onNodeClick={handleNodeClick}
           onNodeDoubleClick={handleNodeDoubleClick}
           onNodeContextMenu={handleNodeContextMenu}
           onNodeDragStart={handleNodeDragStart}
+          onNodeDrag={handleNodeDrag}
           onNodeDragStop={handleNodeDragStop}
           onEdgeClick={handleEdgeClick}
           onEdgeDoubleClick={handleEdgeDoubleClick}
