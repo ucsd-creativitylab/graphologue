@@ -1,4 +1,5 @@
-export const debug = process.env.NODE_ENV === 'development'
+export const debug = false
+// export const debug = process.env.NODE_ENV === 'development'
 export const useMagic = true // enable OpenAI? // TODO
 export const useSessionStorage = true // TODO ?
 

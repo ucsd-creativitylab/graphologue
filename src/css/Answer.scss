@@ -189,10 +189,24 @@
       }
     }
 
+    .tell-me-more-wrapper {
+      display: flex;
+      padding: 0;
+
+      height: 0;
+      overflow: hidden;
+
+      transition: height $transition-normal ease;
+    }
+
     &:hover {
       .text-segment.annotated {
         // border-bottom-color: $light;
         background-color: $light;
+      }
+
+      .tell-me-more-wrapper {
+        height: 1rem;
       }
     }
 
@@ -229,48 +243,50 @@
       .answer-block-menu-item-divider {
         font-size: $font-size-xs;
       }
+    }
 
-      .answer-block-menu-item {
-        display: inline-flex;
-        align-items: center;
-        gap: $padding-xxs;
+    .answer-block-menu-item,
+    .tell-me-more {
+      display: inline-flex;
+      align-items: center;
+      gap: $padding-xxs;
 
+      font-size: $font-size-xs;
+      line-height: 100%;
+      padding: $padding-xs $padding-xs;
+      border-radius: $radius-small;
+
+      cursor: pointer;
+      user-select: none;
+
+      * {
         font-size: $font-size-xs;
-        padding: $padding-xs $padding-xs;
-        border-radius: $radius-small;
+      }
 
-        cursor: pointer;
-        user-select: none;
+      &.highlighted-list-display {
+        outline: 1px solid $grey;
+        outline-offset: -1px;
+      }
 
-        * {
-          font-size: $font-size-xs;
-        }
+      &:hover {
+        background-color: $grey;
+        color: $white;
+      }
 
-        &.highlighted-list-display {
-          outline: 1px solid $grey;
-          outline-offset: -1px;
-        }
+      &.highlighted {
+        background-color: $purple;
+        color: $white;
+      }
 
-        &:hover {
-          background-color: $grey;
-          color: $white;
-        }
+      &.hidden {
+        background-color: $elegant-red;
+        color: $white;
+      }
 
-        &.highlighted {
-          background-color: $purple;
-          color: $white;
-        }
-
-        &.hidden {
-          background-color: $elegant-red;
-          color: $white;
-        }
-
-        &.disabled {
-          pointer-events: none;
-          cursor: not-allowed;
-          opacity: 0.5;
-        }
+      &.disabled {
+        pointer-events: none;
+        cursor: not-allowed;
+        opacity: 0.5;
       }
     }
   }

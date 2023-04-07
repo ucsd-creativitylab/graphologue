@@ -715,6 +715,7 @@ const AnswerTextBlock = ({
   answerObject: AnswerObject
   diagramDisplay: DiagramDisplayFormat
 }) => {
+  const { handleAnswerObjectTellLessOrMore } = useContext(InterchangeContext)
   const {
     handleHighlightAnswerObject,
     handleHideAnswerObject,
@@ -893,6 +894,18 @@ const AnswerTextBlock = ({
       <div className="answer-item-text">{contentComponent}</div>
       {/* {answerObjectComplete && ( */}
       {/* )} */}
+      <div className="tell-me-more-wrapper">
+        <span
+          className={`tell-me-more${
+            answerObjectComplete && modelParsingComplete ? '' : ' disabled'
+          }`}
+          onClick={() => {
+            handleAnswerObjectTellLessOrMore(answerObject.id, 'more')
+          }}
+        >
+          tell me more...
+        </span>
+      </div>
     </div>
   )
 }

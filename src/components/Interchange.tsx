@@ -49,6 +49,7 @@ import {
   streamOpenAICompletion,
 } from '../utils/openAI'
 import { makeFlowTransition } from '../utils/flowChangingTransition'
+import { debug } from '../constants'
 
 export type NodeConceptExpansionType = 'explain' | 'examples'
 
@@ -191,7 +192,7 @@ export const Interchange = ({
                   n,
                   e
                 ),
-                models.smarter
+                debug ? models.faster : models.smarter
               )
 
               const correctionText =
@@ -374,17 +375,9 @@ export const Interchange = ({
   const nodeWorkStorage = useRef<{
     answerObject: AnswerObject | null
     answerBefore: string
-    answerObjectsBefore: AnswerObject[]
   }>({
     answerObject: null,
     answerBefore: '',
-    answerObjectsBefore: [],
-  })
-
-  const answerObjectWorkStorage = useRef<{
-    answerObjectUpdated: AnswerObject | null
-  }>({
-    answerObjectUpdated: null,
   })
 
   const _handleResponseError = useCallback(
@@ -426,7 +419,7 @@ export const Interchange = ({
                       ''
                   )
             ),
-            parsingType === 'slide' ? models.faster : models.smarter
+            debug || parsingType === 'slide' ? models.faster : models.smarter
           )
 
           if (parsingResult.error) {
@@ -465,7 +458,7 @@ export const Interchange = ({
 
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
-          answerObjects: nodeWorkStorage.current.answerObjectsBefore.map(a =>
+          answerObjects: answerObjects.map(a =>
             a.id === nodeWorkStorage.current.answerObject?.id
               ? nodeWorkStorage.current.answerObject
               : a
@@ -480,7 +473,7 @@ export const Interchange = ({
         })
       )
     }
-  }, [_handleResponseError, id, setQuestionsAndAnswers])
+  }, [_handleResponseError, answerObjects, id, setQuestionsAndAnswers])
 
   const _handleUpdateRelationshipEntities = useCallback((content: string) => {
     if (!nodeWorkStorage.current.answerObject) return
@@ -513,11 +506,10 @@ export const Interchange = ({
       if (!nodeWorkStorage.current.answerObject) return
 
       // add a space before the stream starts
-      const answerObjectOriginTextBefore =
-        nodeWorkStorage.current.answerObjectsBefore.find(
-          (answerObject: AnswerObject) =>
-            answerObject.id === nodeWorkStorage.current.answerObject?.id
-        )?.originText?.content
+      const answerObjectOriginTextBefore = answerObjects.find(
+        (answerObject: AnswerObject) =>
+          answerObject.id === nodeWorkStorage.current.answerObject?.id
+      )?.originText?.content
       if (!answerObjectOriginTextBefore) return
 
       if (
@@ -542,13 +534,12 @@ export const Interchange = ({
               answerObjectOriginTextBefore
           ),
           answerObjects: nodeWorkStorage.current.answerObject
-            ? nodeWorkStorage.current.answerObjectsBefore.map(
-                (answerObject: AnswerObject) =>
-                  answerObject.id === nodeWorkStorage.current.answerObject?.id
-                    ? nodeWorkStorage.current.answerObject
-                    : answerObject
+            ? answerObjects.map((answerObject: AnswerObject) =>
+                answerObject.id === nodeWorkStorage.current.answerObject?.id
+                  ? nodeWorkStorage.current.answerObject
+                  : answerObject
               )
-            : nodeWorkStorage.current.answerObjectsBefore,
+            : answerObjects,
           // synced: {
           //   answerObjectIdsHighlighted: nodeWorkStorage.current.answerObject
           //     ? [nodeWorkStorage.current.answerObject.id]
@@ -570,7 +561,12 @@ export const Interchange = ({
       }
       */
     },
-    [_handleUpdateRelationshipEntities, id, setQuestionsAndAnswers]
+    [
+      _handleUpdateRelationshipEntities,
+      answerObjects,
+      id,
+      setQuestionsAndAnswers,
+    ]
   )
 
   /* -------------------------------------------------------------------------- */
@@ -582,21 +578,76 @@ export const Interchange = ({
       const answerObject = answerObjects.find(a => a.id === answerObjectId)
       if (!answerObject) return
 
-      // // ! reset
-      answerObjectWorkStorage.current = {
-        answerObjectUpdated: deepCopyAnswerObject(answerObject),
+      // ! reset
+      nodeWorkStorage.current = {
+        answerObject: deepCopyAnswerObject(answerObject),
+        answerBefore: answer,
       }
-      // TODO
-      // setQuestionsAndAnswers(prevQsAndAs =>
-      //   helpSetQuestionAndAnswer(prevQsAndAs, id, {
-      //     modelStatus: {
-      //       modelParsing: true,
-      //       modelParsingComplete: false,
-      //     },
-      //   })
-      // )
+      if (nodeWorkStorage.current.answerObject) {
+        nodeWorkStorage.current.answerObject.summary = {
+          content: '',
+          nodeEntities: [],
+          edgeEntities: [],
+        }
+        nodeWorkStorage.current.answerObject.slide = {
+          content: '',
+        }
+        nodeWorkStorage.current.answerObject.answerObjectSynced.listDisplay =
+          'original'
+        nodeWorkStorage.current.answerObject.complete = false // !
+      }
+      setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
+          answerObjects: nodeWorkStorage.current.answerObject
+            ? answerObjects.map(a => {
+                if (a.id === nodeWorkStorage.current.answerObject?.id) {
+                  return nodeWorkStorage.current.answerObject
+                }
+                return a
+              })
+            : answerObjects,
+          modelStatus: {
+            modelParsing: true,
+            modelParsingComplete: false,
+          },
+          synced: {
+            // saliencyFilter: 'low', // ?
+          },
+        })
+      )
+
+      const prevConversation: Prompt[] = [
+        ...modelInitialPrompts,
+        {
+          role: 'assistant',
+          content: answer,
+        },
+      ]
+      const prompts = predefinedPrompts._graph_2MoreSentences(
+        prevConversation,
+        answerObject.originText.content
+      )
+
+      await streamOpenAICompletion(
+        prompts,
+        debug ? models.faster : models.smarter,
+        handleStreamRawAnswer
+      )
+      console.log(`text block expand raw answering complete`)
+      await _handleParsingCompleteAnswerObject()
+      console.log(`text block expand parsing complete`)
     },
-    [answerObjects, modelError, modelParsingComplete]
+    [
+      _handleParsingCompleteAnswerObject,
+      answer,
+      answerObjects,
+      handleStreamRawAnswer,
+      id,
+      modelError,
+      modelInitialPrompts,
+      modelParsingComplete,
+      setQuestionsAndAnswers,
+    ]
   )
 
   const handleAnswerObjectNodeExpand = useCallback(
@@ -623,7 +674,6 @@ export const Interchange = ({
       nodeWorkStorage.current = {
         answerObject: deepCopyAnswerObject(answerObject),
         answerBefore: answer,
-        answerObjectsBefore: answerObjects.map(a => deepCopyAnswerObject(a)),
       }
       if (nodeWorkStorage.current.answerObject) {
         nodeWorkStorage.current.answerObject.summary = {
@@ -642,13 +692,13 @@ export const Interchange = ({
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
           answerObjects: nodeWorkStorage.current.answerObject
-            ? nodeWorkStorage.current.answerObjectsBefore.map(a => {
+            ? answerObjects.map(a => {
                 if (a.id === nodeWorkStorage.current.answerObject?.id) {
                   return nodeWorkStorage.current.answerObject
                 }
                 return a
               })
-            : nodeWorkStorage.current.answerObjectsBefore,
+            : answerObjects,
           modelStatus: {
             modelParsing: true,
             modelParsingComplete: false,
@@ -691,7 +741,7 @@ export const Interchange = ({
 
       await streamOpenAICompletion(
         prompts,
-        models.smarter,
+        debug ? models.faster : models.smarter,
         handleStreamRawAnswer
       )
       console.log(`node expand ${type} raw answering complete`)

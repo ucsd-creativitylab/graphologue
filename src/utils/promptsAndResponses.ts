@@ -177,6 +177,8 @@ For example, for "[Fruits ($N1)]" in the sentence \
         role: 'user',
         content: `For the paragraph "${originText}", \
 can you continue writing one or two more sentences at the end of the paragraph? \
+When continue writing the paragraph, please refer to the original response as the context of your writing. \
+Your response should be about the same topic and aspect of the original paragraph and could add more details. \
 Your response should follow the same annotation format as the original response.
 ${_graph_handleFollowupQuestionsIdMatching} \
 Your response should only have the new content.`,

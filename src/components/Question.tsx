@@ -241,7 +241,7 @@ export const Question = () => {
                   ? answerObject.originText.content
                   : removeAnnotations(answerObject.originText.content)
               ),
-              models.smarter
+              debug ? models.faster : models.smarter
             )
 
             if (parsingResult.error) {
