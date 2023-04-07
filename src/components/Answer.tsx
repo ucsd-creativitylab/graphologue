@@ -103,7 +103,11 @@ export type DiagramDisplayFormat = 'split' | 'merged'
 
 interface AnswerListContextProps {
   // synced: QuestionAndAnswerSynced
-  handleHighlightAnswerObject: (answerObjectId: string) => void
+  handleHighlightAnswerObject: (
+    answerObjectId: string,
+    addOrRemove: 'add' | 'remove',
+    temp: boolean
+  ) => void
   handleHideAnswerObject: (answerObjectId: string) => void
   handleAnswerObjectSwitchListDisplayFormat: (
     answerObjectId: string,
@@ -166,7 +170,7 @@ const AnswerListView = ({
 
       // remove all highlighted and hidden answer objects if switching to split
       if (newDisplayFormat === 'split') {
-        handleSetSyncedAnswerObjectIdsHighlighted([])
+        handleSetSyncedAnswerObjectIdsHighlighted([], false)
         handleSetSyncedAnswerObjectIdsHidden([])
       }
 
@@ -194,22 +198,32 @@ const AnswerListView = ({
   }, [handleSwitchSaliency])
 
   const handleHighlightAnswerObject = useCallback(
-    (answerObjectId: string) => {
-      const currentIds = synced.answerObjectIdsHighlighted
+    (answerObjectId: string, addOrRemove: 'add' | 'remove', temp: boolean) => {
+      const currentIds = temp
+        ? synced.answerObjectIdsHighlightedTemp
+        : synced.answerObjectIdsHighlighted
 
-      if (currentIds.includes(answerObjectId)) {
-        handleSetSyncedAnswerObjectIdsHighlighted(
-          currentIds.filter(id => id !== answerObjectId)
-        )
-      } else
-        handleSetSyncedAnswerObjectIdsHighlighted([
-          ...currentIds,
-          answerObjectId,
-        ])
+      if (addOrRemove === 'remove') {
+        if (temp) handleSetSyncedAnswerObjectIdsHighlighted([], true)
+        else
+          handleSetSyncedAnswerObjectIdsHighlighted(
+            currentIds.filter(id => id !== answerObjectId),
+            false
+          )
+      } else {
+        if (temp)
+          handleSetSyncedAnswerObjectIdsHighlighted([answerObjectId], true)
+        else
+          handleSetSyncedAnswerObjectIdsHighlighted(
+            [...currentIds, answerObjectId],
+            temp
+          )
+      }
     },
     [
       handleSetSyncedAnswerObjectIdsHighlighted,
       synced.answerObjectIdsHighlighted,
+      synced.answerObjectIdsHighlightedTemp,
     ]
   )
 
@@ -696,9 +710,13 @@ const AnswerTextBlock = ({
   } = useContext(AnswerListContext)
 
   const answerObjectComplete = answerObject.complete
-  const answerObjectHighlighted = synced.answerObjectIdsHighlighted.includes(
-    answerObject.id
-  )
+
+  const answerObjectHighlightedActually =
+    synced.answerObjectIdsHighlighted.includes(answerObject.id)
+  const answerObjectHighlighted =
+    synced.answerObjectIdsHighlighted.includes(answerObject.id) ||
+    synced.answerObjectIdsHighlightedTemp.includes(answerObject.id)
+
   const answerObjectHidden = synced.answerObjectIdsHidden.includes(
     answerObject.id
   )
@@ -745,8 +763,16 @@ const AnswerTextBlock = ({
       className={`answer-item answer-item-block interchange-component${
         index !== 0 ? (diagramMerged ? ' drop-up-answer' : ' drop-down') : ''
       }${listDisplay === 'slide' ? ' slide-wrapper' : ''}${
-        answerObjectHighlighted ? ' highlighted-item' : ''
+        answerObjectHighlighted && diagramMerged ? ' highlighted-item' : ''
       }`}
+      onMouseEnter={() => {
+        if (diagramMerged && !answerObjectHidden)
+          handleHighlightAnswerObject(answerObject.id, 'add', true)
+      }}
+      onMouseLeave={() => {
+        if (diagramMerged && !answerObjectHidden)
+          handleHighlightAnswerObject(answerObject.id, 'remove', true)
+      }}
     >
       <div className="answer-block-menu">
         {/* <span
@@ -820,10 +846,14 @@ const AnswerTextBlock = ({
 
         <span
           className={`answer-block-menu-item${
-            answerObjectHighlighted ? ' highlighted' : ''
+            answerObjectHighlightedActually ? ' highlighted' : ''
           }${!answerObjectComplete || !diagramMerged ? ' disabled' : ''}`}
           onClick={() => {
-            handleHighlightAnswerObject(answerObject.id)
+            handleHighlightAnswerObject(
+              answerObject.id,
+              answerObjectHighlightedActually ? 'remove' : 'add',
+              false
+            )
           }}
         >
           highlight

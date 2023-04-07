@@ -79,6 +79,7 @@ interface ModelStatus {
 
 export interface QuestionAndAnswerSynced {
   answerObjectIdsHighlighted: string[] // for highlight from text block to show partial graph
+  answerObjectIdsHighlightedTemp: string[] // for highlight from text block ON HOVER to show partial graph
   answerObjectIdsHidden: string[]
   highlightedCoReferenceOriginRanges: OriginRange[] // for highlight text
   highlightedNodeIdsProcessing: string[] // for highlight nodes when it is expanding

@@ -44,6 +44,7 @@ import {
   removeLastBracket,
 } from '../utils/responseProcessing'
 import { ListDisplayFormat } from './Answer'
+import { debug } from '../constants'
 
 export type FinishedAnswerObjectParsingTypes = 'summary' | 'slide'
 
@@ -506,7 +507,7 @@ export const Question = () => {
     // ! request
     await streamOpenAICompletion(
       initialPrompts,
-      models.smarter,
+      debug ? models.faster : models.smarter,
       handleStreamRawAnswer
     )
     // * model done raw answering

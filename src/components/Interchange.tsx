@@ -55,7 +55,10 @@ export type NodeConceptExpansionType = 'explain' | 'examples'
 export interface InterchangeContextProps {
   questionAndAnswer: QuestionAndAnswer
   handleSelfCorrection: (answerObjects: AnswerObject[]) => Promise<void>
-  handleSetSyncedAnswerObjectIdsHighlighted: (ids: string[]) => void
+  handleSetSyncedAnswerObjectIdsHighlighted: (
+    ids: string[],
+    temp: boolean
+  ) => void
   handleSetSyncedAnswerObjectIdsHidden: (ids: string[]) => void
   handleSetSyncedCoReferenceOriginRanges: (
     highlightedCoReferenceOriginRanges: OriginRange[]
@@ -227,7 +230,15 @@ export const Interchange = ({
   )
 
   const handleSetSyncedAnswerObjectIdsHighlighted = useCallback(
-    (ids: string[]) => {
+    (ids: string[], temp: boolean) => {
+      const setObject = temp
+        ? {
+            answerObjectIdsHighlightedTemp: ids,
+          }
+        : {
+            answerObjectIdsHighlighted: ids,
+          }
+
       setQuestionsAndAnswers(
         (questionsAndAnswers: QuestionAndAnswer[]): QuestionAndAnswer[] =>
           questionsAndAnswers.map(
@@ -237,7 +248,7 @@ export const Interchange = ({
                   ...deepCopyQuestionAndAnswer(questionAndAnswer),
                   synced: {
                     ...questionAndAnswer.synced,
-                    answerObjectIdsHighlighted: ids,
+                    ...setObject,
                     answerObjectIdsHidden:
                       questionAndAnswer.synced.answerObjectIdsHidden.filter(
                         (id: string) => !ids.includes(id)
@@ -269,6 +280,7 @@ export const Interchange = ({
                       questionAndAnswer.synced.answerObjectIdsHighlighted.filter(
                         (id: string) => !ids.includes(id)
                       ),
+                    answerObjectIdsHighlightedTemp: [],
                   },
                 }
               }
@@ -299,6 +311,10 @@ export const Interchange = ({
                     ...questionAndAnswer.synced,
                     answerObjectIdsHighlighted:
                       questionAndAnswer.synced.answerObjectIdsHighlighted.filter(
+                        (id: string) => id !== answerObjectId
+                      ),
+                    answerObjectIdsHighlightedTemp:
+                      questionAndAnswer.synced.answerObjectIdsHighlightedTemp.filter(
                         (id: string) => id !== answerObjectId
                       ),
                     answerObjectIdsHidden:

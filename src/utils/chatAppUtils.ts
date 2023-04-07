@@ -103,6 +103,8 @@ export const newQuestionAndAnswer = (
     synced: {
       answerObjectIdsHighlighted:
         prefill?.synced?.answerObjectIdsHighlighted ?? [],
+      answerObjectIdsHighlightedTemp:
+        prefill?.synced?.answerObjectIdsHighlightedTemp ?? [],
       answerObjectIdsHidden: prefill?.synced?.answerObjectIdsHidden ?? [],
       highlightedCoReferenceOriginRanges:
         prefill?.synced?.highlightedCoReferenceOriginRanges ?? [],

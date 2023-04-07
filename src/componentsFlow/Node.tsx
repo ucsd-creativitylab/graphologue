@@ -123,6 +123,7 @@ export const CustomNode = memo(
           highlightedCoReferenceOriginRanges,
           highlightedNodeIdsProcessing,
           answerObjectIdsHighlighted,
+          answerObjectIdsHighlightedTemp,
         },
       },
       handleAnswerObjectNodeExpand,
@@ -290,7 +291,7 @@ export const CustomNode = memo(
         }${
           highlightedNodeIdsProcessing.includes(id) ||
           anyNodeIndividualInHighlightedAnswerObject(
-            answerObjectIdsHighlighted,
+            [...answerObjectIdsHighlighted, ...answerObjectIdsHighlightedTemp],
             originRanges
           )
             ? ' custom-node-explained'
