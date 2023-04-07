@@ -321,12 +321,12 @@ const AnswerListView = ({
                   ))}
                 </div>
                 <ReactFlowProvider
-                  key={`answer-block-flow-provider-merged-${id}`}
-                  // key={`answer-block-flow-provider-${id}-${answerObjects[0].id}`}
+                  // key={`answer-block-flow-provider-merged-${id}`}
+                  key={`answer-block-flow-provider-${id}-${answerObjects[0].id}`}
                 >
                   <AnswerBlockItem
-                    key={`answer-block-item-${id}`}
-                    // key={`answer-block-item-${id}-${answerObjects[0].id}`}
+                    // key={`answer-block-item-${id}`}
+                    key={`answer-block-item-${id}-${answerObjects[0].id}`}
                     index={0}
                     questionAndAnswer={questionAndAnswer}
                     answerObject={answerObjects[0]}
@@ -799,7 +799,7 @@ const AnswerTextBlock = ({
           }}
         >
           <CropLandscapeRoundedIcon />
-          slide
+          outline
         </span>
         <span
           className={`answer-block-menu-item${
