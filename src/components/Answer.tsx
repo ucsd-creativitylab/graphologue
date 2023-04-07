@@ -17,6 +17,7 @@ import NotesRoundedIcon from '@mui/icons-material/NotesRounded'
 import CropLandscapeRoundedIcon from '@mui/icons-material/CropLandscapeRounded'
 import HorizontalSplitRoundedIcon from '@mui/icons-material/HorizontalSplitRounded'
 import RectangleRoundedIcon from '@mui/icons-material/RectangleRounded'
+import BugReportRoundedIcon from '@mui/icons-material/BugReportRounded'
 ////
 import SignalWifi1BarRoundedIcon from '@mui/icons-material/SignalWifi1BarRounded'
 import SignalWifi4BarRoundedIcon from '@mui/icons-material/SignalWifi4BarRounded'
@@ -27,6 +28,7 @@ import {
   AnswerObject,
   EdgeEntity,
   AnswerObjectEntitiesTarget,
+  DebugModeContext,
 } from '../App'
 import ReactFlowComponent from '../componentsFlow/ReactFlowComponent'
 import { InterchangeContext } from './Interchange'
@@ -132,6 +134,8 @@ const AnswerListView = ({
 }: {
   questionAndAnswer: QuestionAndAnswer
 }) => {
+  const { debugMode, setDebugMode } = useContext(DebugModeContext)
+
   const {
     handleAnswerObjectSwitchListDisplayFormat,
     handleSetSyncedAnswerObjectIdsHighlighted,
@@ -196,6 +200,8 @@ const AnswerListView = ({
     makeFlowTransition()
     handleSwitchSaliency()
   }, [handleSwitchSaliency])
+
+  // const handleSwitchDebug = useCallback(() => {}, [])
 
   const handleHighlightAnswerObject = useCallback(
     (answerObjectId: string, addOrRemove: 'add' | 'remove', temp: boolean) => {
@@ -309,6 +315,13 @@ const AnswerListView = ({
               />
             )}
             <span>saliency</span>
+          </button>
+          <button
+            className={`bar-button`}
+            onClick={() => setDebugMode(!debugMode)}
+          >
+            <BugReportRoundedIcon />
+            <span>debug</span>
           </button>
         </div>
 
@@ -895,6 +908,7 @@ const AnswerText = ({
   entitiesTarget: AnswerObjectEntitiesTarget
   highlightedRanges: OriginRange[]
 }) => {
+  const { debugMode } = useContext(DebugModeContext)
   const { handleSetSyncedCoReferenceOriginRanges } =
     useContext(InterchangeContext)
 
@@ -996,8 +1010,7 @@ const AnswerText = ({
                   handleLeaveAnnotatedTextSegment()
                 }}
               >
-                {removeAnnotations(part)}
-                {/* {part} */}
+                {debugMode ? part : removeAnnotations(part)}
               </span>
             )
           })}

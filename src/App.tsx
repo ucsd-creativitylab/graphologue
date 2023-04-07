@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { createContext, useEffect, useState } from 'react'
 
 import { ChatContext } from './components/Contexts'
 import { Interchange } from './components/Interchange'
@@ -107,10 +107,20 @@ export interface PartialQuestionAndAnswer {
   synced?: Partial<QuestionAndAnswerSynced>
 }
 
+export interface DebugModeContextType {
+  debugMode: boolean
+  setDebugMode: (debugMode: boolean) => void
+}
+export const DebugModeContext = createContext<DebugModeContextType>(
+  {} as DebugModeContextType
+)
+
 export const ChatApp = () => {
   const [questionsAndAnswers, setQuestionsAndAnswers] = useState<
     QuestionAndAnswer[]
   >([])
+
+  const [debugMode, setDebugMode] = useState<boolean>(false)
 
   // componentDidMount
   useEffect(() => {
@@ -132,23 +142,25 @@ export const ChatApp = () => {
         setQuestionsAndAnswers,
       }}
     >
-      <div className="chat-app">
-        {/* // TODO */}
-        <span
-          className="version-stamp"
-          style={{
-            display: 'none',
-          }}
-        >
-          version {packageJson.version}-graph
-        </span>
-        {questionsAndAnswers.map((questionAndAnswer, index) => (
-          <Interchange
-            key={`interchange-${questionAndAnswer.id}`}
-            data={questionAndAnswer}
-          />
-        ))}
-      </div>
+      <DebugModeContext.Provider value={{ debugMode, setDebugMode }}>
+        <div className="chat-app">
+          {/* // TODO */}
+          <span
+            className="version-stamp"
+            style={{
+              display: 'none',
+            }}
+          >
+            version {packageJson.version}-graph
+          </span>
+          {questionsAndAnswers.map((questionAndAnswer, index) => (
+            <Interchange
+              key={`interchange-${questionAndAnswer.id}`}
+              data={questionAndAnswer}
+            />
+          ))}
+        </div>
+      </DebugModeContext.Provider>
     </ChatContext.Provider>
   )
 }
