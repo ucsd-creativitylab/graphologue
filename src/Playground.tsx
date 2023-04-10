@@ -3,13 +3,24 @@ import { ReactFlowProvider } from 'reactflow'
 import { v5 as uuidv5 } from 'uuid'
 
 import { AnswerBlockItem } from './components/Answer'
-import { newAnswerObject, newQuestionAndAnswer } from './utils/chatAppUtils'
+import {
+  findSentencesToCorrect,
+  newAnswerObject,
+  newQuestionAndAnswer,
+} from './utils/chatAppUtils'
 import {
   nodeIndividualsToNodeEntities,
   parseEdges,
   parseNodes,
 } from './utils/responseProcessing'
 import { InterchangeContext } from './components/Interchange'
+import {
+  Prompt,
+  getOpenAICompletion,
+  getTextFromModelResponse,
+  models,
+} from './utils/openAI'
+import { predefinedPrompts } from './utils/promptsAndResponses'
 
 export const Playground = () => {
   const [playgroundQuestionAndAnswer, setPlaygroundQuestionAndAnswer] =
@@ -24,6 +35,8 @@ export const Playground = () => {
         answerObjects: [newAnswerObject()],
       })
     )
+  const [modelCorrecting, setModelCorrecting] = useState(false)
+  const [correctedText, setCorrectedText] = useState('')
 
   const textRef = useRef<HTMLTextAreaElement>(null)
 
@@ -52,6 +65,68 @@ export const Playground = () => {
     }
   }, [playgroundQuestionAndAnswer.answerObjects])
 
+  const handleCorrectAnswer = useCallback(async () => {
+    let textContentAfterCorrection =
+      playgroundQuestionAndAnswer.answerObjects[0].originText.content
+    const correctionJobs = findSentencesToCorrect(
+      playgroundQuestionAndAnswer.answerObjects[0]
+    )
+
+    setModelCorrecting(true)
+    setCorrectedText('')
+
+    await Promise.all(
+      correctionJobs.map(async ({ sentence, n, e }) => {
+        const correctionResponse = await getOpenAICompletion(
+          predefinedPrompts._graph_sentenceCorrection(
+            [
+              ...predefinedPrompts._graph_initialAsk(''), // TODO
+              {
+                role: 'assistant',
+                content:
+                  playgroundQuestionAndAnswer.answerObjects[0].originText
+                    .content,
+              },
+            ] as Prompt[],
+            sentence,
+            n,
+            e
+          ),
+          models.smarter
+        )
+
+        const correctionText = getTextFromModelResponse(correctionResponse)
+        console.log({
+          before: sentence,
+          corrected: ' ' + correctionText,
+        })
+        textContentAfterCorrection = textContentAfterCorrection.replace(
+          sentence,
+          ' ' + correctionText
+        )
+      })
+    )
+
+    const objectId = playgroundQuestionAndAnswer.answerObjects[0].id
+    setPlaygroundQuestionAndAnswer(prevQAndA => ({
+      ...prevQAndA,
+      answerObjects: [
+        {
+          ...prevQAndA.answerObjects[0],
+          originText: {
+            content: textContentAfterCorrection,
+            nodeEntities: nodeIndividualsToNodeEntities(
+              parseNodes(textContentAfterCorrection, objectId)
+            ),
+            edgeEntities: parseEdges(textContentAfterCorrection, objectId),
+          },
+        },
+      ],
+    }))
+    setCorrectedText(textContentAfterCorrection)
+    setModelCorrecting(false)
+  }, [playgroundQuestionAndAnswer.answerObjects])
+
   return (
     <div className="playground">
       <div className="content-wrapper">
@@ -60,9 +135,20 @@ export const Playground = () => {
           className="playground-textarea"
           placeholder="Place the annotated text here..."
         />
-        <button className="bar-button" onClick={() => handleSetAnswer()}>
-          Render
-        </button>
+        <div className="playground-buttons">
+          <button className="bar-button" onClick={() => handleSetAnswer()}>
+            Render
+          </button>
+          <button
+            className={'bar-button' + (modelCorrecting ? ' disabled' : '')}
+            onClick={() => handleCorrectAnswer()}
+          >
+            Correct
+          </button>
+        </div>
+        {correctedText.length > 0 && (
+          <div className="playground-corrected-text">{correctedText}</div>
+        )}
       </div>
 
       <InterchangeContext.Provider

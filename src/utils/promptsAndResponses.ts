@@ -229,6 +229,9 @@ ${
 were trying to connect entities with ids that are not mentioned in the response.`
     : ''
 }
+
+In your corrected response, please make sure that all entities and relationships are extracted correctly. \
+Relationships should only connect existing entities, and entities should be connected by at least one relationship. \
 Please try to fix these issues in your response by annotating the same sentence again. \
 You may arrange the sentences in a way that facilitates the annotation of entities and relationships, \
 but the arrangement should not alter their meaning and they should still flow naturally in language. \
@@ -239,7 +242,7 @@ Please only include the re-annotated sentence in your response.`,
       },
       {
         role: 'user',
-        content: `Please re-annotate this sentence: ${originalSentence}`,
+        content: `Please re-annotate this sentence: ${originalSentence.trimStart()}`,
       },
     ]
   },

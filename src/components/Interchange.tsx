@@ -1,16 +1,10 @@
 import React, { createContext, useCallback, useContext, useRef } from 'react'
 
-import {
-  AnswerObject,
-  EdgeEntity,
-  NodeEntity,
-  NodeEntityIndividual,
-  OriginRange,
-  QuestionAndAnswer,
-} from '../App'
+import { AnswerObject, OriginRange, QuestionAndAnswer } from '../App'
 import {
   deepCopyAnswerObject,
   deepCopyQuestionAndAnswer,
+  findSentencesToCorrect,
   getAnswerObjectId,
   helpSetQuestionAndAnswer,
   trimLineBreaks,
@@ -27,16 +21,11 @@ import {
   cleanSlideResponse,
   findEntityFromAnswerObjects,
   findEntitySentence,
-  findNowhereEdgeEntities,
-  findOrphanNodeEntities,
-  mergeEdgeEntities,
-  mergeNodeEntities,
   nodeIndividualsToNodeEntities,
   parseEdges,
   parseNodes,
   removeAnnotations,
   removeLastBracket,
-  splitAnnotatedSentences,
 } from '../utils/responseProcessing'
 import {
   OpenAIChatCompletionResponseStream,
@@ -122,70 +111,12 @@ export const Interchange = ({
     async (answerObject: AnswerObject): Promise<string> => {
       let textContentAfterCorrection = answerObject.originText.content
 
-      const nodeEntitiesAll = mergeNodeEntities([answerObject], [])
-      const edgeEntitiesAll = mergeEdgeEntities([answerObject], [])
-
-      // consolidate jobs
-      const jobs: {
-        sentence: string
-        n: string[]
-        e: string[]
-      }[] = []
-      // answerObjects.map(async (answerObject: AnswerObject) => {
       const {
-        originText: { content: originTextContent, nodeEntities, edgeEntities },
+        originText: { content: originTextContent },
       } = answerObject
 
-      const sentences = splitAnnotatedSentences(originTextContent)
-
-      const orphanEntities: NodeEntity[] = findOrphanNodeEntities(
-        nodeEntities,
-        edgeEntitiesAll
-      )
-      const edgesFromOrToNowhere: EdgeEntity[] = findNowhereEdgeEntities(
-        nodeEntitiesAll,
-        edgeEntities
-      )
-
-      for (let sentence of sentences) {
-        // get start and end index of the sentence
-        const start = originTextContent.indexOf(sentence)
-        const end = start + sentence.length
-
-        // find all problematic entities in the sentence
-        const n: string[] = [] // nodes orphan
-        const e: string[] = [] // edges dead-end
-        orphanEntities.forEach((entity: NodeEntity) => {
-          entity.individuals.forEach((individual: NodeEntityIndividual) => {
-            if (
-              individual.originRange.start >= start &&
-              individual.originRange.end <= end
-            ) {
-              n.push(individual.originText)
-            }
-          })
-        })
-
-        edgesFromOrToNowhere.forEach((entity: EdgeEntity) => {
-          if (
-            entity.originRange.start >= start &&
-            entity.originRange.end <= end
-          ) {
-            e.push(entity.originText)
-          }
-        })
-
-        // if there are any problematic entities, ask the user to fix them
-        if (n.length > 0 || e.length > 0) {
-          // const handleRealtimeSentenceCorrection = (response: OpenAIChatCompletionResponseStream) => {}
-          jobs.push({
-            sentence,
-            n,
-            e,
-          })
-        }
-      }
-      // })
+      // consolidate jobs
+      const jobs = findSentencesToCorrect(answerObject)
 
       if (jobs.length === 0) return textContentAfterCorrection
       ////
@@ -211,7 +142,7 @@ export const Interchange = ({
           const correctionText = getTextFromModelResponse(correctionResponse)
           console.log({
             before: sentence,
-            after: ' ' + correctionText,
+            corrected: ' ' + correctionText,
           })
           textContentAfterCorrection = textContentAfterCorrection.replace(
             sentence,

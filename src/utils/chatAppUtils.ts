@@ -9,7 +9,14 @@ import {
   NodeEntityIndividual,
   EdgeEntity,
 } from '../App'
-import { EdgePair } from './responseProcessing'
+import {
+  EdgePair,
+  findNowhereEdgeEntities,
+  findOrphanNodeEntities,
+  mergeEdgeEntities,
+  mergeNodeEntities,
+  splitAnnotatedSentences,
+} from './responseProcessing'
 
 export const getAnswerObjectId = () => {
   return `answer-object-${uuidv4()}`
@@ -237,4 +244,71 @@ export const helpSetQuestionAndAnswer = (
         }
       : prevQAndA
   })
+}
+
+/* -------------------------------------------------------------------------- */
+
+export const findSentencesToCorrect = (answerObject: AnswerObject) => {
+  const jobs: {
+    sentence: string
+    n: string[]
+    e: string[]
+  }[] = []
+  const nodeEntitiesAll = mergeNodeEntities([answerObject], [])
+  const edgeEntitiesAll = mergeEdgeEntities([answerObject], [])
+
+  // answerObjects.map(async (answerObject: AnswerObject) => {
+  const {
+    originText: { content: originTextContent, nodeEntities, edgeEntities },
+  } = answerObject
+
+  const sentences = splitAnnotatedSentences(originTextContent)
+
+  const orphanEntities: NodeEntity[] = findOrphanNodeEntities(
+    nodeEntities,
+    edgeEntitiesAll
+  )
+  const edgesFromOrToNowhere: EdgeEntity[] = findNowhereEdgeEntities(
+    nodeEntitiesAll,
+    edgeEntities
+  )
+
+  for (let sentence of sentences) {
+    // get start and end index of the sentence
+    const start = originTextContent.indexOf(sentence)
+    const end = start + sentence.length
+
+    // find all problematic entities in the sentence
+    const n: string[] = [] // nodes orphan
+    const e: string[] = [] // edges dead-end
+    orphanEntities.forEach((entity: NodeEntity) => {
+      entity.individuals.forEach((individual: NodeEntityIndividual) => {
+        if (
+          individual.originRange.start >= start &&
+          individual.originRange.end <= end
+        ) {
+          n.push(individual.originText)
+        }
+      })
+    })
+
+    edgesFromOrToNowhere.forEach((entity: EdgeEntity) => {
+      if (entity.originRange.start >= start && entity.originRange.end <= end) {
+        e.push(entity.originText)
+      }
+    })
+
+    // if there are any problematic entities, ask the user to fix them
+    if (n.length > 0 || e.length > 0) {
+      // const handleRealtimeSentenceCorrection = (response: OpenAIChatCompletionResponseStream) => {}
+      jobs.push({
+        sentence,
+        n,
+        e,
+      })
+    }
+  }
+  // })
+
+  return jobs
 }

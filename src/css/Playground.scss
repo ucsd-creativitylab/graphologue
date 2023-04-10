@@ -49,9 +49,10 @@
     }
   }
 
-  .playground-textarea {
+  .playground-textarea,
+  .playground-corrected-text {
     width: 20rem;
-    height: 30rem;
+    height: 20rem;
 
     font-family: inherit;
     font-size: $font-size-large;
@@ -67,5 +68,11 @@
     border: none;
 
     resize: none;
+  }
+
+  .playground-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: $padding-small;
   }
 }

@@ -219,7 +219,9 @@ $shadow-node-selected: $shadow-heavy;
     opacity: 1;
 
     background-color: $white;
+
     z-index: 9;
+    box-sizing: border-box;
 
     &.target-handle {
       left: 0;
