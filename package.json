@@ -16,6 +16,7 @@
     "react-dom": "^18.2.0",
     "react-fast-compare": "^3.2.1",
     "react-markdown": "^8.0.6",
+    "react-router-dom": "^6.10.0",
     "react-spinners": "^0.13.8",
     "reactflow": "^11.7.0",
     "sass": "^1.61.0",

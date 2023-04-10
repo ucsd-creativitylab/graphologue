@@ -410,7 +410,7 @@ const AnswerListView = ({
 
 /* -------------------------------------------------------------------------- */
 
-const AnswerBlockItem = ({
+export const AnswerBlockItem = ({
   index,
   questionAndAnswer,
   questionAndAnswer: {

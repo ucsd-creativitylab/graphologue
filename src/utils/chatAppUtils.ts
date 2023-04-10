@@ -115,6 +115,32 @@ export const newQuestionAndAnswer = (
   }
 }
 
+export const newAnswerObject = (): AnswerObject => {
+  return {
+    id: getAnswerObjectId(),
+    slide: {
+      content: '',
+    },
+    summary: {
+      content: '',
+      nodeEntities: [],
+      edgeEntities: [],
+    },
+    originText: {
+      content: '',
+      nodeEntities: [],
+      edgeEntities: [],
+    },
+    answerObjectSynced: {
+      listDisplay: 'original',
+      saliencyFilter: 'low',
+      collapsedNodes: [],
+      sentencesBeingCorrected: [],
+    },
+    complete: false,
+  }
+}
+
 export const copyNodeEntities = (nodeEntities: NodeEntity[]) => {
   return nodeEntities.map((e: NodeEntity) => ({
     ...e,

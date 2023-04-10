@@ -359,7 +359,8 @@
   width: 100%;
 }
 
-.merged-diagram .react-flow-wrapper {
+.merged-diagram .react-flow-wrapper,
+.playground .react-flow-wrapper {
   flex-grow: 1;
 
   height: 90vh;
@@ -372,4 +373,8 @@
   background-color: $white;
   border-radius: $radius-default;
   outline: 1px solid $light-grey;
+}
+
+.playground .merged-diagram-wrapper {
+  width: 100%;
 }

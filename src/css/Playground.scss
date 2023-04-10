@@ -1,0 +1,71 @@
+.playground {
+  position: relative;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: $padding-mid;
+  flex-wrap: nowrap;
+
+  padding: 0 $padding-x-large;
+
+  height: 100vh;
+  width: 100vw;
+
+  overflow-y: auto;
+  box-sizing: border-box;
+
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $padding-mid;
+
+    button {
+      width: fit-content;
+      padding: $padding-xs $padding-mid;
+
+      font-size: $font-size-default;
+      border: none;
+      border-radius: $padding-xx-large;
+      background-color: $white;
+      outline: 1px solid $light-grey;
+
+      cursor: pointer;
+
+      &:hover {
+        background-color: $light;
+      }
+
+      &.disabled {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
+      &:active {
+        background-color: $light-grey;
+      }
+    }
+  }
+
+  .playground-textarea {
+    width: 20rem;
+    height: 30rem;
+
+    font-family: inherit;
+    font-size: $font-size-large;
+    line-height: 150%;
+    padding: $padding-mid;
+
+    box-sizing: border-box;
+    border-radius: $radius-default;
+    overflow-y: scroll;
+
+    outline: 1px solid $light-grey;
+    // outline-offset: -1px;
+    border: none;
+
+    resize: none;
+  }
+}

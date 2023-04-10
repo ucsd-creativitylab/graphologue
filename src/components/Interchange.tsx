@@ -19,7 +19,6 @@ import {
 import { Answer, ListDisplayFormat } from './Answer'
 import { ChatContext } from './Contexts'
 import { FinishedAnswerObjectParsingTypes, Question } from './Question'
-import { ReactFlowProvider } from 'reactflow'
 import {
   predefinedPrompts,
   predefinedPromptsForParsing,
@@ -1028,10 +1027,8 @@ export const Interchange = ({
       }}
     >
       <div className="interchange-item">
-        <ReactFlowProvider>
-          <Question key={`question-${data.id}`} />
-          {answer.length > 0 && <Answer key={`answer-${data.id}`} />}
-        </ReactFlowProvider>
+        <Question key={`question-${data.id}`} />
+        {answer.length > 0 && <Answer key={`answer-${data.id}`} />}
       </div>
     </InterchangeContext.Provider>
   )

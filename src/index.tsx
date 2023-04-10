@@ -1,13 +1,26 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import { ChatApp } from './App'
+import { Playground } from './Playground'
 import { getPasswordNow } from './utils/timeBasedPassword'
 import { debug } from './constants'
 
 // ! the only css imports in ts/x files
 import './css/index.scss'
 import 'reactflow/dist/style.css'
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <ChatApp />,
+  },
+  {
+    path: '/playground',
+    element: <Playground />,
+  },
+])
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)
 
@@ -19,7 +32,7 @@ if (debug || pwd === getPasswordNow())
   if (process.env.REACT_APP_DEV_IDE === 'code')
     root.render(
       <React.StrictMode>
-        <ChatApp />
+        <RouterProvider router={router} />
       </React.StrictMode>
     )
   // root.render(<ReactFlowComponent />)
