@@ -212,8 +212,77 @@ export const Question = () => {
     }, 1000)
   }, [id, question, setQuestionsAndAnswers])
 
+  /* -------------------------------------------------------------------------- */
+
+  const handleUpdateRelationshipEntities = useCallback(
+    (content: string, answerObjectId: string) => {
+      const answerObject = answerStorage.current.answerObjects.find(
+        a => a.id === answerObjectId
+      )
+      if (!answerObject) return
+
+      const cleanedContent = removeLastBracket(content, true)
+      const nodes = parseNodes(cleanedContent, answerObjectId)
+      const edges = parseEdges(cleanedContent, answerObjectId)
+
+      answerStorage.current.answerObjects =
+        answerStorage.current.answerObjects.map(
+          (a: AnswerObject): AnswerObject => {
+            if (a.id === answerObjectId) {
+              return {
+                ...a,
+                originText: {
+                  ...a.originText,
+                  nodeEntities: nodeIndividualsToNodeEntities(nodes),
+                  edgeEntities: edges,
+                },
+              }
+            } else return a
+          }
+        )
+
+      // setQuestionsAndAnswers(prevQsAndAs =>
+      //   helpSetQuestionAndAnswer(prevQsAndAs, id, {
+      //     answerObjects: answerStorage.current.answerObjects,
+      //   })
+      // )
+    },
+    []
+  )
+
+  /* -------------------------------------------------------------------------- */
+
   const handleParsingCompleteAnswerObject = useCallback(
     async (answerObjectId: string) => {
+      const answerObjectToCorrect = answerStorage.current.answerObjects.find(
+        a => a.id === answerObjectId
+      )
+      if (!answerObjectToCorrect) return
+
+      // self correction
+      const correctedOriginTextContent = await handleSelfCorrection(
+        answerObjectToCorrect
+      )
+      answerStorage.current.answer = answerStorage.current.answer.replace(
+        answerObjectToCorrect.originText.content,
+        correctedOriginTextContent
+      )
+      answerObjectToCorrect.originText.content = correctedOriginTextContent
+      handleUpdateRelationshipEntities(
+        correctedOriginTextContent,
+        answerObjectId
+      )
+
+      // set corrected answer object
+      setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
+          answer: answerStorage.current.answer,
+          answerObjects: answerStorage.current.answerObjects, // TODO account for answerObjectSynced changes
+        })
+      )
+
+      /* -------------------------------------------------------------------------- */
+      // parse slides and summary
       const answerObject = answerStorage.current.answerObjects.find(
         a => a.id === answerObjectId
       )
@@ -294,45 +363,13 @@ export const Question = () => {
         )
       }
     },
-    [handleResponseError, id, setQuestionsAndAnswers]
-  )
-
-  /* -------------------------------------------------------------------------- */
-
-  const handleUpdateRelationshipEntities = useCallback(
-    (content: string, answerObjectId: string) => {
-      const answerObject = answerStorage.current.answerObjects.find(
-        a => a.id === answerObjectId
-      )
-      if (!answerObject) return
-
-      const cleanedContent = removeLastBracket(content, true)
-      const nodes = parseNodes(cleanedContent, answerObjectId)
-      const edges = parseEdges(cleanedContent, answerObjectId)
-
-      answerStorage.current.answerObjects =
-        answerStorage.current.answerObjects.map(
-          (a: AnswerObject): AnswerObject => {
-            if (a.id === answerObjectId) {
-              return {
-                ...a,
-                originText: {
-                  ...a.originText,
-                  nodeEntities: nodeIndividualsToNodeEntities(nodes),
-                  edgeEntities: edges,
-                },
-              }
-            } else return a
-          }
-        )
-
-      // setQuestionsAndAnswers(prevQsAndAs =>
-      //   helpSetQuestionAndAnswer(prevQsAndAs, id, {
-      //     answerObjects: answerStorage.current.answerObjects,
-      //   })
-      // )
-    },
-    []
+    [
+      handleResponseError,
+      handleSelfCorrection,
+      handleUpdateRelationshipEntities,
+      id,
+      setQuestionsAndAnswers,
+    ]
   )
 
   const handleStreamRawAnswer = useCallback(
@@ -537,7 +574,10 @@ export const Question = () => {
 
     // * start self correction
     // console.log('model start self correction')
-    // await handleSelfCorrection(answerStorage.current.answerObjects)
+    // await handleSelfCorrection(
+    //   answerStorage.current.answer,
+    //   answerStorage.current.answerObjects
+    // )
 
     setQuestionsAndAnswers(prevQsAndAs =>
       helpSetQuestionAndAnswer(prevQsAndAs, id, {

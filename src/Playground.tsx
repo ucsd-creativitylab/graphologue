@@ -68,7 +68,9 @@ export const Playground = () => {
       <InterchangeContext.Provider
         value={{
           questionAndAnswer: playgroundQuestionAndAnswer,
-          handleSelfCorrection: async () => {},
+          handleSelfCorrection: async () => {
+            return ''
+          },
           handleSetSyncedAnswerObjectIdsHighlighted: () => {},
           handleSetSyncedAnswerObjectIdsHidden: () => {},
           handleSetSyncedCoReferenceOriginRanges: () => {},

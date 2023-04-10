@@ -631,6 +631,7 @@ export const AnswerBlockItem = ({
         pseudo,
       }))(nE)
     ),
+    nodeEntities.length,
     edgeEntities,
     // ! should we add this?
     // synced, // ???

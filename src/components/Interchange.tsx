@@ -55,7 +55,7 @@ export type NodeConceptExpansionType = 'explain' | 'examples'
 
 export interface InterchangeContextProps {
   questionAndAnswer: QuestionAndAnswer
-  handleSelfCorrection: (answerObjects: AnswerObject[]) => Promise<void>
+  handleSelfCorrection: (answerObject: AnswerObject) => Promise<string>
   handleSetSyncedAnswerObjectIdsHighlighted: (
     ids: string[],
     temp: boolean
@@ -116,89 +116,113 @@ export const Interchange = ({
 
   // const answerItemRef = createRef<HTMLDivElement>()
 
+  /* -------------------------------------------------------------------------- */
+
   const handleSelfCorrection = useCallback(
-    async (answerObjects: AnswerObject[]) => {
-      const nodeEntitiesAll = mergeNodeEntities(answerObjects, [])
-      const edgeEntitiesAll = mergeEdgeEntities(answerObjects, [])
+    async (answerObject: AnswerObject): Promise<string> => {
+      let textContentAfterCorrection = answerObject.originText.content
 
-      await Promise.all(
-        answerObjects.map(async (answerObject: AnswerObject) => {
-          const {
-            originText: {
-              content: originTextContent,
-              nodeEntities,
-              edgeEntities,
-            },
-          } = answerObject
+      const nodeEntitiesAll = mergeNodeEntities([answerObject], [])
+      const edgeEntitiesAll = mergeEdgeEntities([answerObject], [])
 
-          const sentences = splitAnnotatedSentences(originTextContent)
+      // consolidate jobs
+      const jobs: {
+        sentence: string
+        n: string[]
+        e: string[]
+      }[] = []
+      // answerObjects.map(async (answerObject: AnswerObject) => {
+      const {
+        originText: { content: originTextContent, nodeEntities, edgeEntities },
+      } = answerObject
 
-          const orphanEntities: NodeEntity[] = findOrphanNodeEntities(
-            nodeEntities,
-            edgeEntitiesAll
-          )
-          const edgesFromOrToNowhere: EdgeEntity[] = findNowhereEdgeEntities(
-            nodeEntitiesAll,
-            edgeEntities
-          )
+      const sentences = splitAnnotatedSentences(originTextContent)
 
-          for (let sentence of sentences) {
-            // get start and end index of the sentence
-            const start = originTextContent.indexOf(sentence)
-            const end = start + sentence.length
-            // find all problematic entities in the sentence
-            const n: string[] = [],
-              e: string[] = []
-            orphanEntities.forEach((entity: NodeEntity) => {
-              entity.individuals.forEach((individual: NodeEntityIndividual) => {
-                if (
-                  individual.originRange.start >= start &&
-                  individual.originRange.end <= end
-                ) {
-                  n.push(individual.originText)
-                }
-              })
-            })
+      const orphanEntities: NodeEntity[] = findOrphanNodeEntities(
+        nodeEntities,
+        edgeEntitiesAll
+      )
+      const edgesFromOrToNowhere: EdgeEntity[] = findNowhereEdgeEntities(
+        nodeEntitiesAll,
+        edgeEntities
+      )
 
-            edgesFromOrToNowhere.forEach((entity: EdgeEntity) => {
-              if (
-                entity.originRange.start >= start &&
-                entity.originRange.end <= end
-              ) {
-                e.push(entity.originText)
-              }
-            })
+      for (let sentence of sentences) {
+        // get start and end index of the sentence
+        const start = originTextContent.indexOf(sentence)
+        const end = start + sentence.length
 
-            // if there are any problematic entities, ask the user to fix them
-            if (n.length > 0 || e.length > 0) {
-              // const handleRealtimeSentenceCorrection = (response: OpenAIChatCompletionResponseStream) => {}
-
-              const correctionResponse = await getOpenAICompletion(
-                predefinedPrompts._graph_sentenceCorrection(
-                  [
-                    ...modelInitialPrompts,
-                    {
-                      role: 'assistant',
-                      content: answer,
-                    },
-                  ] as Prompt[],
-                  sentence,
-                  n,
-                  e
-                ),
-                debug ? models.faster : models.smarter
-              )
-
-              const correctionText =
-                getTextFromModelResponse(correctionResponse)
-
-              console.log(correctionText)
+        // find all problematic entities in the sentence
+        const n: string[] = [] // nodes orphan
+        const e: string[] = [] // edges dead-end
+        orphanEntities.forEach((entity: NodeEntity) => {
+          entity.individuals.forEach((individual: NodeEntityIndividual) => {
+            if (
+              individual.originRange.start >= start &&
+              individual.originRange.end <= end
+            ) {
+              n.push(individual.originText)
             }
+          })
+        })
+
+        edgesFromOrToNowhere.forEach((entity: EdgeEntity) => {
+          if (
+            entity.originRange.start >= start &&
+            entity.originRange.end <= end
+          ) {
+            e.push(entity.originText)
           }
         })
+
+        // if there are any problematic entities, ask the user to fix them
+        if (n.length > 0 || e.length > 0) {
+          // const handleRealtimeSentenceCorrection = (response: OpenAIChatCompletionResponseStream) => {}
+          jobs.push({
+            sentence,
+            n,
+            e,
+          })
+        }
+      }
+      // })
+
+      if (jobs.length === 0) return textContentAfterCorrection
+      ////
+
+      await Promise.all(
+        jobs.map(async ({ sentence, n, e }) => {
+          const correctionResponse = await getOpenAICompletion(
+            predefinedPrompts._graph_sentenceCorrection(
+              [
+                ...predefinedPrompts._graph_initialAsk(question),
+                {
+                  role: 'assistant',
+                  content: originTextContent,
+                },
+              ] as Prompt[],
+              sentence,
+              n,
+              e
+            ),
+            models.smarter
+          )
+
+          const correctionText = getTextFromModelResponse(correctionResponse)
+          console.log({
+            before: sentence,
+            after: ' ' + correctionText,
+          })
+          textContentAfterCorrection = textContentAfterCorrection.replace(
+            sentence,
+            ' ' + correctionText
+          )
+        })
       )
+
+      return textContentAfterCorrection
     },
-    [answer, modelInitialPrompts]
+    [question]
   )
 
   const handleSetSyncedCoReferenceOriginRanges = useCallback(

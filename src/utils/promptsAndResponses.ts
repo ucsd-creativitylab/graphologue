@@ -71,7 +71,7 @@ To achieve this, annotate the key entities and relationships inline for each sen
 Entities are usually noun phrases and should be annotated with [entity ($N1)], for example, [Artificial Intelligence ($N1)]. \
 Do not annotate conjunctive adverbs, such as "since then" or "therefore", as entities in the map. \
 \
-A relationship is usually a word or a phrase that consists of verbs, adjectives, adverbs, or prepositions, e.g., "contribute to", "by", and "such as". \
+A relationship is usually a word or a phrase that consists of verbs, adjectives, adverbs, or prepositions, e.g., "contribute to", "by", "is", and "such as". \
 Relationships should be annotated with the relevant entities and saliency of the relationship, as high ($H) or low ($L), in the format of [relationship ($H, $N1, $N2)], \
 for example, [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
 Relationships of high saliency are those included in summaries. Relationships of low saliency are often omitted in summaries. \
@@ -212,7 +212,7 @@ Your response should only have the new content.`,
       ...prevConversation,
       {
         role: 'system',
-        content: `In the following sentence of the original response, there are some issues that need to be fixed.
+        content: `In the following sentence of your original response, there are some issues that need to be fixed.
 
 ${
   hasOrphan
@@ -220,15 +220,15 @@ ${
         ', '
       )}" were mentioned but not connected by any relationships.`
     : ''
-}\n
+}
 ${
   hasNoWhere
-    ? ` One or more relationships annotated by relationship annotations "${noWhereEdges.join(
+    ? `One or more relationships annotated by relationship annotations "${noWhereEdges.join(
         ', '
       )}" \
 were trying to connect entities with ids that are not mentioned in the response.`
     : ''
-}\n
+}
 Please try to fix these issues in your response by annotating the same sentence again. \
 You may arrange the sentences in a way that facilitates the annotation of entities and relationships, \
 but the arrangement should not alter their meaning and they should still flow naturally in language. \
