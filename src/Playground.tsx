@@ -32,6 +32,9 @@ export const Playground = () => {
           modelParsing: false,
           modelParsingComplete: true,
         },
+        synced: {
+          saliencyFilter: 'low',
+        },
         answerObjects: [newAnswerObject()],
       })
     )

@@ -177,14 +177,16 @@ export const nodeIndividualsToNodeEntities = (
     if (existingNode) {
       existingNode.individuals.push(node)
       // pick the longest node label for display label
-      existingNode.displayNodeLabel = existingNode.individuals.reduce(
-        (acc, cur) => (cur.nodeLabel.length > acc.length ? cur.nodeLabel : acc),
-        existingNode.displayNodeLabel
-      )
+      existingNode.displayNodeLabel =
+        existingNode.individuals.reduce(
+          (acc, cur) =>
+            cur.nodeLabel.length > acc.length ? cur.nodeLabel : acc,
+          existingNode.displayNodeLabel
+        ) + ` (${existingNode.id})`
     } else {
       nodeEntities.push({
         id: node.id,
-        displayNodeLabel: node.nodeLabel,
+        displayNodeLabel: node.nodeLabel + ` (${node.id})`,
         pseudo: false,
         individuals: [node],
       })

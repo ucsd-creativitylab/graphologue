@@ -243,7 +243,7 @@ export const answerObjectsToReactFlowObject = (
     //   return false
 
     // ? disable edge to the first node // TODO any better way?
-    if (sourceId === targetId || targetId === '$N1') return false
+    // if (sourceId === targetId || targetId === '$N1') return false
 
     // if the edge doesn't have a label, and there are other edges between the same nodes,
     // then eliminate this edge
@@ -317,14 +317,13 @@ export const answerObjectsToReactFlowObject = (
     // )
     //   return true
 
-    return (
-      // that's all edges
-      filteredEdgeEntities.find(
-        edgeEntity =>
-          edgeEntity.edgePairs[0].sourceId === id ||
-          edgeEntity.edgePairs[0].targetId === id
-      ) !== undefined
-    )
+    return true
+    // that's all edges
+    // filteredEdgeEntities.find(
+    //   edgeEntity =>
+    //     edgeEntity.edgePairs[0].sourceId === id ||
+    //     edgeEntity.edgePairs[0].targetId === id
+    // ) !== undefined
   })
 
   // ! construct positioned graph
