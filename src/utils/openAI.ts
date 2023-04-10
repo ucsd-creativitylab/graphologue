@@ -12,12 +12,12 @@ export type ModelForMagic = 'gpt-4' | 'gpt-3.5-turbo'
 
 export const models = {
   smarter: 'gpt-4' as ModelForMagic,
-  faster: 'gpt-3.5-turbo' as ModelForMagic,
+  faster: 'gpt-4' as ModelForMagic,
 }
 
 const temperatures = {
-  response: 0.7,
-  parsing: 0.3,
+  response: 0.1,
+  parsing: 0.1,
 }
 
 export interface OpenAIChatCompletionResponseStream {

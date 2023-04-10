@@ -9,12 +9,13 @@ body {
   box-sizing: border-box;
   color: $black;
 
-  background-image: linear-gradient(
-    90deg,
-    rgba(#000, 0.025) 1px,
-    transparent 1px
-  );
-  background-size: 10px 100%;
+  // !
+  // background-image: linear-gradient(
+  //   90deg,
+  //   rgba(#000, 0.025) 1px,
+  //   transparent 1px
+  // );
+  // background-size: 10px 100%;
 }
 
 html,
