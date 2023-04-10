@@ -13,7 +13,6 @@ import {
   deepCopyQuestionAndAnswer,
   getAnswerObjectId,
   helpSetQuestionAndAnswer,
-  newQuestionAndAnswer,
   trimLineBreaks,
 } from '../utils/chatAppUtils'
 import { Answer, ListDisplayFormat } from './Answer'
@@ -92,23 +91,9 @@ export interface InterchangeContextProps {
   handleSwitchSaliency: () => void
 }
 ////
-export const InterchangeContext = createContext<InterchangeContextProps>({
-  questionAndAnswer: newQuestionAndAnswer(),
-  handleSelfCorrection: async () => {},
-  handleSetSyncedAnswerObjectIdsHighlighted: () => {},
-  handleSetSyncedAnswerObjectIdsHidden: () => {},
-  handleSetSyncedCoReferenceOriginRanges: () => {},
-  handleAnswerObjectRemove: () => {},
-  handleAnswerObjectSwitchListDisplayFormat: () => {},
-  handleAnswerObjectTellLessOrMore: () => {},
-  handleAnswerObjectNodeExpand: () => {},
-  handleAnswerObjectNodeRemove: () => {},
-  handleAnswerObjectNodeCollapse: () => {},
-  handleAnswerObjectNodeMerge: () => {},
-  handleAnswerObjectsAddOneMore: () => {},
-  /* -------------------------------------------------------------------------- */
-  handleSwitchSaliency: () => {},
-})
+export const InterchangeContext = createContext<InterchangeContextProps>(
+  {} as InterchangeContextProps
+)
 
 /* -------------------------------------------------------------------------- */
 
