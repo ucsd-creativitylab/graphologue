@@ -11,45 +11,31 @@ import { debug } from './constants'
 import './css/index.scss'
 import 'reactflow/dist/style.css'
 
+/* -------------------------------------------------------------------------- */
+
+// ! get URL params
+const urlParams = new URLSearchParams(window.location.search)
+const pwd = urlParams.get('pwd')
+const accessEnabled = debug || pwd === getPasswordNow()
+
+/* -------------------------------------------------------------------------- */
+
+// ! set up react router
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <ChatApp />,
+    element: accessEnabled ? <ChatApp /> : <></>,
   },
   {
     path: '/playground',
-    element: <Playground />,
+    element: accessEnabled ? <Playground /> : <></>,
   },
 ])
 
+// ! render app
 const root = ReactDOM.createRoot(document.getElementById('root')!)
-
-// get URL params
-const urlParams = new URLSearchParams(window.location.search)
-const pwd = urlParams.get('pwd')
-
-if (debug || pwd === getPasswordNow())
-  if (process.env.REACT_APP_DEV_IDE === 'code')
-    root.render(
-      <React.StrictMode>
-        <RouterProvider router={router} />
-      </React.StrictMode>
-    )
-  // root.render(<ReactFlowComponent />)
-  else if (process.env.REACT_APP_DEV_IDE === 'jet') {
-    // ! only try to load react-buddy related components whn the dev ide is IntelliJ
-    // import('./dev').then(m => {
-    //   const ComponentPreviews = m.ComponentPreviews
-    //   const useInitialHook = m.useInitial
-    //   root.render(
-    //     <React.StrictMode>
-    //       <DevSupport
-    //         ComponentPreviews={ComponentPreviews}
-    //         useInitialHook={useInitialHook}
-    //       >
-    //         <ReactFlowComponent />
-    //       </DevSupport>
-    //     </React.StrictMode>
-    //   )
-    // })
-  }
+root.render(
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>
+)
