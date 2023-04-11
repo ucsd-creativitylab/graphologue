@@ -12,6 +12,7 @@ import {
   nodeIndividualsToNodeEntities,
   parseEdges,
   parseNodes,
+  removeAnnotations,
 } from './utils/responseProcessing'
 import { InterchangeContext } from './components/Interchange'
 import {
@@ -40,6 +41,7 @@ export const Playground = () => {
     )
   const [modelCorrecting, setModelCorrecting] = useState(false)
   const [correctedText, setCorrectedText] = useState('')
+  const [showAnnotations, setShowAnnotations] = useState(true)
 
   const textRef = useRef<HTMLTextAreaElement>(null)
 
@@ -148,9 +150,19 @@ export const Playground = () => {
           >
             Correct
           </button>
+          <button
+            className={'bar-button' + (modelCorrecting ? ' disabled' : '')}
+            onClick={() => {
+              setShowAnnotations(!showAnnotations)
+            }}
+          >
+            Show Annotations
+          </button>
         </div>
         {correctedText.length > 0 && (
-          <div className="playground-corrected-text">{correctedText}</div>
+          <div className="playground-corrected-text">
+            {showAnnotations ? correctedText : removeAnnotations(correctedText)}
+          </div>
         )}
       </div>
 

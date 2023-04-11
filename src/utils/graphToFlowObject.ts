@@ -192,6 +192,7 @@ export const answerObjectsToReactFlowObject = (
   // filter node entities by collapsed nodes
   const collapsedHiddenNodeIds: Set<string> = new Set()
   const collapseEndPoints = new Set([...collapsedNodeIds])
+  const collapseEndPointsAdded: Set<string> = new Set([...collapsedNodeIds])
 
   while (collapseEndPoints.size > 0) {
     const collapseEndPointsLoop = [...collapseEndPoints]
@@ -206,8 +207,13 @@ export const answerObjectsToReactFlowObject = (
           if (sourceId === collapseEndPoint) {
             collapsedHiddenNodeIds.add(targetId)
 
-            if (pairTargetIdHasPair(edgeEntities, targetId))
+            if (
+              pairTargetIdHasPair(edgeEntities, targetId) &&
+              !collapseEndPointsAdded.has(targetId)
+            ) {
               collapseEndPoints.add(targetId)
+              collapseEndPointsAdded.add(targetId)
+            }
           }
         })
       })
