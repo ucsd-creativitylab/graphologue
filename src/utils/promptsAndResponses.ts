@@ -48,10 +48,10 @@ Each relationship should be an object with the following fields:
     * "edge" (string): Short label indicating the relationship between source and target (e.g., has, part of, similar, positive)
     * "origin" (array of strings): The phrases or sentences in the original response that the relationship is summarized from. Make sure they are exactly the same as the text in the original response`
 
-export const _graph_handleFollowupQuestionsIdMatching = `When annotating a new entity that was not mentioned in previous response, \
+export const _graph_handleFollowupQuestionsIdMatching = `When annotating a new entity that was not mentioned in the previous response, \
 please make sure that they are annotated with a new entity id \
 (for example, if the previous annotation has reached id "$N102", then the new annotation id should start at "$N103"). \
-However, if the same entity have appeared in the original response, please match their id.`
+However, if the same entity has appeared in the original response, please match their id.`
 
 export interface NodeLabelAndTags {
   label: string
@@ -155,7 +155,7 @@ and [apply knowledge across a wide range of tasks ($N15)].`,
       {
         role: 'user',
         content: `In the sentence "${originalSentence}", you mentioned the entity "${nodeLabel}". \
-Can you give a few examples for it? \
+Can you give a few examples of it? \
 Your response should follow the same annotation format as the original response, as shown in the following example. \
 ${_graph_handleFollowupQuestionsIdMatching} \
 You don't need to further explain the examples you give.
@@ -284,9 +284,9 @@ Do not include anything else in the response other than the chunks.`,
     return [
       {
         role: 'system',
-        content: `You are a professional writer specialized in text summarization. Make a short, one-sentence summary of the chunk of the text provided by the user. \
+        content: `You are a professional writer specializing in text summarization. Make a short, one-sentence summary of the chunk of the text provided by the user. \
 The summary should reflect the main idea and the most important relationships of the text.
-Notice that the user have annotated the text with entities and relationships. \
+Notice that the user has annotated the text with entities and relationships. \
 Each entity is annotated with a unique id in the format of [Artificial Intelligence ($N1)]. \
 Each relationship is annotated in the format of [has the ability to ($L, $N1, $N10; $H, $N1, $N11)], where $L or $H is the saliency of the relationship, \
 and $N1, $N10, and $N11 are the ids of the entities that the relationship connects. One annotated relationship may connect multiple pairs of entities, and they are \
@@ -299,7 +299,7 @@ Your summary should only include high saliency relationships ($H) to reflect the
 You can arrange the sentences in the summarization in a way that facilitates the annotation of entities and relationships, \
 but the arrangement should not alter their meaning and they should still flow naturally in language. \
 \
-The user may made mistakes in the annotation that there might be some entities that are not connected by any relationships, \
+The user may make mistakes in the annotation that there might be some entities that are not connected by any relationships, \
 or some relationships that are trying to connect entities that are not mentioned in the text. Please avoid these mistakes when \
 annotating the summary. Your summary should have only one short sentence.
 
