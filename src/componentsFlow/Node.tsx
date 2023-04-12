@@ -664,7 +664,7 @@ export const hardcodedNodeWidthEstimation = (
   pseudoNode.innerText = content
 
   document.body.appendChild(pseudoNode)
-  const width = pseudoNode.offsetWidth
+  const width = pseudoNode.getBoundingClientRect().width
   document.body.removeChild(pseudoNode)
 
   return pseudo ? Math.max(80, width) : Math.max(160, width)
@@ -679,7 +679,7 @@ export const hardcodedEdgeLabelWidthEstimation = (content: string) => {
   pseudoNode.className = 'edge-label-width-measuring-span'
   pseudoNode.innerText = content
   document.body.appendChild(pseudoNode)
-  const width = pseudoNode.offsetWidth
+  const width = pseudoNode.getBoundingClientRect().width
   document.body.removeChild(pseudoNode)
 
   return width

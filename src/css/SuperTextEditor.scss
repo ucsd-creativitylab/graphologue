@@ -17,7 +17,7 @@
     width: auto;
 
     &.super-wrapper-static-text-node {
-      min-width: 10rem;
+      min-width: 160px; // 10rem
 
       .node-label {
         display: inline-flex;

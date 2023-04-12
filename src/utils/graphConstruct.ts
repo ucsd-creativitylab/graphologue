@@ -253,7 +253,7 @@ export const constructGraph = (
   graph.setGraph({
     rankdir: 'LR',
     // align: 'UL',
-    ranksep: 105, // !
+    ranksep: 90, // !
     nodesep: 15, // !
     // ranker: 'longest-path',
   })
