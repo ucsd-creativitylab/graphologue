@@ -62,10 +62,52 @@ export const predefinedPrompts = {
     return [
       {
         role: 'system',
-        content: `Please echo exactly what I put here, including all the line breaks and annotations in the text, give me exact the same string.
+        content: `Please provide a well-structured response to the user's question in multiple paragraphs. \
+The paragraphs should cover the most important aspects of the answer, with each of them discussing one aspect or topic. \
+Each paragraph should have fewer than 4 sentences, and your response should have fewer than 4 paragraphs in total. \
+The user’s goal is to construct a concept map to visually explain your response. \
+To achieve this, annotate the key entities and relationships inline for each sentence in the paragraphs. \
+\
+Entities are usually noun phrases and should be annotated with [entity ($N1)], for example, [Artificial Intelligence ($N1)]. \
+Do not annotate conjunctive adverbs, such as "since then" or "therefore", as entities in the map. \
+\
+A relationship is usually a word or a phrase that consists of verbs, adjectives, adverbs, or prepositions, e.g., "contribute to", "by", "is", and "such as". \
+Relationships should be annotated with the relevant entities and saliency of the relationship, as high ($H) or low ($L), in the format of [relationship ($H, $N1, $N2)], \
+for example, [AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
+Relationships of high saliency are those included in summaries. Relationships of low saliency are often omitted in summaries. \
+It's important to choose relationships that accurately reflect the nature of the connection between the entities in text, \
+and to use a consistent annotation format throughout the paragraphs. \
+\
+You should try to annotate at least one relationship for each entity. Relationships should only connect entities that appear in the response. \
+You can arrange the sentences in a way that facilitates the annotation of entities and relationships, \
+but the arrangement should not alter their meaning, and they should still flow naturally in language.
 
-[Earthquakes ($N1)] occur [due to ($H, $N1, $N2)] [complex processes ($N2)] [involving ($H, $N2, $N3; $H, $N2, $N4; $H, $N2, $N5; $H, $N2, $N6)] [the Earth's crust ($N3)], [mantle ($N4)], [tectonic plates ($N5)], and [associated forces ($N6)]. [One major process involved ($H, $N2, $N8)] in [earthquake formation ($N1)] is [plate tectonics ($N8)], which [refers to ($L, $N8, $N9; $L, $N8, $N10)] the [movement ($N9)] and [interaction ($N10)] [of ($L, $N9, $N11; $L, $N10, $N11)] [large sections of the Earth's lithosphere ($N11)].
-`,
+Example paragraph A:
+[Artificial Intelligence (AI) ($N1)] [is a ($H, $N1, $N2)] [field of computer science ($N2)] that [creates ($H, $N1, $N3)] [intelligent machines ($N3)]. \
+[These machines ($N3)] [possess ($H, $N3, $N4)] [capabilities ($N4)] [such as ($L, $N4, $N5; $L, $N4, $N6; $L, $N4, $N7; $L, $N4, $N8)] \
+[learning ($N5)], \
+[reasoning ($N6)], \
+[perception ($N7)], \
+and [problem-solving ($N8)]. \
+[AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)]. \
+[Narrow AI ($N9)] [is designed for ($L, $N9, $N11)] [specific tasks ($N11)], while [general AI ($N10)] [aims to ($L, $N10, $N12)] [mimic human intelligence ($N12)].
+
+Example paragraph B:
+[Human-Computer Interaction ($N1)] [is a ($H, $N1, $N2)] [multidisciplinary field ($N2)] that [focuses on ($H, $N1, $N3)] [the design and use of computer technology ($N3)], \
+[centered around ($H, $N1, $N4)] [the interfaces ($N4)] [between ($H, $N4, $N5; $H, $N4, $N6)] [people (users) ($N5)] and [computers ($N6)]. \
+[Researchers ($N7)] [working on $($L, $N1, $N7)] [HCI ($N1)] [study ($H, $N7, $N8)] [issues ($N8)] \
+[related to ($L, $N8, $N9; $L, $N8, $N10; $L, $N8, $N11)] \
+[usability ($N9)], \
+[accessibility ($N10)], \
+and [user experience ($N11)] [in ($L, $N9, $N3; $L, $N10, $N3; $L, $N11, $N3)] [technology design ($N3)].
+
+Example paragraph C:
+[Birds ($N1)] [can ($H, $N1, $N2)] [fly ($N2)] [due to ($H, $N2, $N3)] [a combination of physiological adaptations ($N3)]. \
+[One key ($H, $N3, $N4)] [adaptation ($N4)] [is ($H, $N4, $N5)] the [presence of lightweight bones ($N5)] that [reduce ($H, $N5, $N6)] [their body weight ($N6)], \
+[making ($L, $N5, $N7)] it [easier for them to fly ($N7)]. \
+[Another ($H, $N3, $N8)] [adaptation ($N8)] [is ($H, $N8, $N9)] the [structure of their wings ($N9)] which [are designed for ($H, $N9, $N2)] [flight ($N2)].
+
+Your response should have multiple paragraphs.`,
         /**
 Example:
 [Apple Inc. ($N1)] [is a ($H, $N1, $N2)] [technology company ($N2)] [based in ($H, $N1, $N3)] [Cupertino, California ($N3)]. \
@@ -73,10 +115,10 @@ Example:
 [Apple ($N1)] [is known for ($H, $N1, $N9)] [its innovative products ($N9)], [such as ($L, $N9, $N10; $L, $N9, $N11; $L, $N9, $N12)] [iPhones ($N10)], [iPads ($N11)], and [Mac computers ($N12)]. \
 [The company ($N1)] also [offers ($L, $N1, $N13; $L, $N1, $N14; $L, $N1, $N15)] [software ($N13)], [services ($N14)], and [accessories ($N15)].*/
       },
-      // {
-      //   role: 'user',
-      //   content: question,
-      // },
+      {
+        role: 'user',
+        content: question,
+      },
     ]
   },
   _graph_nodeExpand: (
