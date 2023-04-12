@@ -143,3 +143,20 @@
     background-color: $warn-yellow-x-light;
   }
 }
+
+/* -------------------------------------------------------------------------- */
+
+@keyframes text-in {
+  from {
+    background-color: rgba($purple, $opacity-xxh);
+  }
+
+  to {
+    background-color: transparent;
+  }
+}
+
+.text-in {
+  animation-name: text-in;
+  animation-duration: $transition-normal-slow;
+}

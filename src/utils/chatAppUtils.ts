@@ -117,7 +117,7 @@ export const newQuestionAndAnswer = (
         prefill?.synced?.highlightedCoReferenceOriginRanges ?? [],
       highlightedNodeIdsProcessing:
         prefill?.synced?.highlightedNodeIdsProcessing ?? [],
-      saliencyFilter: prefill?.synced?.saliencyFilter ?? 'high', // ! default saliency
+      saliencyFilter: prefill?.synced?.saliencyFilter ?? 'low', // ! default saliency
     },
   }
 }

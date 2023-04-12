@@ -1029,7 +1029,7 @@ const AnswerText = ({
                 key={`${sentenceIndex}-${partIndex}`}
                 className={
                   'text-segment' +
-                  (isAnnotated ? ' annotated' : '') +
+                  (isAnnotated ? ' annotated text-in' : '') +
                   (highlightedRanges.some(
                     ({
                       nodeIds: highlightedNodeIds,
