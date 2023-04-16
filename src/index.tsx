@@ -11,7 +11,7 @@ import { debug } from './constants'
 import './css/index.scss'
 import 'reactflow/dist/style.css'
 
-if (!debug) {
+if (process.env.NODE_ENV === 'production') {
   console.log = () => {}
   console.error = () => {}
   console.debug = () => {}

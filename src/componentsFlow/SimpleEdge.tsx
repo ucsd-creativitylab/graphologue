@@ -79,25 +79,27 @@ export const SimpleEdge = memo(
             {data.label}
           </textPath>
         </text> */}
-        <EdgeCustomLabel
-          edgeId={id}
-          edgeData={data as CustomEdgeData}
-          labelX={getEdgeLabelXPosition(
-            data.label,
-            sourceX,
-            sourceY,
-            targetX,
-            targetY
-          )}
-          labelY={targetY - 8} // gap
-          connection={{
-            source,
-            target,
-            sourceHandle: sourceHandleId || null,
-            targetHandle: targetHandleId || null,
-          }}
-          selected={selected || false}
-        />
+        {(data as CustomEdgeData).label && (
+          <EdgeCustomLabel
+            edgeId={id}
+            edgeData={data}
+            labelX={getEdgeLabelXPosition(
+              data.label,
+              sourceX,
+              sourceY,
+              targetX,
+              targetY
+            )}
+            labelY={targetY - 8} // gap
+            connection={{
+              source,
+              target,
+              sourceHandle: sourceHandleId || null,
+              targetHandle: targetHandleId || null,
+            }}
+            selected={selected || false}
+          />
+        )}
       </>
     )
   }
