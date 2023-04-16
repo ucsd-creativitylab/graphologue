@@ -23,7 +23,7 @@ const accessEnabled = debug || pwd === getPasswordNow()
 // ! set up react router
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: '/*',
     element: accessEnabled ? <ChatApp /> : <></>,
   },
   {

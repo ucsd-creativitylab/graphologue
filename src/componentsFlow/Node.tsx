@@ -42,7 +42,7 @@ import {
 } from './MagicToolbox'
 import randomPhrases from '../utils/randomPhrases'
 import { getHandleId, getNodeId } from '../utils/utils'
-import { OriginRange } from '../App'
+import { AnswerObjectEntitiesTarget, OriginRange } from '../App'
 import {
   InterchangeContext,
   NodeConceptExpansionType,
@@ -450,7 +450,16 @@ export const CustomNode = memo(
                         </>
                       }
                       onClick={() => {
-                        handleAnswerObjectNodeRemove(answerObjectId, id)
+                        if (answerObject) {
+                          handleAnswerObjectNodeRemove(
+                            answerObjectId,
+                            id,
+                            (answerObject.answerObjectSynced.listDisplay ===
+                            'summary'
+                              ? 'summary'
+                              : 'originText') as AnswerObjectEntitiesTarget
+                          )
+                        }
                       }}
                       className="alert-button"
                     />

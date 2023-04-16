@@ -624,18 +624,20 @@ export const AnswerBlockItem = ({
     }))
   }, [
     // we don't care about individuals
-    nodeEntities.map(nE =>
-      (({ id, displayNodeLabel, pseudo }) => ({
-        id,
-        displayNodeLabel,
-        pseudo,
-      }))(nE)
-    ),
-    nodeEntities.length,
+    // nodeEntities.map(nE =>
+    //   (({ id, displayNodeLabel, pseudo }) => ({
+    //     id,
+    //     displayNodeLabel,
+    //     pseudo,
+    //   }))(nE)
+    // ),
+    // nodeEntities.length,
+    nodeEntities,
     edgeEntities,
     // ! should we add this?
     // synced, // ???
     synced.saliencyFilter,
+    synced.answerObjectIdsHidden,
     // synced.highlightedCoReferenceOriginRanges,
     answerObject.answerObjectSynced.collapsedNodes,
     setNodes,

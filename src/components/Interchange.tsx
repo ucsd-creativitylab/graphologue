@@ -1,6 +1,12 @@
 import React, { createContext, useCallback, useContext, useRef } from 'react'
 
-import { AnswerObject, OriginRange, QuestionAndAnswer } from '../App'
+import {
+  AnswerObject,
+  AnswerObjectEntitiesTarget,
+  EdgeEntity,
+  OriginRange,
+  QuestionAndAnswer,
+} from '../App'
 import {
   deepCopyAnswerObject,
   deepCopyQuestionAndAnswer,
@@ -68,7 +74,11 @@ export interface InterchangeContextProps {
     nodeEntityOriginRanges: OriginRange[],
     type: NodeConceptExpansionType
   ) => void
-  handleAnswerObjectNodeRemove: (id: string, nodeEntityId: string) => void
+  handleAnswerObjectNodeRemove: (
+    id: string,
+    nodeEntityId: string,
+    target: AnswerObjectEntitiesTarget
+  ) => void
   handleAnswerObjectNodeCollapse: (id: string, nodeEntityId: string) => void
   handleAnswerObjectNodeMerge: (
     id: string,
@@ -744,10 +754,84 @@ export const Interchange = ({
   /* -------------------------------------------------------------------------- */
 
   const handleAnswerObjectNodeRemove = useCallback(
-    (answerObjectId: string, nodeEntityId: string) => {
+    (
+      answerObjectId: string,
+      nodeEntityId: string,
+      target: AnswerObjectEntitiesTarget
+    ) => {
       if (!modelParsingComplete || modelError) return
+
+      const answerObject = answerObjects.find(a => a.id === answerObjectId)
+      if (!answerObject) return
+
+      // remove the node id from the answer object
+      const newAnswerObject = deepCopyAnswerObject(answerObject)
+      newAnswerObject[target].nodeEntities = newAnswerObject[
+        target
+      ].nodeEntities.filter(n => n.id !== nodeEntityId)
+
+      // check how many edges does the node have, if it have both incoming and outgoing edges, connect the original incoming and outgoing nodes
+      const nodeEntity = findEntityFromAnswerObjects(
+        answerObjects,
+        nodeEntityId
+      )
+      if (!nodeEntity) return
+
+      const edges = newAnswerObject[target].edgeEntities
+      const nodeEntityIncomingEdges = edges.filter(e =>
+        e.edgePairs.some(eP => eP.targetId === nodeEntityId)
+      )
+      const nodeEntityOutgoingEdges = edges.filter(e =>
+        e.edgePairs.some(eP => eP.sourceId === nodeEntityId)
+      )
+      if (nodeEntityIncomingEdges.length && nodeEntityOutgoingEdges.length) {
+        // remove all edges, but connect the incoming node and target node for the first edge pairs
+        // const firstIncomingEdge = nodeEntityIncomingEdges[0]
+        // const firstOutgoingEdge = nodeEntityOutgoingEdges[0]
+        // if (!firstIncomingEdge || !firstOutgoingEdge) return
+        // const newEdge: EdgeEntity = {
+        //   edgeLabel: '',
+        //   edgePairs: [
+        //     {
+        //       saliency: firstIncomingEdge.edgePairs[0].saliency,
+        //       sourceId: firstIncomingEdge.edgePairs[0].sourceId,
+        //       targetId: firstOutgoingEdge.edgePairs[0].targetId,
+        //     },
+        //   ],
+        //   originRange:
+        //   originText:
+        // }
+      } else {
+        // only incoming or outgoing edges
+        // remove the edges
+      }
+      newAnswerObject[target].edgeEntities = newAnswerObject[
+        target
+      ].edgeEntities
+        .map((e: EdgeEntity) => ({
+          ...e,
+          edgePairs: e.edgePairs.filter(
+            eP => eP.sourceId !== nodeEntityId && eP.targetId !== nodeEntityId
+          ),
+        }))
+        .filter(e => e.edgePairs.length)
+
+      setQuestionsAndAnswers(prevQsAndAs =>
+        helpSetQuestionAndAnswer(prevQsAndAs, id, {
+          answerObjects: answerObjects.map(a => {
+            if (a.id === answerObjectId) return newAnswerObject
+            return a
+          }),
+        })
+      )
     },
-    [modelError, modelParsingComplete]
+    [
+      answerObjects,
+      id,
+      modelError,
+      modelParsingComplete,
+      setQuestionsAndAnswers,
+    ]
   )
 
   /* -------------------------------------------------------------------------- */

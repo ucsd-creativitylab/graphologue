@@ -237,6 +237,14 @@ $shadow-heavy: rgba($cold-grey, 0.6) 0 rem-to-px(2rem) rem-to-px(10rem)
     * {
       color: $error-red-light;
     }
+
+    &:hover {
+      background: $error-red-light;
+
+      * {
+        color: $white;
+      }
+    }
   }
 
   &:hover {

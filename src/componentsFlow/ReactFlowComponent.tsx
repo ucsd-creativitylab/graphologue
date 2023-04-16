@@ -101,9 +101,9 @@ const Flow = () => {
     toObject,
     // fitView,
     getViewport,
-    ////
-    getIntersectingNodes,
-  }: ReactFlowInstance = thisReactFlowInstance
+  }: ////
+  // getIntersectingNodes,
+  ReactFlowInstance = thisReactFlowInstance
 
   const answerObject = answerObjects.find(a => a.id === answerObjectId)
 
@@ -365,6 +365,43 @@ const Flow = () => {
     [selectNodeAndEdges]
   )
 
+  const _centerIntersectingNodes = useCallback(
+    (node: Node, movementX = 0, movementY = 0) => {
+      const {
+        position: { x: nodeXCurrent, y: nodeYCurrent },
+        width: nodeWidthCurrent,
+        height: nodeHeightCurrent,
+      } = node
+
+      const nodeXCurrentCenter =
+        nodeXCurrent + (nodeWidthCurrent ?? 0) / 2 + movementX
+      const nodeYCurrentCenter =
+        nodeYCurrent + (nodeHeightCurrent ?? 0) / 2 + movementY
+
+      const intersections = nodes
+        .filter((nd: Node) => {
+          if (nd.id === node.id) return false
+
+          const {
+            position: { x: nodeX, y: nodeY },
+            width: nodeWidth,
+            height: nodeHeight,
+          } = nd
+
+          return (
+            nodeXCurrentCenter >= nodeX &&
+            nodeXCurrentCenter <= nodeX + (nodeWidth ?? 0) &&
+            nodeYCurrentCenter >= nodeY &&
+            nodeYCurrentCenter <= nodeY + (nodeHeight ?? 0)
+          )
+        })
+        .map(nd => nd.id)
+
+      return intersections
+    },
+    [nodes]
+  )
+
   const handleNodeDrag = useCallback(
     (e: MouseEvent, node: Node) => {
       if (
@@ -374,7 +411,13 @@ const Flow = () => {
       )
         return
 
-      const intersections = getIntersectingNodes(node).map(nd => nd.id)
+      // get all the nodes that the center of the current node is in
+      // const intersections = getIntersectingNodes(node).map(nd => nd.id)
+      const intersections = _centerIntersectingNodes(
+        node,
+        e.movementX,
+        e.movementY
+      )
 
       const setPosition = generatingFlow
         ? {}
@@ -410,7 +453,7 @@ const Flow = () => {
         })
       )
     },
-    [answerObject, generatingFlow, getIntersectingNodes, setNodes]
+    [_centerIntersectingNodes, answerObject, generatingFlow, setNodes]
   )
 
   const handleNodeDragStop = useCallback(
@@ -422,7 +465,8 @@ const Flow = () => {
       )
         return
 
-      const intersections = getIntersectingNodes(node).map(nd => nd.id)
+      // const intersections = getIntersectingNodes(node).map(nd => nd.id)
+      const intersections = _centerIntersectingNodes(node)
 
       // merge node with the first intersecting node
       if (intersections.length) {
@@ -433,10 +477,10 @@ const Flow = () => {
       }
     },
     [
+      _centerIntersectingNodes,
       answerObject,
       answerObjectId,
       generatingFlow,
-      getIntersectingNodes,
       handleAnswerObjectNodeMerge,
     ]
   )
