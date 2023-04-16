@@ -11,6 +11,12 @@ import { debug } from './constants'
 import './css/index.scss'
 import 'reactflow/dist/style.css'
 
+if (!debug) {
+  console.log = () => {}
+  console.error = () => {}
+  console.debug = () => {}
+}
+
 /* -------------------------------------------------------------------------- */
 
 // ! get URL params
