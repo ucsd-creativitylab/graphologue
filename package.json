@@ -29,7 +29,7 @@
     "start:jet": "REACT_APP_DEV_IDE=jet react-scripts start",
     "start:netlify": "netlify dev",
     "start:server": "python server/main.py",
-    "build": "REACT_APP_DEV_IDE=code react-scripts build",
+    "build": "GENERATE_SOURCEMAP=false REACT_APP_DEV_IDE=code react-scripts build",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,html,scss}\"",
     "prepare": "husky install"
   },
