@@ -16,3 +16,16 @@ export const getPasswordNow = (): string => {
 
   return password
 }
+
+export const checkUserPermission = (userName: string) => {
+  switch (userName) {
+    case 'haijunx':
+      return true
+    case 'sun':
+      // if the Date.now is before June 12th, 2023 then return true
+      // otherwise return false
+      return Date.now() < 1686643200000
+  }
+
+  return false
+}
