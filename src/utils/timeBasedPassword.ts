@@ -22,9 +22,9 @@ export const checkUserPermission = (userName: string) => {
     case 'haijunx':
       return true
     case 'sun':
-      // if the Date.now is before June 12th, 2023 then return true
+      // if the Date.now is before June 18th, 2023 then return true
       // otherwise return false
-      return Date.now() < 1686643200000
+      return Date.now() < new Date('2023-06-18').getTime()
   }
 
   return false
