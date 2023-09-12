@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState } from 'react'
 
 import { ChatContext } from './components/Contexts'
 import { Interchange } from './components/Interchange'
-import { newQuestionAndAnswer } from './utils/chatAppUtils'
+import { newQuestionAndAnswer } from './utils/chatUtils'
 import {
   EdgeInformation,
   NodeInformation,

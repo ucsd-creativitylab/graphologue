@@ -31,7 +31,7 @@ import {
   helpSetQuestionAndAnswer,
   newQuestionAndAnswer,
   trimLineBreaks,
-} from '../utils/chatAppUtils'
+} from '../utils/chatUtils'
 import { InterchangeContext } from './Interchange'
 import { SentenceParser, SentenceParsingJob } from '../utils/sentenceParser'
 import {

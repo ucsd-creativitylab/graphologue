@@ -7,7 +7,7 @@ import {
   findSentencesToCorrect,
   newAnswerObject,
   newQuestionAndAnswer,
-} from './utils/chatAppUtils'
+} from './utils/chatUtils'
 import {
   nodeIndividualsToNodeEntities,
   parseEdges,

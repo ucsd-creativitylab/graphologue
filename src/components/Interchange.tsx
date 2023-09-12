@@ -14,7 +14,7 @@ import {
   getAnswerObjectId,
   helpSetQuestionAndAnswer,
   trimLineBreaks,
-} from '../utils/chatAppUtils'
+} from '../utils/chatUtils'
 import { Answer, ListDisplayFormat } from './Answer'
 import { ChatContext } from './Contexts'
 import { FinishedAnswerObjectParsingTypes, Question } from './Question'
