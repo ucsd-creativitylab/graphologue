@@ -4,9 +4,12 @@ const flowTransitionTimer: {
   current: null,
 }
 
+/**
+ * Use CSS to animate the changes and updates to the diagrams.
+ */
 export const makeFlowTransition = () => {
   const flowCanvases = document.querySelectorAll(
-    '.react-flow-wrapper'
+    '.react-flow-wrapper',
   ) as NodeListOf<HTMLDivElement>
   flowCanvases.forEach(canvas => {
     canvas.classList.add('changing-flow')

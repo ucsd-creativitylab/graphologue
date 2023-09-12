@@ -46,7 +46,7 @@ export class ViewFitter {
     const nodesBounding = getGraphBounds(job.nodes)
 
     const reactFlowWrapperElement = document.querySelector(
-      '.react-flow-wrapper'
+      '.react-flow-wrapper',
     ) as HTMLElement // they are all the same size
     const viewBounding = reactFlowWrapperElement.getBoundingClientRect()
 

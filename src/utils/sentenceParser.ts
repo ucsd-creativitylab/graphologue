@@ -26,7 +26,7 @@ export class SentenceParser {
 
   constructor(
     resultHandler: (result: SentenceParsingJob) => void,
-    errorHandler: (errorResult: any) => void
+    errorHandler: (errorResult: any) => void,
   ) {
     this.resultHandler = resultHandler
     this.errorHandler = errorHandler
@@ -59,7 +59,7 @@ export class SentenceParser {
 
         const parsingResult = await parseOpenAIResponseToObjects(
           predefinedPrompts._chat_parseRelationships(sentence, 'sentence'),
-          models.faster
+          models.faster,
         )
 
         if (parsingResult.error) {
@@ -75,7 +75,7 @@ export class SentenceParser {
 
           this.resultHandler(job)
         }
-      })
+      }),
     )
   }
 

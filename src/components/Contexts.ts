@@ -2,14 +2,13 @@ import { createContext } from 'react'
 import { QuestionAndAnswer } from '../App'
 
 import { ModelForMagic } from '../utils/openAI'
-import { Note } from './Notebook'
 
 export interface ChatContextType {
   questionsAndAnswersCount: number
   setQuestionsAndAnswers: (
     questionsAndAnswers:
       | QuestionAndAnswer[]
-      | ((prev: QuestionAndAnswer[]) => QuestionAndAnswer[])
+      | ((prev: QuestionAndAnswer[]) => QuestionAndAnswer[]),
   ) => void
 }
 export const ChatContext = createContext<ChatContextType>({} as ChatContextType)
@@ -34,21 +33,3 @@ export interface FlowContextType {
   setModel: (model: ModelForMagic) => void
 }
 export const FlowContext = createContext<FlowContextType>({} as FlowContextType)
-
-// export interface EdgeContextType {
-//   roughZoomLevel: number
-// }
-// export const EdgeContext = createContext<EdgeContextType>({} as EdgeContextType)
-
-export interface NotebookContextType {
-  notes: Note[]
-  setNotes: (notes: Note[]) => void
-  notesOpened: boolean
-  setNotesOpened: (notesOpened: boolean) => void
-  addNote: (note: Note) => void
-  deleteNote: (noteId: string) => void
-}
-
-export const NotebookContext = createContext<NotebookContextType>(
-  {} as NotebookContextType
-)

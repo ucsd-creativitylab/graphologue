@@ -34,7 +34,7 @@ export const Playground = () => {
           modelParsingComplete: true,
         },
         answerObjects: [newAnswerObject()],
-      })
+      }),
     )
   const [modelCorrecting, setModelCorrecting] = useState(false)
   const [correctedText, setCorrectedText] = useState('')
@@ -56,7 +56,7 @@ export const Playground = () => {
             originText: {
               content: text,
               nodeEntities: nodeIndividualsToNodeEntities(
-                parseNodes(text, objectId)
+                parseNodes(text, objectId),
               ),
               edgeEntities: parseEdges(text, objectId),
             },
@@ -71,7 +71,7 @@ export const Playground = () => {
     let textContentAfterCorrection =
       playgroundQuestionAndAnswer.answerObjects[0].originText.content
     const correctionJobs = findSentencesToCorrect(
-      playgroundQuestionAndAnswer.answerObjects[0]
+      playgroundQuestionAndAnswer.answerObjects[0],
     )
 
     setModelCorrecting(true)
@@ -92,9 +92,9 @@ export const Playground = () => {
             ] as Prompt[],
             sentence,
             n,
-            e
+            e,
           ),
-          models.smarter
+          models.smarter,
         )
 
         const correctionText = getTextFromModelResponse(correctionResponse)
@@ -104,9 +104,9 @@ export const Playground = () => {
         })
         textContentAfterCorrection = textContentAfterCorrection.replace(
           sentence,
-          ' ' + correctionText
+          ' ' + correctionText,
         )
-      })
+      }),
     )
 
     const objectId = playgroundQuestionAndAnswer.answerObjects[0].id
@@ -118,7 +118,7 @@ export const Playground = () => {
           originText: {
             content: textContentAfterCorrection,
             nodeEntities: nodeIndividualsToNodeEntities(
-              parseNodes(textContentAfterCorrection, objectId)
+              parseNodes(textContentAfterCorrection, objectId),
             ),
             edgeEntities: parseEdges(textContentAfterCorrection, objectId),
           },
@@ -187,7 +187,7 @@ export const Playground = () => {
         <ReactFlowProvider
           key={`playground-flow-provider-${uuidv5(
             playgroundQuestionAndAnswer.answer,
-            uuidv5.URL
+            uuidv5.URL,
           )}`}
         >
           <AnswerBlockItem

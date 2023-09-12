@@ -160,7 +160,9 @@
     outline: rem-to-px(1rem) solid transparent;
     outline-offset: 0;
 
-    transition: outline $transition-fast, background-color $transition-fast;
+    transition:
+      outline $transition-fast,
+      background-color $transition-fast;
 
     &::selection {
       background: $light;

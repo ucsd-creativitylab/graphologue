@@ -15,7 +15,7 @@ export const promptTerms = {
 export const getSystemPrompt = (
   assistantStyle: 'knowledgeable' | 'helpful',
   cleanAnswer: boolean,
-  specificInstructions?: string
+  specificInstructions?: string,
 ) => {
   return (
     `You are a ${assistantStyle} assistant.` +
@@ -33,7 +33,6 @@ export const userResponseBreaking = `Break your response into smaller chunks of 
 Organize the chunks as an array of JSON objects, where each object has the following fields:
   - "origin" (array of strings): An array of the original sentences that the chunk of information is from. Make sure they are exactly the same as the original sentences.
   - "summary" (string): A short, one-line summary of the chunk of the information`
-//  - "origin" (array of two numbers): An array of the start and end character indices of the corresponding sentence(s) in the original response. The original content should be complete sentence(s).
 
 export const systemResponseParsing = `For the following part picked by the user, parse the information into a JSON object with the following fields:
   - "slide" (object of two fields): Structure the content so that it can be made into a slide in a presentation, with the following fields:
@@ -108,12 +107,6 @@ Example paragraph C:
 [Another ($H, $N3, $N8)] [adaptation ($N8)] [is ($H, $N8, $N9)] the [structure of their wings ($N9)] which [are designed for ($H, $N9, $N2)] [flight ($N2)].
 
 Your response should have multiple paragraphs.`,
-        /**
-Example:
-[Apple Inc. ($N1)] [is a ($H, $N1, $N2)] [technology company ($N2)] [based in ($H, $N1, $N3)] [Cupertino, California ($N3)]. \
-[It ($N1)] [was ($H, $N1, $N4)] [founded ($N4)] [by ($H, $N4, $N5; $H, $N4, $N6; $H, $N4, $N7)] [Steve Jobs ($N5)], [Steve Wozniak ($N6)], and [Ronald Wayne ($N7)] [in ($H, $N4, $N8)] [1976 ($N8)]. \
-[Apple ($N1)] [is known for ($H, $N1, $N9)] [its innovative products ($N9)], [such as ($L, $N9, $N10; $L, $N9, $N11; $L, $N9, $N12)] [iPhones ($N10)], [iPads ($N11)], and [Mac computers ($N12)]. \
-[The company ($N1)] also [offers ($L, $N1, $N13; $L, $N1, $N14; $L, $N1, $N15)] [software ($N13)], [services ($N14)], and [accessories ($N15)].*/
       },
       {
         role: 'user',
@@ -124,7 +117,7 @@ Example:
   _graph_nodeExpand: (
     prevConversation: Prompt[],
     originalSentence: string,
-    nodeLabel: string
+    nodeLabel: string,
   ): Prompt[] => {
     return [
       ...prevConversation,
@@ -148,7 +141,7 @@ and [apply knowledge across a wide range of tasks ($N15)].`,
   _graph_nodeExamples: (
     prevConversation: Prompt[],
     originalSentence: string,
-    nodeLabel: string
+    nodeLabel: string,
   ): Prompt[] => {
     return [
       ...prevConversation,
@@ -169,7 +162,7 @@ For example, for "[Fruits ($N1)]" in the sentence \
   },
   _graph_2MoreSentences: (
     prevConversation: Prompt[],
-    originText: string
+    originText: string,
   ): Prompt[] => {
     return [
       ...prevConversation,
@@ -203,7 +196,7 @@ Your response should only have the new content.`,
     prevConversation: Prompt[],
     originalSentence: string,
     orphanNodes: string[],
-    noWhereEdges: string[]
+    noWhereEdges: string[],
   ): Prompt[] => {
     const hasOrphan = orphanNodes.length > 0
     const hasNoWhere = noWhereEdges.length > 0
@@ -217,14 +210,14 @@ Your response should only have the new content.`,
 ${
   hasOrphan
     ? `The entities "${orphanNodes.join(
-        ', '
+        ', ',
       )}" were mentioned but not connected by any relationships.`
     : ''
 }
 ${
   hasNoWhere
     ? `One or more relationships annotated by relationship annotations "${noWhereEdges.join(
-        ', '
+        ', ',
       )}" \
 were trying to connect entities with ids that are not mentioned in the response.`
     : ''
@@ -264,7 +257,7 @@ Your response should be at most around 200 characters long.`,
   },
   _chat_breakResponse: (
     initialAskPrompts: Prompt[],
-    response: string
+    response: string,
   ): Prompt[] => {
     return [
       ...initialAskPrompts,
@@ -327,7 +320,7 @@ You may summarize it as:
   _chat_parseSlide: (
     // initialAskPrompts: Prompt[]
     // response: string,
-    partResponse: string
+    partResponse: string,
   ): Prompt[] => {
     return [
       // ...initialAskPrompts,
@@ -349,7 +342,7 @@ Do not include anything else in the response other than the markdown text.`,
   },
   _chat_parseRelationships: (
     partResponse: string,
-    target: 'text' | 'sentence' = 'text'
+    target: 'text' | 'sentence' = 'text',
   ): Prompt[] => {
     return [
       {
@@ -395,7 +388,7 @@ Divide the relationships by line breaks.`,
   /* -------------------------------------------------------------------------- */
   giveNodeLabelSuggestionsFromNodes: (
     target: 'node' | 'edge',
-    existingNodeLabelAndTags: NodeLabelAndTags[]
+    existingNodeLabelAndTags: NodeLabelAndTags[],
   ): Prompt[] => {
     if (!existingNodeLabelAndTags.length)
       return [
@@ -404,7 +397,7 @@ Divide the relationships by line breaks.`,
           content: getSystemPrompt(
             'knowledgeable',
             true,
-            'Separate the answers with commas.'
+            'Separate the answers with commas.',
           ),
         },
         {
@@ -419,7 +412,7 @@ Divide the relationships by line breaks.`,
         content: getSystemPrompt(
           'knowledgeable',
           true,
-          `Separate the answers with commas. Do not respond the given words and phrases.`
+          `Separate the answers with commas. Do not respond the given words and phrases.`,
         ),
       },
       {
@@ -443,7 +436,7 @@ Divide the relationships by line breaks.`,
         content: getSystemPrompt(
           'knowledgeable',
           true,
-          `Use simple and concise sentences. Be as detailed as possible.`
+          `Use simple and concise sentences. Be as detailed as possible.`,
         ),
       },
       {
@@ -462,13 +455,13 @@ Divide the relationships by line breaks.`,
           true,
           `Construct a knowledge graph to reflect all the relationships in the sentences in the paragraph from the user.
 Use user-provided entities (including the letter case) when possible. Each entity (i.e. node) can be used in multiple relationships. There should be one connected graph in total. \
-Response format: {subject} ${promptTerms.itemRelationshipConnector} {short label indicating the relationship between subject and object} ${promptTerms.itemRelationshipConnector} {object}${promptTerms.itemBreaker}`
+Response format: {subject} ${promptTerms.itemRelationshipConnector} {short label indicating the relationship between subject and object} ${promptTerms.itemRelationshipConnector} {object}${promptTerms.itemBreaker}`,
         ),
       },
       {
         role: 'user',
         content: `Paragraph: ${userParagraph}\n\nEntities: ${userEntities.join(
-          ', '
+          ', ',
         )}`,
       },
     ]
@@ -478,12 +471,11 @@ Response format: {subject} ${promptTerms.itemRelationshipConnector} {short label
   _old_addGooglePrompts: () =>
     `\n\nAfter the statement, list 3 Google search queries for people the verify it. Separate them with commas, use quotation marks for every item. Start with ${promptTerms.searchQueries}. For example, ${promptTerms.searchQueries}: "a", "b", "c".`,
   _old_addScholar: () =>
-    // `\n\nFinally, query Google Scholar and provide titles of peer-reviewed articles that support the response. Only provide papers that are either available in Google Scholar or Semantic Scholar. Do not include links. Separate them with commas, use quotation marks for every item. Start with ${promptTerms.researchPapers}. For example, ${promptTerms.researchPapers}: "a", "b", "c".`,
     `\n\nFinally, list 3 keywords of relevant and supporting research articles. Separate them with commas, use quotation marks for every item. Start with ${promptTerms.researchPapers}. For example, ${promptTerms.researchPapers}: "a", "b", "c".`,
   _old_explainScholar: (
     response: string,
     paperTitle: string,
-    paperAbstract: string
+    paperAbstract: string,
   ) =>
     `Use one or two simple and concise sentences to explain how does the paper "${paperTitle}" help understand this statement:\n\n${response}\n\nDon't repeat the title.` +
     (paperAbstract.length > 0 ? `\n\n(Paper abstract: ${paperAbstract})` : ''),

@@ -13,16 +13,13 @@ import { Edge, Node, useReactFlow, useStore } from 'reactflow'
 import isEqual from 'react-fast-compare'
 import { PuffLoader } from 'react-spinners'
 
-import AutoFixHighRoundedIcon from '@mui/icons-material/AutoFixHighRounded'
 import ExpandCircleDownRoundedIcon from '@mui/icons-material/ExpandCircleDownRounded'
 
-import { contentEditingTimeout, terms } from '../constants'
-import { magicExplain, PromptSourceComponentsType } from '../utils/magicExplain'
+import { terms } from '../constants'
 import {
   NodeLabelAndTags,
   predefinedResponses,
 } from '../utils/promptsAndResponses'
-import { getWikiData } from '../utils/wikiBase'
 import { FlowContext } from '../components/Contexts'
 
 interface MagicToolboxProps {
@@ -113,7 +110,7 @@ export const MagicToolboxButton = memo(
         }
         onClick && onClick(e)
       },
-      [onClick, preventDefault]
+      [onClick, preventDefault],
     )
 
     return (
@@ -132,7 +129,7 @@ export const MagicToolboxButton = memo(
         {content}
       </button>
     )
-  }
+  },
 )
 
 interface MagicTagProps {
@@ -149,7 +146,7 @@ export const MagicTag = memo(
 
         onClick && onClick(tag)
       },
-      [onClick, tag]
+      [onClick, tag],
     )
 
     return (
@@ -161,7 +158,7 @@ export const MagicTag = memo(
         {tag}
       </button>
     )
-  }
+  },
 )
 
 interface MagicNodeTaggingItemProps {
@@ -174,7 +171,6 @@ export const MagicNodeTaggingItem = memo(
 
     const [availableTags, setAvailableTags] = useState<string[]>([])
     const [noAvailable, setNoAvailable] = useState<boolean>(false)
-    // const prevLabel = usePrevious(label)
 
     const customTagTextInputRef = useRef<HTMLInputElement>(null)
 
@@ -195,7 +191,7 @@ export const MagicNodeTaggingItem = memo(
           })
         })
       },
-      [setNodes, targetId]
+      [setNodes, targetId],
     )
 
     const handleAddCustomTag = useCallback(() => {
@@ -222,16 +218,16 @@ export const MagicNodeTaggingItem = memo(
       setNoAvailable(false)
       setAvailableTags([])
 
-      const _timeout = setTimeout(() => {
-        if (label) {
-          getWikiData(label).then(res => {
-            setAvailableTags(res)
-            if (res.length === 0) setNoAvailable(true)
-          })
-        }
-      }, contentEditingTimeout)
+      // const _timeout = setTimeout(() => {
+      //   if (label) {
+      //     getWikiData(label).then(res => {
+      //       setAvailableTags(res)
+      //       if (res.length === 0) setNoAvailable(true)
+      //     })
+      //   }
+      // }, contentEditingTimeout)
 
-      return () => _timeout && clearTimeout(_timeout)
+      // return () => _timeout && clearTimeout(_timeout)
     }, [label])
 
     return (
@@ -286,7 +282,7 @@ export const MagicNodeTaggingItem = memo(
         </MagicToolboxItem>
       </>
     )
-  }
+  },
 )
 
 interface MagicSuggestItemProps {
@@ -343,7 +339,7 @@ export const MagicSuggestItem = memo(
           })
         }
       },
-      [setEdges, setNodes, target, targetId]
+      [setEdges, setNodes, target, targetId],
     )
 
     /*
@@ -426,36 +422,5 @@ export const MagicSuggestItem = memo(
       </MagicToolboxItem>
     )
   },
-  isEqual
+  isEqual,
 )
-
-interface MagicAskItemProps {
-  sourceComponents: PromptSourceComponentsType
-}
-export const MagicAskItem = ({ sourceComponents }: MagicAskItemProps) => {
-  const { getNodes, getEdges, addNodes, fitView } = useReactFlow()
-  const { model, selectNodes } = useContext(FlowContext)
-
-  return (
-    <MagicToolboxItem title={`ask ${terms[model]}`}>
-      <MagicToolboxButton
-        content={
-          <>
-            <AutoFixHighRoundedIcon />
-            <span>explain</span>
-          </>
-        }
-        onClick={() => {
-          magicExplain(
-            getNodes(),
-            getEdges(),
-            sourceComponents,
-            addNodes,
-            selectNodes,
-            fitView
-          )
-        }}
-      />
-    </MagicToolboxItem>
-  )
-}

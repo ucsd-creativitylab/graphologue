@@ -4,7 +4,6 @@ import {
   ConnectionLineComponent,
   ConnectionLineComponentProps,
   DefaultEdgeOptions,
-  Node,
   Edge,
   EdgeProps,
   getStraightPath,
@@ -13,19 +12,16 @@ import {
   useReactFlow,
 } from 'reactflow'
 
-// import LinearScaleRoundedIcon from '@mui/icons-material/LinearScaleRounded'
-
 import { ReactComponent as DashLine } from '../media/dashLine.svg'
 import { ReactComponent as PlainLine } from '../media/plainLine.svg'
 import { ReactComponent as ArrowLine } from '../media/arrowLine.svg'
 
-import { hardcodedNodeSize, styles } from '../constants'
+import { styles } from '../constants'
 import { FlowContext } from '../components/Contexts'
 import { getMarkerId } from './CustomDefs'
 import { MagicToolbox, MagicToolboxItem } from './MagicToolbox'
 import { getEdgeId, getEdgeParams } from '../utils/utils'
-import { customAddNodes, GeneratedInformation } from './Node'
-import { MagicNodeData } from './MagicNode'
+import { GeneratedInformation } from './Node'
 
 /* -------------------------------------------------------------------------- */
 
@@ -52,15 +48,11 @@ export const CustomEdge = memo(
     selected,
   }: CustomEdgeProps) => {
     const sourceNode = useStore(
-      useCallback(store => store.nodeInternals.get(source), [source])
+      useCallback(store => store.nodeInternals.get(source), [source]),
     )
     const targetNode = useStore(
-      useCallback(store => store.nodeInternals.get(target), [target])
+      useCallback(store => store.nodeInternals.get(target), [target]),
     )
-    // const zoomLevel = useStore(useCallback(store => store.transform[2], []))
-
-    const { selectedComponents } = useContext(FlowContext)
-    const { getNodes, getEdges } = useReactFlow()
 
     if (!sourceNode || !targetNode) return null
 
@@ -74,37 +66,13 @@ export const CustomEdge = memo(
       targetY: ty,
     })
 
-    // check if this node is explained by a magic node
-    const selectedMagicNodes = selectedComponents.nodes.filter(
-      (nodeId: string) => {
-        return nodeId.includes('magic-node-')
-      }
-    )
-    const isExplainedByMagicNode = selectedMagicNodes.some((nodeId: string) => {
-      const node = getNodes().find(node => node.id === nodeId)
-      if (!node) return false
-
-      const {
-        sourceComponents: { edges: edgeIds },
-      } = node.data as MagicNodeData
-
-      const edges = getEdges().filter(edge => {
-        return edgeIds.includes(edge.id)
-      })
-
-      for (const ed of edges) {
-        if (ed.id === id) return true
-      }
-      return false
-    })
-
     let customMarkerEnd = undefined
     if (customType === 'arrow') {
-      if (isExplainedByMagicNode)
-        customMarkerEnd = `url(#${getMarkerId(
-          styles.edgeColorStrokeExplained
-        )})`
-      else if (selected)
+      // if (isExplainedByMagicNode)
+      //   customMarkerEnd = `url(#${getMarkerId(
+      //     styles.edgeColorStrokeExplained,
+      //   )})`
+      if (selected)
         customMarkerEnd = `url(#${getMarkerId(styles.edgeColorStrokeSelected)})`
       else customMarkerEnd = markerEnd as string
     }
@@ -126,7 +94,7 @@ export const CustomEdge = memo(
           id={id}
           className={`react-flow__edge-path react-flow__edge-path-${customType}${
             selected ? ' path-selected' : ''
-          }${isExplainedByMagicNode ? ' edge-explained' : ''}`}
+          }`}
           d={edgePath}
           strokeLinecap={customType === 'arrow' ? 'butt' : 'round'}
           strokeDasharray={
@@ -147,24 +115,14 @@ export const CustomEdge = memo(
           }}
           selected={selected || false}
         />
-        {/* <text>
-          <textPath
-            href={`#${id}`}
-            className="react-flow__edge-text"
-            startOffset="50%"
-            textAnchor="middle"
-          >
-            {label}
-          </textPath>
-        </text> */}
       </>
     )
-  }
+  },
 )
 
 export const getNewEdge = (
   params: Connection,
-  dataOptions?: CustomEdgeData
+  dataOptions?: CustomEdgeData,
 ) => {
   const data: CustomEdgeData = {
     ...({
@@ -185,24 +143,6 @@ export const getNewEdge = (
     data: data,
     selected: false,
   } as Edge
-}
-
-/* -------------------------------------------------------------------------- */
-
-// !for magic suggestions
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getRelevantNodesForEdge = (connection: Connection, nodes: Node[]) => {
-  const targetNode = nodes.find(node => node.id === connection.target)
-  const sourceNode = nodes.find(node => node.id === connection.source)
-
-  if (
-    targetNode &&
-    sourceNode &&
-    (targetNode.data.label.length > 0 || sourceNode.data.label.length > 0)
-  )
-    return [targetNode, sourceNode]
-
-  return nodes
 }
 
 /* -------------------------------------------------------------------------- */
@@ -228,102 +168,13 @@ export const EdgeCustomLabel = memo(
     selected,
   }: // roughZoomLevel,
   EdgeCustomLabelProps) => {
-    const { addNodes, setEdges, fitView } = useReactFlow()
-    const { initialSelectItem, selectNodes } = useContext(FlowContext)
-
-    // const moreThanOneComponentsSelected =
-    //   selectedComponents.nodes.length + selectedComponents.edges.length > 1
-    // getNodes().filter(node => node.data.selected).length +
-    //   getEdges().filter(edge => edge.data.selected).length >
-    // 1
+    const { setEdges } = useReactFlow()
+    const { initialSelectItem } = useContext(FlowContext)
 
     const useToolbox =
       selected &&
       initialSelectItem.type === 'edge' &&
       initialSelectItem.id === edgeId
-
-    // ! add node from edge
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const handleAddNodeFromEdge = useCallback(() => {
-      const { width: nodeWidth, height: nodeHeight } = hardcodedNodeSize
-      const {
-        target: originalTarget,
-        source: originalSource,
-        targetHandle: originalTargetHandle,
-        sourceHandle: originalSourceHandle,
-      } = connection
-
-      const { nodeId, targetHandleId, sourceHandleId } = customAddNodes(
-        addNodes,
-        selectNodes,
-        labelX - nodeWidth / 2,
-        labelY - nodeHeight / 2,
-        {
-          label: edgeData.label,
-          select: false,
-          editing: false,
-          styleBackground: styles.nodeColorDefaultGrey,
-          toFitView: false,
-          fitView: fitView,
-        }
-      )
-
-      // originalSource -------------> originalTarget
-      // originalSource -> new node -> originalTarget
-      setEdges((eds: Edge[]) => {
-        return eds
-          .filter(ed => ed.id !== edgeId) // remove the original edge
-          .concat([
-            getNewEdge(
-              {
-                source: originalSource,
-                sourceHandle: originalSourceHandle,
-                target: nodeId,
-                targetHandle: targetHandleId,
-              },
-              {
-                label: '',
-                customType: edgeData.customType,
-                editing: false,
-                generated: {
-                  pseudo: false,
-                  originRanges: [],
-                  originTexts: [],
-                },
-              }
-            ),
-            getNewEdge(
-              {
-                source: nodeId,
-                sourceHandle: sourceHandleId,
-                target: originalTarget,
-                targetHandle: originalTargetHandle,
-              },
-              {
-                label: '',
-                customType: edgeData.customType,
-                editing: false,
-                generated: {
-                  pseudo: false,
-                  originRanges: [],
-                  originTexts: [],
-                },
-              }
-            ),
-          ])
-      })
-    }, [
-      addNodes,
-      connection,
-      edgeData.customType,
-      edgeData.label,
-      edgeId,
-      fitView,
-      labelX,
-      labelY,
-      selectNodes,
-      setEdges,
-    ])
 
     // ! switch custom edge type
     const handleSwitchCustomEdgeType = useCallback(
@@ -343,30 +194,16 @@ export const EdgeCustomLabel = memo(
           })
         })
       },
-      [edgeId, setEdges]
+      [edgeId, setEdges],
     )
 
     return (
       <foreignObject
         className={`edge-label-wrapper`}
-        // className={`edge-label-wrapper${
-        //   roughZoomLevel < hideEdgeTextZoomLevel
-        //     ? ' hidden-edge-label-wrapper'
-        //     : ''
-        // }`}
         x={labelX}
         y={labelY - 4} // ! why
         requiredExtensions="http://www.w3.org/1999/xhtml"
       >
-        {/* <SuperTextEditor
-          target="edge"
-          targetId={edgeId}
-          content={edgeData.label}
-          editing={edgeData.editing}
-          background={'white'}
-          selected={selected}
-          textareaRef={null}
-        > */}
         <div className="super-wrapper super-wrapper-edge super-wrapper-static-text super-wrapper-static-text-edge">
           <span className="edge-label">{edgeData.label}</span>
 
@@ -381,40 +218,12 @@ export const EdgeCustomLabel = memo(
                 useToolbox ? ' magic-toolbox-show' : ''
               }`}
             >
-              {/* {edgeData.label.length === 0 && selected ? (
-                <MagicSuggestItem
-                  target="edge"
-                  targetId={edgeId}
-                  nodeLabelAndTags={getNodeLabelAndTags(
-                    getRelevantNodesForEdge(connection, getNodes())
-                  )}
-                  edgeLabels={[]}
-                  disabled={!useToolbox}
-                />
-              ) : (
-                <></>
-              )} */}
-
               <MagicToolboxItem title="switch type">
                 <EdgeCustomTypeSwitch
                   currentType={edgeData.customType}
                   handleChange={handleSwitchCustomEdgeType}
                 />
               </MagicToolboxItem>
-
-              {/* <MagicToolboxItem title="make node">
-                <MagicToolboxButton
-                  content={
-                    <>
-                      <LinearScaleRoundedIcon />
-                      <span>
-                        {edgeData.label.length ? 'convert to node' : 'add node'}
-                      </span>
-                    </>
-                  }
-                  onClick={handleAddNodeFromEdge}
-                />
-              </MagicToolboxItem> */}
             </MagicToolbox>
           ) : (
             <></>
@@ -423,7 +232,7 @@ export const EdgeCustomLabel = memo(
         </div>
       </foreignObject>
     )
-  }
+  },
 )
 
 /* -------------------------------------------------------------------------- */
@@ -453,14 +262,6 @@ export const CustomConnectionLine = ({
         strokeLinecap="round"
         d={edgePath}
       />
-      {/* <circle
-        cx={toX}
-        cy={toY}
-        fill={styles.edgeColorStrokeDefault}
-        r={1}
-        stroke={styles.edgeColorStrokeDefault}
-        strokeWidth={styles.edgeWidth}
-      /> */}
     </g>
   ) as unknown as ConnectionLineComponent
 }

@@ -1,5 +1,6 @@
 import React, { memo } from 'react'
 import { EdgeProps, getSmoothStepPath } from 'reactflow'
+
 import { CustomEdgeData, EdgeCustomLabel } from './Edge'
 import { styles } from '../constants'
 import { getMarkerId } from './CustomDefs'
@@ -51,7 +52,6 @@ export const SimpleEdge = memo(
           className={`react-flow__edge-path-background${
             selected ? ' path-background-selected' : ''
           }`}
-          // }${data.className ? ` ${data.className}` : ''}`}
           d={edgePath}
         />
 
@@ -69,16 +69,6 @@ export const SimpleEdge = memo(
           }
           markerEnd={customMarkerEnd}
         />
-        {/* <text>
-          <textPath
-            href={`#${id}`}
-            style={{ fontSize: 12 }}
-            startOffset="50%"
-            textAnchor="middle"
-          >
-            {data.label}
-          </textPath>
-        </text> */}
         {(data as CustomEdgeData).label && (
           <EdgeCustomLabel
             edgeId={id}
@@ -88,7 +78,7 @@ export const SimpleEdge = memo(
               sourceX,
               sourceY,
               targetX,
-              targetY
+              targetY,
             )}
             labelY={targetY - 8} // gap
             connection={{
@@ -102,7 +92,7 @@ export const SimpleEdge = memo(
         )}
       </>
     )
-  }
+  },
 )
 
 const getEdgeLabelXPosition = (
@@ -110,7 +100,7 @@ const getEdgeLabelXPosition = (
   sourceX: number,
   sourceY: number,
   targetX: number,
-  targetY: number
+  targetY: number,
 ) => {
   if (content.length > 0 && Math.abs(sourceY - targetY) < 2)
     return (sourceX + targetX) / 2

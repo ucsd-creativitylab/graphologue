@@ -47,9 +47,7 @@ import { FlowContext } from '../components/Contexts'
 import { useTimeMachine } from '../utils/timeMachine'
 import { roundTo } from '../utils/utils'
 import { PromptSourceComponentsType } from '../utils/magicExplain'
-import { MagicNode } from './MagicNode'
 import { EntityType } from '../utils/socket'
-import { CustomGroupNode } from './GroupNode'
 import { ModelForMagic } from '../utils/openAI'
 import { ReactFlowObjectContext } from '../components/Answer'
 import { SimpleEdge } from './SimpleEdge'
@@ -61,21 +59,13 @@ const reactFlowWrapperStyle = {
   height: '100%',
 } as React.CSSProperties
 
-// const storedData = getItem()
-// const storedData = {
-//   nodes: [],
-//   edges: [],
-// }
-// const defaultNodes = storedData.nodes as Node[]
-// const defaultEdges = storedData.edges as Edge[]
-
 const defaultNodes: Node[] = []
 const defaultEdges: Edge[] = []
 
 const nodeTypes = {
   custom: CustomNode,
-  magic: MagicNode,
-  group: CustomGroupNode,
+  // magic: MagicNode,
+  // group: CustomGroupNode,
 } as NodeTypes
 
 const edgeTypes = {
@@ -83,6 +73,9 @@ const edgeTypes = {
   simple: SimpleEdge,
 } as EdgeTypes
 
+/**
+ * Controlling the diagram.
+ */
 const Flow = () => {
   const {
     questionAndAnswer: { answerObjects },
@@ -97,39 +90,15 @@ const Flow = () => {
     setEdges,
     setViewport,
     addNodes,
-    // addEdges,
     toObject,
-    // fitView,
     getViewport,
-  }: ////
-  // getIntersectingNodes,
-  ReactFlowInstance = thisReactFlowInstance
+  }: ReactFlowInstance = thisReactFlowInstance
 
   const answerObject = answerObjects.find(a => a.id === answerObjectId)
-
-  // useLayout({
-  //   direction: 'LR',
-  // })
 
   // use default nodes and edges
   const [nodes, , onNodesChange] = useNodesState(defaultNodes)
   const [edges, , onEdgesChange] = useEdgesState(defaultEdges)
-
-  // const onNodesChange = useCallback(() => {}, [])
-  // const onEdgesChange = useCallback(() => {}, [])
-
-  // fit to view on page load
-  // ? need it?
-  /*
-  useEffect(() => {
-    fitView(viewFittingOptions)
-  }, [fitView])
-  */
-
-  // const reactFlowWrapperElement = document.querySelector(
-  //   '.react-flow__renderer'
-  // ) as HTMLElement
-  // const { width, height } = reactFlowWrapperElement.getBoundingClientRect()
 
   const defaultViewport = {
     x: (window.innerWidth * 0.5) / 2,
@@ -148,22 +117,16 @@ const Flow = () => {
     edges: [],
   } as PromptSourceComponentsType)
 
-  // const currentConnectingNode = useRef({
-  //   id: '',
-  //   sourceHandleId: '',
-  // })
-
-  // const anyNodeDragging = useRef(false)
   const { undoTime, redoTime, canUndo, canRedo } = useTimeMachine(
     toObject(),
     setNodes,
     setEdges,
-    setViewport
+    setViewport,
   )
 
   // viewport
   const [roughZoomLevel, setRoughZoomLevel] = useState(
-    roundTo(getViewport().zoom, 2)
+    roundTo(getViewport().zoom, 2),
   )
   useOnViewportChange({
     onChange: (v: Viewport) => {
@@ -264,7 +227,7 @@ const Flow = () => {
         })
       })
     },
-    [setNodes]
+    [setNodes],
   )
 
   const selectNodes = useCallback(
@@ -284,7 +247,7 @@ const Flow = () => {
         })
       })
     },
-    [setNodes]
+    [setNodes],
   )
 
   // ! node right click
@@ -322,7 +285,7 @@ const Flow = () => {
         })
       })
     },
-    [setEdges, setNodes]
+    [setEdges, setNodes],
   )
 
   const handleNodeClick = useCallback(
@@ -335,7 +298,7 @@ const Flow = () => {
         id: node.id,
       }
     },
-    [selectNodeAndEdges]
+    [selectNodeAndEdges],
   )
 
   const handleNodeDoubleClick = useCallback(
@@ -349,7 +312,7 @@ const Flow = () => {
         id: node.id,
       }
     },
-    []
+    [],
   )
 
   const handleNodeDragStart = useCallback(
@@ -362,7 +325,7 @@ const Flow = () => {
         id: node.id,
       }
     },
-    [selectNodeAndEdges]
+    [selectNodeAndEdges],
   )
 
   const _centerIntersectingNodes = useCallback(
@@ -399,7 +362,7 @@ const Flow = () => {
 
       return intersections
     },
-    [nodes]
+    [nodes],
   )
 
   const handleNodeDrag = useCallback(
@@ -416,7 +379,7 @@ const Flow = () => {
       const intersections = _centerIntersectingNodes(
         node,
         e.movementX,
-        e.movementY
+        e.movementY,
       )
 
       const setPosition = generatingFlow
@@ -450,10 +413,10 @@ const Flow = () => {
               ? 'node-to-merge-target'
               : '',
           }
-        })
+        }),
       )
     },
-    [_centerIntersectingNodes, answerObject, generatingFlow, setNodes]
+    [_centerIntersectingNodes, answerObject, generatingFlow, setNodes],
   )
 
   const handleNodeDragStop = useCallback(
@@ -482,7 +445,7 @@ const Flow = () => {
       answerObjectId,
       generatingFlow,
       handleAnswerObjectNodeMerge,
-    ]
+    ],
   )
 
   /* -------------------------------------------------------------------------- */
@@ -499,7 +462,7 @@ const Flow = () => {
       e.preventDefault()
 
       const token = JSON.parse(
-        e.dataTransfer.getData(`application/${useTokenDataTransferHandle}`)
+        e.dataTransfer.getData(`application/${useTokenDataTransferHandle}`),
       ) as EntityType
 
       // check if the dropped element is valid
@@ -525,10 +488,10 @@ const Flow = () => {
           styleBackground: styles.nodeColorDefaultWhite,
           toFitView: false,
           fitView: undefined,
-        }
+        },
       )
     },
-    [addNodes, selectNodes, thisReactFlowInstance]
+    [addNodes, selectNodes, thisReactFlowInstance],
   )
 
   /* -------------------------------------------------------------------------- */
@@ -546,7 +509,7 @@ const Flow = () => {
   */
   const onConnectStart = useCallback(
     (_: MouseEvent, { nodeId, handleId }: OnConnectStartParams) => {},
-    []
+    [],
   )
 
   /*
@@ -618,7 +581,7 @@ const Flow = () => {
         })
       })
     },
-    [setEdges]
+    [setEdges],
   )
 
   const handleEdgeClick = useCallback((e: MouseEvent, edge: Edge) => {
@@ -653,7 +616,7 @@ const Flow = () => {
         id: edge.id,
       }
     },
-    []
+    [],
   )
 
   /* -------------------------------------------------------------------------- */
@@ -684,49 +647,9 @@ const Flow = () => {
         type: 'node',
         id: '',
       }
-
-      // check if it's a double click
-      /*
-      if (lastClickTime.current) {
-        const now = performance.now()
-        const delta = now - lastClickTime.current
-
-        if (delta < 300) {
-          // double click
-          e.preventDefault()
-          e.stopPropagation()
-
-          // add by double click
-          const { x, y, zoom } = getViewport()
-          const { width: nodeWidth, height: nodeHeight } = hardcodedNodeSize
-
-          // add by double click
-          customAddNodes(
-            addNodes,
-            selectNodes,
-            e.clientX / zoom - x / zoom - nodeWidth / 2,
-            e.clientY / zoom - y / zoom - nodeHeight / 2,
-            {
-              label: '',
-              select: true,
-              editing: false,
-              styleBackground: styles.nodeColorDefaultWhite,
-              toFitView: false,
-              fitView: fitView,
-            }
-          )
-        }
-      }
-      lastClickTime.current = performance.now()
-      */
     },
-    [handleSetSyncedCoReferenceOriginRanges, nodes, setNodes]
+    [handleSetSyncedCoReferenceOriginRanges, nodes, setNodes],
   )
-
-  // const handlePaneContextMenu = useCallback((e: BaseSyntheticEvent) => {
-  //   e.preventDefault()
-  //   e.stopPropagation()
-  // }, [])
 
   /* -------------------------------------------------------------------------- */
   // ! chat
@@ -739,7 +662,7 @@ const Flow = () => {
       } = data as CustomNodeData
       handleSetSyncedCoReferenceOriginRanges(originRanges)
     },
-    [handleSetSyncedCoReferenceOriginRanges]
+    [handleSetSyncedCoReferenceOriginRanges],
   )
 
   const handleNodeMouseLeave = useCallback(
@@ -760,23 +683,23 @@ const Flow = () => {
           })
           .filter(
             (
-              originRanges: OriginRange[] | null
-            ): originRanges is OriginRange[] => originRanges !== null
+              originRanges: OriginRange[] | null,
+            ): originRanges is OriginRange[] => originRanges !== null,
           )
-          .flat(1) as OriginRange[]
+          .flat(1) as OriginRange[],
       )
     },
-    [handleSetSyncedCoReferenceOriginRanges, nodes]
+    [handleSetSyncedCoReferenceOriginRanges, nodes],
   )
 
   const handleEdgeMouseEnter = useCallback(
     (e: MouseEvent, edge: Edge<CustomEdgeData>) => {
       if (edge.data?.generated?.originRanges)
         handleSetSyncedCoReferenceOriginRanges(
-          edge?.data.generated?.originRanges
+          edge?.data.generated?.originRanges,
         )
     },
-    [handleSetSyncedCoReferenceOriginRanges]
+    [handleSetSyncedCoReferenceOriginRanges],
   )
 
   const handleEdgeMouseLeave = useCallback(
@@ -792,13 +715,13 @@ const Flow = () => {
           })
           .filter(
             (
-              originRanges: OriginRange[] | null
-            ): originRanges is OriginRange[] => !!originRanges
+              originRanges: OriginRange[] | null,
+            ): originRanges is OriginRange[] => !!originRanges,
           )
-          .flat(1) as OriginRange[]
+          .flat(1) as OriginRange[],
       )
     },
-    [edges, handleSetSyncedCoReferenceOriginRanges]
+    [edges, handleSetSyncedCoReferenceOriginRanges],
   )
 
   const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')
@@ -888,43 +811,6 @@ const Flow = () => {
               } as EdgeMarker
             }
           />
-          {/* <MiniMap
-            position={'bottom-left'}
-            pannable={true}
-            // nodeStrokeColor={n => {
-            //   if (n.selected) return styles.edgeColorStrokeSelected
-            //   else return 'none'
-            // }}
-            nodeColor={n => {
-              switch (n.type) {
-                case 'custom':
-                  if (n.data?.editing) return `#ff06b7aa`
-                  if (n.selected) {
-                    if (n.extent === 'parent')
-                      return `${styles.edgeColorStrokeSelected}aa`
-                    else return `${styles.edgeColorStrokeSelected}aa`
-                  }
-                  break
-
-                case 'magic':
-                  if (n.selected) return `${styles.edgeColorStrokeExplained}aa`
-                  break
-
-                case 'group':
-                  if (n.selected) return `${styles.edgeColorStrokeExplained}66`
-                  break
-
-                default:
-                  break
-              }
-              return '#cfcfcf'
-            }}
-            // nodeStrokeColor={n => {
-            //   if (n.extent === 'parent' && n.selected)
-            //     return `${styles.edgeColorStrokeSelected}`
-            //   return 'none'
-            // }}
-          /> */}
           <CustomControls
             nodes={nodes}
             edges={edges}
@@ -934,8 +820,6 @@ const Flow = () => {
             canUndo={canUndo}
             canRedo={canRedo}
             flowWrapperRef={reactFlowWrapper}
-            // notesOpened={notesOpened}
-            // setNotesOpened={setNotesOpened}
           />
           <Background color="#008ddf" />
         </ReactFlow>
@@ -944,109 +828,8 @@ const Flow = () => {
   )
 }
 
-const ReactFlowComponent = memo(({ id }: { id: string }) =>
-  //   {
-  //   answerRelationships,
-  // }: {
-  //   answerRelationships: {
-  //     answerObjectId: string
-  //     origin: OriginRange[]
-  //     relationships: AnswerRelationshipObject[]
-  //   }[]
-  // }
-  {
-    /* -------------------------------------------------------------------------- */
-    // ! notebook
-    // const notebookRef = useRef<HTMLDivElement>(null)
-
-    // try to retrieve notes from session storage
-    /*
-  const notesFromSessionStorage = sessionStorage.getItem(
-    useSessionStorageNotesHandle
-  )
-  const notesFromSessionStorageParsed = notesFromSessionStorage
-    ? JSON.parse(notesFromSessionStorage)
-    : null
-
-  const [notes] = useState<Note[]>(notesFromSessionStorageParsed?.notes || [])
-  const [notesOpened] = useState<boolean>(
-    notesFromSessionStorageParsed?.notesOpened || false
-  )
-  */
-
-    // * save notes
-    /*
-  useEffect(() => {
-    // save notes to session storage
-    sessionStorage.setItem(
-      useSessionStorageNotesHandle,
-      JSON.stringify({
-        notes,
-        notesOpened,
-      })
-    )
-  }, [notes, notesOpened])
-  */
-
-    // const spotlightNotes = useCallback(async () => {
-    //   if (notesOpened) return
-    //   if (notebookRef.current) {
-    //     await sleep(5)
-    //     notebookRef.current.style.transform = 'translateX(-15rem)'
-    //     await sleep(750)
-    //     notebookRef.current.style.transform = 'translateX(0)'
-    //   }
-    // }, [notesOpened])
-
-    // const addNote = useCallback(
-    //   (note: Note) => {
-    //     if (note.type === 'magic') {
-    //       if (
-    //         notes.find(
-    //           n =>
-    //             n.data.magicNodeId === note.data.magicNodeId &&
-    //             n.data.response === note.data.response
-    //         )
-    //       )
-    //         return
-
-    //       setNotes(notes.concat(note))
-    //       if (!notesOpened) spotlightNotes()
-    //     }
-    //   },
-    //   [notes, notesOpened, spotlightNotes]
-    // )
-
-    // const deleteNote = useCallback(
-    //   (noteId: string) => {
-    //     const newNotes = notes.filter(n => n.id !== noteId)
-    //     setNotes(newNotes)
-
-    //     if (newNotes.length === 0)
-    //       setTimeout(() => setNotesOpened(false), slowInteractionWaitTimeout)
-    //   },
-    //   [notes]
-    // )
-    /* -------------------------------------------------------------------------- */
-
-    return (
-      <>
-        {/* <Flow notesOpened={notesOpened} setNotesOpened={setNotesOpened} /> */}
-        <Flow key={`flow-${id}`} />
-        {/* <NotebookContext.Provider
-        value={{
-          notes,
-          setNotes,
-          notesOpened,
-          setNotesOpened,
-          addNote,
-          deleteNote,
-        }}
-      >
-        <NoteBook notebookRef={notebookRef} />
-      </NotebookContext.Provider> */}
-      </>
-    )
-  }, isEqual)
+const ReactFlowComponent = memo(({ id }: { id: string }) => {
+  return <Flow key={`flow-${id}`} />
+}, isEqual)
 
 export default ReactFlowComponent

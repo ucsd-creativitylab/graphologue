@@ -53,37 +53,37 @@ export interface InterchangeContextProps {
   handleSelfCorrection: (answerObject: AnswerObject) => Promise<string>
   handleSetSyncedAnswerObjectIdsHighlighted: (
     ids: string[],
-    temp: boolean
+    temp: boolean,
   ) => void
   handleSetSyncedAnswerObjectIdsHidden: (ids: string[]) => void
   handleSetSyncedCoReferenceOriginRanges: (
-    highlightedCoReferenceOriginRanges: OriginRange[]
+    highlightedCoReferenceOriginRanges: OriginRange[],
   ) => void
   handleAnswerObjectRemove: (id: string) => void
   handleAnswerObjectSwitchListDisplayFormat: (
     id: string,
-    listDisplay: ListDisplayFormat
+    listDisplay: ListDisplayFormat,
   ) => void
   handleAnswerObjectTellLessOrMore: (
     id: string,
-    request: 'less' | 'more'
+    request: 'less' | 'more',
   ) => void
   handleAnswerObjectNodeExpand: (
     sourceAnswerObjectId: string,
     nodeEntityId: string,
     nodeEntityOriginRanges: OriginRange[],
-    type: NodeConceptExpansionType
+    type: NodeConceptExpansionType,
   ) => void
   handleAnswerObjectNodeRemove: (
     id: string,
     nodeEntityId: string,
-    target: AnswerObjectEntitiesTarget
+    target: AnswerObjectEntitiesTarget,
   ) => void
   handleAnswerObjectNodeCollapse: (id: string, nodeEntityId: string) => void
   handleAnswerObjectNodeMerge: (
     id: string,
     nodeEntityFromId: string,
-    nodeEntityToId: string
+    nodeEntityToId: string,
   ) => void
   handleAnswerObjectsAddOneMore: () => void
   /* -------------------------------------------------------------------------- */
@@ -91,7 +91,7 @@ export interface InterchangeContextProps {
 }
 ////
 export const InterchangeContext = createContext<InterchangeContextProps>(
-  {} as InterchangeContextProps
+  {} as InterchangeContextProps,
 )
 
 /* -------------------------------------------------------------------------- */
@@ -144,9 +144,9 @@ export const Interchange = ({
               ] as Prompt[],
               sentence,
               n,
-              e
+              e,
             ),
-            models.smarter
+            models.smarter,
           )
 
           const correctionText = getTextFromModelResponse(correctionResponse)
@@ -156,14 +156,14 @@ export const Interchange = ({
           })
           textContentAfterCorrection = textContentAfterCorrection.replace(
             sentence,
-            ' ' + correctionText
+            ' ' + correctionText,
           )
-        })
+        }),
       )
 
       return textContentAfterCorrection
     },
-    [question]
+    [question],
   )
 
   const handleSetSyncedCoReferenceOriginRanges = useCallback(
@@ -182,11 +182,11 @@ export const Interchange = ({
                 }
               }
               return questionAndAnswer
-            }
-          )
+            },
+          ),
       )
     },
-    [id, setQuestionsAndAnswers]
+    [id, setQuestionsAndAnswers],
   )
 
   const handleSetSyncedAnswerObjectIdsHighlighted = useCallback(
@@ -211,17 +211,17 @@ export const Interchange = ({
                     ...setObject,
                     answerObjectIdsHidden:
                       questionAndAnswer.synced.answerObjectIdsHidden.filter(
-                        (id: string) => !ids.includes(id)
+                        (id: string) => !ids.includes(id),
                       ),
                   },
                 }
               }
               return questionAndAnswer
-            }
-          )
+            },
+          ),
       )
     },
-    [id, setQuestionsAndAnswers]
+    [id, setQuestionsAndAnswers],
   )
 
   const handleSetSyncedAnswerObjectIdsHidden = useCallback(
@@ -238,20 +238,20 @@ export const Interchange = ({
                     answerObjectIdsHidden: ids,
                     answerObjectIdsHighlighted:
                       questionAndAnswer.synced.answerObjectIdsHighlighted.filter(
-                        (id: string) => !ids.includes(id)
+                        (id: string) => !ids.includes(id),
                       ),
                     answerObjectIdsHighlightedTemp: [],
                   },
                 }
               }
               return questionAndAnswer
-            }
-          )
+            },
+          ),
       )
 
       makeFlowTransition()
     },
-    [id, setQuestionsAndAnswers]
+    [id, setQuestionsAndAnswers],
   )
 
   const handleAnswerObjectRemove = useCallback(
@@ -265,31 +265,31 @@ export const Interchange = ({
                   ...deepCopyQuestionAndAnswer(questionAndAnswer),
                   answerObjects: questionAndAnswer.answerObjects.filter(
                     (answerObject: AnswerObject) =>
-                      answerObject.id !== answerObjectId
+                      answerObject.id !== answerObjectId,
                   ),
                   synced: {
                     ...questionAndAnswer.synced,
                     answerObjectIdsHighlighted:
                       questionAndAnswer.synced.answerObjectIdsHighlighted.filter(
-                        (id: string) => id !== answerObjectId
+                        (id: string) => id !== answerObjectId,
                       ),
                     answerObjectIdsHighlightedTemp:
                       questionAndAnswer.synced.answerObjectIdsHighlightedTemp.filter(
-                        (id: string) => id !== answerObjectId
+                        (id: string) => id !== answerObjectId,
                       ),
                     answerObjectIdsHidden:
                       questionAndAnswer.synced.answerObjectIdsHidden.filter(
-                        (id: string) => id !== answerObjectId
+                        (id: string) => id !== answerObjectId,
                       ),
                   },
                 }
               }
               return questionAndAnswer
-            }
-          )
+            },
+          ),
       )
     },
-    [id, setQuestionsAndAnswers]
+    [id, setQuestionsAndAnswers],
   )
 
   const handleAnswerObjectSwitchListDisplayFormat = useCallback(
@@ -313,20 +313,20 @@ export const Interchange = ({
                         }
                       }
                       return answerObject
-                    }
+                    },
                   ),
                 }
               }
               return questionAndAnswer
-            }
-          )
+            },
+          ),
       )
 
       // set flow canvases to .changing-flow
       // and remove it after 700ms
       makeFlowTransition()
     },
-    [id, setQuestionsAndAnswers]
+    [id, setQuestionsAndAnswers],
   )
 
   /* -------------------------------------------------------------------------- */
@@ -348,10 +348,10 @@ export const Interchange = ({
           modelStatus: {
             modelError: true,
           },
-        })
+        }),
       )
     },
-    [id, setQuestionsAndAnswers]
+    [id, setQuestionsAndAnswers],
   )
 
   const _handleParsingCompleteAnswerObject = useCallback(
@@ -376,10 +376,10 @@ export const Interchange = ({
                   ? workingMemory.current.answerObject?.originText.content || ''
                   : removeAnnotations(
                       workingMemory.current.answerObject?.originText.content ||
-                        ''
-                    )
+                        '',
+                    ),
               ),
-              debug || parsingType === 'slide' ? models.faster : models.smarter
+              debug || parsingType === 'slide' ? models.faster : models.smarter,
             )
 
             if (parsingResult.error) {
@@ -390,8 +390,8 @@ export const Interchange = ({
 
             parsingResults[parsingType] =
               getTextFromModelResponse(parsingResult)
-          }
-        )
+          },
+        ),
       )
 
       if (!parsingError && workingMemory.current.answerObject) {
@@ -403,12 +403,12 @@ export const Interchange = ({
             nodeEntities: nodeIndividualsToNodeEntities(
               parseNodes(
                 parsingResults.summary,
-                workingMemory.current.answerObject.id
-              )
+                workingMemory.current.answerObject.id,
+              ),
             ),
             edgeEntities: parseEdges(
               parsingResults.summary,
-              workingMemory.current.answerObject.id
+              workingMemory.current.answerObject.id,
             ),
           },
           slide: {
@@ -423,14 +423,14 @@ export const Interchange = ({
               ? newAnswerObject
                 ? [
                     ...answerObjects.filter(
-                      a => a.id !== workingMemory.current.answerObject?.id
+                      a => a.id !== workingMemory.current.answerObject?.id,
                     ),
                     workingMemory.current.answerObject,
                   ]
                 : answerObjects.map(a =>
                     a.id === workingMemory.current.answerObject?.id
                       ? workingMemory.current.answerObject
-                      : a
+                      : a,
                   )
               : answerObjects,
             modelStatus: {
@@ -440,11 +440,11 @@ export const Interchange = ({
             synced: {
               highlightedNodeIdsProcessing: [],
             },
-          })
+          }),
         )
       }
     },
-    [_handleResponseError, answerObjects, id, setQuestionsAndAnswers]
+    [_handleResponseError, answerObjects, id, setQuestionsAndAnswers],
   )
 
   const _handleUpdateRelationshipEntities = useCallback((content: string) => {
@@ -453,11 +453,11 @@ export const Interchange = ({
     const cleanedContent = removeLastBracket(content, true)
     const nodes = parseNodes(
       cleanedContent,
-      workingMemory.current.answerObject.id
+      workingMemory.current.answerObject.id,
     )
     const edges = parseEdges(
       cleanedContent,
-      workingMemory.current.answerObject.id
+      workingMemory.current.answerObject.id,
     )
 
     workingMemory.current.answerObject = {
@@ -482,7 +482,7 @@ export const Interchange = ({
         ? ''
         : answerObjects.find(
             (answerObject: AnswerObject) =>
-              answerObject.id === workingMemory.current.answerObject?.id
+              answerObject.id === workingMemory.current.answerObject?.id,
           )?.originText?.content
 
       if (!answerObjectOriginTextBefore && answerObjectOriginTextBefore !== '')
@@ -499,7 +499,7 @@ export const Interchange = ({
 
       // ! parse relationships
       _handleUpdateRelationshipEntities(
-        workingMemory.current.answerObject.originText.content
+        workingMemory.current.answerObject.originText.content,
       )
 
       // ! update the answer
@@ -510,21 +510,22 @@ export const Interchange = ({
             : workingMemory.current.answerBefore.replace(
                 answerObjectOriginTextBefore,
                 workingMemory.current.answerObject?.originText.content ??
-                  answerObjectOriginTextBefore
+                  answerObjectOriginTextBefore,
               ),
           answerObjects: workingMemory.current.answerObject
             ? newParagraph
               ? [
                   ...answerObjects.filter(
                     (answerObject: AnswerObject) =>
-                      answerObject.id !== workingMemory.current.answerObject?.id
+                      answerObject.id !==
+                      workingMemory.current.answerObject?.id,
                   ),
                   workingMemory.current.answerObject,
                 ]
               : answerObjects.map((answerObject: AnswerObject) =>
                   answerObject.id === workingMemory.current.answerObject?.id
                     ? workingMemory.current.answerObject
-                    : answerObject
+                    : answerObject,
                 )
             : answerObjects,
           // synced: {
@@ -553,7 +554,7 @@ export const Interchange = ({
       answerObjects,
       id,
       setQuestionsAndAnswers,
-    ]
+    ],
   )
 
   /* -------------------------------------------------------------------------- */
@@ -600,7 +601,7 @@ export const Interchange = ({
           synced: {
             // saliencyFilter: 'low', // ?
           },
-        })
+        }),
       )
 
       const prevConversation: Prompt[] = [
@@ -612,14 +613,14 @@ export const Interchange = ({
       ]
       const prompts = predefinedPrompts._graph_2MoreSentences(
         prevConversation,
-        answerObject.originText.content
+        answerObject.originText.content,
       )
 
       await streamOpenAICompletion(
         prompts,
         debug ? models.faster : models.smarter,
         handleStreamRawAnswer,
-        false
+        false,
       )
       console.log(`text block expand raw answering complete`)
       await _handleParsingCompleteAnswerObject(false)
@@ -635,7 +636,7 @@ export const Interchange = ({
       modelInitialPrompts,
       modelParsingComplete,
       setQuestionsAndAnswers,
-    ]
+    ],
   )
 
   const handleAnswerObjectNodeExpand = useCallback(
@@ -643,18 +644,18 @@ export const Interchange = ({
       sourceAnswerObjectId: string,
       nodeEntityId: string,
       nodeEntityOriginRanges: OriginRange[],
-      type: NodeConceptExpansionType
+      type: NodeConceptExpansionType,
     ) => {
       if (!modelParsingComplete || modelError) return
 
       const nodeEntity = findEntityFromAnswerObjects(
         answerObjects,
-        nodeEntityId
+        nodeEntityId,
       )
       if (!nodeEntity) return
 
       const answerObject = answerObjects.find(
-        a => a.id === sourceAnswerObjectId
+        a => a.id === sourceAnswerObjectId,
       )
       if (!answerObject) return
 
@@ -696,12 +697,12 @@ export const Interchange = ({
             highlightedCoReferenceOriginRanges: [],
             // saliencyFilter: 'low', // ?
           },
-        })
+        }),
       )
 
       const originSentence = findEntitySentence(
         nodeEntityOriginRanges[0],
-        answerObject.originText.content
+        answerObject.originText.content,
       ) // ? good enough
       const prevConversation: Prompt[] = [
         ...modelInitialPrompts,
@@ -719,19 +720,19 @@ export const Interchange = ({
           ? predefinedPrompts._graph_nodeExpand(
               prevConversation,
               originSentence,
-              nodeEntity.displayNodeLabel
+              nodeEntity.displayNodeLabel,
             )
           : predefinedPrompts._graph_nodeExamples(
               prevConversation,
               originSentence,
-              nodeEntity.displayNodeLabel
+              nodeEntity.displayNodeLabel,
             )
 
       await streamOpenAICompletion(
         prompts,
         debug ? models.faster : models.smarter,
         handleStreamRawAnswer,
-        false
+        false,
       )
       console.log(`node expand ${type} raw answering complete`)
 
@@ -748,7 +749,7 @@ export const Interchange = ({
       modelInitialPrompts,
       modelParsingComplete,
       setQuestionsAndAnswers,
-    ]
+    ],
   )
 
   /* -------------------------------------------------------------------------- */
@@ -757,7 +758,7 @@ export const Interchange = ({
     (
       answerObjectId: string,
       nodeEntityId: string,
-      target: AnswerObjectEntitiesTarget
+      target: AnswerObjectEntitiesTarget,
     ) => {
       if (!modelParsingComplete || modelError) return
 
@@ -773,16 +774,16 @@ export const Interchange = ({
       // check how many edges does the node have, if it have both incoming and outgoing edges, connect the original incoming and outgoing nodes
       const nodeEntity = findEntityFromAnswerObjects(
         answerObjects,
-        nodeEntityId
+        nodeEntityId,
       )
       if (!nodeEntity) return
 
       const edges = newAnswerObject[target].edgeEntities
       const nodeEntityIncomingEdges = edges.filter(e =>
-        e.edgePairs.some(eP => eP.targetId === nodeEntityId)
+        e.edgePairs.some(eP => eP.targetId === nodeEntityId),
       )
       const nodeEntityOutgoingEdges = edges.filter(e =>
-        e.edgePairs.some(eP => eP.sourceId === nodeEntityId)
+        e.edgePairs.some(eP => eP.sourceId === nodeEntityId),
       )
       if (nodeEntityIncomingEdges.length && nodeEntityOutgoingEdges.length) {
         // remove all edges, but connect the incoming node and target node for the first edge pairs
@@ -811,7 +812,7 @@ export const Interchange = ({
         .map((e: EdgeEntity) => ({
           ...e,
           edgePairs: e.edgePairs.filter(
-            eP => eP.sourceId !== nodeEntityId && eP.targetId !== nodeEntityId
+            eP => eP.sourceId !== nodeEntityId && eP.targetId !== nodeEntityId,
           ),
         }))
         .filter(e => e.edgePairs.length)
@@ -822,7 +823,7 @@ export const Interchange = ({
             if (a.id === answerObjectId) return newAnswerObject
             return a
           }),
-        })
+        }),
       )
     },
     [
@@ -831,7 +832,7 @@ export const Interchange = ({
       modelError,
       modelParsingComplete,
       setQuestionsAndAnswers,
-    ]
+    ],
   )
 
   /* -------------------------------------------------------------------------- */
@@ -846,7 +847,7 @@ export const Interchange = ({
         // remove
         answerObject.answerObjectSynced.collapsedNodes =
           answerObject.answerObjectSynced.collapsedNodes.filter(
-            n => n !== nodeEntityId
+            n => n !== nodeEntityId,
           )
       else answerObject.answerObjectSynced.collapsedNodes.push(nodeEntityId)
 
@@ -857,17 +858,17 @@ export const Interchange = ({
               return deepCopyAnswerObject(answerObject)
             return a
           }),
-        })
+        }),
       )
     },
-    [answerObjects, id, setQuestionsAndAnswers]
+    [answerObjects, id, setQuestionsAndAnswers],
   )
 
   const handleAnswerObjectNodeMerge = useCallback(
     (
       answerObjectId: string,
       nodeEntityFromId: string,
-      nodeEntityToId: string
+      nodeEntityToId: string,
     ) => {
       const answerObject = answerObjects.find(a => a.id === answerObjectId)
       if (!answerObject) return
@@ -876,11 +877,11 @@ export const Interchange = ({
 
       // merge node entity from to to
       const nodeEntityFrom = newA.originText.nodeEntities.find(
-        n => n.id === nodeEntityFromId
+        n => n.id === nodeEntityFromId,
       )
 
       const nodeEntityTo = newA.originText.nodeEntities.find(
-        n => n.id === nodeEntityToId
+        n => n.id === nodeEntityToId,
       )
 
       if (!nodeEntityFrom || !nodeEntityTo) return
@@ -896,7 +897,7 @@ export const Interchange = ({
       ]
 
       newA.originText.nodeEntities = newA.originText.nodeEntities.filter(
-        n => n.id !== nodeEntityFromId
+        n => n.id !== nodeEntityFromId,
       )
 
       // remove all the connections between to and from
@@ -906,8 +907,9 @@ export const Interchange = ({
             p =>
               (p.sourceId === nodeEntityFromId &&
                 p.targetId === nodeEntityToId) ||
-              (p.sourceId === nodeEntityToId && p.targetId === nodeEntityFromId)
-          ).length === 0
+              (p.sourceId === nodeEntityToId &&
+                p.targetId === nodeEntityFromId),
+          ).length === 0,
       )
 
       // redirect all from edges to to
@@ -923,7 +925,7 @@ export const Interchange = ({
       // remove from from collapsed nodes
       newA.answerObjectSynced.collapsedNodes =
         newA.answerObjectSynced.collapsedNodes.filter(
-          n => n !== nodeEntityFromId
+          n => n !== nodeEntityFromId,
         )
 
       setQuestionsAndAnswers(prevQsAndAs =>
@@ -937,10 +939,10 @@ export const Interchange = ({
               ...nodeEntityTo.individuals.map(i => i.originRange),
             ],
           },
-        })
+        }),
       )
     },
-    [answerObjects, id, setQuestionsAndAnswers]
+    [answerObjects, id, setQuestionsAndAnswers],
   )
 
   /* -------------------------------------------------------------------------- */
@@ -986,7 +988,7 @@ export const Interchange = ({
         synced: {
           // saliencyFilter: 'low', // ?
         },
-      })
+      }),
     )
 
     const prevConversation: Prompt[] = [
@@ -1002,7 +1004,7 @@ export const Interchange = ({
       prompts,
       debug ? models.faster : models.smarter,
       handleStreamRawAnswer,
-      true
+      true,
     )
     console.log(`new paragraph expand raw answering complete`)
     await _handleParsingCompleteAnswerObject(true)
@@ -1027,7 +1029,7 @@ export const Interchange = ({
         synced: {
           saliencyFilter: saliencyFilter === 'high' ? 'low' : 'high',
         },
-      })
+      }),
     )
   }, [id, saliencyFilter, setQuestionsAndAnswers])
 

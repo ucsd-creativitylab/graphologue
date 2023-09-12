@@ -32,7 +32,7 @@ export const rangesToOriginText = (response: string, range: OriginRange) => {
 
 export const addOrMergeRanges = (
   existingRanges: OriginRange[],
-  newRange: OriginRange
+  newRange: OriginRange,
 ) => {
   let merged = false
 
@@ -91,7 +91,7 @@ export const trimLineBreaks = (text: string) => {
 /* -------------------------------------------------------------------------- */
 
 export const newQuestionAndAnswer = (
-  prefill?: PartialQuestionAndAnswer
+  prefill?: PartialQuestionAndAnswer,
 ): QuestionAndAnswer => {
   return {
     id: prefill?.id ?? `question-and-answer-${uuidv4()}`,
@@ -167,7 +167,7 @@ export const copyEdgeEntities = (edgeEntities: EdgeEntity[]) => {
     edgePairs: e.edgePairs.map(
       (p: EdgePair): EdgePair => ({
         ...p,
-      })
+      }),
     ),
     originRange: {
       ...e.originRange,
@@ -198,7 +198,7 @@ export const deepCopyAnswerObject = (a: AnswerObject): AnswerObject => {
 }
 
 export const deepCopyQuestionAndAnswer = (
-  qA: QuestionAndAnswer
+  qA: QuestionAndAnswer,
 ): QuestionAndAnswer => {
   return {
     ...qA,
@@ -215,7 +215,7 @@ export const deepCopyQuestionAndAnswer = (
 export const helpSetQuestionAndAnswer = (
   prevQsAndAs: QuestionAndAnswer[],
   questionAndAnswerId: string,
-  newQAndA: PartialQuestionAndAnswer
+  newQAndA: PartialQuestionAndAnswer,
 ): QuestionAndAnswer[] => {
   const templateModelStatus = newQAndA.modelStatus?.modelError
     ? {
@@ -266,11 +266,11 @@ export const findSentencesToCorrect = (answerObject: AnswerObject) => {
 
   const orphanEntities: NodeEntity[] = findOrphanNodeEntities(
     nodeEntities,
-    edgeEntitiesAll
+    edgeEntitiesAll,
   )
   const edgesFromOrToNowhere: EdgeEntity[] = findNowhereEdgeEntities(
     nodeEntitiesAll,
-    edgeEntities
+    edgeEntities,
   )
 
   for (let sentence of sentences) {

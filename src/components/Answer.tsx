@@ -11,7 +11,6 @@ import dagre from 'dagre'
 import isEqual from 'react-fast-compare'
 import { PuffLoader } from 'react-spinners'
 
-// import VerticalSplitRoundedIcon from '@mui/icons-material/VerticalSplitRounded'
 import ShortTextRoundedIcon from '@mui/icons-material/ShortTextRounded'
 import NotesRoundedIcon from '@mui/icons-material/NotesRounded'
 import CropLandscapeRoundedIcon from '@mui/icons-material/CropLandscapeRounded'
@@ -81,7 +80,7 @@ export interface AnswerBlockContextProps {
 }
 
 export const AnswerBlockContext = createContext<AnswerBlockContextProps>(
-  {} as AnswerBlockContextProps
+  {} as AnswerBlockContextProps,
 )
 
 export const Answer = () => {
@@ -110,17 +109,17 @@ interface AnswerListContextProps {
   handleHighlightAnswerObject: (
     answerObjectId: string,
     addOrRemove: 'add' | 'remove',
-    temp: boolean
+    temp: boolean,
   ) => void
   handleHideAnswerObject: (answerObjectId: string) => void
   handleAnswerObjectSwitchListDisplayFormat: (
     answerObjectId: string,
-    newDisplay: ListDisplayFormat
+    newDisplay: ListDisplayFormat,
   ) => void
   handleAnswerObjectRemove: (answerObjectId: string) => void
 }
 const AnswerListContext = createContext<AnswerListContextProps>(
-  {} as AnswerListContextProps
+  {} as AnswerListContextProps,
 )
 
 const AnswerListView = ({
@@ -147,28 +146,10 @@ const AnswerListView = ({
     handleSwitchSaliency,
   } = useContext(InterchangeContext)
 
-  const [blockDisplay, setBlockDisplay] = useState(true)
   const [diagramDisplay, setDiagramDisplay] =
     useState<DiagramDisplayFormat>('split')
 
-  // const canSwitchBlockDisplay =
-  //   modelAnsweringComplete && answerObjects.length > 0
-
-  // const switchedToBlockDisplay = useRef(false)
-  // useEffect(() => {
-  //   if (!switchedToBlockDisplay.current) {
-  //     switchedToBlockDisplay.current = true
-  //     setBlockDisplay(true)
-  //   }
-  // }, [])
-
   /* -------------------------------------------------------------------------- */
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleSwitchBlockDisplay = useCallback(() => {
-    // setListDisplay('original')
-    setBlockDisplay(prev => !prev)
-  }, [])
 
   const handleSwitchDiagramDisplay = useCallback(
     (newDisplayFormat: DiagramDisplayFormat) => {
@@ -182,7 +163,7 @@ const AnswerListView = ({
 
       // smoothly scroll .answer-text with data-id === answerObjectId into view
       const answerObjectElement = document.querySelector(
-        `.answer-wrapper[data-id="${id}"]`
+        `.answer-wrapper[data-id="${id}"]`,
       )
       if (answerObjectElement) {
         answerObjectElement.scrollIntoView({
@@ -195,7 +176,7 @@ const AnswerListView = ({
       handleSetSyncedAnswerObjectIdsHidden,
       handleSetSyncedAnswerObjectIdsHighlighted,
       id,
-    ]
+    ],
   )
 
   const handleSwitchSaliencyFilter = useCallback(() => {
@@ -216,7 +197,7 @@ const AnswerListView = ({
         else
           handleSetSyncedAnswerObjectIdsHighlighted(
             currentIds.filter(id => id !== answerObjectId),
-            false
+            false,
           )
       } else {
         if (temp)
@@ -224,7 +205,7 @@ const AnswerListView = ({
         else
           handleSetSyncedAnswerObjectIdsHighlighted(
             [...currentIds, answerObjectId],
-            temp
+            temp,
           )
       }
     },
@@ -232,7 +213,7 @@ const AnswerListView = ({
       handleSetSyncedAnswerObjectIdsHighlighted,
       synced.answerObjectIdsHighlighted,
       synced.answerObjectIdsHighlightedTemp,
-    ]
+    ],
   )
 
   const handleHideAnswerObject = useCallback(
@@ -241,12 +222,12 @@ const AnswerListView = ({
 
       if (currentIds.includes(answerObjectId)) {
         handleSetSyncedAnswerObjectIdsHidden(
-          currentIds.filter(id => id !== answerObjectId)
+          currentIds.filter(id => id !== answerObjectId),
         )
       } else
         handleSetSyncedAnswerObjectIdsHidden([...currentIds, answerObjectId])
     },
-    [handleSetSyncedAnswerObjectIdsHidden, synced.answerObjectIdsHidden]
+    [handleSetSyncedAnswerObjectIdsHidden, synced.answerObjectIdsHidden],
   )
 
   return (
@@ -286,9 +267,6 @@ const AnswerListView = ({
               <span>split diagram</span>
             </button>
             <button
-              // disabled={
-              //   !blockDisplay || !answerObjects.some(a => a.summary.length > 0)
-              // }
               className={`bar-button${
                 diagramDisplay === 'merged' ? ' selected' : ''
               }`}
@@ -329,49 +307,19 @@ const AnswerListView = ({
         </div>
 
         {/* display in block */}
-        {blockDisplay ? (
-          <div
-            className={`answer-block-list${
-              diagramDisplay === 'merged' ? '-merged-diagram' : ''
-            }`}
-            data-id={id}
-          >
-            {/* ! MAP */}
-            {diagramDisplay === 'merged' ? (
-              <>
-                <div className="answer-text-block-list">
-                  {answerObjects.map((answerObject, index) => (
-                    <AnswerTextBlock
-                      key={`answer-block-item-${id}-${answerObject.id}`}
-                      index={index}
-                      questionAndAnswer={questionAndAnswer}
-                      answerObject={answerObject}
-                      diagramDisplay={diagramDisplay}
-                      lastTextBlock={index === answerObjects.length - 1}
-                    />
-                  ))}
-                </div>
-                <ReactFlowProvider
-                  // key={`answer-block-flow-provider-merged-${id}`}
-                  key={`answer-block-flow-provider-${id}-${answerObjects[0].id}`}
-                >
-                  <AnswerBlockItem
-                    // key={`answer-block-item-${id}`}
-                    key={`answer-block-item-${id}-${answerObjects[0].id}`}
-                    index={0}
-                    questionAndAnswer={questionAndAnswer}
-                    answerObject={answerObjects[0]}
-                    diagramDisplay={diagramDisplay}
-                    lastTextBlock={false}
-                  />
-                </ReactFlowProvider>
-              </>
-            ) : (
-              answerObjects.map((answerObject, index) => (
-                <ReactFlowProvider
-                  key={`answer-block-flow-provider-${id}-${answerObject.id}`}
-                >
-                  <AnswerBlockItem
+
+        <div
+          className={`answer-block-list${
+            diagramDisplay === 'merged' ? '-merged-diagram' : ''
+          }`}
+          data-id={id}
+        >
+          {/* ! MAP */}
+          {diagramDisplay === 'merged' ? (
+            <>
+              <div className="answer-text-block-list">
+                {answerObjects.map((answerObject, index) => (
+                  <AnswerTextBlock
                     key={`answer-block-item-${id}-${answerObject.id}`}
                     index={index}
                     questionAndAnswer={questionAndAnswer}
@@ -379,30 +327,38 @@ const AnswerListView = ({
                     diagramDisplay={diagramDisplay}
                     lastTextBlock={index === answerObjects.length - 1}
                   />
-                </ReactFlowProvider>
-              ))
-            )}
-          </div>
-        ) : (
-          /* -------------------------------------------------------------------------- */
-          /* ------------------------------- full answer ------------------------------ */
-          // ! not using now!
-          <></>
-          // <div
-          //   className={`answer-item answer-full-block interchange-component`}
-          // >
-          //   <div className="answer-item-text">
-          //     {answerObjects.map((answerObject, index) => (
-          //       <AnswerText
-          //         key={`answer-range-in-full-text-${answerObject.id}`}
-          //         answerObjectId={answerObject.id}
-          //         rawAnswer={answerObject.originText.content}
-          //         highlightedRanges={synced.highlightedCoReferenceOriginRanges}
-          //       />
-          //     ))}
-          //   </div>
-          // </div>
-        )}
+                ))}
+              </div>
+              <ReactFlowProvider
+                key={`answer-block-flow-provider-${id}-${answerObjects[0].id}`}
+              >
+                <AnswerBlockItem
+                  key={`answer-block-item-${id}-${answerObjects[0].id}`}
+                  index={0}
+                  questionAndAnswer={questionAndAnswer}
+                  answerObject={answerObjects[0]}
+                  diagramDisplay={diagramDisplay}
+                  lastTextBlock={false}
+                />
+              </ReactFlowProvider>
+            </>
+          ) : (
+            answerObjects.map((answerObject, index) => (
+              <ReactFlowProvider
+                key={`answer-block-flow-provider-${id}-${answerObject.id}`}
+              >
+                <AnswerBlockItem
+                  key={`answer-block-item-${id}-${answerObject.id}`}
+                  index={index}
+                  questionAndAnswer={questionAndAnswer}
+                  answerObject={answerObject}
+                  diagramDisplay={diagramDisplay}
+                  lastTextBlock={index === answerObjects.length - 1}
+                />
+              </ReactFlowProvider>
+            ))
+          )}
+        </div>
       </div>
     </AnswerListContext.Provider>
   )
@@ -476,7 +432,7 @@ export const AnswerBlockItem = ({
       const nodesBounding = getGraphBounds(job.nodes)
       ////
       const reactFlowWrapperElement = document.querySelector(
-        '.react-flow-wrapper'
+        '.react-flow-wrapper',
       ) as HTMLElement // they are all the same size
       if (!reactFlowWrapperElement) return // ! hard return
 
@@ -532,7 +488,7 @@ export const AnswerBlockItem = ({
           changedNodesBounding,
           viewportRect,
           40,
-          40
+          40,
           // viewBounding.x * 0.1,
           // viewBounding.y * 0.1
         )
@@ -545,7 +501,7 @@ export const AnswerBlockItem = ({
           },
           {
             duration: firstCameraJob.current ? 0 : viewFittingOptions.duration,
-          }
+          },
         )
         firstCameraJob.current = false
       }
@@ -563,7 +519,7 @@ export const AnswerBlockItem = ({
       nodeEntities,
       edgeEntities,
       synced,
-      answerObject.answerObjectSynced.collapsedNodes
+      answerObject.answerObjectSynced.collapsedNodes,
     )
 
     setNodes(newNodes)
@@ -581,7 +537,7 @@ export const AnswerBlockItem = ({
           n.width ??
           hardcodedNodeWidthEstimation(n.data.label, n.data.generated.pseudo),
         height: n.height ?? hardcodedNodeSize.height,
-      })
+      }),
     )
 
     // const nodeSnippetExtraction = (n: NodeSnippet) => ({
@@ -592,7 +548,7 @@ export const AnswerBlockItem = ({
     const changedNodeSnippets = [
       ...newNodeSnippets.filter(n => {
         const foundPrevNode = prevNodeSnippets.current.find(
-          pN => pN.id === n.id
+          pN => pN.id === n.id,
         )
         return (
           !foundPrevNode ||
@@ -604,7 +560,8 @@ export const AnswerBlockItem = ({
         )
       }),
       ...prevNodeSnippets.current.filter(
-        pN => !newNodeSnippets.find(n => n.id === pN.id || n.label !== pN.label)
+        pN =>
+          !newNodeSnippets.find(n => n.id === pN.id || n.label !== pN.label),
       ),
     ]
 
@@ -651,7 +608,7 @@ export const AnswerBlockItem = ({
       nodeEntities,
       edgeEntities,
       synced,
-      answerObject.answerObjectSynced.collapsedNodes
+      answerObject.answerObjectSynced.collapsedNodes,
     )
 
     setNodes(newNodes)
@@ -669,7 +626,7 @@ export const AnswerBlockItem = ({
           n.width ??
           hardcodedNodeWidthEstimation(n.data.label, n.data.generated.pseudo),
         height: n.height ?? hardcodedNodeSize.height,
-      })
+      }),
     )
 
     prevNodeSnippets.current = newNodeSnippets
@@ -757,7 +714,7 @@ const AnswerTextBlock = ({
     synced.answerObjectIdsHighlightedTemp.includes(answerObject.id)
 
   const answerObjectHidden = synced.answerObjectIdsHidden.includes(
-    answerObject.id
+    answerObject.id,
   )
 
   const listDisplay = answerObject.answerObjectSynced.listDisplay
@@ -815,33 +772,6 @@ const AnswerTextBlock = ({
         }}
       >
         <div className="answer-block-menu">
-          {/* <span
-              className={`answer-block-menu-item${
-                !modelParsingComplete ? ' disabled' : ''
-              }`}
-              onClick={() => {
-                handleAnswerObjectTellLessOrMore(
-                  answerObject.id,
-                  'less'
-                )
-              }}
-            >
-              less
-            </span> */}
-          {/* <span
-              className={`answer-block-menu-item${
-                !modelParsingComplete ? ' disabled' : ''
-              }`}
-              onClick={() => {
-                handleAnswerObjectTellLessOrMore(
-                  answerObject.id,
-                  'more'
-                )
-              }}
-            >
-              more
-            </span> */}
-
           <span
             className={`answer-block-menu-item${
               listDisplay === 'original' ? ' highlighted-list-display' : ''
@@ -849,7 +779,7 @@ const AnswerTextBlock = ({
             onClick={() => {
               handleAnswerObjectSwitchListDisplayFormat(
                 answerObject.id,
-                'original'
+                'original',
               )
             }}
           >
@@ -865,7 +795,7 @@ const AnswerTextBlock = ({
             onClick={() => {
               handleAnswerObjectSwitchListDisplayFormat(
                 answerObject.id,
-                'slide'
+                'slide',
               )
             }}
           >
@@ -881,7 +811,7 @@ const AnswerTextBlock = ({
             onClick={() => {
               handleAnswerObjectSwitchListDisplayFormat(
                 answerObject.id,
-                'summary'
+                'summary',
               )
             }}
           >
@@ -899,7 +829,7 @@ const AnswerTextBlock = ({
               handleHighlightAnswerObject(
                 answerObject.id,
                 answerObjectHighlightedActually ? 'remove' : 'add',
-                false
+                false,
               )
             }}
           >
@@ -984,7 +914,7 @@ const AnswerText = ({
       const range = getRangeFromStart(
         start,
         answerObject[entitiesTarget].nodeEntities,
-        answerObject[entitiesTarget].edgeEntities
+        answerObject[entitiesTarget].edgeEntities,
       )
 
       if (range) {
@@ -1001,7 +931,7 @@ const AnswerText = ({
       entitiesTarget,
       handleSetSyncedCoReferenceOriginRanges,
       highlightedRanges,
-    ]
+    ],
   )
 
   const handleLeaveAnnotatedTextSegment = useCallback(() => {
@@ -1044,7 +974,7 @@ const AnswerText = ({
                         return (
                           (part.match(/\$/g) || []).length === 1 &&
                           highlightedNodeIds.some(highlightedNodeId =>
-                            part.includes(`(${highlightedNodeId})`)
+                            part.includes(`(${highlightedNodeId})`),
                           )
                         )
                       }
@@ -1054,7 +984,7 @@ const AnswerText = ({
                         answerObject.id === highlightedAnswerObjectId &&
                         start === highlightedStart
                       )
-                    }
+                    },
                   )
                     ? ' highlighted-answer-text'
                     : '')

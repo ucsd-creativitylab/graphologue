@@ -18,7 +18,8 @@
   z-index: 999;
   box-shadow: rgba($light-grey, $opacity-mid) 0 0 0 rem-to-px(1rem);
 
-  transition: right $transition-normal-slow ease-in-out,
+  transition:
+    right $transition-normal-slow ease-in-out,
     transform $transition-normal ease-in-out;
 
   box-sizing: border-box;

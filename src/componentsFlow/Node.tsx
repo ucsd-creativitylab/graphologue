@@ -34,7 +34,6 @@ import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded'
 
 import { hardcodedNodeSize, styles, viewFittingOptions } from '../constants'
 import { FlowContext } from '../components/Contexts'
-import { MagicNodeData } from './MagicNode'
 import {
   MagicToolbox,
   MagicToolboxButton,
@@ -98,10 +97,10 @@ export const copyNodeSnippets = (nodes: NodeSnippet[]) => {
 
 export const anyNodeIndividualInHighlightedAnswerObject = (
   answerObjectIdsHighlighted: string[],
-  originRanges: OriginRange[]
+  originRanges: OriginRange[],
 ) => {
   return originRanges.some(originRange =>
-    answerObjectIdsHighlighted.includes(originRange.answerObjectId)
+    answerObjectIdsHighlighted.includes(originRange.answerObjectId),
   )
 }
 
@@ -116,8 +115,8 @@ const connectionNodeIdSelector = (state: ReactFlowState) =>
 
 export const CustomNode = memo(
   ({ id, data, xPos, yPos, selected }: CustomNodeProps) => {
-    const { getNodes, setNodes, setEdges } = useReactFlow()
-    const { metaPressed, selectedComponents } = useContext(FlowContext)
+    const { setNodes, setEdges } = useReactFlow()
+    const { metaPressed } = useContext(FlowContext)
     const {
       questionAndAnswer: {
         answerObjects,
@@ -134,11 +133,11 @@ export const CustomNode = memo(
       handleAnswerObjectNodeRemove,
     } = useContext(InterchangeContext)
     const { answerObjectId, generatingFlow } = useContext(
-      ReactFlowObjectContext
+      ReactFlowObjectContext,
     )
 
     const answerObject = answerObjects.find(
-      answerObject => answerObject.id === answerObjectId
+      answerObject => answerObject.id === answerObjectId,
     )
     const collapsingParent =
       answerObject?.answerObjectSynced.collapsedNodes.includes(id)
@@ -160,7 +159,7 @@ export const CustomNode = memo(
     const tagRef = useRef<HTMLDivElement>(null)
 
     const nodeHighlighted = highlightedCoReferenceOriginRanges.some(
-      r => r.nodeIds.length === 1 && r.nodeIds.includes(id)
+      r => r.nodeIds.length === 1 && r.nodeIds.includes(id),
     )
 
     // ! tags to clarify the node label
@@ -170,7 +169,7 @@ export const CustomNode = memo(
       tagRef.current &&
         textAreaRef.current &&
         (tagRef.current!.style.width = `${Math.ceil(
-          textAreaRef.current!.scrollWidth
+          textAreaRef.current!.scrollWidth,
         )}px`)
     }, [label, tags])
     ////
@@ -197,27 +196,6 @@ export const CustomNode = memo(
     // is the node being source of an ongoing new connection?
     const isTarget = connectionNodeId && connectionNodeId !== id
 
-    // check if this node is explained by a magic node
-    const selectedMagicNodes = selectedComponents.nodes.filter(
-      (nodeId: string) => nodeId.includes('magic-node')
-    )
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const isExplainedByMagicNode = selectedMagicNodes.some((nodeId: string) => {
-      const magicNode = getNodes().find(node => node.id === nodeId)
-      if (!magicNode) return false
-
-      const {
-        sourceComponents: { nodes: nodeIds },
-      } = magicNode.data as MagicNodeData
-
-      const nodes = getNodes().filter(node => nodeIds.includes(node.id))
-
-      for (const node of nodes) {
-        if (node.id === id) return true
-      }
-      return false
-    })
-
     /* -------------------------------------------------------------------------- */
     // ! color
     const [showColorPicker, setShowColorPicker] = useState(false)
@@ -228,7 +206,7 @@ export const CustomNode = memo(
 
         setShowColorPicker(!showColorPicker)
       },
-      [showColorPicker]
+      [showColorPicker],
     )
 
     const handleChangeColor = useCallback(
@@ -248,7 +226,7 @@ export const CustomNode = memo(
           })
         })
       },
-      [id, setNodes]
+      [id, setNodes],
     )
 
     const onToolboxClose = useCallback(() => {
@@ -284,7 +262,7 @@ export const CustomNode = memo(
         originRanges,
         setEdges,
         setNodes,
-      ]
+      ],
     )
 
     /* -------------------------------------------------------------------------- */
@@ -301,7 +279,7 @@ export const CustomNode = memo(
           highlightedNodeIdsProcessing.includes(id) ||
           anyNodeIndividualInHighlightedAnswerObject(
             [...answerObjectIdsHighlighted, ...answerObjectIdsHighlightedTemp],
-            originRanges
+            originRanges,
           )
             ? ' custom-node-explained'
             : ''
@@ -457,7 +435,7 @@ export const CustomNode = memo(
                             (answerObject.answerObjectSynced.listDisplay ===
                             'summary'
                               ? 'summary'
-                              : 'originText') as AnswerObjectEntitiesTarget
+                              : 'originText') as AnswerObjectEntitiesTarget,
                           )
                         }
                       }}
@@ -529,7 +507,7 @@ export const CustomNode = memo(
       </div>
     )
   },
-  isEqual
+  isEqual,
 )
 
 /* -------------------------------------------------------------------------- */
@@ -542,7 +520,7 @@ export const CustomNodeTag = memo(
   forwardRef<HTMLDivElement, CustomNodeTagProps>(
     (
       { tags, removeTags }: CustomNodeTagProps,
-      ref: ForwardedRef<HTMLDivElement>
+      ref: ForwardedRef<HTMLDivElement>,
     ) => {
       return tags.length > 0 ? (
         <div ref={ref} className="custom-node-tag" onClick={removeTags}>
@@ -551,8 +529,8 @@ export const CustomNodeTag = memo(
       ) : (
         <></>
       )
-    }
-  )
+    },
+  ),
 )
 
 /* -------------------------------------------------------------------------- */
@@ -568,7 +546,7 @@ export const getNewCustomNode = (
   selected: boolean,
   editing: boolean,
   styleBackground: string,
-  generated: GeneratedInformation
+  generated: GeneratedInformation,
 ) => {
   const { height: nodeHeight } = hardcodedNodeSize
 
@@ -613,7 +591,7 @@ export const customAddNodes = (
     styleBackground,
     fitView,
     toFitView,
-  }: CustomAddNodesOptions
+  }: CustomAddNodesOptions,
 ): {
   nodeId: string
   sourceHandleId: string
@@ -639,7 +617,7 @@ export const customAddNodes = (
       pseudo: false,
       originRanges: [],
       originTexts: [],
-    }
+    },
   )
 
   addNodes(newNode)
@@ -662,7 +640,7 @@ export const customAddNodes = (
 
 export const hardcodedNodeWidthEstimation = (
   content: string,
-  pseudo: boolean
+  pseudo: boolean,
 ) => {
   // make a pseudo node to estimate width
   const pseudoNode = document.createElement('span')

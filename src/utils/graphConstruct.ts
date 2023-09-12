@@ -18,7 +18,7 @@ import {
 
 export const processTriplet = (
   triplet: string[],
-  linkedOriginalText?: string
+  linkedOriginalText?: string,
 ): string[] => {
   // ! process the edge label
   // make the edge the lower case
@@ -29,7 +29,7 @@ export const processTriplet = (
   // TODO optimize?
   triplet[1] = triplet[1].replace(
     /(?:^|\s)(is|was|are|were|has|have|had|does|do|did|a|an|the)(?=\s|$)/g,
-    ''
+    '',
   )
 
   // ! process everything
@@ -37,7 +37,7 @@ export const processTriplet = (
   triplet.forEach((t, ind) => (triplet[ind] = t.trim()))
   // remove line breaks, and other special characters, like semi-colon
   triplet.forEach(
-    (t, ind) => (triplet[ind] = t.replace(/[^a-zA-Z0-9 ,.!?&()]+/g, ''))
+    (t, ind) => (triplet[ind] = t.replace(/[^a-zA-Z0-9 ,.!?&()]+/g, '')),
   )
 
   // ! process the subject
@@ -118,7 +118,7 @@ const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
         // ! need to expand
         const expandedEdgeItem = wrapWithHiddenExpandId(
           item[1],
-          recurrentSubjectEdgePairs[thisSubjectEdgePair].expandHiddenId
+          recurrentSubjectEdgePairs[thisSubjectEdgePair].expandHiddenId,
         )
 
         if (!recurrentSubjectEdgePairs[thisSubjectEdgePair].expanded) {
@@ -187,7 +187,7 @@ const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
 
             expandMultipleEdgesArray.push([o, '', expandedEdgeItem])
             expandMultipleEdgesArray.push([expandedEdgeItem, '', s])
-          }
+          },
         )
       } else expandMultipleEdgesArray.push([object, edge, subject])
     }
@@ -199,7 +199,7 @@ const rawRelationsToGraphRelations = (rawRelationsText: string): string[][] => {
 export const constructGraphRelationsFromResponse = async (
   response: string,
   entities: string[],
-  model: ModelForMagic
+  model: ModelForMagic,
 ): Promise<string[][]> => {
   if (
     response.length === 0 ||
@@ -211,7 +211,7 @@ export const constructGraphRelationsFromResponse = async (
 
   const textRelationships = await getOpenAICompletion(
     predefinedPrompts.textToGraph(response, entities),
-    model
+    model,
   )
 
   if (textRelationships.error) {
@@ -247,7 +247,7 @@ export const constructGraph = (
   rawNodeEntities: NodeEntity[],
   rawEdgeEntities: EdgeEntity[],
   nodeEntities: NodeEntity[],
-  edgeEntities: EdgeEntity[]
+  edgeEntities: EdgeEntity[],
 ) => {
   // https://github.com/dagrejs/dagre/wiki#an-example-layout
   graph.setGraph({
@@ -276,7 +276,7 @@ export const constructGraph = (
         label: nodeE.id,
         width: hardcodedNodeWidthEstimation(
           nodeE.displayNodeLabel,
-          nodeE.pseudo
+          nodeE.pseudo,
         ),
         height: hardcodedNodeSize.height,
       })
@@ -328,7 +328,7 @@ export const constructGraph = (
 
 export const nodeWithMostChildren = (
   nodeEntities: NodeEntity[],
-  edgeEntities: EdgeEntity[]
+  edgeEntities: EdgeEntity[],
 ): string | null => {
   // find the node with the most children (including children's children)
 
@@ -352,7 +352,7 @@ export const nodeWithMostChildren = (
     edgeE.edgePairs.forEach(edgePair => {
       nodeChildrenCount[edgePair.sourceId].count++
       nodeChildrenCount[edgePair.sourceId].childrenNodeIds.push(
-        edgePair.targetId
+        edgePair.targetId,
       )
     })
   })
@@ -361,7 +361,7 @@ export const nodeWithMostChildren = (
   const accumulateChildrenNodesCount = (
     acc: number,
     visitedNodeIds: Set<string>,
-    nodeId: string
+    nodeId: string,
   ) => {
     visitedNodeIds.add(nodeId)
 
@@ -380,7 +380,7 @@ export const nodeWithMostChildren = (
         acc += accumulateChildrenNodesCount(
           childNode.count,
           visitedNodeIds,
-          childNodeId
+          childNodeId,
         )
       }
     })
@@ -392,7 +392,7 @@ export const nodeWithMostChildren = (
     nodeChildrenCount[nodeE.id].accumulatedCount = accumulateChildrenNodesCount(
       nodeChildrenCount[nodeE.id].count,
       new Set(),
-      nodeE.id
+      nodeE.id,
     )
   })
 

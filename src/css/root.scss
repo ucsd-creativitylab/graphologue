@@ -102,11 +102,11 @@ $blur-xh: rem-to-px(7rem);
 
 $shadow-grey-default: rgba($grey, 0.3) 0 rem-to-px(2rem) rem-to-px(12rem)
   rem-to-px(0em);
-$shadow-default: rgba($cold-grey, 0.36) 0 rem-to-px(2rem) rem-to-px(8rem)
-    rem-to-px(1rem),
+$shadow-default:
+  rgba($cold-grey, 0.36) 0 rem-to-px(2rem) rem-to-px(8rem) rem-to-px(1rem),
   rgba($white, 0.5) 0 0 rem-to-px(8rem) rem-to-px(4rem);
-$shadow-heavy: rgba($cold-grey, 0.6) 0 rem-to-px(2rem) rem-to-px(10rem)
-    rem-to-px(1rem),
+$shadow-heavy:
+  rgba($cold-grey, 0.6) 0 rem-to-px(2rem) rem-to-px(10rem) rem-to-px(1rem),
   rgba($white, 0.5) 0 0 rem-to-px(12rem) rem-to-px(4rem);
 
 @mixin tooltip-styles() {

@@ -23,7 +23,7 @@ export const useTimeMachine = (
   present: ReactFlowJsonObject,
   setNodes: Instance.SetNodes<Node>,
   setEdges: Instance.SetEdges<Edge>,
-  setViewport: SetViewport
+  setViewport: SetViewport,
 ) => {
   const past = useRef<ReactFlowJsonObject[]>([])
   const future = useRef<ReactFlowJsonObject[]>([])
@@ -43,7 +43,7 @@ export const useTimeMachine = (
       timeTraveling.current = true
 
       const newPresent = deepCopyStoredData(
-        past.current[past.current.length - 1]
+        past.current[past.current.length - 1],
       )
 
       future.current = deepCopyStoredDataList([
@@ -52,7 +52,7 @@ export const useTimeMachine = (
       ])
       timeMachinePresent.current = newPresent
       past.current = deepCopyStoredDataList(
-        past.current.slice(0, past.current.length - 1)
+        past.current.slice(0, past.current.length - 1),
       )
 
       setNodes(deepCopyNodes(newPresent.nodes))
@@ -61,7 +61,7 @@ export const useTimeMachine = (
         { ...newPresent.viewport },
         {
           duration: transitionDuration,
-        }
+        },
       )
     }
   }
@@ -84,7 +84,7 @@ export const useTimeMachine = (
         { ...newPresent.viewport },
         {
           duration: transitionDuration,
-        }
+        },
       )
     }
   }
@@ -120,7 +120,7 @@ export const useTimeMachine = (
 
 export const equalDataAcrossTime = (
   past: ReactFlowJsonObject,
-  present: ReactFlowJsonObject
+  present: ReactFlowJsonObject,
 ) => {
   // use isEqual from react-fast-compare to compare the data
   // but exclude the data.editing, and selected properties for nodes
@@ -165,6 +165,6 @@ export const equalDataAcrossTime = (
             data: restData,
           }
         }) || [],
-    }
+    },
   )
 }

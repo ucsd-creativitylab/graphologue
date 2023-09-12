@@ -148,7 +148,7 @@ export const getEdgeParams = (source: Node, target: Node) => {
 // get graph bounds
 
 export const getGraphBounds = (
-  nodes: Node[] | NodeSnippet[] | PostConstructionPseudoNodeObject[]
+  nodes: Node[] | NodeSnippet[] | PostConstructionPseudoNodeObject[],
 ) => {
   const bounds = {
     x: Infinity,
@@ -179,7 +179,7 @@ export const getGraphBounds = (
 export const getComponentsBounds = (
   targetNodes: Node[],
   targetEdges: Edge[],
-  nodes: Node[]
+  nodes: Node[],
 ) => {
   const bounds = {
     left: Infinity,
@@ -219,7 +219,7 @@ const getCurrentIntersections = (
     position: { x: number; y: number }
     width: number
     height: number
-  }
+  },
 ) => {
   return nodes.filter(n => {
     return (
@@ -242,7 +242,7 @@ export const adjustNewNodePositionAvoidIntersections = (
     down: true,
     left: true,
     right: true,
-  }
+  },
 ): {
   adjustedX: number
   adjustedY: number
@@ -302,7 +302,7 @@ export const adjustNewNodePositionAvoidIntersections = (
 export const getPositionOffsetForGeneratedNodes = (
   pseudoGeneratedNodeObjects: PostConstructionPseudoNodeObject[],
   anchorNodes: Node[],
-  anchorMagicNode: Node
+  anchorMagicNode: Node,
 ): { offsetX: number; offsetY: number } => {
   // get bounds of pseudoGeneratedNodeObjects
   const pseudoObjectsBounds = getGraphBounds(pseudoGeneratedNodeObjects)
@@ -330,7 +330,7 @@ export const getPositionOffsetForGeneratedNodes = (
 
     // find the corresponding pseudo object
     const pseudoObject = pseudoGeneratedNodeObjects.find(
-      p => p.label === (targetNode.data as CustomNodeData).label
+      p => p.label === (targetNode.data as CustomNodeData).label,
     )
     if (!pseudoObject) return { offsetX: 0, offsetY: 0 }
 

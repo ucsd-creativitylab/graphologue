@@ -1,16 +1,23 @@
 # <img src="./public/logo512.png" width="48" style="vertical-align: middle;"></img>raphologue
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Graphologue transforms Large Language Model (LLM, such as GPT-4) responses into interactive diagrams in real-time with _Inline Annotation_. Please refer to our [full paper](https://doi.org/10.1145/3586183.3606737) and [website](https://creativity.ucsd.edu) for more information.
+
+![](./media/teaser.png)
+
+[**Live Demo**](https://graphologue.app/) (An OpenAI API key is needed.)
 
 ## Development
 
-```bash
-# client
-# npm run start:netlify
-npm start
+Install all the dependencies.
 
-# python server
-npm run start:server
+```bash
+npm install
+```
+
+Start the local server.
+
+```bash
+npm start
 ```
 
 ## External APIs

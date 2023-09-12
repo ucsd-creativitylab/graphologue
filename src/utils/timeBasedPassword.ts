@@ -11,7 +11,7 @@ export const getPasswordNow = (): string => {
 
   const password = uuidv5(
     `Creativity-${year}-${month}-${day}-${hour}`,
-    uuidv5.URL
+    uuidv5.URL,
   )
 
   return password

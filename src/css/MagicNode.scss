@@ -255,8 +255,8 @@ $the-bar-margin-top-offset: calc(
         // word-break: break-all;
 
         background: #fefefe;
-        box-shadow: rgb(204, 219, 232, 0.9) 0 rem-to-px(2rem) rem-to-px(7rem) 0
-            inset,
+        box-shadow:
+          rgb(204, 219, 232, 0.9) 0 rem-to-px(2rem) rem-to-px(7rem) 0 inset,
           rgba(255, 255, 255, 0.7) 0 rem-to-px(-4rem) rem-to-px(6rem)
             rem-to-px(2rem) inset;
       }
@@ -310,9 +310,12 @@ $the-bar-margin-top-offset: calc(
           // word-break: break-all;
           z-index: 1;
 
-          transition: background-color $transition-fast,
-            border-color $transition-fast, outline $transition-fast,
-            color $transition-fast, border-radius $transition-fast;
+          transition:
+            background-color $transition-fast,
+            border-color $transition-fast,
+            outline $transition-fast,
+            color $transition-fast,
+            border-radius $transition-fast;
 
           &[draggable='true'] {
             cursor: grab;

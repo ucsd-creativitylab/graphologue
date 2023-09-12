@@ -120,7 +120,7 @@ export interface DebugModeContextType {
   setDebugMode: (debugMode: boolean) => void
 }
 export const DebugModeContext = createContext<DebugModeContextType>(
-  {} as DebugModeContextType
+  {} as DebugModeContextType,
 )
 
 export const ChatApp = () => {

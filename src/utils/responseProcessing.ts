@@ -36,7 +36,7 @@ export const removeLastBracket = (text: string, eliminateAfter = false) => {
         ? ''
         : cleanStreamedAnnotationsRealtime(afterBracket).replace(
             /\$(?:H|M|L|)|[;,]\s*/g,
-            ' ' // TODO polish
+            ' ', // TODO polish
           ))
     )
   }
@@ -48,7 +48,7 @@ export const removeAnnotations = (text: string) => {
   let cleanedText = text.replace(
     /\[([^[\]()]+(?:\([^)]*\))*)\s\(((?:\$[HML],\s)?\$N\d+(?:,\s\$N\d+)*(?:;\s?(?:\$[HML],\s)?\$N\d+(?:,\s\$N\d+)*)*)\)\]/g,
     // /\[([^[\]]+?)\s\((?:\$N\d+(?:,\s\$N\d+)*(?:;\s?)?)+\)\]/g,
-    (match, label) => label
+    (match, label) => label,
   )
 
   return removeLastBracket(cleanedText)
@@ -94,7 +94,7 @@ export const getAnnotationType = (annotation: string): AnnotationType => {
 
 export const parseNodes = (
   annotatedNodeString: string,
-  answerObjectId: string
+  answerObjectId: string,
 ): NodeEntityIndividual[] => {
   const matches = [...annotatedNodeString.matchAll(nodeAnnotationRegex)]
   return matches.map(match => ({
@@ -112,7 +112,7 @@ export const parseNodes = (
 
 export const parseEdges = (
   annotatedRelationshipString: string,
-  answerObjectId: string
+  answerObjectId: string,
 ): EdgeEntity[] => {
   const matches = [...annotatedRelationshipString.matchAll(edgeAnnotationRegex)]
   return matches.map(match => {
@@ -165,13 +165,13 @@ export const parseSaliency = (saliency: string): RelationshipSaliency => {
 }
 
 export const nodeIndividualsToNodeEntities = (
-  nodeIndividuals: NodeEntityIndividual[]
+  nodeIndividuals: NodeEntityIndividual[],
 ): NodeEntity[] => {
   const nodeEntities: NodeEntity[] = []
 
   nodeIndividuals.forEach(node => {
     const existingNode = nodeEntities.find(
-      nodeEntity => nodeEntity.id === node.id
+      nodeEntity => nodeEntity.id === node.id,
     )
 
     if (existingNode) {
@@ -179,7 +179,7 @@ export const nodeIndividualsToNodeEntities = (
       // pick the longest node label for display label
       existingNode.displayNodeLabel = existingNode.individuals.reduce(
         (acc, cur) => (cur.nodeLabel.length > acc.length ? cur.nodeLabel : acc),
-        existingNode.displayNodeLabel
+        existingNode.displayNodeLabel,
       )
     } else {
       nodeEntities.push({
@@ -201,13 +201,13 @@ export const nodeIndividualsToNodeEntities = (
 
 export const havePair = (pairs: EdgePair[], pair: EdgePair) => {
   return pairs.some(
-    p => p.sourceId === pair.sourceId && p.targetId === pair.targetId
+    p => p.sourceId === pair.sourceId && p.targetId === pair.targetId,
   )
 }
 
 export const getNodeEntityFromNodeEntityId = (
   nodeEntities: NodeEntity[],
-  id: string
+  id: string,
 ): NodeEntity | null => {
   const nodeEntity = nodeEntities.find(node => node.id === id)
   if (nodeEntity) return nodeEntity
@@ -268,7 +268,7 @@ export const splitAnnotatedSentences = (text: string): string[] => {
 }
 
 export const listDisplayToEntityTarget = (
-  listDisplay: ListDisplayFormat
+  listDisplay: ListDisplayFormat,
 ): AnswerObjectEntitiesTarget => {
   return {
     original: 'originText',
@@ -279,7 +279,7 @@ export const listDisplayToEntityTarget = (
 
 export const mergeNodeEntities = (
   answerObjects: AnswerObject[],
-  answerObjectIdsHidden: string[]
+  answerObjectIdsHidden: string[],
 ) => {
   const nodeEntities: NodeEntity[] = []
 
@@ -304,7 +304,7 @@ export const mergeNodeEntities = (
 
 export const mergeEdgeEntities = (
   answerObjects: AnswerObject[],
-  answerObjectIdsHidden: string[]
+  answerObjectIdsHidden: string[],
 ) => {
   const edgeEntities: EdgeEntity[] = []
 
@@ -323,7 +323,7 @@ export const mergeEdgeEntities = (
 
 export const findEntitySentence = (
   originRange: OriginRange,
-  answer: string
+  answer: string,
 ) => {
   const sentenceStart = answer.lastIndexOf('.', originRange.start) + 1
   const sentenceEnd = answer.indexOf('.', originRange.end)
@@ -333,14 +333,14 @@ export const findEntitySentence = (
 
 export const findEntityFromAnswerObjects = (
   answerObjects: AnswerObject[],
-  entityId: string
+  entityId: string,
 ) => {
   const entity = answerObjects
     .map(
       answerObject =>
         answerObject[
           listDisplayToEntityTarget(answerObject.answerObjectSynced.listDisplay)
-        ].nodeEntities
+        ].nodeEntities,
     )
     .flat()
     .find(entity => entity.id === entityId)
@@ -349,7 +349,7 @@ export const findEntityFromAnswerObjects = (
 
 export const saliencyAHigherThanB = (
   sA: RelationshipSaliency,
-  sB: RelationshipSaliency
+  sB: RelationshipSaliency,
 ) => {
   if (sA === 'high' && sB === 'low') return true
   if (sA === 'high' && sB === 'high') return false
@@ -359,7 +359,7 @@ export const saliencyAHigherThanB = (
 
 export const findOrphanNodeEntities = (
   nodeEntities: NodeEntity[],
-  edgeEntities: EdgeEntity[]
+  edgeEntities: EdgeEntity[],
 ) => {
   return nodeEntities.filter(nodeEntity => {
     return (
@@ -367,8 +367,8 @@ export const findOrphanNodeEntities = (
         edgeEntity.edgePairs.some(
           edgePair =>
             edgePair.sourceId === nodeEntity.id ||
-            edgePair.targetId === nodeEntity.id
-        )
+            edgePair.targetId === nodeEntity.id,
+        ),
       ) === undefined
     )
   })
@@ -376,7 +376,7 @@ export const findOrphanNodeEntities = (
 
 export const findNowhereEdgeEntities = (
   nodeEntities: NodeEntity[],
-  edgeEntities: EdgeEntity[]
+  edgeEntities: EdgeEntity[],
 ) => {
   return edgeEntities.filter(edgeEntity => {
     // at least one in edgeEntity.edgePairs has a source or target that is not in nodeEntities
@@ -402,7 +402,7 @@ export const cleanSlideResponse = (slideResponse: string) => {
 export const getRangeFromStart = (
   start: number,
   nodeEntities: NodeEntity[],
-  edgeEntities: EdgeEntity[]
+  edgeEntities: EdgeEntity[],
 ): OriginRange | undefined => {
   for (const nodeEntity of nodeEntities) {
     for (const individual of nodeEntity.individuals) {
@@ -423,7 +423,7 @@ export const cleanNodeLabel = (label: string) => {
   // remove These, This, Those, That, A, An, The, Their, Its, etc.
   const cleanedLabel = label.replace(
     /^(these|this|those|that|a|an|the|their|its|his|her|their|our|my|your)\s/i,
-    ''
+    '',
   )
 
   return cleanedLabel
@@ -431,9 +431,9 @@ export const cleanNodeLabel = (label: string) => {
 
 export const pairTargetIdHasPair = (
   edgeEntities: EdgeEntity[],
-  targetId: string
+  targetId: string,
 ) => {
   return edgeEntities.some(edgeEntity =>
-    edgeEntity.edgePairs.some(edgePair => edgePair.sourceId === targetId)
+    edgeEntity.edgePairs.some(edgePair => edgePair.sourceId === targetId),
   )
 }

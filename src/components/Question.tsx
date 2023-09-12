@@ -93,13 +93,13 @@ export const Question = () => {
         setQuestionsAndAnswers(prevQsAndAs =>
           helpSetQuestionAndAnswer(prevQsAndAs, id, {
             question: newQuestion,
-          })
+          }),
         )
 
         autoGrow()
       }
     },
-    [autoGrow, id, setQuestionsAndAnswers]
+    [autoGrow, id, setQuestionsAndAnswers],
   )
 
   useEffect(() => {
@@ -127,10 +127,10 @@ export const Question = () => {
           modelStatus: {
             modelError: true,
           },
-        })
+        }),
       )
     },
-    [id, setQuestionsAndAnswers]
+    [id, setQuestionsAndAnswers],
   )
 
   const handleSentenceParsingResult = useCallback(
@@ -138,7 +138,7 @@ export const Question = () => {
       const { sourceAnswerObjectId } = result
 
       const sourceAnswerObject = answerStorage.current.answerObjects.find(
-        answerObject => answerObject.id === sourceAnswerObjectId
+        answerObject => answerObject.id === sourceAnswerObjectId,
       )
       if (!sourceAnswerObject || sourceAnswerObject.complete)
         // do not touch complete answer objects
@@ -157,14 +157,14 @@ export const Question = () => {
       setQuestionsAndAnswers(prevQsAndAs =>
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
           answerObjects: answerStorage.current.answerObjects,
-        })
+        }),
       )
     },
-    [id, setQuestionsAndAnswers]
+    [id, setQuestionsAndAnswers],
   )
 
   const sentenceParser = useRef<SentenceParser>(
-    new SentenceParser(handleSentenceParsingResult, handleResponseError)
+    new SentenceParser(handleSentenceParsingResult, handleResponseError),
   )
 
   /* -------------------------------------------------------------------------- */
@@ -182,8 +182,8 @@ export const Question = () => {
             modelAnswering: true,
             modelParsing: true, // parsing starts the same time as answering
           },
-        })
-      )
+        }),
+      ),
     )
     answerStorage.current.answer = ''
     answerStorage.current.answerObjects = []
@@ -195,7 +195,7 @@ export const Question = () => {
     // scroll to the question item (questionItemRef)
     setTimeout(() => {
       const answerWrapper = document.querySelector(
-        `.answer-wrapper[data-id="${id}"]`
+        `.answer-wrapper[data-id="${id}"]`,
       )
       if (answerWrapper)
         answerWrapper.scrollIntoView({
@@ -217,7 +217,7 @@ export const Question = () => {
   const handleUpdateRelationshipEntities = useCallback(
     (content: string, answerObjectId: string) => {
       const answerObject = answerStorage.current.answerObjects.find(
-        a => a.id === answerObjectId
+        a => a.id === answerObjectId,
       )
       if (!answerObject) return
 
@@ -238,7 +238,7 @@ export const Question = () => {
                 },
               }
             } else return a
-          }
+          },
         )
 
       // setQuestionsAndAnswers(prevQsAndAs =>
@@ -247,7 +247,7 @@ export const Question = () => {
       //   })
       // )
     },
-    []
+    [],
   )
 
   /* -------------------------------------------------------------------------- */
@@ -255,22 +255,22 @@ export const Question = () => {
   const handleParsingCompleteAnswerObject = useCallback(
     async (answerObjectId: string) => {
       const answerObjectToCorrect = answerStorage.current.answerObjects.find(
-        a => a.id === answerObjectId
+        a => a.id === answerObjectId,
       )
       if (!answerObjectToCorrect) return
 
       // self correction
       const correctedOriginTextContent = await handleSelfCorrection(
-        answerObjectToCorrect
+        answerObjectToCorrect,
       )
       answerStorage.current.answer = answerStorage.current.answer.replace(
         answerObjectToCorrect.originText.content,
-        correctedOriginTextContent
+        correctedOriginTextContent,
       )
       answerObjectToCorrect.originText.content = correctedOriginTextContent
       handleUpdateRelationshipEntities(
         correctedOriginTextContent,
-        answerObjectId
+        answerObjectId,
       )
 
       // set corrected answer object
@@ -278,13 +278,13 @@ export const Question = () => {
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
           answer: answerStorage.current.answer,
           answerObjects: answerStorage.current.answerObjects, // TODO account for answerObjectSynced changes
-        })
+        }),
       )
 
       /* -------------------------------------------------------------------------- */
       // parse slides and summary
       const answerObject = answerStorage.current.answerObjects.find(
-        a => a.id === answerObjectId
+        a => a.id === answerObjectId,
       )
       if (!answerObject) return
 
@@ -308,9 +308,9 @@ export const Question = () => {
               predefinedPromptsForParsing[parsingType](
                 parsingSummary
                   ? answerObject.originText.content
-                  : removeAnnotations(answerObject.originText.content)
+                  : removeAnnotations(answerObject.originText.content),
               ),
-              debug ? models.faster : models.smarter
+              debug ? models.faster : models.smarter,
             )
 
             if (parsingResult.error) {
@@ -321,8 +321,8 @@ export const Question = () => {
 
             parsingResults[parsingType] =
               getTextFromModelResponse(parsingResult)
-          }
-        )
+          },
+        ),
       )
 
       if (!parsingError) {
@@ -335,11 +335,11 @@ export const Question = () => {
                 summary: {
                   content: parsingResults.summary,
                   nodeEntities: nodeIndividualsToNodeEntities(
-                    parseNodes(parsingResults.summary, answerObjectId)
+                    parseNodes(parsingResults.summary, answerObjectId),
                   ),
                   edgeEntities: parseEdges(
                     parsingResults.summary,
-                    answerObjectId
+                    answerObjectId,
                   ),
                 },
                 slide: {
@@ -359,7 +359,7 @@ export const Question = () => {
             //   modelParsing: false,
             //   modelParsingComplete: true,
             // },
-          })
+          }),
         )
       }
     },
@@ -369,7 +369,7 @@ export const Question = () => {
       handleUpdateRelationshipEntities,
       id,
       setQuestionsAndAnswers,
-    ]
+    ],
   )
 
   const handleStreamRawAnswer = useCallback(
@@ -472,7 +472,7 @@ export const Question = () => {
         // as the object is finished, we can start parsing it
         // adding summary, slide, relationships
         handleParsingCompleteAnswerObject(
-          aC.answerObjects[aC.answerObjects.length - 2].id
+          aC.answerObjects[aC.answerObjects.length - 2].id,
         )
 
         targetLastAnswerObjectId = preparedNewObject.id
@@ -487,7 +487,7 @@ export const Question = () => {
       if (targetLastAnswerObjectId)
         handleUpdateRelationshipEntities(
           lastParagraph,
-          targetLastAnswerObjectId
+          targetLastAnswerObjectId,
         )
 
       // parse sentence into graph RIGHT NOW
@@ -510,7 +510,7 @@ export const Question = () => {
         helpSetQuestionAndAnswer(prevQsAndAs, id, {
           answer: aC.answer,
           answerObjects: aC.answerObjects, // TODO account for answerObjectSynced changes
-        })
+        }),
       )
 
       // scroll
@@ -533,7 +533,7 @@ export const Question = () => {
       handleUpdateRelationshipEntities,
       id,
       setQuestionsAndAnswers,
-    ]
+    ],
   )
 
   // ! ASK
@@ -548,7 +548,7 @@ export const Question = () => {
       initialPrompts,
       debug ? models.faster : models.smarter,
       handleStreamRawAnswer,
-      true
+      true,
     )
     // * model done raw answering
     console.log('model done raw answering')
@@ -558,7 +558,7 @@ export const Question = () => {
           modelAnswering: false,
           modelAnsweringComplete: true,
         },
-      })
+      }),
     )
 
     // try to finish the last answer object
@@ -586,7 +586,7 @@ export const Question = () => {
           modelParsingComplete: true,
           modelInitialPrompts: [...initialPrompts.map(p => ({ ...p }))],
         },
-      })
+      }),
     )
   }, [
     _groundRest,
@@ -606,12 +606,12 @@ export const Question = () => {
         if (canAsk) handleAskStream()
       }
     },
-    [canAsk, handleAskStream]
+    [canAsk, handleAskStream],
   )
 
   const handleDeleteInterchange = useCallback(() => {
     setQuestionsAndAnswers(prevQsAndAs =>
-      prevQsAndAs.filter(qAndA => qAndA.id !== id)
+      prevQsAndAs.filter(qAndA => qAndA.id !== id),
     )
   }, [id, setQuestionsAndAnswers])
 

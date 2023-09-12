@@ -12,7 +12,7 @@ const standardViewport = {
 
 export const storeItem = (
   data: ReactFlowJsonObject,
-  setTime: (d: ReactFlowJsonObject) => void
+  setTime: (d: ReactFlowJsonObject) => void,
 ) => {
   const copiedData = deepCopyStoredData(data)
   const cleanData = cleanStoredData(copiedData)
@@ -31,7 +31,7 @@ export const getItem = (): ReactFlowJsonObject => {
           nodes: [],
           edges: [],
           viewport: { ...standardViewport },
-        } as ReactFlowJsonObject)
+        } as ReactFlowJsonObject),
     )
   return {
     nodes: [],
@@ -41,7 +41,7 @@ export const getItem = (): ReactFlowJsonObject => {
 }
 
 export const cleanStoredData = (
-  data: ReactFlowJsonObject
+  data: ReactFlowJsonObject,
 ): ReactFlowJsonObject => {
   // make sure all editing, selected, etc. properties are false
   const nodes =
@@ -120,7 +120,7 @@ export const deepCopyEdges = (edges: Edge[]): Edge[] => {
 }
 
 export const deepCopyStoredData = (
-  storedData: ReactFlowJsonObject
+  storedData: ReactFlowJsonObject,
 ): ReactFlowJsonObject => {
   return {
     nodes: deepCopyNodes(storedData.nodes),
@@ -130,7 +130,7 @@ export const deepCopyStoredData = (
 }
 
 export const deepCopyStoredDataList = (
-  storedDataList: ReactFlowJsonObject[]
+  storedDataList: ReactFlowJsonObject[],
 ): ReactFlowJsonObject[] => {
   return storedDataList.map(d => deepCopyStoredData(d))
 }

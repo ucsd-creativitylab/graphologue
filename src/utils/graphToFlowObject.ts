@@ -36,7 +36,7 @@ const _addMentionedNode = (
     [nodeId: string]: NodeMention[]
   },
   nodeId: string,
-  mentionEdge: EdgeEntity
+  mentionEdge: EdgeEntity,
 ) => {
   if (!nodeIdsMentionedByEdges[nodeId]) {
     nodeIdsMentionedByEdges[nodeId] = []
@@ -55,7 +55,7 @@ export const answerObjectsToReactFlowObject = (
   rawNodeEntities: NodeEntity[],
   rawEdgeEntities: EdgeEntity[],
   synced: QuestionAndAnswerSynced,
-  collapsedNodeIds: string[]
+  collapsedNodeIds: string[],
 ): {
   nodes: Node[]
   edges: Edge[]
@@ -181,7 +181,7 @@ export const answerObjectsToReactFlowObject = (
             nodeLabel: '...',
             originRange: mentionOriginRange,
             originText: mentionOriginText,
-          })
+          }),
         ),
       })
     }
@@ -256,14 +256,14 @@ export const answerObjectsToReactFlowObject = (
     const edgesBetweenSourceTarget = edgeEntities.filter(
       _e =>
         _e.edgePairs[0].sourceId === sourceId &&
-        _e.edgePairs[0].targetId === targetId
+        _e.edgePairs[0].targetId === targetId,
     )
 
     const edgeIsTheFirstOneBetweenSourceTarget =
       edgeEntities.findIndex(
         _e =>
           _e.edgePairs[0].sourceId === sourceId &&
-          _e.edgePairs[0].targetId === targetId
+          _e.edgePairs[0].targetId === targetId,
       ) === edgeEntities.indexOf(edgeEntity)
 
     if (edgesBetweenSourceTarget.length > 1) {
@@ -279,7 +279,7 @@ export const answerObjectsToReactFlowObject = (
 
       // remove the edge if there are edges with higher saliency
       const edgesWithHigherSaliency = edgesBetweenSourceTarget.filter(_e =>
-        saliencyAHigherThanB(_e.edgePairs[0].saliency, saliency)
+        saliencyAHigherThanB(_e.edgePairs[0].saliency, saliency),
       )
       if (edgesWithHigherSaliency.length > 0) {
         return false
@@ -287,14 +287,14 @@ export const answerObjectsToReactFlowObject = (
 
       // remove the edge if there are edges with the same saliency and this is not the first one
       const edgesWithSameSaliency = edgesBetweenSourceTarget.filter(
-        _e => _e.edgePairs[0].saliency === saliency
+        _e => _e.edgePairs[0].saliency === saliency,
       )
       if (
         edgesWithSameSaliency.length > 1 &&
         edgesWithSameSaliency.findIndex(
           _e =>
             _e.edgePairs[0].sourceId === sourceId &&
-            _e.edgePairs[0].targetId === targetId
+            _e.edgePairs[0].targetId === targetId,
         ) !== edgesWithSameSaliency.indexOf(edgeEntity)
       ) {
         return false
@@ -328,7 +328,7 @@ export const answerObjectsToReactFlowObject = (
       filteredEdgeEntities.find(
         edgeEntity =>
           edgeEntity.edgePairs[0].sourceId === id ||
-          edgeEntity.edgePairs[0].targetId === id
+          edgeEntity.edgePairs[0].targetId === id,
       ) !== undefined
     )
   })
@@ -339,7 +339,7 @@ export const answerObjectsToReactFlowObject = (
     nodeEntities,
     edgeEntities,
     filteredNodeEntities.length ? filteredNodeEntities : nodeEntities, // you don't want to remove everything
-    filteredEdgeEntities
+    filteredEdgeEntities,
   )
   // const computedNodes = await smartLayout(
   //   filteredNodeEntities.map(nodeEntity => ({
@@ -389,8 +389,8 @@ export const answerObjectsToReactFlowObject = (
           pseudo: entity.pseudo,
           originRanges,
           originTexts,
-        }
-      )
+        },
+      ),
     )
   })
 
@@ -399,7 +399,7 @@ export const answerObjectsToReactFlowObject = (
     ({ edgeLabel, edgePairs, originRange, originText }) => {
       edgePairs.forEach(({ sourceId, targetId }) => {
         const targetNode: Node<CustomNodeData> | undefined = nodes.find(
-          node => node.id === targetId
+          node => node.id === targetId,
         )
         if (!targetNode) return null
 
@@ -420,11 +420,11 @@ export const answerObjectsToReactFlowObject = (
                 originRanges: [originRange],
                 originTexts: [originText],
               },
-            }
-          )
+            },
+          ),
         )
       })
-    }
+    },
   )
 
   return {

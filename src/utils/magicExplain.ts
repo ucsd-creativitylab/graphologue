@@ -1,14 +1,6 @@
-import { Node, Edge, FitView, Instance } from 'reactflow'
+import { Node, Edge } from 'reactflow'
 
-import { hardcodedNodeSize, nodeGap } from '../constants'
-import { addMagicNode, AddMagicNodeOptions } from '../componentsFlow/MagicNode'
-import {
-  adjustNewNodePositionAvoidIntersections,
-  getComponentsBounds,
-  matchItemsInQuotes,
-  nodeAndTagsToString,
-  nodeToString,
-} from './utils'
+import { matchItemsInQuotes, nodeAndTagsToString, nodeToString } from './utils'
 import { NodeLabelAndTags, promptTerms } from './promptsAndResponses'
 
 export interface PromptSourceComponentsType {
@@ -16,61 +8,10 @@ export interface PromptSourceComponentsType {
   edges: string[]
 }
 
-export const magicExplain = (
-  nodes: Node[],
-  edges: Edge[],
-  sourceComponents: PromptSourceComponentsType,
-  addNodes: Instance.AddNodes<Node>,
-  selectNodes: (nodeIds: string[]) => void,
-  fitView: FitView
-) => {
-  const { nodes: selectedNodesIds, edges: selectedEdgesIds } = sourceComponents
-
-  const selectedNodes = nodes.filter(node => selectedNodesIds.includes(node.id))
-  const selectedEdges = edges.filter(edge => selectedEdgesIds.includes(edge.id))
-
-  const { top, left } = getComponentsBounds(
-    selectedNodes as Node[],
-    selectedEdges as Edge[],
-    nodes as Node[]
-  )
-
-  const suggestedPrompts = generateSuggestedPrompts(
-    nodes,
-    edges,
-    sourceComponents
-  )
-
-  // ! actual add magic node
-  const { adjustedX, adjustedY } = adjustNewNodePositionAvoidIntersections(
-    nodes.filter(node => node.type === 'magic'),
-    left - hardcodedNodeSize.magicWidth - nodeGap,
-    top,
-    hardcodedNodeSize.magicWidth,
-    hardcodedNodeSize.magicHeight,
-    {
-      up: false,
-      down: false,
-      left: false,
-      right: true,
-    }
-  )
-  addMagicNode(addNodes, selectNodes, adjustedX, adjustedY, {
-    select: true,
-    sourceComponents,
-    suggestedPrompts,
-    fitView: fitView,
-    toFitView: true,
-  } as AddMagicNodeOptions)
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 export const generateSuggestedPrompts = (
   nodes: Node[],
   edges: Edge[],
-  sourceComponents: PromptSourceComponentsType
+  sourceComponents: PromptSourceComponentsType,
 ): string[] => {
   const nodeLabelAndTags: NodeLabelAndTags[] = sourceComponents.nodes
     .map((nodeId: string) => {
@@ -110,7 +51,7 @@ export const generateSuggestedPrompts = (
           if (edge.data.label.length === 0)
             // the edge is empty yet
             return `What is the relationship between ${nodeToString(
-              sourceNode
+              sourceNode,
             )} and ${nodeToString(targetNode)}?`
           else
             return `How does ${nodeToString(sourceNode)} ${
@@ -149,7 +90,7 @@ export const generateSuggestedPrompts = (
 
 export const parseModelResponseText = (
   responseText: string,
-  target: 'response' | 'verify'
+  target: 'response' | 'verify',
 ): {
   parsedResponse: string
   searchQueries: string[]
@@ -167,7 +108,7 @@ export const parseModelResponseText = (
   } else {
     const regex = new RegExp(
       `[^]*${promptTerms.searchQueries}([^]*)${promptTerms.researchPapers}([^]*)`,
-      'gm'
+      'gm',
     )
     const match = regex.exec(responseText) || ['', '', '']
 

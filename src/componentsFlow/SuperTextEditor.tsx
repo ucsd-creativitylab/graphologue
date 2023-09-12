@@ -56,7 +56,7 @@ export const SuperTextEditor = memo(
     // dynamic size setting for edge input
     const getEdgeInputSize = useCallback(
       (content: string) => Math.min(Math.max(content.length + 1, 1), 50),
-      []
+      [],
     )
     useEffect(() => {
       if (isEdge) {
@@ -110,7 +110,7 @@ export const SuperTextEditor = memo(
           })
         }
       },
-      [isEdge, isNode, setEdges, targetId, setNodes, superTextareaRef]
+      [isEdge, isNode, setEdges, targetId, setNodes, superTextareaRef],
     )
 
     // cursor control
@@ -132,11 +132,11 @@ export const SuperTextEditor = memo(
         setTimeout(() => {
           e.target.setSelectionRange(
             cursorPosition.current,
-            cursorPosition.current
+            cursorPosition.current,
           )
         }, 0)
       },
-      [isNode, onFinishEditing]
+      [isNode, onFinishEditing],
     )
 
     const handleKeyDown = useCallback(
@@ -167,23 +167,15 @@ export const SuperTextEditor = memo(
             break
         }
       },
-      [onFinishEditing]
+      [onFinishEditing],
     )
 
     const handleBlur = useCallback(
       (e: BaseSyntheticEvent) => {
         onFinishEditing(false)
       },
-      [onFinishEditing]
+      [onFinishEditing],
     )
-
-    // ! component did mount
-    // useEffect(() => {
-    //   onBoundingWidthChange &&
-    //     onBoundingWidthChange(
-    //       textareaRef?.current?.getBoundingClientRect().width || 0
-    //     )
-    // }, [onBoundingWidthChange])
 
     return (
       <div
@@ -246,5 +238,5 @@ export const SuperTextEditor = memo(
         {children}
       </div>
     )
-  }
+  },
 )

@@ -52,13 +52,18 @@ $shadow-node-selected: $shadow-heavy;
     box-shadow: $shadow-default; // !
     outline: rem-to-px(2rem) solid transparent;
     outline-offset: rem-to-px(0);
-    transition: box-shadow $transition-fast, outline $transition-fast,
-      outline-offset $transition-fast, opacity $transition-fast,
+    transition:
+      box-shadow $transition-fast,
+      outline $transition-fast,
+      outline-offset $transition-fast,
+      opacity $transition-fast,
       transform $transition-normal;
 
     .node-label {
-      transition: opacity $transition-normal ease,
-        transform $transition-normal ease, font-size $transition-normal ease;
+      transition:
+        opacity $transition-normal ease,
+        transform $transition-normal ease,
+        font-size $transition-normal ease;
     }
 
     &.custom-node-meta-pressed {
@@ -138,8 +143,9 @@ $shadow-node-selected: $shadow-heavy;
         bottom: 0;
 
         z-index: 2;
-        box-shadow: inset rgba($mid-grey, $opacity-mid) rem-to-px(-3rem) 0
-            rem-to-px(4rem) rem-to-px(3rem),
+        box-shadow:
+          inset rgba($mid-grey, $opacity-mid) rem-to-px(-3rem) 0 rem-to-px(4rem)
+            rem-to-px(3rem),
           inset rgba($mid-grey, $opacity-mid) rem-to-px(3rem) 0 rem-to-px(4rem)
             rem-to-px(3rem);
       }

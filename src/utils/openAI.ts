@@ -1,18 +1,9 @@
-// import { Configuration, OpenAIApi } from 'openai'
-
-import { debug } from '../constants'
-
-// const configuration = new Configuration({
-//   apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-// })
-
-// export const OpenAI = new OpenAIApi(configuration)
-
 export type ModelForMagic = 'gpt-4' | 'gpt-3.5-turbo'
 
 export const models = {
   smarter: 'gpt-4' as ModelForMagic,
-  faster: 'gpt-3.5-turbo' as ModelForMagic,
+  faster: 'gpt-4' as ModelForMagic,
+  // faster: 'gpt-3.5-turbo' as ModelForMagic,
 }
 
 const temperatures = {
@@ -45,7 +36,7 @@ export const getCompletionOptions = (
   model: ModelForMagic,
   temperature: number | undefined,
   token: number | undefined,
-  stream = false
+  stream = false,
 ) => {
   return {
     messages: prompts,
@@ -76,7 +67,7 @@ export const getOpenAICompletion = async (
   prompts: Prompt[],
   model: ModelForMagic,
   temperature = temperatures.response,
-  token = 1024
+  token = 1024,
 ) => {
   console.log(`asking ${model}`, prompts)
 
@@ -85,7 +76,7 @@ export const getOpenAICompletion = async (
 
   const response = await fetch(
     'https://api.openai.com/v1/chat/completions',
-    requestOptions
+    requestOptions,
   )
 
   const data = await response.json()
@@ -99,7 +90,7 @@ export const streamOpenAICompletion = async (
   streamFunction: (data: any, freshStream: boolean) => void,
   freshStream: boolean,
   temperature = temperatures.response,
-  token = 2048
+  token = 2048,
 ) => {
   console.log(`streaming ${model}`, prompts)
 
@@ -108,7 +99,7 @@ export const streamOpenAICompletion = async (
 
   const response = await fetch(
     'https://api.openai.com/v1/chat/completions',
-    requestOptions
+    requestOptions,
   )
 
   const reader = response.body?.getReader()
@@ -156,7 +147,7 @@ export const streamOpenAICompletion = async (
         // try parsing dataParticle
         try {
           const dataObject = JSON.parse(
-            dataParticle.current
+            dataParticle.current,
           ) as OpenAIChatCompletionResponseStream
 
           if (
@@ -180,7 +171,7 @@ export const parseOpenAIResponseToObjects = async (
   prompts: Prompt[],
   model: ModelForMagic,
   temperature = temperatures.parsing,
-  token = 2048
+  token = 2048,
 ) => {
   console.log(`parsing ${model}`, prompts)
 
@@ -189,14 +180,14 @@ export const parseOpenAIResponseToObjects = async (
     model,
     temperature,
     token,
-    false
+    false,
   )
   const requestOptions = getRequestOptions(options)
 
   try {
     const response = await fetch(
       'https://api.openai.com/v1/chat/completions',
-      requestOptions
+      requestOptions,
     )
 
     const data = await response.json()
@@ -216,11 +207,7 @@ export const getTextFromModelResponse = (response: any): string => {
 }
 
 export const getTextFromStreamResponse = (
-  response: OpenAIChatCompletionResponseStream
+  response: OpenAIChatCompletionResponseStream,
 ): string => {
   return response.choices[0].delta.content ?? ''
-}
-
-export const quickPickModel = (): ModelForMagic => {
-  return !debug ? 'gpt-4' : 'gpt-3.5-turbo'
 }

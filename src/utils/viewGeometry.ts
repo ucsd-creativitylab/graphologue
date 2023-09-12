@@ -7,7 +7,7 @@ export interface BoundingRect {
 
 export const BoundingAInBoundingB = (
   boundingA: BoundingRect,
-  boundingB: BoundingRect
+  boundingB: BoundingRect,
 ) => {
   return (
     boundingA.x >= boundingB.x &&
@@ -21,7 +21,7 @@ export const minMoveBringBoundingAIntoB = (
   boundingA: BoundingRect,
   boundingB: BoundingRect,
   paddingX: number,
-  paddingY: number
+  paddingY: number,
 ): {
   x: number
   y: number
@@ -41,10 +41,4 @@ export const minMoveBringBoundingAIntoB = (
 
   // give up when boundingA is already in B
   return move
-
-  // give up when boundingA is bigger than B, and one side is already in
-  // if (aWidth > bWidth && (aX > bX || aX + aWidth < bX + bWidth)) moveX = 0
-  // if (aHeight > bHeight && (aY > bY || aY + aHeight < bY + bHeight)) moveY = 0
-
-  // return move
 }
