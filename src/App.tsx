@@ -18,6 +18,7 @@ import { Prompt } from './utils/openAI'
 import { ListDisplayFormat } from './components/Answer'
 
 import GraphologueLogo from './media/graphologue.png'
+import { userProvidedAPIKey } from './constants'
 
 export interface OriginRange {
   start: number
@@ -212,6 +213,7 @@ export const ChatApp = () => {
                   className="bar-button"
                   onClick={() => {
                     setOpenAIKey(openAIKeyInput)
+                    userProvidedAPIKey.current = openAIKeyInput
                   }}
                 >
                   <FileUploadRoundedIcon />

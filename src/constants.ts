@@ -46,3 +46,11 @@ export const terms = {
 }
 
 export const magicNodeVerifyPaperCountDefault = 3
+
+/* -------------------------------------------------------------------------- */
+
+export const userProvidedAPIKey: {
+  current: string | null
+} = {
+  current: null,
+}

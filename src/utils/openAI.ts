@@ -1,3 +1,5 @@
+import { debug, userProvidedAPIKey } from '../constants'
+
 export type ModelForMagic = 'gpt-4' | 'gpt-3.5-turbo'
 
 export const models = {
@@ -57,7 +59,13 @@ const getRequestOptions = (options: any) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + String(process.env.REACT_APP_OPENAI_API_KEY),
+      Authorization:
+        'Bearer ' +
+        String(
+          debug
+            ? process.env.REACT_APP_OPENAI_API_KEY
+            : userProvidedAPIKey.current,
+        ),
     },
     body: JSON.stringify(options),
   }
