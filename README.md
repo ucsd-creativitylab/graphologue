@@ -1,4 +1,4 @@
-# <img src="./public/logo512.png" width="48" style="vertical-align: middle;"></img>raphologue
+# <img src="./public/logo512.png" width="48" style="vertical-align: middle;" alt="G"></img>raphologue: Exploring LLM Responses with Interactive Diagrams
 
 Graphologue transforms Large Language Model (LLM, such as GPT-4) responses into interactive diagrams in real-time with _Inline Annotation_.
 
