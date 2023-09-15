@@ -75,3 +75,8 @@ code {
   white-space: nowrap;
   font-size: $font-size-small;
 }
+
+.graphologue-logo img {
+  max-height: 3rem !important;
+  pointer-events: none;
+}

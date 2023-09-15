@@ -1,7 +1,7 @@
 import { Node, Edge } from 'reactflow'
 
 import { matchItemsInQuotes, nodeAndTagsToString, nodeToString } from './utils'
-import { NodeLabelAndTags, promptTerms } from './promptsAndResponses'
+import { NodeLabelAndTags, promptTerms } from './prompts'
 
 export interface PromptSourceComponentsType {
   nodes: string[]

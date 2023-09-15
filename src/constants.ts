@@ -1,6 +1,5 @@
-// export const debug = false
 export const debug = process.env.NODE_ENV === 'development'
-export const useMagic = true // enable OpenAI? // TODO
+export const useMagic = true // enable OpenAI? // deprecated
 export const useSessionStorage = true // TODO ?
 
 export const useSessionStorageHandle = '__reactFlowGraphologue__'
@@ -17,7 +16,6 @@ export const hideEdgeTextZoomLevel = 0.6
 
 export const timeMachineMaxSize = 50
 export const contentEditingTimeout = 500
-// export const wikiRequestTimeout = 2000
 export const slowInteractionWaitTimeout = 100
 
 export const hardcodedNodeSize = {
@@ -44,7 +42,7 @@ export const styles = {
 export const terms = {
   'gpt-4': 'GPT-4',
   'gpt-3.5-turbo': 'ChatGPT',
-  wiki: 'Wikidata',
+  wiki: 'Wikidata', // deprecated
 }
 
 export const magicNodeVerifyPaperCountDefault = 3

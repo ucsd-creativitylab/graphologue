@@ -5,7 +5,7 @@ import {
   models,
   parseOpenAIResponseToObjects,
 } from './openAI'
-import { predefinedPrompts } from './promptsAndResponses'
+import { predefinedPrompts } from './prompts'
 
 export interface SentenceParsingJob {
   sourceAnswerObjectId: string

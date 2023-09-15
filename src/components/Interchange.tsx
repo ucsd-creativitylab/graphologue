@@ -21,7 +21,7 @@ import { FinishedAnswerObjectParsingTypes, Question } from './Question'
 import {
   predefinedPrompts,
   predefinedPromptsForParsing,
-} from '../utils/promptsAndResponses'
+} from '../utils/prompts'
 import {
   RelationshipSaliency,
   cleanSlideResponse,

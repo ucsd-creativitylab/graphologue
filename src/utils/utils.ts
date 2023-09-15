@@ -4,7 +4,7 @@ import { CustomNodeData, NodeSnippet } from '../componentsFlow/Node'
 import { hardcodedNodeSize, nodeGap, nodePosAdjustStep } from '../constants'
 import { PostConstructionPseudoNodeObject } from './graphConstruct'
 
-import { NodeLabelAndTags } from './promptsAndResponses'
+import { NodeLabelAndTags } from './prompts'
 import { Tokenization } from './socket'
 
 export const getSimpleNodeId = (baseId: string) => `node-${baseId}`

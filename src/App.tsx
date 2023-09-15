@@ -1,5 +1,9 @@
 import React, { createContext, useEffect, useState } from 'react'
 
+import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded'
+import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded'
+import FileUploadRoundedIcon from '@mui/icons-material/FileUploadRounded'
+
 import { ChatContext } from './components/Contexts'
 import { Interchange } from './components/Interchange'
 import { newQuestionAndAnswer } from './utils/chatUtils'
@@ -10,9 +14,10 @@ import {
 } from './utils/responseProcessing'
 
 // import the package.json file
-import packageJson from '../package.json'
 import { Prompt } from './utils/openAI'
 import { ListDisplayFormat } from './components/Answer'
+
+import GraphologueLogo from './media/graphologue.png'
 
 export interface OriginRange {
   start: number
@@ -130,6 +135,10 @@ export const ChatApp = () => {
 
   const [debugMode, setDebugMode] = useState<boolean>(false)
 
+  const [keyHidden, setKeyHidden] = useState<boolean>(false)
+  const [openAIKeyInput, setOpenAIKeyInput] = useState<string>('')
+  const [openAIKey, setOpenAIKey] = useState<string>('')
+
   // componentDidMount
   useEffect(() => {
     if (questionsAndAnswers.length === 0)
@@ -152,21 +161,71 @@ export const ChatApp = () => {
     >
       <DebugModeContext.Provider value={{ debugMode, setDebugMode }}>
         <div className="chat-app">
-          {/* // TODO */}
-          <span
-            className="version-stamp"
-            style={{
-              display: 'none',
-            }}
-          >
-            version {packageJson.version}-graph
-          </span>
-          {questionsAndAnswers.map((questionAndAnswer, index) => (
-            <Interchange
-              key={`interchange-${questionAndAnswer.id}`}
-              data={questionAndAnswer}
-            />
-          ))}
+          <div className="interchange-item graphologue-logo">
+            <img src={GraphologueLogo} alt="Graphologue" />
+            <div className="public-information">
+              <a href="https://doi.org/10.1145/3586183.3606737">paper</a>
+              <a href="https://arxiv.org/abs/2305.11473">arXiv</a>
+              <a href="https://github.com/ucsd-creativitylab/graphologue">
+                github
+              </a>
+              <a href="https://github.com/ucsd-creativitylab/graphologue/blob/public/src/utils/prompts.ts">
+                what's your prompt?
+              </a>
+              <a href="https://creativity.ucsd.edu">creativity lab</a>
+            </div>
+          </div>
+          {openAIKey.length === 0 ? (
+            <div className="interchange-item">
+              <div className="openai-api-key-question-box question-item interchange-component">
+                <textarea
+                  className="question-textarea openai-api-key-textarea"
+                  placeholder={`Welcome to Graphologue! To play with it, please paste you OpenAI API key here. If you'd like to change it, please refresh the page. We do not store your keys.`}
+                  rows={3}
+                  value={openAIKeyInput}
+                  onChange={e => {
+                    setOpenAIKeyInput(e.target.value)
+                  }}
+                  style={
+                    openAIKeyInput.length > 0 && keyHidden
+                      ? {
+                          color: 'transparent',
+                          textShadow: '0 0 0.3rem rgba(0,0,0,0.5)',
+                        }
+                      : {}
+                  }
+                />
+
+                <button
+                  className="bar-button"
+                  onClick={() => {
+                    setKeyHidden(!keyHidden)
+                  }}
+                >
+                  {keyHidden ? (
+                    <VisibilityOffRoundedIcon />
+                  ) : (
+                    <VisibilityRoundedIcon />
+                  )}
+                </button>
+                <button
+                  className="bar-button"
+                  onClick={() => {
+                    setOpenAIKey(openAIKeyInput)
+                  }}
+                >
+                  <FileUploadRoundedIcon />
+                </button>
+              </div>
+            </div>
+          ) : (
+            questionsAndAnswers.map((questionAndAnswer, index) => (
+              <Interchange
+                key={`interchange-${questionAndAnswer.id}`}
+                data={questionAndAnswer}
+              />
+            ))
+          )}
         </div>
       </DebugModeContext.Provider>
     </ChatContext.Provider>

@@ -25,7 +25,7 @@ import {
 import {
   predefinedPrompts,
   predefinedPromptsForParsing,
-} from '../utils/promptsAndResponses'
+} from '../utils/prompts'
 import {
   getAnswerObjectId,
   helpSetQuestionAndAnswer,

@@ -45,6 +45,7 @@
       box-sizing: border-box;
 
       font-size: $font-size-large;
+      line-height: 130%;
       font-family: inherit;
       font-weight: 300;
       color: $black;
@@ -104,6 +105,39 @@
       &:hover {
         transform: scale(1.1);
       }
+    }
+  }
+}
+
+.openai-api-key-textarea {
+  transition:
+    color $transition-normal ease,
+    text-shadow $transition-normal ease;
+}
+
+.public-information {
+  display: flex;
+  gap: $padding-x-large;
+  user-select: none;
+
+  a {
+    font-size: $font-size-large;
+    text-decoration: none;
+
+    &:link {
+      color: $grey;
+    }
+
+    &:visited {
+      color: $grey;
+    }
+
+    &:hover {
+      color: $dark-mid-grey;
+    }
+
+    &:active {
+      color: $dark-grey;
     }
   }
 }
