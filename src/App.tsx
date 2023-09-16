@@ -171,7 +171,7 @@ export const ChatApp = () => {
                 github
               </a>
               <a href="https://github.com/ucsd-creativitylab/graphologue/blob/public/src/utils/prompts.ts">
-                what's your prompt?
+                show me your prompt
               </a>
               <a href="https://creativity.ucsd.edu">creativity lab</a>
             </div>
