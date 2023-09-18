@@ -1,28 +1,13 @@
 import { FinishedAnswerObjectParsingTypes } from '../components/Question'
 import { Prompt } from './openAI'
 
-export const promptTerms = {
-  answer: 'Answer',
-  searchQueries: 'Google search queries',
-  researchPapers: 'Research papers',
-  itemRelationshipConnector: '-',
-  itemOriginalTextConnector: '=',
-  itemBreaker: '%+%',
-  _chat_responseEnd: '%%%',
-}
-
-export const _graph_handleFollowupQuestionsIdMatching = `When annotating a new entity that was not mentioned in the previous response, \
+export const handleFollowupQuestionsIdMatching = `When annotating a new entity that was not mentioned in the previous response, \
 please make sure that they are annotated with a new entity id \
 (for example, if the previous annotation has reached id "$N102", then the new annotation id should start at "$N103"). \
 However, if the same entity has appeared in the original response, please match their id.`
 
-export interface NodeLabelAndTags {
-  label: string
-  tags: string[]
-}
-
 export const predefinedPrompts = {
-  _graph_initialAsk: (question: string): Prompt[] => {
+  initialAsk: (question: string): Prompt[] => {
     return [
       {
         role: 'system',
@@ -79,7 +64,7 @@ Your response should have multiple paragraphs.`,
       },
     ]
   },
-  _graph_nodeExpand: (
+  nodeExpand: (
     prevConversation: Prompt[],
     originalSentence: string,
     nodeLabel: string,
@@ -93,7 +78,7 @@ Can you explain this entity in 1 to 2 sentences? \
 Please refer to the original response as the context of your explanation. \
 Your explanation should be concise, one paragraph, and follow the same annotation format as the original response. \
 You should try to annotate at least one relationship for each entity. Relationships should only connect entities that appear in the response. \
-${_graph_handleFollowupQuestionsIdMatching}
+${handleFollowupQuestionsIdMatching}
 
 For example, for "[general AI ($N10)]" in the sentence \
 "[AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)].":
@@ -103,7 +88,7 @@ and [apply knowledge across a wide range of tasks ($N15)].`,
       },
     ]
   },
-  _graph_nodeExamples: (
+  nodeExamples: (
     prevConversation: Prompt[],
     originalSentence: string,
     nodeLabel: string,
@@ -115,7 +100,7 @@ and [apply knowledge across a wide range of tasks ($N15)].`,
         content: `In the sentence "${originalSentence}", you mentioned the entity "${nodeLabel}". \
 Can you give a few examples of it? \
 Your response should follow the same annotation format as the original response, as shown in the following example. \
-${_graph_handleFollowupQuestionsIdMatching} \
+${handleFollowupQuestionsIdMatching} \
 You don't need to further explain the examples you give.
 
 For example, for "[Fruits ($N1)]" in the sentence \
@@ -125,7 +110,7 @@ For example, for "[Fruits ($N1)]" in the sentence \
       },
     ]
   },
-  _graph_2MoreSentences: (
+  _2MoreSentences: (
     prevConversation: Prompt[],
     originText: string,
   ): Prompt[] => {
@@ -138,12 +123,12 @@ can you continue writing one or two more sentences at the end of the paragraph? 
 When continue writing this paragraph, please refer to the original response as the context of your writing. \
 Your response should be about the same topic and aspect of the original paragraph and could add more details. \
 Your response should follow the same annotation format as the original response.
-${_graph_handleFollowupQuestionsIdMatching} \
+${handleFollowupQuestionsIdMatching} \
 Your response should only have the new content.`,
       },
     ]
   },
-  _graph_1MoreParagraph: (prevConversation: Prompt[]): Prompt[] => {
+  _1MoreParagraph: (prevConversation: Prompt[]): Prompt[] => {
     return [
       ...prevConversation,
       {
@@ -152,12 +137,12 @@ Your response should only have the new content.`,
 When writing the new paragraph, please refer to the original response as the context of your writing. \
 Your response should still try to answer the user's original question and could add more details or provide a new aspect. \
 Your response should follow the same annotation format as the original response.
-${_graph_handleFollowupQuestionsIdMatching} \
+${handleFollowupQuestionsIdMatching} \
 Your response should only have the new content.`,
       },
     ]
   },
-  _graph_sentenceCorrection: (
+  selfCorrectionBySentence: (
     prevConversation: Prompt[],
     originalSentence: string,
     orphanNodes: string[],
@@ -194,7 +179,7 @@ Please try to fix these issues in your response by annotating the same sentence 
 You may arrange the sentences in a way that facilitates the annotation of entities and relationships, \
 but the arrangement should not alter their meaning and they should still flow naturally in language. \
 \
-${_graph_handleFollowupQuestionsIdMatching} \
+${handleFollowupQuestionsIdMatching} \
 \
 Please only include the re-annotated sentence in your response.`,
       },
@@ -204,7 +189,7 @@ Please only include the re-annotated sentence in your response.`,
       },
     ]
   },
-  _chat_summarizeParagraph: (paragraph: string): Prompt[] => {
+  summarizeParagraph: (paragraph: string): Prompt[] => {
     return [
       {
         role: 'system',
@@ -248,7 +233,7 @@ You may summarize it as:
       },
     ]
   },
-  _chat_parseSlide: (partResponse: string): Prompt[] => {
+  getSlideMarkdown: (partResponse: string): Prompt[] => {
     return [
       {
         role: 'system',
@@ -263,7 +248,7 @@ Do not include anything else in the response other than the markdown text.`,
     ]
   },
   /* -------------------------------------------------------------------------- */
-  _chat_parseRelationships: (
+  _deprecated_parseRelationships: (
     partResponse: string,
     target: 'text' | 'sentence' = 'text',
   ): Prompt[] => {
@@ -276,10 +261,10 @@ Break down the following ${target} into a knowledge graph. \
 Use singular nouns and lowercase letters for node labels when possible and correct (e.g., the meaning of the label doesn't change). \
 Each node can be used in multiple relationships. There should be one connected graph in total.
 
-Response format: {subject} ${promptTerms.itemRelationshipConnector} \
+Response format: {subject} - \
 {short label indicating the relationship between subject and object} \
-${promptTerms.itemRelationshipConnector} {object} \
-${promptTerms.itemOriginalTextConnector} {exact quote as a substring of the original ${target} that the relationship is derived from, can either be a sentence or phrase}.
+- {object} \
+= {exact quote as a substring of the original ${target} that the relationship is derived from, can either be a sentence or phrase}.
 
 Divide the relationships by line breaks.`,
       },
@@ -294,25 +279,6 @@ Divide the relationships by line breaks.`,
 export const predefinedPromptsForParsing: {
   [key in FinishedAnswerObjectParsingTypes]: (text: string) => Prompt[]
 } = {
-  summary: predefinedPrompts._chat_summarizeParagraph,
-  slide: predefinedPrompts._chat_parseSlide,
-}
-
-export const predefinedResponses = {
-  modelDown: () =>
-    'The model is down. Again, the model is D-O-W-N. Please try again later.',
-  noValidModelText: () => 'We cannot find an answer. Please try again.',
-  noValidResponse: () => 'response unavailable',
-  noValidTags: () => 'no available tags',
-  waitingPlaceholder: () => '[ loading... ]',
-}
-
-export const isValidResponse = (response: string) => {
-  return (
-    response !== predefinedResponses.modelDown() &&
-    response !== predefinedResponses.noValidModelText() &&
-    response !== predefinedResponses.noValidResponse() &&
-    response !== predefinedResponses.noValidTags() &&
-    response !== predefinedResponses.waitingPlaceholder()
-  )
+  summary: predefinedPrompts.summarizeParagraph,
+  slide: predefinedPrompts.getSlideMarkdown,
 }

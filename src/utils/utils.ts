@@ -1,10 +1,9 @@
 import { Edge, Node, Position } from 'reactflow'
 import { v4 as uuidv4, v5 as uuidv5 } from 'uuid'
+
 import { CustomNodeData, NodeSnippet } from '../componentsFlow/Node'
 import { hardcodedNodeSize, nodeGap, nodePosAdjustStep } from '../constants'
 import { PostConstructionPseudoNodeObject } from './graphConstruct'
-
-import { NodeLabelAndTags } from './prompts'
 import { Tokenization } from './socket'
 
 export const getSimpleNodeId = (baseId: string) => `node-${baseId}`
@@ -18,6 +17,34 @@ export const getHandleId = () => `handle-${uuidv4()}`
 export const getEdgeId = (sourceId: string, targetId: string) =>
   `edge-${sourceId}---${targetId}---${uuidv4()}`
 export const getNoteId = () => `note-${uuidv4()}`
+
+/* -------------------------------------------------------------------------- */
+
+export interface NodeLabelAndTags {
+  label: string
+  tags: string[]
+}
+
+export const predefinedResponses = {
+  modelDown: () =>
+    'The model is down. Again, the model is D-O-W-N. Please try again later.',
+  noValidModelText: () => 'We cannot find an answer. Please try again.',
+  noValidResponse: () => 'response unavailable',
+  noValidTags: () => 'no available tags',
+  waitingPlaceholder: () => '[ loading... ]',
+}
+
+export const isValidResponse = (response: string) => {
+  return (
+    response !== predefinedResponses.modelDown() &&
+    response !== predefinedResponses.noValidModelText() &&
+    response !== predefinedResponses.noValidResponse() &&
+    response !== predefinedResponses.noValidTags() &&
+    response !== predefinedResponses.waitingPlaceholder()
+  )
+}
+
+/* -------------------------------------------------------------------------- */
 
 export const getNodeLabelAndTags = (nodes: Node[]): NodeLabelAndTags[] => {
   const labelAndTags: NodeLabelAndTags[] = []

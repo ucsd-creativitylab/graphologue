@@ -542,7 +542,7 @@ export const Question = () => {
     _groundRest()
 
     // * actual ask model
-    const initialPrompts = predefinedPrompts._graph_initialAsk(question)
+    const initialPrompts = predefinedPrompts.initialAsk(question)
     // ! request
     await streamOpenAICompletion(
       initialPrompts,

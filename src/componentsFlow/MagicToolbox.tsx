@@ -16,8 +16,8 @@ import { PuffLoader } from 'react-spinners'
 import ExpandCircleDownRoundedIcon from '@mui/icons-material/ExpandCircleDownRounded'
 
 import { terms } from '../constants'
-import { NodeLabelAndTags, predefinedResponses } from '../utils/prompts'
 import { FlowContext } from '../components/Contexts'
+import { NodeLabelAndTags, predefinedResponses } from '../utils/utils'
 
 interface MagicToolboxProps {
   className?: string

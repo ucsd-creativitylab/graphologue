@@ -1,7 +1,11 @@
 import { Node, Edge } from 'reactflow'
 
-import { matchItemsInQuotes, nodeAndTagsToString, nodeToString } from './utils'
-import { NodeLabelAndTags, promptTerms } from './prompts'
+import {
+  NodeLabelAndTags,
+  matchItemsInQuotes,
+  nodeAndTagsToString,
+  nodeToString,
+} from './utils'
 
 export interface PromptSourceComponentsType {
   nodes: string[]
@@ -107,7 +111,7 @@ export const parseModelResponseText = (
     }
   } else {
     const regex = new RegExp(
-      `[^]*${promptTerms.searchQueries}([^]*)${promptTerms.researchPapers}([^]*)`,
+      `[^]*Google search queries([^]*)Research papers([^]*)`,
       'gm',
     )
     const match = regex.exec(responseText) || ['', '', '']

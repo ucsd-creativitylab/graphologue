@@ -58,7 +58,10 @@ export class SentenceParser {
         job.started = true
 
         const parsingResult = await parseOpenAIResponseToObjects(
-          predefinedPrompts._chat_parseRelationships(sentence, 'sentence'),
+          predefinedPrompts._deprecated_parseRelationships(
+            sentence,
+            'sentence',
+          ),
           models.faster,
         )
 

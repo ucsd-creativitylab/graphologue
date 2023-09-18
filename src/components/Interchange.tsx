@@ -134,9 +134,9 @@ export const Interchange = ({
       await Promise.all(
         jobs.map(async ({ sentence, n, e }) => {
           const correctionResponse = await getOpenAICompletion(
-            predefinedPrompts._graph_sentenceCorrection(
+            predefinedPrompts.selfCorrectionBySentence(
               [
-                ...predefinedPrompts._graph_initialAsk(question),
+                ...predefinedPrompts.initialAsk(question),
                 {
                   role: 'assistant',
                   content: originTextContent,
@@ -611,7 +611,7 @@ export const Interchange = ({
           content: answer,
         },
       ]
-      const prompts = predefinedPrompts._graph_2MoreSentences(
+      const prompts = predefinedPrompts._2MoreSentences(
         prevConversation,
         answerObject.originText.content,
       )
@@ -717,12 +717,12 @@ export const Interchange = ({
 
       const prompts =
         type === 'explain'
-          ? predefinedPrompts._graph_nodeExpand(
+          ? predefinedPrompts.nodeExpand(
               prevConversation,
               originSentence,
               nodeEntity.displayNodeLabel,
             )
-          : predefinedPrompts._graph_nodeExamples(
+          : predefinedPrompts.nodeExamples(
               prevConversation,
               originSentence,
               nodeEntity.displayNodeLabel,
@@ -998,7 +998,7 @@ export const Interchange = ({
         content: answer,
       },
     ]
-    const prompts = predefinedPrompts._graph_1MoreParagraph(prevConversation)
+    const prompts = predefinedPrompts._1MoreParagraph(prevConversation)
 
     await streamOpenAICompletion(
       prompts,
