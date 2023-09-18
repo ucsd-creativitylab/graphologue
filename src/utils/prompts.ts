@@ -1,10 +1,14 @@
 import { FinishedAnswerObjectParsingTypes } from '../components/Question'
 import { Prompt } from './openAI'
 
-export const handleFollowupQuestionsIdMatching = `When annotating a new entity that was not mentioned in the previous response, \
+const _handleFollowupQuestionsIdMatching = `When annotating a new entity that was not mentioned in the previous response, \
 please make sure that they are annotated with a new entity id \
 (for example, if the previous annotation has reached id "$N102", then the new annotation id should start at "$N103"). \
 However, if the same entity has appeared in the original response, please match their id.`
+
+/* -------------------------------------------------------------------------- */
+/* --------------------------- prompts start here --------------------------- */
+/* -------------------------------------------------------------------------- */
 
 export const predefinedPrompts = {
   initialAsk: (question: string): Prompt[] => {
@@ -78,7 +82,7 @@ Can you explain this entity in 1 to 2 sentences? \
 Please refer to the original response as the context of your explanation. \
 Your explanation should be concise, one paragraph, and follow the same annotation format as the original response. \
 You should try to annotate at least one relationship for each entity. Relationships should only connect entities that appear in the response. \
-${handleFollowupQuestionsIdMatching}
+${_handleFollowupQuestionsIdMatching}
 
 For example, for "[general AI ($N10)]" in the sentence \
 "[AI systems ($N1)] can be [divided into ($H, $N1, $N9; $H, $N1, $N10)] [narrow AI ($N9)] and [general AI ($N10)].":
@@ -100,7 +104,7 @@ and [apply knowledge across a wide range of tasks ($N15)].`,
         content: `In the sentence "${originalSentence}", you mentioned the entity "${nodeLabel}". \
 Can you give a few examples of it? \
 Your response should follow the same annotation format as the original response, as shown in the following example. \
-${handleFollowupQuestionsIdMatching} \
+${_handleFollowupQuestionsIdMatching} \
 You don't need to further explain the examples you give.
 
 For example, for "[Fruits ($N1)]" in the sentence \
@@ -123,7 +127,7 @@ can you continue writing one or two more sentences at the end of the paragraph? 
 When continue writing this paragraph, please refer to the original response as the context of your writing. \
 Your response should be about the same topic and aspect of the original paragraph and could add more details. \
 Your response should follow the same annotation format as the original response.
-${handleFollowupQuestionsIdMatching} \
+${_handleFollowupQuestionsIdMatching} \
 Your response should only have the new content.`,
       },
     ]
@@ -137,7 +141,7 @@ Your response should only have the new content.`,
 When writing the new paragraph, please refer to the original response as the context of your writing. \
 Your response should still try to answer the user's original question and could add more details or provide a new aspect. \
 Your response should follow the same annotation format as the original response.
-${handleFollowupQuestionsIdMatching} \
+${_handleFollowupQuestionsIdMatching} \
 Your response should only have the new content.`,
       },
     ]
@@ -179,7 +183,7 @@ Please try to fix these issues in your response by annotating the same sentence 
 You may arrange the sentences in a way that facilitates the annotation of entities and relationships, \
 but the arrangement should not alter their meaning and they should still flow naturally in language. \
 \
-${handleFollowupQuestionsIdMatching} \
+${_handleFollowupQuestionsIdMatching} \
 \
 Please only include the re-annotated sentence in your response.`,
       },
