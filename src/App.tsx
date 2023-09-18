@@ -167,6 +167,9 @@ export const ChatApp = () => {
             <div className="public-information">
               <a href="https://doi.org/10.1145/3586183.3606737">paper</a>
               <a href="https://arxiv.org/abs/2305.11473">arXiv</a>
+              <a href="https://youtu.be/92QREkwrwRQ?si=8ofdvGw5AVMcSmwK">
+                video
+              </a>
               <a href="https://github.com/ucsd-creativitylab/graphologue">
                 github
               </a>
