@@ -113,6 +113,10 @@
   transition:
     color $transition-normal ease,
     text-shadow $transition-normal ease;
+
+  &::placeholder {
+    color: $dark-mid-grey;
+  }
 }
 
 .public-information {

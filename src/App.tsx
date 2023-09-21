@@ -184,8 +184,8 @@ export const ChatApp = () => {
               <div className="openai-api-key-question-box question-item interchange-component">
                 <textarea
                   className="question-textarea openai-api-key-textarea"
-                  placeholder={`Welcome to Graphologue! To play with it, please paste you OpenAI API key here. If you'd like to change it, please refresh the page. We do not store your keys.`}
-                  rows={3}
+                  placeholder={`Welcome to Graphologue! To play with it, please paste you OpenAI API key here. If you'd like to change it, please refresh the page. We do not store your keys.\n\nEach question will result in 6–10 requests and may cost up to around 0.2 USD for GPT-4.`}
+                  rows={6}
                   value={openAIKeyInput}
                   onChange={e => {
                     setOpenAIKeyInput(e.target.value)
