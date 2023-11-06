@@ -1,11 +1,12 @@
 import { debug, userProvidedAPIKey } from '../constants'
 
-export type ModelForMagic = 'gpt-4' | 'gpt-3.5-turbo'
+export const globalBestModelAvailable = 'gpt-4-1106-preview'
+
+export type ModelForMagic = 'gpt-4-1106-preview' | 'gpt-3.5-turbo'
 
 export const models = {
-  smarter: 'gpt-4' as ModelForMagic,
-  faster: 'gpt-4' as ModelForMagic,
-  // faster: 'gpt-3.5-turbo' as ModelForMagic,
+  smarter: globalBestModelAvailable as ModelForMagic,
+  faster: globalBestModelAvailable as ModelForMagic,
 }
 
 const temperatures = {
@@ -211,7 +212,8 @@ export const parseOpenAIResponseToObjects = async (
 /* -------------------------------------------------------------------------- */
 
 export const getTextFromModelResponse = (response: any): string => {
-  return response.choices[0].message.content
+  if (response.error) return ''
+  return response.choices![0]!.message.content ?? ''
 }
 
 export const getTextFromStreamResponse = (
