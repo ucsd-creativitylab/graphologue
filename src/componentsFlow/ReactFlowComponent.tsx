@@ -48,7 +48,7 @@ import { useTimeMachine } from '../utils/timeMachine'
 import { roundTo } from '../utils/utils'
 import { PromptSourceComponentsType } from '../utils/magicExplain'
 import { EntityType } from '../utils/socket'
-import { ModelForMagic } from '../utils/openAI'
+import { ModelForMagic, globalBestModelAvailable } from '../utils/openAI'
 import { ReactFlowObjectContext } from '../components/Answer'
 import { SimpleEdge } from './SimpleEdge'
 import { InterchangeContext } from '../components/Interchange'
@@ -724,7 +724,9 @@ const Flow = () => {
     [edges, handleSetSyncedCoReferenceOriginRanges],
   )
 
-  const [modelForMagic, setModelForMagic] = useState<ModelForMagic>('gpt-4')
+  const [modelForMagic, setModelForMagic] = useState<ModelForMagic>(
+    globalBestModelAvailable,
+  )
 
   const handleScroll = useCallback((e: any) => {}, [])
 
